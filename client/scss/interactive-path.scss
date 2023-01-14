@@ -1,0 +1,43 @@
+#interactive-path {
+	display: flex;
+	flex-direction: row;
+
+	.interactive-path-element {
+		width: min-content;
+
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		// pointer-events: none;
+
+		&:hover {
+			.value:hover {
+
+				cursor: pointer;
+			}
+		}
+
+		&:nth-of-type(1) {
+			.icon {
+				display: none;
+			}
+		}
+
+		.icon {
+			pointer-events: none;
+
+			width: 24px;
+			height: 24px;
+		}
+
+		p.value.element {
+			font-family: Montserrat Medium;
+			font-weight: 500;
+			white-space: nowrap;
+			color: rgb(102, 113, 168);
+			margin-bottom: 0;
+			padding: 0 8px;
+			pointer-events: all !important;
+		}
+	}
+}

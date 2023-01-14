@@ -1,0 +1,95 @@
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>File Server</title>
+
+		<link href="./css/general.css" rel="stylesheet" />
+		<link href="./css/interactive-path.css" rel="stylesheet" />
+		<link href="./css/file-explorer.css" rel="stylesheet" />
+		<link href="./css/folder-structure.css" rel="stylesheet" />
+		<link href="./css/directory-contents.css" rel="stylesheet" />
+		<link href="./css/file.css" rel="stylesheet" />
+		<link href="./css/folder-icon.css" rel="stylesheet" />
+		<link href="./css/folder.css" rel="stylesheet" />
+
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="./js/interactivePath.js" type="module"></script>
+		<script src="./js/searchHistory.js" type="module"></script>
+		<script src="./js/cookies.js" type="module"></script>
+		<script src="./js/getFolderElementByPath.js" type="module"></script>
+		<script src="./js/createFolderStructureElements.js" type="module"></script>
+		<script src="./js/createDirectoryContentElements.js" type="module"></script>
+		<script src="./client.js" type="module"></script>
+	</head>
+	<body>
+		<button id="layer-up">Up</button>
+		<div id="interactive-path"></div>
+		<div id="file-explorer">
+			<div id="folder-structure"></div>
+			<div id="directory-contents"></div>
+		</div>
+
+		<template id="interactive-path-element-template">
+			<div class="interactive-path-element">
+				<div class="icon">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+						<path d="M8.7 17.3q-.275-.275-.275-.7 0-.425.275-.7l3.9-3.9-3.9-3.9q-.275-.275-.275-.7 0-.425.275-.7.275-.275.7-.275.425 0 .7.275l4.6 4.6q.15.15.213.325.062.175.062.375t-.062.375q-.063.175-.213.325l-4.6 4.6q-.275.275-.7.275-.425 0-.7-.275Z"/>
+					</svg>
+				</div>
+				<p class="value element"></p>
+			</div>
+		</template>
+		<template id="folder-structure-folder-template">
+			<div class="collapsable-folder-structure-element">
+				<div class="head element">
+					<p class="path" hidden></p>
+					<div class="folder-icon icon">
+						<div class="back">
+							<span class="top"></span>
+							<span class="triangle"></span>
+							<span class="basic"></span>
+						</div>
+						<span class="front"></span>
+					</div>
+					<p class="name"></p>
+				</div>
+				<div class="content"></div>
+			</div>
+		</template>
+		<template id="directory-content-file-template">
+			<div class="element file">
+				<p class="path" hidden></p>
+				<div class="file-icon icon">
+					<svg></svg>
+				</div>
+				<p class="name"></p>
+				<p class="extension"></p>
+				<p class="size"></p>
+				<div class="download-icon icon">
+					<a></a>
+					<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24">
+						<path
+							d="M6 20q-.825 0-1.412-.587Q4 18.825 4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413Q18.825 20 18 20Zm6-4-5-5 1.4-1.45 2.6 2.6V4h2v8.15l2.6-2.6L17 11Z"
+						/>
+					</svg>
+				</div>
+			</div>
+		</template>
+		<template id="directory-content-folder-template">
+			<div class="element folder">
+				<p class="path" hidden></p>
+				<div class="folder-icon icon">
+					<div class="back">
+						<span class="top"></span>
+						<span class="triangle"></span>
+						<span class="basic"></span>
+					</div>
+					<span class="front"></span>
+				</div>
+				<p class="name"></p>
+			</div>
+		</template>
+		<!-- <p>Icons from:</p> -->
+		<!-- <a target="_blank" href="https://icons8.com/icon/JHFYPQIPcXti/mappe">Mappe</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a> -->
+	</body>
+</html>

@@ -1,0 +1,23 @@
+@import "./folder-icon.scss";
+
+:root {
+	--folder-icon-border-radius: 3px;
+}
+
+.element.folder {
+	* {
+		pointer-events: none;
+	}
+
+	&:hover {
+		cursor: pointer;
+
+		.folder-icon {
+			@include folder-icon-opened;
+		}
+	}
+
+	.folder-icon {
+		@include folder-icon-open-on-hover;
+	}
+}

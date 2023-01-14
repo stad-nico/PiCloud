@@ -1,0 +1,19 @@
+{
+	"name": "client",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"compile": "npx tsc && sass scss:css",
+		"compile-scss": "sass sass:css",
+		"scss-watch": "sass scss:css --watch",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"sass": "^1.57.1",
+		"socket.io-client": "^4.5.4"
+	}
+}

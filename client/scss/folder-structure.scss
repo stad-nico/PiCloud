@@ -1,0 +1,53 @@
+@import "./folder-icon.scss";
+
+#folder-structure {
+	height: 100vh;
+	width: 400px;
+}
+
+.collapsable-folder-structure-element {
+	position: relative;
+
+	.head {
+		position: relative;
+		margin: 0;
+
+		.folder-icon {
+			@include folder-icon-closed;
+		}
+	}
+
+	.content {
+		margin-top: -20px;
+		padding-top: 20px;
+		padding-left: 25px;
+
+		border-radius: 15px;
+
+		height: 0;
+
+		overflow: hidden;
+	}
+
+	.head:hover {
+		& + .content {
+			background-color: rgb(246, 249, 255);
+		}
+
+		.folder-icon div.back span.triangle {
+			border-color: rgb(235, 240, 254) transparent transparent transparent;
+		}
+	}
+
+	&.open {
+		> .head {
+			.folder-icon {
+				@include folder-icon-opened;
+			}
+		}
+
+		> .head + .content {
+			height: auto;
+		}
+	}
+}
