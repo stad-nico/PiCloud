@@ -9,7 +9,7 @@ const path = require("path");
 const sendDirectoryContents = require("./src/sendDirectoryContents");
 const sendDirectoryFolderStructure = require("./src/sendDirectoryFolderStructure");
 
-let dpath = "../../";
+let dpath = "D://Schule";
 
 app.get("/", function (req: Request, res: Response) {
 	res.sendFile(path.join(__dirname, "../client", "index.html"));
@@ -18,18 +18,18 @@ app.get("/", function (req: Request, res: Response) {
 app.use(express.static(path.join(__dirname, "../client")));
 
 app.get("/download", function (req: Request, res: Response) {
-	res.download(path.join(__dirname, dpath + req.query.path));
+	res.download(path.join(dpath + req.query.path));
 });
 
 io.on("connection", function (socket: Socket) {
 	console.log("A user connected");
 
 	socket.on("send-directory-folder-structure", (relPath: string) => {
-		sendDirectoryFolderStructure(socket, path.join(__dirname, dpath), relPath);
+		sendDirectoryFolderStructure(socket, dpath, relPath);
 	});
 
 	socket.on("send-directory-contents", (relPath: string) => {
-		sendDirectoryContents(socket, path.join(__dirname, dpath), relPath);
+		sendDirectoryContents(socket, dpath, relPath);
 	});
 
 	socket.on("disconnect", function () {

@@ -2,7 +2,13 @@
 	position: relative;
 
 	width: 40vw;
-	height: 100vh;
+	height: 80vh;
+
+	background-color: rgb(251, 252, 255);
+	border-radius: 0 25px 25px 0;
+	padding: 20px;
+
+	overflow-y: scroll;
 
 	&.empty::after {
 		position: absolute;

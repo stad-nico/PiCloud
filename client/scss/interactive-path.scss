@@ -2,6 +2,10 @@
 	display: flex;
 	flex-direction: row;
 
+	margin-left: 20px;
+	padding: 0 8px;
+	border-radius: 10px;
+
 	.interactive-path-element {
 		width: min-content;
 
@@ -12,8 +16,8 @@
 
 		&:hover {
 			.value:hover {
-
 				cursor: pointer;
+				color: rgb(57, 97, 237);
 			}
 		}
 
@@ -28,16 +32,30 @@
 
 			width: 24px;
 			height: 24px;
+
+			svg {
+				fill: rgb(102, 113, 168);
+			}
 		}
 
 		p.value.element {
+			height: min-content;
+
 			font-family: Montserrat Medium;
+			font-size: 0.9rem;
 			font-weight: 500;
 			white-space: nowrap;
-			color: rgb(102, 113, 168);
+
+			color: hsl(230, 27%, 53%);
+
 			margin-bottom: 0;
-			padding: 0 8px;
+			padding: 8px 8px;
+
 			pointer-events: all !important;
+
+			&:hover {
+				background-color: transparent;
+			}
 		}
 	}
 }

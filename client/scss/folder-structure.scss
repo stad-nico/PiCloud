@@ -1,8 +1,14 @@
 @import "./folder-icon.scss";
 
 #folder-structure {
-	height: 100vh;
+	height: 80vh;
 	width: 400px;
+
+	overflow-x: scroll;
+
+	border-radius: 25px 0 0 25px;
+	padding: 20px;
+	background-color: rgb(255, 255, 255);
 }
 
 .collapsable-folder-structure-element {
@@ -14,6 +20,17 @@
 
 		.folder-icon {
 			@include folder-icon-closed;
+		}
+
+		.expand-icon {
+			transition: transform 0.1s;
+			transform: rotate(-90deg);
+
+			&:hover {
+				fill: rgb(57, 97, 237);
+			}
+
+			fill: rgb(169, 174, 199);
 		}
 	}
 
@@ -30,6 +47,8 @@
 	}
 
 	.head:hover {
+		cursor: pointer;
+
 		& + .content {
 			background-color: rgb(246, 249, 255);
 		}
@@ -37,12 +56,20 @@
 		.folder-icon div.back span.triangle {
 			border-color: rgb(235, 240, 254) transparent transparent transparent;
 		}
+
+		.name {
+			pointer-events: none;
+		}
 	}
 
 	&.open {
 		> .head {
 			.folder-icon {
 				@include folder-icon-opened;
+			}
+
+			.expand-icon {
+				transform: rotate(0deg);
 			}
 		}
 
