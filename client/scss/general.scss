@@ -1,3 +1,5 @@
+@use "./mixins/flex" as *;
+
 * {
 	margin: 0;
 	padding: 0;
@@ -12,9 +14,7 @@ body {
 }
 
 body {
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	// @include flex(row, center, center, 0);
 }
 
 ::-webkit-scrollbar {

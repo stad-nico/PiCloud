@@ -1,0 +1,436 @@
+@use "./variables/navigation" as *;
+@use "./mixins/flex" as *;
+@use "./mixins/toggle-switch" as *;
+@use "./mixins/dark-mode-switch" as *;
+@use "./mixins/icon" as *;
+
+$transition-duration: 0.3s;
+$transition-timing-function: linear;
+$header_margin_top: 10px;
+$header_margin_bottom: 15px;
+
+$collapsed_width: 96px;
+$collapsed_padding_left: 24px;
+$category_margin_bottom: 25px;
+$icon_padding_left: 12px;
+$icon_padding_top: 8px;
+$tab_margin_bottom: 2px;
+$icon_size: 24px;
+$open_padding_left: 28px;
+
+:root {
+	$variables: theme-get("light", "navigation");
+
+	--background-color: #{map-get($variables, "background-color")};
+	--font-color: #{map-get($variables, "font-color")};
+	--tab-text-color: #{map-get($variables, "tab-text-color")};
+	--tab-hover-background-color: #{map-get($variables, "tab-hover-background-color")};
+	--selected-tab-font-color: #{map-get($variables, "selected-tab-font-color")};
+	--selected-tab-background-color: #{map-get($variables, "selected-tab-background-color")};
+	--author-title-color: #{map-get($variables, "author-title-color")};
+	--collapse-icons-color: #{map-get($variables, "collapse-icons-color")};
+	--header-font-color: #{map-get($variables, "header-font-color")};
+}
+nav {
+	position: absolute;
+	top: 0;
+	left: 0;
+
+	@include flex(column, start, left);
+
+	background-color: var(--background-color);
+
+	width: $collapsed_width;
+	height: 100vh;
+
+	border-top-right-radius: 25px;
+
+	transition: width $transition-duration $transition-timing-function, background-color $transition-duration $transition-timing-function;
+
+	* {
+		transition: background-color $transition-duration $transition-timing-function, color $transition-duration $transition-timing-function,
+			fill $transition-duration $transition-timing-function;
+	}
+
+	svg {
+		fill: var(--collapse-icons-color);
+	}
+
+	> header {
+		min-height: 50px;
+		height: 80px;
+
+		@include flex(row, center, unset, 10px);
+
+		padding: 0 calc(($collapsed_width - 40px) / 2);
+		margin: $header_margin_top 0 $header_margin_bottom;
+
+		transition: all $transition-duration $transition-timing-function;
+
+		> #logo {
+			width: 40px;
+			height: 40px;
+
+			cursor: pointer;
+
+			transition: all $transition-duration $transition-timing-function;
+
+			> svg {
+				width: 40px;
+				height: 40px;
+			}
+		}
+
+		> p {
+			width: 0;
+			opacity: 0;
+
+			overflow: hidden;
+
+			font-family: "Montserrat Medium";
+			color: var(--header-font-color);
+
+			cursor: pointer;
+
+			transition: all $transition-duration $transition-timing-function;
+		}
+
+		> #close {
+			@include icon;
+
+			margin-left: auto;
+			opacity: 1;
+
+			cursor: pointer;
+
+			transition: all calc($transition-duration * 0.2) $transition-timing-function;
+
+			> svg {
+				transform: rotate(180deg);
+			}
+		}
+	}
+
+	> .menu {
+		position: relative;
+
+		width: 100%;
+		height: fit-content;
+		overflow-y: overlay;
+
+		> .category {
+			position: relative;
+
+			width: 100%;
+
+			margin-bottom: $category_margin_bottom;
+
+			&:last-of-type {
+				margin-bottom: 0;
+			}
+
+			> p {
+				margin: 0 calc(0.2 * $collapsed_width) 14px calc(0.2 * $collapsed_width);
+				width: 0.6 * $collapsed_width;
+
+				padding-left: 0;
+
+				font-size: x-small;
+				font-weight: 600;
+				color: var(--font-color);
+
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+
+				transition: margin-left $transition-duration $transition-timing-function, width $transition-duration $transition-timing-function,
+					padding-left $transition-duration $transition-timing-function;
+			}
+
+			> .tabs {
+				position: relative;
+
+				padding: 0 $collapsed_padding_left;
+
+				width: 100%;
+
+				transition: all $transition-duration $transition-timing-function;
+
+				> .tab {
+					width: 100%;
+
+					@include flex(row, center, flex-start, 10px);
+
+					border-radius: 15px;
+
+					padding: $icon_padding_top $icon_padding_left;
+					margin-bottom: $tab_margin_bottom;
+
+					cursor: pointer;
+
+					transition: background-color 0.2s $transition-timing-function;
+
+					&.active {
+						background-color: var(--selected-tab-background-color);
+
+						> .icon {
+							> svg {
+								fill: var(--selected-tab-font-color);
+							}
+						}
+
+						> p {
+							color: var(--selected-tab-font-color);
+						}
+					}
+
+					&:hover {
+						background-color: var(--tab-hover-background-color);
+					}
+
+					> .icon {
+						flex-shrink: 0;
+
+						width: $icon_size;
+						height: $icon_size;
+
+						> svg {
+							fill: var(--tab-text-color);
+
+							transition: width $transition-duration $transition-timing-function;
+						}
+					}
+
+					> p {
+						flex-shrink: 1;
+						flex: 0;
+
+						color: var(--tab-text-color);
+						font-family: Montserrat Medium;
+
+						overflow: hidden;
+						white-space: nowrap;
+						opacity: 0;
+
+						width: min-content;
+
+						transition: width $transition-duration $transition-timing-function;
+					}
+				}
+			}
+		}
+	}
+
+	> #open {
+		position: relative;
+
+		margin-top: 20px;
+		margin-left: calc(($collapsed_width - $icon_size) / 2);
+
+		height: min-content;
+
+		cursor: pointer;
+
+		> #icon,
+		> #icon > svg {
+			width: $icon_size;
+			height: $icon_size;
+		}
+
+		> #icon {
+			opacity: 1;
+			transition: opacity $transition-duration $transition-timing-function;
+		}
+	}
+
+	> footer {
+		width: 100%;
+
+		@include flex(column, center, start, 10px);
+
+		padding-left: $collapsed_padding_left;
+		padding-right: $collapsed_padding_left;
+		padding-top: 20px;
+		margin-bottom: 20px;
+
+		margin-top: auto;
+		flex-shrink: 0;
+
+		transition: all $transition-duration $transition-timing-function;
+
+		> .fix-navigation,
+		> .toggle-darkmode {
+			@include flex(row, center, flex-start, 10px);
+
+			position: relative;
+
+			width: 100%;
+
+			margin-bottom: 10px;
+
+			cursor: pointer;
+
+			transition: all $transition-duration $transition-timing-function;
+
+			> .toggle-switch {
+				position: relative;
+				width: calc($icon_size + 2 * $icon_padding_left);
+				flex-shrink: 0;
+				@include toggle-switch;
+			}
+
+			> p {
+				color: var(--tab-text-color);
+				font-size: 0.84em;
+				font-family: "Montserrat Medium";
+
+				overflow: hidden;
+				white-space: nowrap;
+				width: 0;
+				opacity: 0;
+
+				transition: all $transition-duration $transition-timing-function;
+			}
+		}
+
+		> .toggle-darkmode {
+			@include flex(row, center, flex-start, 10px);
+
+			position: relative;
+
+			width: 100%;
+
+			margin-bottom: 10px;
+
+			cursor: pointer;
+
+			transition: all $transition-duration $transition-timing-function;
+
+			> .dark-mode-switch {
+				position: relative;
+				width: calc($icon_size + 2 * $icon_padding_left);
+				flex-shrink: 0;
+				@include dark-mode-switch;
+			}
+
+			> p {
+				color: var(--tab-text-color);
+				font-size: 0.84em;
+				font-family: "Montserrat Medium";
+
+				overflow: hidden;
+				white-space: nowrap;
+				width: 0;
+				opacity: 0;
+
+				transition: all $transition-duration $transition-timing-function;
+			}
+		}
+
+		> .author {
+			width: 100%;
+
+			font-size: small;
+			font-style: italic;
+			color: var(--author-title-color);
+
+			white-space: nowrap;
+			overflow: hidden;
+			opacity: 0;
+
+			transition: all $transition-duration $transition-timing-function;
+		}
+	}
+}
+
+nav.open {
+	width: 250px;
+
+	> header {
+		padding: 0 $open_padding_left;
+
+		justify-content: flex-start;
+
+		> #logo {
+			flex: 0 0 24px;
+			transform: scale(1, 1);
+		}
+
+		> p {
+			width: 100px;
+			opacity: 1;
+		}
+	}
+
+	> .menu {
+		> .category {
+			> p {
+				// max-width: 200px;
+				width: 211px;
+				text-align: left;
+				margin-left: 39px;
+				padding-left: 0px !important;
+			}
+
+			> .tabs {
+				padding: 0 $open_padding_left;
+
+				> .tab {
+					> p {
+						flex: 1;
+						opacity: 1;
+					}
+				}
+			}
+		}
+	}
+
+	> footer {
+		padding-left: $open_padding_left;
+		padding-right: $open_padding_left;
+
+		> .fix-navigation,
+		> .toggle-darkmode {
+			> p {
+				opacity: 1;
+				width: 100%;
+			}
+		}
+
+		> .author {
+			opacity: 1;
+		}
+	}
+}
+
+nav:not(.fixed) {
+	> header {
+		> #close {
+			opacity: 0;
+		}
+	}
+
+	> #open {
+		> #icon {
+			opacity: 0;
+			height: 0;
+		}
+	}
+}
+
+nav.fixed.open {
+	> #open {
+		> #icon {
+			opacity: 0;
+			height: 0;
+		}
+	}
+}
+
+nav.fixed:not(.open) {
+	> header {
+		> #close {
+			opacity: 0;
+		}
+	}
+}

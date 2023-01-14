@@ -9,7 +9,7 @@ const path = require("path");
 const sendDirectoryContents = require("./src/sendDirectoryContents");
 const sendDirectoryFolderStructure = require("./src/sendDirectoryFolderStructure");
 
-let dpath = "D://Schule";
+let dpath = "C:/Users/stadl/Downloads";
 
 app.get("/", function (req: Request, res: Response) {
 	res.sendFile(path.join(__dirname, "../client", "index.html"));
