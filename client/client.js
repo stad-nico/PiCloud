@@ -9,6 +9,8 @@ import getFolderElementByPath from "./js/getFolderElementByPath.js";
 
 const socket = io();
 
+const timer = ms => new Promise(res => setTimeout(res, ms));
+
 window.socket = socket;
 console.log(socket);
 
@@ -17,9 +19,7 @@ socket.on("connect", () => {
 
 	let searchParams = new URLSearchParams(window.location.search);
 
-	if (searchParams.has("path")) {
-		setCookie("path", searchParams.get("path"));
-	} else {
+	if (!getCookie("path")) {
 		setCookie("path", "/");
 	}
 
@@ -37,9 +37,12 @@ socket.on("receive-directory-contents", data => {
 		document.querySelector("#directory-contents").classList.remove("empty");
 	}
 
-	for (let file of data) {
-		createDirectoryContentElement(file.name, file.size, file.path, file.isDirectory);
-	}
+	(async () => {
+		for (let file of data) {
+			createDirectoryContentElement(file.name, file.size, file.path.replaceAll(/\\/gi, "/"), file.isDirectory);
+			await timer(10);
+		}
+	})();
 });
 
 socket.on("receive-directory-folder-structure", data => {
