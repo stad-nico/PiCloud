@@ -1,30 +1,21 @@
-import { Socket } from "socket.io";
-
+import * as fs from "fs";
 const path = require("path");
-const fs = require("fs");
+import { Socket } from "socket.io";
 
 import FileStats from "./FileStats";
 import FolderStats from "./FolderStats";
 
-module.exports = function sendDirectoryContents(socket: Socket, defaultDirectoryPath: string, relativePath: string) {
+import { getContentNames, createStatsObject } from "./fsHelpers";
+
+module.exports = async function sendDirectoryContents(socket: Socket, defaultDirectoryPath: string, relativePath: string) {
 	let absolutePath = path.join(defaultDirectoryPath, relativePath);
 	let data: (FileStats | FolderStats)[] = [];
 
-	let contentNames: string[] = fs.readdirSync(absolutePath);
-	contentNames.forEach((name: string) => {
-		let fsStats = fs.statSync(path.join(absolutePath, name));
+	let names = await getContentNames(absolutePath);
 
-		let stats: FileStats | FolderStats;
-		let p = path.join(relativePath, name);
-
-		if (fsStats.isDirectory()) {
-			stats = new FolderStats(name, p + "\\");
-		} else {
-			stats = new FileStats(name, fsStats.size, p);
-		}
-
-		data.push(stats);
-	});
+	for (let name of names) {
+		data.push(await createStatsObject(absolutePath, name));
+	}
 
 	socket.emit("receive-directory-contents", data);
 };

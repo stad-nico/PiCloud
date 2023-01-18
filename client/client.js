@@ -26,16 +26,14 @@ socket.on("connect", () => {
 });
 
 socket.on("receive-directory-contents", data => {
-	clearDirectoryContentElements();
-
-	if (data.length === 0) {
-		// directory is empty
-		document.querySelector("#directory-contents").classList.add("empty");
-	} else {
-		document.querySelector("#directory-contents").classList.remove("empty");
-	}
-
 	(async () => {
+		clearDirectoryContentElements();
+		if (data.length === 0) {
+			// directory is empty
+			document.querySelector("#directory-contents").classList.add("empty");
+		} else {
+			document.querySelector("#directory-contents").classList.remove("empty");
+		}
 		for (let file of data) {
 			createDirectoryContentElement(file.name, file.size, file.path.replaceAll(/\\/gi, "/"), file.isDirectory);
 			await timer(10);
@@ -44,16 +42,17 @@ socket.on("receive-directory-contents", data => {
 });
 
 socket.on("receive-directory-folder-structure", data => {
-	console.log(data);
-	let { path, folderObjects } = data;
+	(async () => {
+		let { path, folderObjects } = data;
 
-	if (path === "/") {
-		createDefaultDirectoryElement();
-	}
+		if (path === "/") {
+			createDefaultDirectoryElement();
+		}
 
-	let folder = getFolderElementByPath(path);
+		let folder = getFolderElementByPath(path);
 
-	folderObjects.forEach(object => {
-		createFolderStructureElement(folder, object.name, path, object.hasSubDirectories);
-	});
+		folderObjects.forEach(object => {
+			createFolderStructureElement(folder, object.name, path, object.hasSubDirectories);
+		});
+	})();
 });

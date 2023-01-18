@@ -47,7 +47,7 @@ export function createDefaultDirectoryElement() {
 	folder.querySelector(".collapsable-folder-structure-element").classList.add("open");
 
 	folder.querySelector(".head").addEventListener("click", function () {
-		openFolder(this);
+		// openFolder(this);
 		setCookie("path", "/");
 		updateInteractivePath();
 
@@ -73,8 +73,9 @@ function toggleFolder(folderElem) {
 	}
 }
 
-function expandFolder(folderElem) {
+async function expandFolder(folderElem) {
 	folderElem.classList.add("open");
+
 	if (folderElem.classList.contains("contents-not-loaded")) {
 		folderElem.classList.remove("contents-not-loaded");
 		window.socket.emit("send-directory-folder-structure", folderElem.querySelector(".path").innerText);

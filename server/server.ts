@@ -24,12 +24,12 @@ app.get("/download", function (req: Request, res: Response) {
 io.on("connection", function (socket: Socket) {
 	console.log("A user connected");
 
-	socket.on("send-directory-folder-structure", (relPath: string) => {
-		sendDirectoryFolderStructure(socket, dpath, relPath);
+	socket.on("send-directory-folder-structure", async (relPath: string) => {
+		await sendDirectoryFolderStructure(socket, dpath, relPath);
 	});
 
-	socket.on("send-directory-contents", (relPath: string) => {
-		sendDirectoryContents(socket, dpath, relPath);
+	socket.on("send-directory-contents", async (relPath: string) => {
+		await sendDirectoryContents(socket, dpath, relPath);
 	});
 
 	socket.on("disconnect", function () {
