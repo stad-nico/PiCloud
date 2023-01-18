@@ -1,3 +1,5 @@
+@import "./mixins/file-icon";
+
 .element.file {
 	&:hover {
 		.extension,
@@ -7,6 +9,10 @@
 
 		.download-icon svg {
 			fill: rgb(57, 97, 237);
+		}
+
+		.file-icon {
+			@include file-icon(red, rgb(235, 240, 254));
 		}
 	}
 
@@ -30,8 +36,11 @@
 	}
 
 	.file-icon {
-		border-radius: 50%;
-		background-color: blue;
+		@include file-icon(red, rgb(251, 252, 255));
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.download-icon {

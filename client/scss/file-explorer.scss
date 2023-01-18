@@ -4,8 +4,10 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 
 	width: fit-content;
+	height: 100%;
 
 	#control-bar {
 		display: flex;
@@ -14,6 +16,8 @@
 
 		width: 100%;
 		padding: 5px;
+
+		margin-top: -30px;
 
 		#forward-icon,
 		#backward-icon,

@@ -14,7 +14,7 @@ body {
 }
 
 body {
-	// @include flex(row, center, center, 0);
+	@include flex(row, center, center, 0);
 }
 
 ::-webkit-scrollbar {
