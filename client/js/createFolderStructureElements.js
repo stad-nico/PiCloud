@@ -5,7 +5,7 @@ let timestamp = 0;
 let lastTimestamp = 0;
 let timer;
 
-export function createFolderStructureElement(parentDirectoryElement, name, relPath) {
+export function createFolderStructureElement(parentDirectoryElement, name, relPath, hasSubDirectories) {
 	let template = document.querySelector("#folder-structure-folder-template");
 
 	let folder = template.content.cloneNode(true);
@@ -25,11 +25,15 @@ export function createFolderStructureElement(parentDirectoryElement, name, relPa
 		}
 	});
 
-	folder.querySelector(".expand-icon").addEventListener("click", function (e) {
-		e.stopPropagation();
+	if (hasSubDirectories) {
+		folder.querySelector(".expand-icon").addEventListener("click", function (e) {
+			e.stopPropagation();
 
-		toggleFolder(this.closest(".collapsable-folder-structure-element"));
-	});
+			toggleFolder(this.closest(".collapsable-folder-structure-element"));
+		});
+	} else {
+		folder.querySelector(".expand-icon").classList.add("hidden");
+	}
 
 	parentDirectoryElement.querySelector(".content").appendChild(folder);
 }

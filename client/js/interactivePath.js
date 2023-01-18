@@ -1,6 +1,8 @@
 import { setCookie, getCookie } from "./cookies.js";
 
 export default function updateInteractivePath() {
+	document.title = getCookie("path");
+
 	let template = document.querySelector("#interactive-path-element-template");
 
 	let pathElem = document.querySelector("#interactive-path");

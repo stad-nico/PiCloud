@@ -17,8 +17,6 @@ console.log(socket);
 socket.on("connect", () => {
 	socket.emit("send-directory-folder-structure", "/");
 
-	let searchParams = new URLSearchParams(window.location.search);
-
 	if (!getCookie("path")) {
 		setCookie("path", "/");
 	}
@@ -46,7 +44,8 @@ socket.on("receive-directory-contents", data => {
 });
 
 socket.on("receive-directory-folder-structure", data => {
-	let { path, folderNames } = data;
+	console.log(data);
+	let { path, folderObjects } = data;
 
 	if (path === "/") {
 		createDefaultDirectoryElement();
@@ -54,7 +53,7 @@ socket.on("receive-directory-folder-structure", data => {
 
 	let folder = getFolderElementByPath(path);
 
-	folderNames.forEach(name => {
-		createFolderStructureElement(folder, name, path);
+	folderObjects.forEach(object => {
+		createFolderStructureElement(folder, object.name, path, object.hasSubDirectories);
 	});
 });
