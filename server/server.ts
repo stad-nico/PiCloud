@@ -21,7 +21,8 @@ app.use(express.static(path.join(__dirname, "../client")));
 
 app.get("/download", function (req: Request, res: Response) {
 	let fullPath = path.join(dpath, req.query.path);
-	let filename = fullPath.match(/[^/]+$/im)[0];
+	let filename = fullPath.match(/[^/\\]+$/im)[0];
+	console.log(fullPath, filename);
 	res.download(fullPath, filename, { dotfiles: "allow" });
 });
 

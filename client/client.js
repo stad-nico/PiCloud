@@ -2,8 +2,8 @@
 // let io: any;
 
 import { getCookie, setCookie } from "./js/cookies.js";
-import { clearDirectoryContentElements, createDirectoryContentElement } from "./js/createDirectoryContentElements.js";
-import { createDefaultDirectoryElement, createFolderStructureElement } from "./js/createFolderStructureElements.js";
+import { clearDirectoryContentElements, createDirectoryContentElement } from "./js/directoryContents.js";
+import { clearFolderStructureElements, createDefaultDirectoryElement, createFolderStructureElement } from "./js/folderStructure.js";
 import updateInteractivePath from "./js/interactivePath.js";
 import getFolderElementByPath from "./js/getFolderElementByPath.js";
 
@@ -15,6 +15,8 @@ window.socket = socket;
 console.log(socket);
 
 socket.on("connect", () => {
+	clearDirectoryContentElements();
+	clearFolderStructureElements();
 	socket.emit("send-directory-folder-structure", "/");
 
 	if (!getCookie("path")) {

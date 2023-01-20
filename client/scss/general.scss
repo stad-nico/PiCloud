@@ -6,6 +6,11 @@
 	box-sizing: border-box;
 
 	font-family: Montserrat Regular;
+
+	&:hover,
+	&:focus {
+		outline: none;
+	}
 }
 
 html,

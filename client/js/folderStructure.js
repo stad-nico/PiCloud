@@ -1,10 +1,6 @@
 import { setCookie } from "./cookies.js";
 import updateInteractivePath from "./interactivePath.js";
 
-let timestamp = 0;
-let lastTimestamp = 0;
-let timer;
-
 export function createFolderStructureElement(parentDirectoryElement, name, relPath, hasSubDirectories) {
 	let template = document.querySelector("#folder-structure-folder-template");
 
@@ -63,6 +59,10 @@ export function createDefaultDirectoryElement() {
 	});
 
 	document.querySelector("#folder-structure").appendChild(folder);
+}
+
+export function clearFolderStructureElements() {
+	document.querySelector("#folder-structure").replaceChildren();
 }
 
 function toggleFolder(folderElem) {

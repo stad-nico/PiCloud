@@ -9,6 +9,15 @@
 		pointer-events: none;
 	}
 
+	&.editable {
+		background-color: rgb(235, 240, 254);
+
+		.name[contenteditable],
+		.name[contenteditable="true"] {
+			min-width: 2px;
+		}
+	}
+
 	&:hover {
 		cursor: pointer;
 

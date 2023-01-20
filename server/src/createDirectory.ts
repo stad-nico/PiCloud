@@ -9,7 +9,7 @@ export default async function createDirectory(socket: Socket, defaultDirectoryPa
 	let fullPath = path.join(defaultDirectoryPath, newDirectoryRelPath);
 
 	try {
-		await fs.promises.mkdir(fullPath);
+		await fs.promises.mkdir(fullPath, { recursive: true });
 	} catch (error) {
 		if (isNodeJSErrnoException(error)) {
 			sendErrorMessageToSocket(socket, error.toString(), error.errno, error.code);
