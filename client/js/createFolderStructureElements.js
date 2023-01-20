@@ -16,13 +16,13 @@ export function createFolderStructureElement(parentDirectoryElement, name, relPa
 	folder.querySelector(".collapsable-folder-structure-element").classList.add("contents-not-loaded");
 
 	folder.querySelector(".head").addEventListener("click", function () {
-		openFolder(this);
-		setCookie("path", this.parentNode.querySelector(".path").innerText);
-		updateInteractivePath();
-
 		if (!this.parentNode.classList.contains("open")) {
 			expandFolder(this.parentNode);
 		}
+
+		openFolder(this);
+		setCookie("path", this.parentNode.querySelector(".path").innerText);
+		updateInteractivePath();
 	});
 
 	if (hasSubDirectories) {
@@ -47,13 +47,13 @@ export function createDefaultDirectoryElement() {
 	folder.querySelector(".collapsable-folder-structure-element").classList.add("open");
 
 	folder.querySelector(".head").addEventListener("click", function () {
-		// openFolder(this);
-		setCookie("path", "/");
-		updateInteractivePath();
-
 		if (!this.parentNode.classList.contains("open")) {
 			expandFolder(this.parentNode);
 		}
+
+		openFolder(this);
+		setCookie("path", "/");
+		updateInteractivePath();
 	});
 
 	folder.querySelector(".expand-icon").addEventListener("click", function (e) {

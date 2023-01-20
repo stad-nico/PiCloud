@@ -4,14 +4,16 @@ import * as fs from "fs";
 import FolderStats from "./FolderStats";
 import FileStats from "./FileStats";
 
-export async function createStatsObject(absolutePath: string, name: string): Promise<FileStats | FolderStats> {
-	let fullPath = path.join(absolutePath, name);
+export async function createStatsObject(defaultDirectoryPath: string, relativePath: string, name: string): Promise<FileStats | FolderStats> {
+	let namePath = path.join(relativePath, name);
+	let fullPath = path.join(defaultDirectoryPath, namePath);
+
 	let stats = await getFileStats(fullPath);
 
 	if (stats.isDirectory()) {
-		return new FolderStats(name, fullPath + "\\");
+		return new FolderStats(name, namePath + "\\");
 	} else if (stats.isFile()) {
-		return new FileStats(name, await getFileSize(fullPath), fullPath);
+		return new FileStats(name, await getFileSize(fullPath), namePath);
 	} else {
 		throw new Error("path is neither a file nor a directory");
 	}

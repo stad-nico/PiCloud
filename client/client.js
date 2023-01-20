@@ -56,3 +56,7 @@ socket.on("receive-directory-folder-structure", data => {
 		});
 	})();
 });
+
+socket.on("receive-error", data => {
+	console.log(data);
+});

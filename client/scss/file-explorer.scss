@@ -19,6 +19,7 @@
 
 		margin-top: -30px;
 
+		#create-folder-icon,
 		#forward-icon,
 		#backward-icon,
 		#layer-up-icon {
@@ -51,6 +52,10 @@
 
 		#backward-icon {
 			transform: rotate(-90deg);
+		}
+
+		#create-folder-icon {
+			margin-left: auto;
 		}
 	}
 

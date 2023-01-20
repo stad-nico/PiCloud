@@ -13,7 +13,7 @@
 	&.empty::after {
 		position: absolute;
 
-		width: 100%;
+		width: calc(100% - 2 * 20px);
 		height: 20px;
 		top: 100px;
 
