@@ -2,8 +2,8 @@
 // let io: any;
 
 import { getCookie, setCookie } from "./js/cookies.js";
-import { clearDirectoryContentElements, createDirectoryContentElement } from "./js/createDirectoryContentElements.js";
-import { createDefaultDirectoryElement, createFolderStructureElement } from "./js/createFolderStructureElements.js";
+import { clearDirectoryContentElements, createDirectoryContentElement } from "./js/directoryContents.js";
+import { clearFolderStructureElements, createDefaultDirectoryElement, createFolderStructureElement } from "./js/folderStructure.js";
 import updateInteractivePath from "./js/interactivePath.js";
 import getFolderElementByPath from "./js/getFolderElementByPath.js";
 
@@ -15,9 +15,9 @@ window.socket = socket;
 console.log(socket);
 
 socket.on("connect", () => {
+	clearDirectoryContentElements();
+	clearFolderStructureElements();
 	socket.emit("send-directory-folder-structure", "/");
-
-	let searchParams = new URLSearchParams(window.location.search);
 
 	if (!getCookie("path")) {
 		setCookie("path", "/");
@@ -27,34 +27,50 @@ socket.on("connect", () => {
 	socket.emit("send-directory-contents", getCookie("path"));
 });
 
+socket.on("store-uuid", uuid => {
+	setCookie("uuid", uuid);
+});
+
+socket.on("get-uuid", callback => {
+	callback(getCookie("uuid"));
+});
+
 socket.on("receive-directory-contents", data => {
-	clearDirectoryContentElements();
-
-	if (data.length === 0) {
-		// directory is empty
-		document.querySelector("#directory-contents").classList.add("empty");
-	} else {
-		document.querySelector("#directory-contents").classList.remove("empty");
-	}
-
 	(async () => {
+		clearDirectoryContentElements();
+		if (data.length === 0) {
+			document.querySelector("#directory-contents").classList.add("empty");
+		} else {
+			document.querySelector("#directory-contents").classList.remove("empty");
+		}
 		for (let file of data) {
 			createDirectoryContentElement(file.name, file.size, file.path.replaceAll(/\\/gi, "/"), file.isDirectory);
-			await timer(10);
+			// await timer(10);s
 		}
 	})();
 });
 
 socket.on("receive-directory-folder-structure", data => {
-	let { path, folderNames } = data;
+	(async () => {
+		let { path, folderObjects } = data;
 
-	if (path === "/") {
-		createDefaultDirectoryElement();
-	}
+		if (path === "/") {
+			createDefaultDirectoryElement();
+		}
 
-	let folder = getFolderElementByPath(path);
+		let folder = getFolderElementByPath(path);
 
-	folderNames.forEach(name => {
-		createFolderStructureElement(folder, name, path);
-	});
+		folderObjects.forEach(object => {
+			createFolderStructureElement(folder, object.name, path, object.hasSubDirectories);
+		});
+	})();
+});
+
+socket.on("receive-error", data => {
+	console.log(data);
+});
+
+socket.on("reload", () => {
+	console.log("reloading");
+	socket.emit("send-directory-contents", getCookie("path"));
 });

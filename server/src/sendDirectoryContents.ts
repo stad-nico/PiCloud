@@ -1,30 +1,28 @@
-import { Socket } from "socket.io";
-
 const path = require("path");
-const fs = require("fs");
+import { Socket } from "socket.io";
 
 import FileStats from "./FileStats";
 import FolderStats from "./FolderStats";
 
-module.exports = function sendDirectoryContents(socket: Socket, defaultDirectoryPath: string, relativePath: string) {
-	let absolutePath = path.join(defaultDirectoryPath, relativePath);
-	let data: (FileStats | FolderStats)[] = [];
+import { getContentNames, createStatsObject } from "./fsHelpers";
+import isNodeJSErrnoException from "./isNodeJSErrnoException";
+import sendErrorMessageToSocket from "./sendErrorMessageToSocket";
 
-	let contentNames: string[] = fs.readdirSync(absolutePath);
-	contentNames.forEach((name: string) => {
-		let fsStats = fs.statSync(path.join(absolutePath, name));
+export default async function sendDirectoryContents(socket: Socket, defaultDirectoryPath: string, relativePath: string) {
+	try {
+		let absolutePath = path.join(defaultDirectoryPath, relativePath);
+		let data: (FileStats | FolderStats)[] = [];
 
-		let stats: FileStats | FolderStats;
-		let p = path.join(relativePath, name);
+		let names = await getContentNames(absolutePath);
 
-		if (fsStats.isDirectory()) {
-			stats = new FolderStats(name, p + "\\");
-		} else {
-			stats = new FileStats(name, fsStats.size, p);
+		for (let name of names) {
+			data.push(await createStatsObject(defaultDirectoryPath, relativePath, name));
 		}
 
-		data.push(stats);
-	});
-
-	socket.emit("receive-directory-contents", data);
-};
+		socket.emit("receive-directory-contents", data);
+	} catch (error) {
+		if (isNodeJSErrnoException(error)) {
+			sendErrorMessageToSocket(socket, error.toString(), error.errno, error.code);
+		}
+	}
+}

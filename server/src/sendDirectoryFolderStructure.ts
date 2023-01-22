@@ -1,19 +1,35 @@
+import * as fs from "fs";
+const path = require("path");
 import { Socket } from "socket.io";
 
-const fs = require("fs");
-const path = require("path");
+import sendErrorMessageToSocket from "./sendErrorMessageToSocket";
 
-module.exports = function sendDirectoryFolderStructure(socket: Socket, defaultDirectoryPath: string, relativePath: string) {
-	let absolutePath = path.join(defaultDirectoryPath, relativePath);
-	let contentNames: string[] = fs.readdirSync(absolutePath);
+import { getContentNames, getFileStats, hasSubDirectories } from "./fsHelpers";
+import isNodeJSErrnoException from "./isNodeJSErrnoException";
 
-	let folderNames = contentNames.filter((name: string) => {
-		let fsStats = fs.statSync(path.join(absolutePath, name));
-		return fsStats.isDirectory();
-	});
+export default async function sendDirectoryFolderStructure(socket: Socket, defaultDirectoryPath: string, relativePath: string) {
+	try {
+		let absolutePath = path.join(defaultDirectoryPath, relativePath);
+		let folderObjects: { name: string; hasSubDirectories: boolean }[] = [];
 
-	socket.emit("receive-directory-folder-structure", {
-		path: relativePath,
-		folderNames: folderNames,
-	});
-};
+		let names = await getContentNames(absolutePath);
+
+		for (let name of names) {
+			if ((await getFileStats(path.join(absolutePath, name))).isDirectory()) {
+				folderObjects.push({
+					name: name,
+					hasSubDirectories: await hasSubDirectories(path.join(absolutePath, name)),
+				});
+			}
+		}
+
+		socket.emit("receive-directory-folder-structure", {
+			path: relativePath,
+			folderObjects: folderObjects,
+		});
+	} catch (error) {
+		if (isNodeJSErrnoException(error)) {
+			sendErrorMessageToSocket(socket, error.toString(), error.errno, error.code);
+		}
+	}
+}

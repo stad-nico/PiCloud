@@ -4,6 +4,10 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
+
+	width: fit-content;
+	height: 100%;
 
 	#control-bar {
 		display: flex;
@@ -13,6 +17,9 @@
 		width: 100%;
 		padding: 5px;
 
+		margin-top: -30px;
+
+		#create-folder-icon,
 		#forward-icon,
 		#backward-icon,
 		#layer-up-icon {
@@ -45,6 +52,10 @@
 
 		#backward-icon {
 			transform: rotate(-90deg);
+		}
+
+		#create-folder-icon {
+			margin-left: auto;
 		}
 	}
 

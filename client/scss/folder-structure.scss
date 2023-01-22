@@ -1,4 +1,4 @@
-@import "./folder-icon.scss";
+@import "./mixins/folder-icon.scss";
 
 #folder-structure {
 	height: 80vh;
@@ -31,6 +31,11 @@
 			}
 
 			fill: rgb(169, 174, 199);
+		}
+
+		.expand-icon.hidden {
+			opacity: 0;
+			pointer-events: none;
 		}
 	}
 

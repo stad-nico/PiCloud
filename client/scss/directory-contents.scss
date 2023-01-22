@@ -13,7 +13,7 @@
 	&.empty::after {
 		position: absolute;
 
-		width: 100%;
+		width: calc(100% - 2 * 20px);
 		height: 20px;
 		top: 100px;
 
@@ -39,7 +39,6 @@
 	justify-content: start;
 
 	padding: 0 15px 0 8px;
-	margin-bottom: 2px;
 
 	border-radius: 15px;
 

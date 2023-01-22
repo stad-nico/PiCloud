@@ -4,8 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"compile": "npx tsc && sass scss:css",
-		"compile-scss": "sass sass:css",
+		"compile": "sass scss:css",
 		"scss-watch": "sass scss:css --watch",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},

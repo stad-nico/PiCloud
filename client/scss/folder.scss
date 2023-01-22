@@ -1,4 +1,4 @@
-@import "./folder-icon.scss";
+@import "./mixins/folder-icon.scss";
 
 :root {
 	--folder-icon-border-radius: 3px;
@@ -7,6 +7,15 @@
 .element.folder {
 	* {
 		pointer-events: none;
+	}
+
+	&.editable {
+		background-color: rgb(235, 240, 254);
+
+		.name[contenteditable],
+		.name[contenteditable="true"] {
+			min-width: 2px;
+		}
 	}
 
 	&:hover {
