@@ -27,18 +27,25 @@ socket.on("connect", () => {
 	socket.emit("send-directory-contents", getCookie("path"));
 });
 
+socket.on("store-uuid", uuid => {
+	setCookie("uuid", uuid);
+});
+
+socket.on("get-uuid", callback => {
+	callback(getCookie("uuid"));
+});
+
 socket.on("receive-directory-contents", data => {
 	(async () => {
 		clearDirectoryContentElements();
 		if (data.length === 0) {
-			// directory is empty
 			document.querySelector("#directory-contents").classList.add("empty");
 		} else {
 			document.querySelector("#directory-contents").classList.remove("empty");
 		}
 		for (let file of data) {
 			createDirectoryContentElement(file.name, file.size, file.path.replaceAll(/\\/gi, "/"), file.isDirectory);
-			await timer(10);
+			// await timer(10);s
 		}
 	})();
 });
@@ -61,4 +68,9 @@ socket.on("receive-directory-folder-structure", data => {
 
 socket.on("receive-error", data => {
 	console.log(data);
+});
+
+socket.on("reload", () => {
+	console.log("reloading");
+	socket.emit("send-directory-contents", getCookie("path"));
 });
