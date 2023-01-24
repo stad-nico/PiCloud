@@ -39,10 +39,12 @@
 	justify-content: start;
 
 	padding: 0 15px 0 8px;
+	margin-bottom: 2px;
 
 	border-radius: 15px;
 
-	&:hover {
+	&:hover,
+	&.active {
 		background-color: rgb(235, 240, 254);
 		.name {
 			color: rgb(57, 97, 237);

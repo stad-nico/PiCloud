@@ -22,6 +22,12 @@ function displayFolder(name, path) {
 
 	let div = folder.querySelector("div");
 	div.addEventListener("click", function () {
+		if (!this.closest(".folder").classList.contains("active")) {
+			document.querySelectorAll(".folder.active").forEach(elem => elem.classList.remove("active"));
+			this.closest(".folder").classList.add("active");
+			return;
+		}
+
 		let relPath = this.querySelector(".path").innerText;
 		setCookie("path", relPath);
 		updateInteractivePath();
