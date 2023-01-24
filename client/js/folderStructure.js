@@ -1,4 +1,4 @@
-import { setCookie } from "./cookies.js";
+import { getCookie, setCookie } from "./cookies.js";
 import updateInteractivePath from "./interactivePath.js";
 
 export function createFolderStructureElement(parentDirectoryElement, name, relPath, hasSubDirectories) {
@@ -18,7 +18,7 @@ export function createFolderStructureElement(parentDirectoryElement, name, relPa
 
 		openFolder(this);
 		setCookie("path", this.parentNode.querySelector(".path").innerText);
-		updateInteractivePath();
+		setInteractivePath(getCookie("path"));
 	});
 
 	if (hasSubDirectories) {
@@ -49,7 +49,7 @@ export function createDefaultDirectoryElement() {
 
 		openFolder(this);
 		setCookie("path", "/");
-		updateInteractivePath();
+		setInteractivePath(getCookie("path"));
 	});
 
 	folder.querySelector(".expand-icon").addEventListener("click", function (e) {

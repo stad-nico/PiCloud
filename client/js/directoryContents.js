@@ -1,5 +1,5 @@
 import { setCookie, getCookie } from "./cookies.js";
-import updateInteractivePath from "./interactivePath.js";
+import setInteractivePath from "./interactivePath.js";
 
 export function clearDirectoryContentElements() {
 	document.querySelector("#directory-contents").replaceChildren();
@@ -30,7 +30,7 @@ function displayFolder(name, path) {
 
 		let relPath = this.querySelector(".path").innerText;
 		setCookie("path", relPath);
-		updateInteractivePath();
+		setInteractivePath(getCookie("path"));
 		window.socket.emit("send-directory-contents", getCookie("path"));
 	});
 

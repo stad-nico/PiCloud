@@ -1,57 +1,44 @@
 import { setCookie, getCookie } from "./cookies.js";
 
-export default function updateInteractivePath() {
-	document.title = getCookie("path");
+export default function setInteractivePath(value) {
+	let interactivePathElement = document.querySelector("#interactive-path");
+	interactivePathElement.replaceChildren();
 
-	let template = document.querySelector("#interactive-path-element-template");
+	let parts = value.match(/(^\/)|([^\/]+)/gim);
 
-	let pathElem = document.querySelector("#interactive-path");
-	pathElem.replaceChildren();
+	for (let part of parts) {
+		let component = createInteractivePathComponent(part);
+		interactivePathElement.append(component);
 
-	let elem = template.content.cloneNode(true);
-	elem.querySelector(".value").innerText = "/";
-	elem.querySelector(".interactive-path-element .value").addEventListener("click", function () {
-		setCookie("path", "/");
-		window.socket.emit("send-directory-contents", getCookie("path"));
-		updateInteractivePath();
-	});
-
-	pathElem.appendChild(elem);
-
-	let path = getCookie("path").replaceAll(/\\/g, "/");
-	path.split("/")
-		.filter(x => x.length > 0)
-		.forEach(piece => {
-			let elem = template.content.cloneNode(true);
-			elem.querySelector(".value").innerText = piece;
-			elem.querySelector(".interactive-path-element .value").addEventListener("click", function () {
-				setCookie("path", getFullRelativePathFromPathElement(this));
-				window.socket.emit("send-directory-contents", getCookie("path"));
-				updateInteractivePath();
-			});
-
-			pathElem.appendChild(elem);
+		component.querySelector(".value").addEventListener("click", function (event) {
+			let newPath = getCompleteRelativePathFromInteractivePathComponent(this.closest(".interactive-path-component"));
+			setCookie("path", newPath);
+			setInteractivePath(newPath);
 		});
+	}
 }
 
-function getFullRelativePathFromPathElement(pathElement) {
-	let children = document.querySelector("#interactive-path").children;
-	let stopValue = pathElement.innerText;
+function createInteractivePathComponent(value) {
+	let template = document.querySelector("#interactive-path-component-template");
+	let interactivePathComponent = template.content.cloneNode(true).querySelector("div.interactive-path-component");
+	interactivePathComponent.querySelector(".value").innerText = value;
+
+	return interactivePathComponent;
+}
+
+function getCompleteRelativePathFromInteractivePathComponent(interactivePathComponent) {
+	let componentValues = document.querySelectorAll("#interactive-path div.interactive-path-component .value");
+	componentValues = Array.from(componentValues).map(component => component.innerText);
+	let stopValue = interactivePathComponent.querySelector(".value").innerText;
 
 	let path = "";
-	for (let i = 0; i < children.length; i++) {
-		let currentValue = children[i].querySelector(".value").innerText;
+	for (let value of componentValues) {
+		path += value === "/" ? value : value + "/";
 
-		if (currentValue === "/") {
-			continue;
-		}
-
-		path += "/" + currentValue;
-
-		if (currentValue === stopValue) {
+		if (value === stopValue) {
 			break;
 		}
 	}
 
-	return path + "/";
+	return path;
 }
