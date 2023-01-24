@@ -1,4 +1,4 @@
-import { setCookie, getCookie } from "./cookies.js";
+import { setCookie } from "./cookies.js";
 
 export default function setInteractivePath(value) {
 	let interactivePathElement = document.querySelector("#interactive-path");
