@@ -11,9 +11,13 @@ export default function setInteractivePath(value) {
 		interactivePathElement.append(component);
 
 		component.querySelector(".value").addEventListener("click", function (event) {
-			let newPath = getCompleteRelativePathFromInteractivePathComponent(this.closest(".interactive-path-component"));
-			setCookie("path", newPath);
-			setInteractivePath(newPath);
+			let interactivePathComponent = this.closest(".interactive-path-component");
+
+			if (interactivePathElement.lastChild !== interactivePathComponent) {
+				let newPath = getCompleteRelativePathFromInteractivePathComponent(interactivePathComponent);
+				setCookie("path", newPath);
+				setInteractivePath(newPath);
+			}
 		});
 	}
 }
