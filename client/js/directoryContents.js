@@ -37,6 +37,22 @@ function createFolderElement(name, path) {
 		window.socket.emit("send-directory-contents", getCookie("path"));
 	});
 
+	folderElement.querySelector("div.delete-icon").addEventListener("click", function () {
+		let d = window.confirm("Delete?");
+
+		if (!d) {
+			return;
+		}
+
+		window.socket.emit("delete-directory", this.closest(".folder").querySelector(".path").innerText, error => {
+			if (error) {
+				console.log(error);
+			} else {
+				console.log("successfully removed dir");
+			}
+		});
+	});
+
 	return folderElement;
 }
 

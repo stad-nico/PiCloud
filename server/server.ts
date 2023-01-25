@@ -12,6 +12,7 @@ const path = require("path");
 import sendDirectoryContents from "./src/sendDirectoryContents";
 import sendDirectoryFolderStructure from "./src/sendDirectoryFolderStructure";
 import createDirectory from "./src/createDirectory";
+import deleteDirectory from "./src/deleteDirectory";
 
 let dpath = "C:/Users/stadl/Desktop/File-Server/files/";
 
@@ -57,6 +58,15 @@ io.on("connection", function (socket: Socket) {
 	socket.on("create-directory", async (relPath: string, callback: (error?: unknown) => void) => {
 		try {
 			await createDirectory(socket, dpath, relPath);
+			callback();
+		} catch (error) {
+			callback(error);
+		}
+	});
+
+	socket.on("delete-directory", async (relPath: string, callback: (error?: unknown) => void) => {
+		try {
+			await deleteDirectory(socket, dpath, relPath);
 			callback();
 		} catch (error) {
 			callback(error);
