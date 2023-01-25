@@ -17,6 +17,8 @@ export default function setInteractivePath(value) {
 				let newPath = getCompleteRelativePathFromInteractivePathComponent(interactivePathComponent);
 				setCookie("path", newPath);
 				setInteractivePath(newPath);
+
+				window.socket.emit("send-directory-contents", newPath);
 			}
 		});
 	}

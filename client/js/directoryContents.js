@@ -37,7 +37,9 @@ function createFolderElement(name, path) {
 		window.socket.emit("send-directory-contents", getCookie("path"));
 	});
 
-	folderElement.querySelector("div.delete-icon").addEventListener("click", function () {
+	folderElement.querySelector("div.delete-icon").addEventListener("click", function (event) {
+		event.stopPropagation();
+
 		let d = window.confirm("Delete?");
 
 		if (!d) {
