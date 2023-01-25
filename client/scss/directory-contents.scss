@@ -49,6 +49,10 @@
 		.name {
 			color: rgb(57, 97, 237);
 		}
+
+		.delete-icon {
+			display: block;
+		}
 	}
 
 	svg {
@@ -80,5 +84,17 @@
 		color: rgb(102, 113, 168);
 
 		flex-shrink: 1;
+	}
+
+	.delete-icon {
+		display: none;
+
+		margin-left: auto;
+
+		fill: rgb(102, 113, 168);
+
+		&:hover {
+			fill: rgb(57, 97, 237);
+		}
 	}
 }

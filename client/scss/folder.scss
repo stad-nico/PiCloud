@@ -5,7 +5,7 @@
 }
 
 .element.folder {
-	* {
+	*:not(.icon) {
 		pointer-events: none;
 	}
 
