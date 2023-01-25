@@ -4,8 +4,8 @@
 import { getCookie, setCookie } from "./js/cookies.js";
 import { clearDirectoryContentElements, createDirectoryContentElement } from "./js/directoryContents.js";
 import { clearFolderStructureElements, createDefaultDirectoryElement, createFolderStructureElement } from "./js/folderStructure.js";
-import updateInteractivePath from "./js/interactivePath.js";
 import getFolderElementByPath from "./js/getFolderElementByPath.js";
+import setInteractivePath from "./js/interactivePath.js";
 
 const socket = io();
 
@@ -23,7 +23,7 @@ socket.on("connect", () => {
 		setCookie("path", "/");
 	}
 
-	updateInteractivePath();
+	setInteractivePath(getCookie("path"));
 	socket.emit("send-directory-contents", getCookie("path"));
 });
 

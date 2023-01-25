@@ -1,50 +1,108 @@
 import { setCookie, getCookie } from "./cookies.js";
-import updateInteractivePath from "./interactivePath.js";
+import setInteractivePath from "./interactivePath.js";
 
 export function clearDirectoryContentElements() {
 	document.querySelector("#directory-contents").replaceChildren();
 }
 
 export function createDirectoryContentElement(filename, size, path, isDirectory = false) {
+	let elem;
+
 	if (isDirectory) {
-		displayFolder(filename, path);
+		elem = createFolderElement(filename, path);
 	} else {
-		displayFile(filename, size, path);
+		elem = createFileElement(filename, size, path);
 	}
+
+	document.querySelector("#directory-contents").appendChild(elem);
 }
 
-function displayFolder(name, path) {
+function createFolderElement(name, path) {
 	let template = document.querySelector("#directory-content-folder-template");
 
-	let folder = template.content.cloneNode(true);
-	folder.querySelector(".name").innerText = name;
-	folder.querySelector(".path").innerText = path;
+	let folderElement = template.content.cloneNode(true).querySelector("div");
+	folderElement.querySelector(".name").innerText = name;
+	folderElement.querySelector(".path").innerText = path;
 
-	let div = folder.querySelector("div");
-	div.addEventListener("click", function () {
+	folderElement.addEventListener("click", function () {
+		if (!this.closest(".folder").classList.contains("active")) {
+			document.querySelectorAll(".folder.active").forEach(elem => elem.classList.remove("active"));
+			this.closest(".folder").classList.add("active");
+			return;
+		}
+
 		let relPath = this.querySelector(".path").innerText;
 		setCookie("path", relPath);
-		updateInteractivePath();
+		setInteractivePath(getCookie("path"));
 		window.socket.emit("send-directory-contents", getCookie("path"));
 	});
 
-	let container = document.querySelector("#directory-contents");
-	container.append(folder);
+	folderElement.addEventListener("dragenter", event => {
+		event.preventDefault();
+	});
+
+	folderElement.addEventListener("dragover", event => {
+		event.preventDefault();
+	});
+
+	folderElement.addEventListener("drop", function (event) {
+		let oldPath = event.dataTransfer.getData("text/plain");
+
+		if (oldPath === this.querySelector(".path").innerText) {
+			return; // prevent moving on itself
+		}
+
+		let o = oldPath.match(/[^\/]+\/$/gim)[0];
+		let newPath = this.querySelector(".path").innerText + o;
+
+		console.log(oldPath, newPath);
+
+		window.socket.emit("rename-directory", oldPath, newPath, error => {
+			if (error) {
+				console.log(error);
+			} else {
+				console.log("successfully moved directory");
+			}
+		});
+	});
+
+	folderElement.addEventListener("dragstart", event => {
+		event.dataTransfer.setData("text/plain", event.target.querySelector(".path").innerText);
+	});
+
+	folderElement.querySelector("div.delete-icon").addEventListener("click", function (event) {
+		event.stopPropagation();
+
+		let d = window.confirm("Delete?");
+
+		if (!d) {
+			return;
+		}
+
+		window.socket.emit("delete-directory", this.closest(".folder").querySelector(".path").innerText, error => {
+			if (error) {
+				console.log(error);
+			} else {
+				console.log("successfully removed dir");
+			}
+		});
+	});
+
+	return folderElement;
 }
 
-function displayFile(name, size, path) {
+function createFileElement(name, size, path) {
 	let template = document.querySelector("#directory-content-file-template");
 
-	let file = template.content.cloneNode(true);
-	file.querySelector(".name").innerText = getFileName(name);
-	file.querySelector(".extension").innerText = getFileExtension(name);
-	file.querySelector(".size").innerText = getFileSizeWithPrefix(size);
-	file.querySelector("a").setAttribute("href", "/download?path=" + encodeURIComponent(getCookie("path") + name));
-	file.querySelector("a").setAttribute("target", "_blank");
-	file.querySelector(".path").innerText = path;
+	let fileElement = template.content.cloneNode(true).querySelector("div");
+	fileElement.querySelector(".name").innerText = getFileName(name);
+	fileElement.querySelector(".extension").innerText = getFileExtension(name);
+	fileElement.querySelector(".size").innerText = getFileSizeWithPrefix(size);
+	fileElement.querySelector("a").setAttribute("href", "/download?path=" + encodeURIComponent(getCookie("path") + name));
+	fileElement.querySelector("a").setAttribute("target", "_blank");
+	fileElement.querySelector(".path").innerText = path;
 
-	let container = document.querySelector("#directory-contents");
-	container.append(file);
+	return fileElement;
 }
 
 function getFileExtension(filename) {
