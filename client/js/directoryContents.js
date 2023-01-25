@@ -47,6 +47,11 @@ function createFolderElement(name, path) {
 
 	folderElement.addEventListener("drop", function (event) {
 		let oldPath = event.dataTransfer.getData("text/plain");
+
+		if (oldPath === this.querySelector(".path").innerText) {
+			return; // prevent moving on itself
+		}
+
 		let o = oldPath.match(/[^\/]+\/$/gim)[0];
 		let newPath = this.querySelector(".path").innerText + o;
 
