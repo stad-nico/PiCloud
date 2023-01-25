@@ -37,6 +37,34 @@ function createFolderElement(name, path) {
 		window.socket.emit("send-directory-contents", getCookie("path"));
 	});
 
+	folderElement.addEventListener("dragenter", event => {
+		event.preventDefault();
+	});
+
+	folderElement.addEventListener("dragover", event => {
+		event.preventDefault();
+	});
+
+	folderElement.addEventListener("drop", function (event) {
+		let oldPath = event.dataTransfer.getData("text/plain");
+		let o = oldPath.match(/[^\/]+\/$/gim)[0];
+		let newPath = this.querySelector(".path").innerText + o;
+
+		console.log(oldPath, newPath);
+
+		window.socket.emit("rename-directory", oldPath, newPath, error => {
+			if (error) {
+				console.log(error);
+			} else {
+				console.log("successfully moved directory");
+			}
+		});
+	});
+
+	folderElement.addEventListener("dragstart", event => {
+		event.dataTransfer.setData("text/plain", event.target.querySelector(".path").innerText);
+	});
+
 	folderElement.querySelector("div.delete-icon").addEventListener("click", function (event) {
 		event.stopPropagation();
 

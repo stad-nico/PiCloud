@@ -13,6 +13,7 @@ import sendDirectoryContents from "./src/sendDirectoryContents";
 import sendDirectoryFolderStructure from "./src/sendDirectoryFolderStructure";
 import createDirectory from "./src/createDirectory";
 import deleteDirectory from "./src/deleteDirectory";
+import renameDirectory from "./src/renameDirectory";
 
 let dpath = "C:/Users/stadl/Desktop/File-Server/files/";
 
@@ -67,6 +68,15 @@ io.on("connection", function (socket: Socket) {
 	socket.on("delete-directory", async (relPath: string, callback: (error?: unknown) => void) => {
 		try {
 			await deleteDirectory(socket, dpath, relPath);
+			callback();
+		} catch (error) {
+			callback(error);
+		}
+	});
+
+	socket.on("rename-directory", async (oldPath: string, newPath: string, callback: (error?: unknown) => void) => {
+		try {
+			await renameDirectory(socket, dpath, oldPath, newPath);
 			callback();
 		} catch (error) {
 			callback(error);
