@@ -24,6 +24,22 @@
 	.head {
 		position: relative;
 
+		&:hover {
+			cursor: pointer;
+
+			.folder-icon div.back span.triangle {
+				border-color: rgb(235, 240, 254) transparent transparent transparent;
+			}
+
+			.name {
+				pointer-events: none;
+			}
+
+			.open-in-new-tab-icon {
+				display: block;
+			}
+		}
+
 		.folder-icon {
 			@include folder-icon-closed;
 		}
@@ -32,11 +48,21 @@
 			transition: transform 0.1s;
 			transform: rotate(-90deg);
 
+			fill: rgb(169, 174, 199);
+
 			&:hover {
 				fill: rgb(57, 97, 237);
 			}
+		}
 
+		.open-in-new-tab-icon {
 			fill: rgb(169, 174, 199);
+			margin-left: auto;
+			display: none;
+
+			&:hover {
+				fill: rgb(57, 97, 237);
+			}
 		}
 	}
 
@@ -50,18 +76,6 @@
 		height: 0;
 
 		overflow: hidden;
-	}
-
-	.head:hover {
-		cursor: pointer;
-
-		.folder-icon div.back span.triangle {
-			border-color: rgb(235, 240, 254) transparent transparent transparent;
-		}
-
-		.name {
-			pointer-events: none;
-		}
 	}
 
 	&.open {

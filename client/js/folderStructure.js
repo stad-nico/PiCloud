@@ -21,6 +21,10 @@ export function createFolderStructureElement(parentDirectoryElement, name, relPa
 		setInteractivePath(getCookie("path"));
 	});
 
+	folder.querySelector(".open-in-new-tab-icon").addEventListener("click", function (e) {
+		e.stopPropagation();
+	});
+
 	if (hasSubDirectories) {
 		folder.querySelector(".expand-icon").addEventListener("click", function (e) {
 			e.stopPropagation();
