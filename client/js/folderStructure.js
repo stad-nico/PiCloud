@@ -1,5 +1,5 @@
 import { getCookie, setCookie } from "./cookies.js";
-import updateInteractivePath from "./interactivePath.js";
+import setInteractivePath from "./interactivePath.js";
 
 export function createFolderStructureElement(parentDirectoryElement, name, relPath, hasSubDirectories) {
 	let template = document.querySelector("#folder-structure-folder-template");
@@ -28,7 +28,7 @@ export function createFolderStructureElement(parentDirectoryElement, name, relPa
 			toggleFolder(this.closest(".collapsable-folder-structure-element"));
 		});
 	} else {
-		folder.querySelector(".expand-icon").classList.add("hidden");
+		folder.querySelector("div").classList.add("no-contents");
 	}
 
 	parentDirectoryElement.querySelector(".content").appendChild(folder);

@@ -59,6 +59,7 @@ socket.on("receive-directory-folder-structure", data => {
 		}
 
 		let folder = getFolderElementByPath(path);
+		folder.querySelector(".content").replaceChildren();
 
 		folderObjects.forEach(object => {
 			createFolderStructureElement(folder, object.name, path, object.hasSubDirectories);
@@ -73,4 +74,5 @@ socket.on("receive-error", data => {
 socket.on("reload", () => {
 	console.log("reloading");
 	socket.emit("send-directory-contents", getCookie("path"));
+	socket.emit("send-directory-folder-structure", getCookie("path"));
 });

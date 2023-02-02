@@ -14,6 +14,13 @@
 .collapsable-folder-structure-element {
 	position: relative;
 
+	&.no-contents {
+		.head .expand-icon {
+			opacity: 0;
+			pointer-events: none;
+		}
+	}
+
 	.head {
 		position: relative;
 
@@ -30,11 +37,6 @@
 			}
 
 			fill: rgb(169, 174, 199);
-		}
-
-		.expand-icon.hidden {
-			opacity: 0;
-			pointer-events: none;
 		}
 	}
 
@@ -53,10 +55,6 @@
 	.head:hover {
 		cursor: pointer;
 
-		& + .content {
-			background-color: rgb(246, 249, 255);
-		}
-
 		.folder-icon div.back span.triangle {
 			border-color: rgb(235, 240, 254) transparent transparent transparent;
 		}
@@ -68,6 +66,10 @@
 
 	&.open {
 		> .head {
+			&:hover + .content {
+				background-color: rgb(246, 249, 255);
+			}
+
 			.folder-icon {
 				@include folder-icon-opened;
 			}
