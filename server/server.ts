@@ -10,7 +10,7 @@ const io = require("socket.io")(http);
 const path = require("path");
 
 import sendDirectoryContents from "./src/sendDirectoryContents";
-import sendDirectoryFolderStructure from "./src/sendDirectoryFolderStructure";
+import sendDirectoryFolderStructureRecursive from "./src/sendDirectoryFolderStructure";
 import createDirectory from "./src/createDirectory";
 import deleteDirectory from "./src/deleteDirectory";
 import renameDirectory from "./src/renameDirectory";
@@ -22,11 +22,13 @@ fs.watch(dpath, { recursive: true }, function (event, name) {
 	io.sockets.emit("reload");
 });
 
-app.get("/", function (req: Request, res: Response) {
-	res.sendFile(path.join(__dirname, "../client", "index.html"));
-});
+app.use(express.static(path.join(__dirname, "..", "client")));
 
-app.use(express.static(path.join(__dirname, "../client")));
+app.get("*", function (req: Request, res: Response) {
+	res.sendFile("index.html", {
+		root: path.join(__dirname, "..", "client"),
+	});
+});
 
 app.get("/download", function (req: Request, res: Response) {
 	let fullPath = path.join(dpath, req.query.path);
@@ -48,8 +50,12 @@ io.on("connection", function (socket: Socket) {
 		}
 	});
 
-	socket.on("send-directory-folder-structure", async (relPath: string) => {
-		await sendDirectoryFolderStructure(socket, dpath, relPath);
+	socket.on("is-path-valid", async (relPath: string, callback: (valid?: boolean) => void) => {
+		callback(fs.existsSync(path.join(dpath, relPath)));
+	});
+
+	socket.on("send-directory-folder-structure-recursive", async (relPath: string) => {
+		await sendDirectoryFolderStructureRecursive(socket, dpath, relPath);
 	});
 
 	socket.on("send-directory-contents", async (relPath: string) => {

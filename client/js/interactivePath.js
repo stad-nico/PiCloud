@@ -15,10 +15,6 @@ export default function setInteractivePath(value) {
 
 			if (interactivePathElement.lastChild !== interactivePathComponent) {
 				let newPath = getCompleteRelativePathFromInteractivePathComponent(interactivePathComponent);
-				setCookie("path", newPath);
-				setInteractivePath(newPath);
-
-				window.socket.emit("send-directory-contents", newPath);
 			}
 		});
 	}

@@ -1,5 +1,6 @@
 import { setCookie, getCookie } from "./cookies.js";
 import setInteractivePath from "./interactivePath.js";
+import { load } from "./navigation.js";
 
 export function clearDirectoryContentElements() {
 	document.querySelector("#directory-contents").replaceChildren();
@@ -29,12 +30,10 @@ function createFolderElement(name, path) {
 			document.querySelectorAll(".folder.active").forEach(elem => elem.classList.remove("active"));
 			this.closest(".folder").classList.add("active");
 			return;
+		} else {
+			window.history.pushState("", "", path);
+			load();
 		}
-
-		let relPath = this.querySelector(".path").innerText;
-		setCookie("path", relPath);
-		setInteractivePath(getCookie("path"));
-		window.socket.emit("send-directory-contents", getCookie("path"));
 	});
 
 	folderElement.addEventListener("dragenter", event => {
@@ -54,8 +53,6 @@ function createFolderElement(name, path) {
 
 		let o = oldPath.match(/[^\/]+\/$/gim)[0];
 		let newPath = this.querySelector(".path").innerText + o;
-
-		console.log(oldPath, newPath);
 
 		window.socket.emit("rename-directory", oldPath, newPath, error => {
 			if (error) {
