@@ -2,6 +2,7 @@ import setInteractivePath from "./interactivePath.js";
 import { clearDirectoryContentElements, createDirectoryContentElement } from "./directoryContents.js";
 import { createDefaultDirectoryElement, createFolderStructureElement, clearFolderStructureElements } from "./folderStructure.js";
 import getFolderElementByPath from "./getFolderElementByPath.js";
+import { load } from "./navigation.js";
 
 window.onload = () => {
 	let pathname = window.location.pathname;
@@ -53,6 +54,5 @@ window.onload = () => {
 };
 
 window.onpopstate = () => {
-	socket.emit("send-directory-contents", window.location.pathname);
-	socket.emit("send-directory-folder-structure-recursive", window.location.pathname);
+	load();
 };

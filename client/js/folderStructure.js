@@ -51,17 +51,6 @@ export function createDefaultDirectoryElement() {
 
 	let openInNew = folder.querySelector(".open-in-new-tab-icon");
 	openInNew.setAttribute("href", "/");
-	openInNew.addEventListener("click", function (e) {
-		e.preventDefault();
-		window
-			.open(
-				"",
-				"_blank"
-				// "width= 640, height= 480, left=0, top=0, resizable=yes, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=no, copyhistory=no"
-			)
-			.blur();
-		window.focus();
-	});
 
 	folder.querySelector(".expand-icon").addEventListener("click", function (e) {
 		e.stopPropagation();

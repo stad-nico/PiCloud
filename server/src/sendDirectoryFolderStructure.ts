@@ -7,15 +7,6 @@ import sendErrorMessageToSocket from "./sendErrorMessageToSocket";
 import { getContentNames, getFileStats, hasSubDirectories } from "./fsHelpers";
 import isNodeJSErrnoException from "./isNodeJSErrnoException";
 
-// for (let name of names) {
-// 	if ((await getFileStats(path.join(absolutePath, name))).isDirectory()) {
-// 		folderObjects.push({
-// 			name: name,
-// 			hasSubDirectories: await hasSubDirectories(path.join(absolutePath, name)),
-// 		});
-// 	}
-// }
-
 type FolderObject = {
 	name: string;
 	path: string;
@@ -32,9 +23,6 @@ export default async function sendDirectoryFolderStructureRecursive(socket: Sock
 		} else {
 			var paths = relativePath.replace(/\/$/gim, "").split("/");
 		}
-
-		console.log(relativePath);
-		console.log(paths);
 
 		let rel = "/";
 

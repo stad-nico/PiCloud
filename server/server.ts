@@ -54,38 +54,53 @@ io.on("connection", function (socket: Socket) {
 		callback(fs.existsSync(path.join(dpath, relPath)));
 	});
 
-	socket.on("send-directory-folder-structure-recursive", async (relPath: string) => {
-		await sendDirectoryFolderStructureRecursive(socket, dpath, relPath);
+	socket.on("send-directory-folder-structure-recursive", async (relPath: string, callback?: (error?: unknown) => void) => {
+		try {
+			await sendDirectoryFolderStructureRecursive(socket, dpath, relPath);
+			callback && callback();
+		} catch (error) {
+			callback && callback(error);
+			console.log(error);
+		}
 	});
 
-	socket.on("send-directory-contents", async (relPath: string) => {
-		await sendDirectoryContents(socket, dpath, relPath);
+	socket.on("send-directory-contents", async (relPath: string, callback?: (error?: unknown) => void) => {
+		try {
+			await sendDirectoryContents(socket, dpath, relPath);
+			callback && callback();
+		} catch (error) {
+			callback && callback(error);
+			console.log(error);
+		}
 	});
 
-	socket.on("create-directory", async (relPath: string, callback: (error?: unknown) => void) => {
+	socket.on("create-directory", async (relPath: string, callback?: (error?: unknown) => void) => {
 		try {
 			await createDirectory(socket, dpath, relPath);
-			callback();
+			callback && callback();
 		} catch (error) {
-			callback(error);
+			callback && callback(error);
+			console.log(error);
 		}
 	});
 
 	socket.on("delete-directory", async (relPath: string, callback: (error?: unknown) => void) => {
 		try {
 			await deleteDirectory(socket, dpath, relPath);
-			callback();
+			callback && callback();
 		} catch (error) {
-			callback(error);
+			callback && callback(error);
+			console.log(error);
 		}
 	});
 
 	socket.on("rename-directory", async (oldPath: string, newPath: string, callback: (error?: unknown) => void) => {
 		try {
 			await renameDirectory(socket, dpath, oldPath, newPath);
-			callback();
+			callback && callback();
 		} catch (error) {
-			callback(error);
+			callback && callback(error);
+			console.log(error);
 		}
 	});
 
