@@ -13,14 +13,11 @@ window.onload = () => {
 	socket.emit("is-path-valid", pathname, valid => {
 		if (valid) {
 			console.log("path is valid");
-			setInteractivePath(pathname);
+			load();
 		} else {
 			console.log("path is not valid");
 		}
 	});
-
-	socket.emit("send-directory-contents", pathname);
-	socket.emit("send-directory-folder-structure-recursive", pathname);
 
 	socket.on("receive-directory-contents", data => {
 		clearDirectoryContentElements();

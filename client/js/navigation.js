@@ -11,6 +11,12 @@ export function load() {
 	setDocumentTitle(path);
 	socket.emit("send-directory-contents", path);
 	socket.emit("send-directory-folder-structure-recursive", path);
+
+	if (path === "/" || path === "") {
+		document.querySelector("#backward-icon").classList.add("disabled");
+	} else {
+		document.querySelector("#backward-icon").classList.remove("disabled");
+	}
 }
 
 export function forward() {
@@ -27,6 +33,7 @@ export function backward() {
 }
 
 export function up() {
-	window.location.pathname = window.location.pathname.replace(/[^\/]+\/$/im, "");
+	let newPath = window.location.pathname.replace(/[^\/]+\/$/im, "");
+	window.history.replaceState(newPath, "", newPath);
 	load();
 }
