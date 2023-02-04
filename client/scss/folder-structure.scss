@@ -41,11 +41,10 @@
 		}
 
 		.folder-icon {
-			@include folder-icon-closed;
+			@include folder-icon-closed(false);
 		}
 
 		.expand-icon {
-			transition: transform 0.1s;
 			transform: rotate(-90deg);
 
 			fill: rgb(169, 174, 199);
@@ -85,7 +84,7 @@
 			}
 
 			.folder-icon {
-				@include folder-icon-opened;
+				@include folder-icon-opened(false);
 			}
 
 			.expand-icon {

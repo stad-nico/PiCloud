@@ -31,7 +31,7 @@ function createFolderElement(name, path) {
 			this.closest(".folder").classList.add("active");
 			return;
 		} else {
-			window.history.pushState("", "", path);
+			window.history.pushState(path, "", path);
 			load();
 		}
 	});

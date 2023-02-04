@@ -51,6 +51,11 @@ window.onload = () => {
 			}
 		}
 	});
+
+	socket.on("reload", () => {
+		socket.emit("send-directory-contents", window.location.pathname);
+		socket.emit("send-directory-folder-structure-recursive", window.location.pathname);
+	});
 };
 
 window.onpopstate = () => {

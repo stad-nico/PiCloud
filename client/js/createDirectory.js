@@ -35,7 +35,7 @@ function handler(event, callback) {
 		removeEditableFolderElement();
 		document.removeEventListener("mousedown", documentHandler);
 	} else {
-		window.socket.emit("create-directory", getCookie("path") + editableNameField.innerText, error =>
+		window.socket.emit("create-directory", window.location.pathname + editableNameField.innerText, error =>
 			callback(folderElement, editableNameField, error)
 		);
 	}
