@@ -1,6 +1,6 @@
 import { getCookie, setCookie } from "./cookies.js";
 import setInteractivePath from "./interactivePath.js";
-// import { openLocation } from "./openLocation.js";
+import { load } from "./navigation.js";
 
 export function createFolderStructureElement(parentDirectoryElement, name, relPath, hasSubDirectories) {
 	let template = document.querySelector("#folder-structure-folder-template");
@@ -13,9 +13,7 @@ export function createFolderStructureElement(parentDirectoryElement, name, relPa
 	folder.classList.add("contents-not-loaded");
 
 	folder.querySelector(".head").addEventListener("click", function () {
-		if (!this.parentNode.classList.contains("open")) {
-			expandFolder(this.parentNode);
-		}
+		openFolder(this.parentNode);
 	});
 
 	folder.querySelector(".open-in-new-tab-icon").setAttribute("href", path);
@@ -24,7 +22,7 @@ export function createFolderStructureElement(parentDirectoryElement, name, relPa
 		folder.querySelector(".expand-icon").addEventListener("click", function (e) {
 			e.stopPropagation();
 
-			toggleFolder(this.closest(".collapsable-folder-structure-element"));
+			// toggleFolder(this.closest(".collapsable-folder-structure-element"));
 		});
 	} else {
 		folder.classList.add("no-contents");
@@ -45,7 +43,7 @@ export function createDefaultDirectoryElement() {
 
 	folder.querySelector(".head").addEventListener("click", function () {
 		if (!this.parentNode.classList.contains("open")) {
-			expandFolder(this.parentNode);
+			openFolder(this.parentNode);
 		}
 	});
 
@@ -65,18 +63,9 @@ export function clearFolderStructureElements() {
 	document.querySelector("#folder-structure").replaceChildren();
 }
 
-function toggleFolder(folderElem) {
-	if (folderElem.classList.contains("open")) {
-		folderElem.classList.remove("open");
-	} else {
-		expandFolder(folderElem);
-	}
-}
-
-async function expandFolder(folderElem) {
+async function openFolder(folderElem) {
 	folderElem.classList.add("open");
-
-	if (folderElem.classList.contains("contents-not-loaded")) {
-		folderElem.classList.remove("contents-not-loaded");
-	}
+	let path = folderElem.querySelector(".path").innerText;
+	window.history.pushState(path, "", path);
+	load();
 }

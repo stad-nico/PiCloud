@@ -21,6 +21,29 @@
 		}
 	}
 
+	&.open:not(.no-contents) {
+		> .content {
+			height: auto;
+			display: block;
+		}
+	}
+
+	&.open {
+		> .head {
+			&:hover + .content {
+				background-color: rgb(246, 249, 255);
+			}
+
+			.folder-icon {
+				@include folder-icon-opened(false);
+			}
+
+			.expand-icon {
+				transform: rotate(0deg);
+			}
+		}
+	}
+
 	.head {
 		position: relative;
 
@@ -73,27 +96,8 @@
 		border-radius: 15px;
 
 		height: 0;
+		display: none;
 
 		overflow: hidden;
-	}
-
-	&.open {
-		> .head {
-			&:hover + .content {
-				background-color: rgb(246, 249, 255);
-			}
-
-			.folder-icon {
-				@include folder-icon-opened(false);
-			}
-
-			.expand-icon {
-				transform: rotate(0deg);
-			}
-		}
-
-		> .head + .content {
-			height: auto;
-		}
 	}
 }
