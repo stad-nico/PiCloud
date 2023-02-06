@@ -1,0 +1,29 @@
+#context-menus {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.context-menu {
+	width: fit-content;
+
+	background-color: rgb(255, 255, 255);
+
+	.element {
+		border-radius: 0;
+
+		*:not(a) {
+			pointer-events: none;
+		}
+
+		&:hover {
+			.icon {
+				fill: rgb(57, 97, 237);
+			}
+		}
+
+		.name {
+			max-width: 100%;
+		}
+	}
+}

@@ -45,6 +45,7 @@
 
 	&:hover,
 	&.active {
+		cursor: pointer;
 		background-color: rgb(235, 240, 254);
 		.name {
 			color: rgb(57, 97, 237);
@@ -67,6 +68,12 @@
 		height: 24px;
 
 		flex-shrink: 0;
+
+		fill: rgb(102, 113, 168);
+
+		&:hover {
+			fill: rgb(57, 97, 237);
+		}
 	}
 
 	.name {
