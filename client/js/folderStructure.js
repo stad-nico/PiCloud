@@ -28,6 +28,21 @@ export function createFolderStructureElement(parentDirectoryElement, name, relPa
 		folder.classList.add("no-contents");
 	}
 
+	folder.addEventListener("contextmenu", function (e) {
+		e.preventDefault();
+
+		document.querySelector("#folder-structure-context-menu").removeAttribute("hidden");
+		let contextMenus = document.querySelector("#context-menus");
+		contextMenus.removeAttribute("hidden");
+		contextMenus.style.top = e.clientY;
+		contextMenus.style.left = e.clientX;
+
+		document.addEventListener("mousedown", function (e) {
+			document.querySelector("#folder-structure-context-menu").setAttribute("hidden", true);
+			document.querySelector("#context-menus").setAttribute("hidden", true);
+		});
+	});
+
 	parentDirectoryElement.querySelector(".content").appendChild(folder);
 
 	return folder;

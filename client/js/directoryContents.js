@@ -29,6 +29,7 @@ function createFolderElement(name, path) {
 		if (!this.closest(".folder").classList.contains("active")) {
 			document.querySelectorAll(".folder.active").forEach(elem => elem.classList.remove("active"));
 			this.closest(".folder").classList.add("active");
+			console.log("folder elem");
 			return;
 		} else {
 			window.history.pushState(path, "", path);
