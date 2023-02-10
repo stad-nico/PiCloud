@@ -25,11 +25,9 @@ fs.watch(dpath, { recursive: true }, function (event, name) {
 app.use(express.static(path.join(__dirname, "..", "client")));
 
 app.get("*", function (req: Request, res: Response) {
-	// res.sendFile("index.html", {
-	// 	root: path.join(__dirname, "..", "client"),
-	// });
-	// res.send("HI");
-	res.end();
+	res.sendFile("index.html", {
+		root: path.join(__dirname, "..", "client"),
+	});
 });
 
 app.get("/download", function (req: Request, res: Response) {
