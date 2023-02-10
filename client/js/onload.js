@@ -3,7 +3,6 @@ import { clearDirectoryContentElements, createDirectoryContentElement } from "./
 import { createDefaultDirectoryElement, createFolderStructureElement, clearFolderStructureElements } from "./folderStructure.js";
 import getFolderElementByPath from "./getFolderElementByPath.js";
 import { load } from "./navigation.js";
-import registerDropzones from "./dropzone.js";
 import registerSocketEventHandlers from "./socketEventHandler.js";
 
 window.onload = () => {

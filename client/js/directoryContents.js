@@ -1,7 +1,7 @@
 import { setCookie, getCookie } from "./cookies.js";
 import setInteractivePath from "./interactivePath.js";
 import { load } from "./navigation.js";
-import createDropzone from "./dropzone.js";
+import { createDraggable, createDropzone } from "./dropzone.js";
 
 export function clearDirectoryContentElements() {
 	document.querySelector("#directory-contents").replaceChildren();
@@ -56,6 +56,7 @@ function createFolderElement(name, path) {
 		});
 	});
 
+	createDraggable(folderElement);
 	createDropzone(folderElement);
 
 	return folderElement;
@@ -71,6 +72,8 @@ function createFileElement(name, size, path) {
 	fileElement.querySelector("a").setAttribute("href", "/download?path=" + encodeURIComponent(getCookie("path") + name));
 	fileElement.querySelector("a").setAttribute("target", "_blank");
 	fileElement.querySelector(".path").innerText = path;
+
+	createDraggable(fileElement);
 
 	return fileElement;
 }

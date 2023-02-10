@@ -1,8 +1,7 @@
 var source;
 
-export default function createDropzone(element) {
-	element.addEventListener("dragover", block);
-	element.addEventListener("dragenter", block);
+export function createDraggable(element) {
+	element.setAttribute("draggable", true);
 
 	element.addEventListener("dragstart", function (e) {
 		// disallow dragging onto itself
@@ -29,6 +28,11 @@ export default function createDropzone(element) {
 		source.classList.remove("drag-hover");
 		this.classList.remove("drag-hover");
 	});
+}
+
+export function createDropzone(element) {
+	element.addEventListener("dragover", block);
+	element.addEventListener("dragenter", block);
 }
 
 function block(e) {
