@@ -25,9 +25,11 @@ fs.watch(dpath, { recursive: true }, function (event, name) {
 app.use(express.static(path.join(__dirname, "..", "client")));
 
 app.get("*", function (req: Request, res: Response) {
-	res.sendFile("index.html", {
-		root: path.join(__dirname, "..", "client"),
-	});
+	// res.sendFile("index.html", {
+	// 	root: path.join(__dirname, "..", "client"),
+	// });
+	// res.send("HI");
+	res.end();
 });
 
 app.get("/download", function (req: Request, res: Response) {
@@ -110,5 +112,5 @@ io.on("connection", function (socket: Socket) {
 });
 
 http.listen(3000, function () {
-	console.log("listening on *:3000");
+	console.log("listening on localhost:3000");
 });
