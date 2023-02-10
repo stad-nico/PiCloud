@@ -1,6 +1,7 @@
 import { setCookie, getCookie } from "./cookies.js";
 import setInteractivePath from "./interactivePath.js";
 import { load } from "./navigation.js";
+import createDropzone from "./dropzone.js";
 
 export function clearDirectoryContentElements() {
 	document.querySelector("#directory-contents").replaceChildren();
@@ -37,37 +38,6 @@ function createFolderElement(name, path) {
 		}
 	});
 
-	folderElement.addEventListener("dragenter", event => {
-		event.preventDefault();
-	});
-
-	folderElement.addEventListener("dragover", event => {
-		event.preventDefault();
-	});
-
-	folderElement.addEventListener("drop", function (event) {
-		let oldPath = event.dataTransfer.getData("text/plain");
-
-		if (oldPath === this.querySelector(".path").innerText) {
-			return; // prevent moving on itself
-		}
-
-		let o = oldPath.match(/[^\/]+\/$/gim)[0];
-		let newPath = this.querySelector(".path").innerText + o;
-
-		window.socket.emit("rename-directory", oldPath, newPath, error => {
-			if (error) {
-				console.log(error);
-			} else {
-				console.log("successfully moved directory");
-			}
-		});
-	});
-
-	folderElement.addEventListener("dragstart", event => {
-		event.dataTransfer.setData("text/plain", event.target.querySelector(".path").innerText);
-	});
-
 	folderElement.querySelector("div.delete-icon").addEventListener("click", function (event) {
 		event.stopPropagation();
 
@@ -85,6 +55,8 @@ function createFolderElement(name, path) {
 			}
 		});
 	});
+
+	createDropzone(folderElement);
 
 	return folderElement;
 }

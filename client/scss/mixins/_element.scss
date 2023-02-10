@@ -33,6 +33,10 @@
 		.delete-icon {
 			display: none;
 		}
+
+		* {
+			pointer-events: none;
+		}
 	}
 
 	svg {

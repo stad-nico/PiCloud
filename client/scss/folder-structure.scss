@@ -30,7 +30,8 @@
 
 	&.open {
 		> .head {
-			&:hover + .content {
+			&:hover + .content,
+			&.drag-hover + .content {
 				background-color: rgb(246, 249, 255);
 			}
 

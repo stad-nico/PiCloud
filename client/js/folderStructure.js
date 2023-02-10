@@ -1,6 +1,7 @@
 import { getCookie, setCookie } from "./cookies.js";
 import setInteractivePath from "./interactivePath.js";
 import { load } from "./navigation.js";
+import createDropzone from "./dropzone.js";
 
 export function createFolderStructureElement(parentDirectoryElement, name, relPath, hasSubDirectories) {
 	let template = document.querySelector("#folder-structure-folder-template");
@@ -43,6 +44,8 @@ export function createFolderStructureElement(parentDirectoryElement, name, relPa
 		});
 	});
 
+	createDropzone(folder.querySelector(".head"));
+
 	parentDirectoryElement.querySelector(".content").appendChild(folder);
 
 	return folder;
@@ -57,9 +60,7 @@ export function createDefaultDirectoryElement() {
 	folder.querySelector(".collapsable-folder-structure-element").classList.add("open");
 
 	folder.querySelector(".head").addEventListener("click", function () {
-		if (!this.parentNode.classList.contains("open")) {
-			openFolder(this.parentNode);
-		}
+		openFolder(this.parentNode);
 	});
 
 	let openInNew = folder.querySelector(".open-in-new-tab-icon");
@@ -70,6 +71,8 @@ export function createDefaultDirectoryElement() {
 
 		toggleFolder(this.closest(".collapsable-folder-structure-element"));
 	});
+
+	createDropzone(folder.querySelector(".head"));
 
 	document.querySelector("#folder-structure").appendChild(folder);
 }

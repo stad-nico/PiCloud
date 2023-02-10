@@ -8,6 +8,7 @@
 
 		<link href="/css/general.css" rel="stylesheet" />
 		<link href="/css/interactive-path.css" rel="stylesheet" />
+		<link href="/css/drop-overlay.css" rel="stylesheet" />
 		<link href="/css/file-explorer.css" rel="stylesheet" />
 		<link href="/css/folder-structure.css" rel="stylesheet" />
 		<link href="/css/directory-contents.css" rel="stylesheet" />
@@ -16,6 +17,7 @@
 		<link href="/css/folder.css" rel="stylesheet" />
 
 		<script src="/socket.io/socket.io.js"></script>
+		<script src="/js/dropzone.js" type="module"></script>
 		<script src="/js/interactivePath.js" type="module"></script>
 		<script src="/js/cookies.js" type="module"></script>
 		<script src="/js/getFolderElementByPath.js" type="module"></script>
@@ -224,7 +226,7 @@
 		</template>
 		<template id="folder-structure-folder-template">
 			<div class="collapsable-folder-structure-element">
-				<header class="head element">
+				<header class="head element" draggable="true">
 					<p class="path" hidden></p>
 					<div class="expand-icon icon" title="Expand">
 						<svg xmlns="http://www.w3.org/2000/svg">

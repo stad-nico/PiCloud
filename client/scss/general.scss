@@ -1,4 +1,5 @@
 @use "./mixins/flex" as *;
+@import "./mixins/element";
 
 * {
 	margin: 0;
@@ -25,4 +26,8 @@ body {
 
 ::-webkit-scrollbar {
 	display: none;
+}
+
+.element {
+	@include element();
 }
