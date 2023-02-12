@@ -23,8 +23,9 @@ export function createDraggable(element) {
 
 	element.addEventListener("dragstart", function (e) {
 		this.classList.add("drag-hover");
-		e.dataTransfer.setData(this.querySelector(".path").innerText, "");
-		e.dataTransfer.setData(this.getAttribute("data-drag-class"), "");
+		e.dataTransfer.setData("path", this.querySelector(".path").innerText);
+		e.dataTransfer.setData("class", this.getAttribute("data-drag-class"), "");
+
 		e.dataTransfer.effectAllowed = "all";
 		e.dataTransfer.setDragImage(this.querySelector(".file-icon") || this.querySelector(".folder-icon"), 0, 0);
 	});
@@ -63,10 +64,21 @@ export function createDraggable(element) {
 	});
 
 	element.addEventListener("drop", function (e) {
-		// console.log(e.dataTransfer.getData("text/plain"));
-		// source.addEventListener("dragover", block);
-		// source.classList.remove("drag-hover");
-		// this.classList.remove("drag-hover");
+		let oldPath = e.dataTransfer.getData("path");
+		let o = oldPath.match(/[^\/]+\/$/gim)[0];
+		let newPath = this.querySelector(".path").innerText + o;
+
+		if (oldPath === newPath) {
+			return;
+		}
+
+		window.socket.emit("rename-directory", oldPath, newPath, function (error) {
+			if (error) {
+				console.log(error);
+			} else {
+				console.log("successfully moved directory");
+			}
+		});
 	});
 }
 
@@ -94,6 +106,24 @@ export function createDropzoneForExternalOnly(element) {
 
 	element.addEventListener("drop", function (e) {
 		e.preventDefault();
+
+		this.classList.remove("drag-hover");
+
+		let oldPath = e.dataTransfer.getData("path");
+		let o = oldPath.match(/[^\/]+\/$/gim)[0];
+		let newPath = window.location.pathname + o;
+
+		if (oldPath === newPath) {
+			return;
+		}
+
+		window.socket.emit("rename-directory", oldPath, newPath, function (error) {
+			if (error) {
+				console.log(error);
+			} else {
+				console.log("successfully moved directory");
+			}
+		});
 	});
 
 	let content = element.querySelector("#contents");

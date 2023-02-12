@@ -14,6 +14,7 @@ import sendDirectoryFolderStructureRecursive from "./src/sendDirectoryFolderStru
 import createDirectory from "./src/createDirectory";
 import deleteDirectory from "./src/deleteDirectory";
 import renameDirectory from "./src/renameDirectory";
+import copyDirectory from "./src/copyDirectory";
 
 let dpath = "C:/Users/stadl/Desktop/File-Server/files/";
 
@@ -97,6 +98,26 @@ io.on("connection", function (socket: Socket) {
 	socket.on("rename-directory", async (oldPath: string, newPath: string, callback: (error?: unknown) => void) => {
 		try {
 			await renameDirectory(socket, dpath, oldPath, newPath);
+			callback && callback();
+		} catch (error) {
+			callback && callback(error);
+			console.log(error);
+		}
+	});
+
+	socket.on("copy-directory", async (src: string, dest: string, callback: (error?: unknown) => void) => {
+		try {
+			await copyDirectory(socket, dpath, src, dest, false);
+			callback && callback();
+		} catch (error) {
+			callback && callback(error);
+			console.log(error);
+		}
+	});
+
+	socket.on("copy-directory-force", async (src: string, dest: string, callback: (error?: unknown) => void) => {
+		try {
+			await copyDirectory(socket, dpath, src, dest, true);
 			callback && callback();
 		} catch (error) {
 			callback && callback(error);

@@ -10,19 +10,21 @@
 
 	overflow-y: scroll;
 
-	&.empty::after {
-		position: absolute;
+	#contents {
+		&.empty::after {
+			position: absolute;
 
-		width: calc(100% - 2 * 20px);
-		height: 20px;
-		top: 100px;
+			width: calc(100% - 2 * 20px);
+			height: 20px;
+			top: 100px;
 
-		content: "This folder is empty.";
+			content: "This folder is empty.";
 
-		font-family: Montserrat Medium;
-		font-size: large;
-		text-align: center;
-		color: rgb(102, 113, 168);
+			font-family: Montserrat Medium;
+			font-size: large;
+			text-align: center;
+			color: rgb(102, 113, 168);
+		}
 	}
 
 	&.drag-hover {
