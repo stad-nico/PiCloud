@@ -24,4 +24,8 @@
 		text-align: center;
 		color: rgb(102, 113, 168);
 	}
+
+	&.drag-hover {
+		background-color: lightblue;
+	}
 }

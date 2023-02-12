@@ -4,8 +4,11 @@ import { createDefaultDirectoryElement, createFolderStructureElement, clearFolde
 import getFolderElementByPath from "./getFolderElementByPath.js";
 import { load } from "./navigation.js";
 import registerSocketEventHandlers from "./socketEventHandler.js";
+import { createDropzoneForExternalOnly } from "./dropzone.js";
 
 window.onload = () => {
+	createDropzoneForExternalOnly(document.querySelector("#directory-contents"));
+
 	let pathname = window.location.pathname;
 
 	const socket = io();

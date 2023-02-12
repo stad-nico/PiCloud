@@ -1,10 +1,10 @@
 import { setCookie, getCookie } from "./cookies.js";
 import setInteractivePath from "./interactivePath.js";
 import { load } from "./navigation.js";
-import { createDraggable, createDropzone } from "./dropzone.js";
+import { createDraggable } from "./dropzone.js";
 
 export function clearDirectoryContentElements() {
-	document.querySelector("#directory-contents").replaceChildren();
+	document.querySelector("#directory-contents #contents").replaceChildren();
 }
 
 export function createDirectoryContentElement(filename, size, path, isDirectory = false) {
@@ -16,7 +16,7 @@ export function createDirectoryContentElement(filename, size, path, isDirectory 
 		elem = createFileElement(filename, size, path);
 	}
 
-	document.querySelector("#directory-contents").appendChild(elem);
+	document.querySelector("#directory-contents #contents").appendChild(elem);
 }
 
 function createFolderElement(name, path) {
@@ -57,7 +57,6 @@ function createFolderElement(name, path) {
 	});
 
 	createDraggable(folderElement);
-	createDropzone(folderElement);
 
 	return folderElement;
 }

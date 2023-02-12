@@ -59,7 +59,9 @@
 			</nav>
 			<main id="body">
 				<section id="folder-structure"></section>
-				<section id="directory-contents"></section>
+				<section id="directory-contents">
+					<div id="contents"></div>
+				</section>
 			</main>
 		</main>
 		<div id="context-menus" hidden>
@@ -226,7 +228,7 @@
 		</template>
 		<template id="folder-structure-folder-template">
 			<div class="collapsable-folder-structure-element">
-				<header class="head element">
+				<header class="head element" data-drag-class="out">
 					<p class="path" hidden></p>
 					<div class="expand-icon icon" title="Expand">
 						<svg xmlns="http://www.w3.org/2000/svg">
@@ -254,7 +256,7 @@
 			</div>
 		</template>
 		<template id="directory-content-file-template">
-			<div class="element file">
+			<div class="element file" data-drag-class="in">
 				<p class="path" hidden></p>
 				<div class="file-icon icon">
 					<div class="background">
@@ -277,7 +279,7 @@
 			</div>
 		</template>
 		<template id="directory-content-folder-template">
-			<div class="element folder">
+			<div class="element folder" data-drag-class="in">
 				<p class="path" hidden></p>
 				<div class="folder-icon icon">
 					<div class="back">

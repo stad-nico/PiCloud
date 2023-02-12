@@ -6,9 +6,9 @@ export default function registerSocketEventHandlers(socket) {
 	socket.on("receive-directory-contents", data => {
 		clearDirectoryContentElements();
 		if (data.length === 0) {
-			document.querySelector("#directory-contents").classList.add("empty");
+			document.querySelector("#directory-contents #contents").classList.add("empty");
 		} else {
-			document.querySelector("#directory-contents").classList.remove("empty");
+			document.querySelector("#directory-contents #contents").classList.remove("empty");
 		}
 		for (let file of data) {
 			createDirectoryContentElement(file.name, file.size, file.path.replaceAll(/\\/gi, "/"), file.isDirectory);
