@@ -26,6 +26,7 @@ export function createDraggable(element) {
 		e.dataTransfer.setData(this.querySelector(".path").innerText, "");
 		e.dataTransfer.setData(this.getAttribute("data-drag-class"), "");
 		e.dataTransfer.effectAllowed = "all";
+		e.dataTransfer.setDragImage(this.querySelector(".file-icon") || this.querySelector(".folder-icon"), 0, 0);
 	});
 
 	element.addEventListener("dragenter", function (e) {
@@ -93,6 +94,13 @@ export function createDropzoneForExternalOnly(element) {
 
 	element.addEventListener("drop", function (e) {
 		e.preventDefault();
+	});
+
+	let content = element.querySelector("#contents");
+
+	content.addEventListener("dragenter", function (e) {
+		e.stopPropagation();
+		this.closest("#directory-contents").removeEventListener("dragover", block);
 	});
 }
 

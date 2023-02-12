@@ -1,4 +1,5 @@
 import { setCookie } from "./cookies.js";
+import { load } from "./navigation.js";
 
 export default function setInteractivePath(value) {
 	let interactivePathElement = document.querySelector("#interactive-path");
@@ -24,6 +25,11 @@ function createInteractivePathComponent(value) {
 	let template = document.querySelector("#interactive-path-component-template");
 	let interactivePathComponent = template.content.cloneNode(true).querySelector("div.interactive-path-component");
 	interactivePathComponent.querySelector(".value").innerText = value;
+	interactivePathComponent.addEventListener("click", function (e) {
+		let path = getCompleteRelativePathFromInteractivePathComponent(this);
+		window.history.pushState(path, "", path);
+		load();
+	});
 
 	return interactivePathComponent;
 }
