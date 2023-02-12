@@ -1,4 +1,4 @@
-@mixin folder-icon-closed {
+@mixin folder-icon-closed($transition: true) {
 	* {
 		position: absolute;
 	}
@@ -14,7 +14,10 @@
 
 		border-radius: var(--folder-icon-border-radius);
 		background-color: #ffca28;
-		transition: all 0.1s linear;
+
+		@if $transition {
+			transition: all 0.1s linear;
+		}
 	}
 
 	div.back {
@@ -61,7 +64,7 @@
 	}
 }
 
-@mixin folder-icon-opened {
+@mixin folder-icon-opened($transition: true) {
 	* {
 		position: absolute;
 	}
@@ -81,7 +84,9 @@
 		background-color: #ffca28;
 
 		transform: skewX(-10deg);
-		transition: all 0.1s linear;
+		@if $transition {
+			transition: all 0.1s linear;
+		}
 	}
 
 	div.back {
@@ -130,7 +135,7 @@
 	}
 }
 
-@mixin folder-icon-open-on-hover {
+@mixin folder-icon-open-on-hover($transition: true) {
 	* {
 		position: absolute;
 	}
@@ -165,7 +170,9 @@
 		border-radius: var(--folder-icon-border-radius);
 		background-color: #ffca28;
 
-		transition: all 0.1s linear;
+		@if $transition {
+			transition: all 0.1s linear;
+		}
 	}
 
 	div.back {

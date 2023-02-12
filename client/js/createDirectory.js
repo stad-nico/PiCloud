@@ -35,7 +35,7 @@ function handler(event, callback) {
 		removeEditableFolderElement();
 		document.removeEventListener("mousedown", documentHandler);
 	} else {
-		window.socket.emit("create-directory", getCookie("path") + editableNameField.innerText, error =>
+		window.socket.emit("create-directory", window.location.pathname + editableNameField.innerText, error =>
 			callback(folderElement, editableNameField, error)
 		);
 	}
@@ -92,7 +92,7 @@ function createEditableFolderElementWithFocus() {
 	nameElement.setAttribute("spellcheck", false);
 	focus(nameElement);
 
-	let container = document.querySelector("#directory-contents");
+	let container = document.querySelector("#directory-contents #contents");
 	container.scrollTop = 0;
 	container.insertBefore(folder, container.firstChild);
 

@@ -1,8 +1,10 @@
 import { setCookie, getCookie } from "./cookies.js";
 import setInteractivePath from "./interactivePath.js";
+import { load } from "./navigation.js";
+import { createDraggable } from "./dropzone.js";
 
 export function clearDirectoryContentElements() {
-	document.querySelector("#directory-contents").replaceChildren();
+	document.querySelector("#directory-contents #contents").replaceChildren();
 }
 
 export function createDirectoryContentElement(filename, size, path, isDirectory = false) {
@@ -14,7 +16,7 @@ export function createDirectoryContentElement(filename, size, path, isDirectory 
 		elem = createFileElement(filename, size, path);
 	}
 
-	document.querySelector("#directory-contents").appendChild(elem);
+	document.querySelector("#directory-contents #contents").appendChild(elem);
 }
 
 function createFolderElement(name, path) {
@@ -29,45 +31,10 @@ function createFolderElement(name, path) {
 			document.querySelectorAll(".folder.active").forEach(elem => elem.classList.remove("active"));
 			this.closest(".folder").classList.add("active");
 			return;
+		} else {
+			window.history.pushState(path, "", path);
+			load();
 		}
-
-		let relPath = this.querySelector(".path").innerText;
-		setCookie("path", relPath);
-		setInteractivePath(getCookie("path"));
-		window.socket.emit("send-directory-contents", getCookie("path"));
-	});
-
-	folderElement.addEventListener("dragenter", event => {
-		event.preventDefault();
-	});
-
-	folderElement.addEventListener("dragover", event => {
-		event.preventDefault();
-	});
-
-	folderElement.addEventListener("drop", function (event) {
-		let oldPath = event.dataTransfer.getData("text/plain");
-
-		if (oldPath === this.querySelector(".path").innerText) {
-			return; // prevent moving on itself
-		}
-
-		let o = oldPath.match(/[^\/]+\/$/gim)[0];
-		let newPath = this.querySelector(".path").innerText + o;
-
-		console.log(oldPath, newPath);
-
-		window.socket.emit("rename-directory", oldPath, newPath, error => {
-			if (error) {
-				console.log(error);
-			} else {
-				console.log("successfully moved directory");
-			}
-		});
-	});
-
-	folderElement.addEventListener("dragstart", event => {
-		event.dataTransfer.setData("text/plain", event.target.querySelector(".path").innerText);
 	});
 
 	folderElement.querySelector("div.delete-icon").addEventListener("click", function (event) {
@@ -88,6 +55,8 @@ function createFolderElement(name, path) {
 		});
 	});
 
+	createDraggable(folderElement);
+
 	return folderElement;
 }
 
@@ -101,6 +70,8 @@ function createFileElement(name, size, path) {
 	fileElement.querySelector("a").setAttribute("href", "/download?path=" + encodeURIComponent(getCookie("path") + name));
 	fileElement.querySelector("a").setAttribute("target", "_blank");
 	fileElement.querySelector(".path").innerText = path;
+
+	createDraggable(fileElement);
 
 	return fileElement;
 }

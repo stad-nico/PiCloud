@@ -14,27 +14,76 @@
 .collapsable-folder-structure-element {
 	position: relative;
 
+	&.no-contents {
+		.head .expand-icon {
+			opacity: 0;
+			pointer-events: none;
+		}
+	}
+
+	&.open:not(.no-contents) {
+		> .content {
+			height: auto;
+			display: block;
+		}
+	}
+
+	&.open {
+		> .head {
+			&:hover + .content,
+			&.drag-hover + .content {
+				background-color: rgb(246, 249, 255);
+			}
+
+			.folder-icon {
+				@include folder-icon-opened(false);
+			}
+
+			.expand-icon {
+				transform: rotate(0deg);
+			}
+		}
+	}
+
 	.head {
-		position: relative;
+		&:hover {
+			cursor: pointer;
+
+			.folder-icon div.back span.triangle {
+				border-color: rgb(235, 240, 254) transparent transparent transparent;
+			}
+
+			.name {
+				pointer-events: none;
+			}
+
+			.open-in-new-tab-icon {
+				display: block;
+			}
+		}
 
 		.folder-icon {
-			@include folder-icon-closed;
+			@include folder-icon-closed(false);
 		}
 
 		.expand-icon {
-			transition: transform 0.1s;
 			transform: rotate(-90deg);
+
+			fill: rgb(169, 174, 199);
 
 			&:hover {
 				fill: rgb(57, 97, 237);
 			}
-
-			fill: rgb(169, 174, 199);
 		}
 
-		.expand-icon.hidden {
-			opacity: 0;
-			pointer-events: none;
+		.open-in-new-tab-icon {
+			fill: rgb(169, 174, 199);
+			margin-left: auto;
+			display: none;
+
+			&:hover {
+				fill: rgb(57, 97, 237);
+			}
 		}
 	}
 
@@ -46,39 +95,8 @@
 		border-radius: 15px;
 
 		height: 0;
+		display: none;
 
 		overflow: hidden;
-	}
-
-	.head:hover {
-		cursor: pointer;
-
-		& + .content {
-			background-color: rgb(246, 249, 255);
-		}
-
-		.folder-icon div.back span.triangle {
-			border-color: rgb(235, 240, 254) transparent transparent transparent;
-		}
-
-		.name {
-			pointer-events: none;
-		}
-	}
-
-	&.open {
-		> .head {
-			.folder-icon {
-				@include folder-icon-opened;
-			}
-
-			.expand-icon {
-				transform: rotate(0deg);
-			}
-		}
-
-		> .head + .content {
-			height: auto;
-		}
 	}
 }

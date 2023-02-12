@@ -10,10 +10,11 @@ const io = require("socket.io")(http);
 const path = require("path");
 
 import sendDirectoryContents from "./src/sendDirectoryContents";
-import sendDirectoryFolderStructure from "./src/sendDirectoryFolderStructure";
+import sendDirectoryFolderStructureRecursive from "./src/sendDirectoryFolderStructure";
 import createDirectory from "./src/createDirectory";
 import deleteDirectory from "./src/deleteDirectory";
 import renameDirectory from "./src/renameDirectory";
+import copyDirectory from "./src/copyDirectory";
 
 let dpath = "C:/Users/stadl/Desktop/File-Server/files/";
 
@@ -22,11 +23,13 @@ fs.watch(dpath, { recursive: true }, function (event, name) {
 	io.sockets.emit("reload");
 });
 
-app.get("/", function (req: Request, res: Response) {
-	res.sendFile(path.join(__dirname, "../client", "index.html"));
-});
+app.use(express.static(path.join(__dirname, "..", "client")));
 
-app.use(express.static(path.join(__dirname, "../client")));
+app.get("*", function (req: Request, res: Response) {
+	res.sendFile("index.html", {
+		root: path.join(__dirname, "..", "client"),
+	});
+});
 
 app.get("/download", function (req: Request, res: Response) {
 	let fullPath = path.join(dpath, req.query.path);
@@ -48,38 +51,77 @@ io.on("connection", function (socket: Socket) {
 		}
 	});
 
-	socket.on("send-directory-folder-structure", async (relPath: string) => {
-		await sendDirectoryFolderStructure(socket, dpath, relPath);
+	socket.on("is-path-valid", async (relPath: string, callback: (valid?: boolean) => void) => {
+		callback(fs.existsSync(path.join(dpath, relPath)));
 	});
 
-	socket.on("send-directory-contents", async (relPath: string) => {
-		await sendDirectoryContents(socket, dpath, relPath);
+	socket.on("send-directory-folder-structure-recursive", async (relPath: string, callback?: (error?: unknown) => void) => {
+		try {
+			await sendDirectoryFolderStructureRecursive(socket, dpath, relPath);
+			callback && callback();
+		} catch (error) {
+			callback && callback(error);
+			console.log(error);
+		}
 	});
 
-	socket.on("create-directory", async (relPath: string, callback: (error?: unknown) => void) => {
+	socket.on("send-directory-contents", async (relPath: string, callback?: (error?: unknown) => void) => {
+		try {
+			await sendDirectoryContents(socket, dpath, relPath);
+			callback && callback();
+		} catch (error) {
+			callback && callback(error);
+			console.log(error);
+		}
+	});
+
+	socket.on("create-directory", async (relPath: string, callback?: (error?: unknown) => void) => {
 		try {
 			await createDirectory(socket, dpath, relPath);
-			callback();
+			callback && callback();
 		} catch (error) {
-			callback(error);
+			callback && callback(error);
+			console.log(error);
 		}
 	});
 
 	socket.on("delete-directory", async (relPath: string, callback: (error?: unknown) => void) => {
 		try {
 			await deleteDirectory(socket, dpath, relPath);
-			callback();
+			callback && callback();
 		} catch (error) {
-			callback(error);
+			callback && callback(error);
+			console.log(error);
 		}
 	});
 
 	socket.on("rename-directory", async (oldPath: string, newPath: string, callback: (error?: unknown) => void) => {
 		try {
 			await renameDirectory(socket, dpath, oldPath, newPath);
-			callback();
+			callback && callback();
 		} catch (error) {
-			callback(error);
+			callback && callback(error);
+			console.log(error);
+		}
+	});
+
+	socket.on("copy-directory", async (src: string, dest: string, callback: (error?: unknown) => void) => {
+		try {
+			await copyDirectory(socket, dpath, src, dest, false);
+			callback && callback();
+		} catch (error) {
+			callback && callback(error);
+			console.log(error);
+		}
+	});
+
+	socket.on("copy-directory-force", async (src: string, dest: string, callback: (error?: unknown) => void) => {
+		try {
+			await copyDirectory(socket, dpath, src, dest, true);
+			callback && callback();
+		} catch (error) {
+			callback && callback(error);
+			console.log(error);
 		}
 	});
 
@@ -89,5 +131,5 @@ io.on("connection", function (socket: Socket) {
 });
 
 http.listen(3000, function () {
-	console.log("listening on *:3000");
+	console.log("listening on localhost:3000");
 });

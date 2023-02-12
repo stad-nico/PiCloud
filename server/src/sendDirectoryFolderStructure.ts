@@ -7,24 +7,31 @@ import sendErrorMessageToSocket from "./sendErrorMessageToSocket";
 import { getContentNames, getFileStats, hasSubDirectories } from "./fsHelpers";
 import isNodeJSErrnoException from "./isNodeJSErrnoException";
 
-export default async function sendDirectoryFolderStructure(socket: Socket, defaultDirectoryPath: string, relativePath: string) {
+type FolderObject = {
+	name: string;
+	path: string;
+	hasSubDirectories: boolean;
+	contents?: FolderObject[];
+};
+
+export default async function sendDirectoryFolderStructureRecursive(socket: Socket, defaultDirectoryPath: string, relativePath: string) {
 	try {
-		let absolutePath = path.join(defaultDirectoryPath, relativePath);
-		let folderObjects: { name: string; hasSubDirectories: boolean }[] = [];
+		let folderObjects: FolderObject[] = [];
 
-		let names = await getContentNames(absolutePath);
-
-		for (let name of names) {
-			if ((await getFileStats(path.join(absolutePath, name))).isDirectory()) {
-				folderObjects.push({
-					name: name,
-					hasSubDirectories: await hasSubDirectories(path.join(absolutePath, name)),
-				});
-			}
+		if (relativePath === "/") {
+			var paths = [""];
+		} else {
+			var paths = relativePath.replace(/\/$/gim, "").split("/");
 		}
 
-		socket.emit("receive-directory-folder-structure", {
-			path: relativePath,
+		let rel = "/";
+
+		for (let part of paths) {
+			rel = path.join(rel, part).replaceAll("\\", "/");
+			folderObjects.push(await getDirectoryFolderStructure(defaultDirectoryPath, rel, true));
+		}
+
+		socket.emit("receive-directory-folder-structure-recursive", {
 			folderObjects: folderObjects,
 		});
 	} catch (error) {
@@ -32,4 +39,32 @@ export default async function sendDirectoryFolderStructure(socket: Socket, defau
 			sendErrorMessageToSocket(socket, error.toString(), error.errno, error.code);
 		}
 	}
+}
+
+async function getDirectoryFolderStructure(defaultDirectoryPath: string, relPath: string, includeContents: boolean = false) {
+	let fullPath = path.join(defaultDirectoryPath, relPath);
+
+	if (!(await getFileStats(fullPath)).isDirectory()) {
+		throw Error("path not a directory");
+	}
+
+	let folderObject: FolderObject = {
+		name: relPath.match(/([^\/]+(?=\/?$))|^\/$/gim)[0],
+		path: relPath.endsWith("/") ? relPath : relPath + "/",
+		hasSubDirectories: await hasSubDirectories(fullPath),
+	};
+
+	if (includeContents) {
+		folderObject.contents = [];
+
+		for (let name of await getContentNames(fullPath)) {
+			if ((await getFileStats(path.join(fullPath, name))).isDirectory()) {
+				folderObject.contents.push(
+					await getDirectoryFolderStructure(defaultDirectoryPath, path.join(relPath, name).replaceAll("\\", "/"), false)
+				);
+			}
+		}
+	}
+
+	return folderObject;
 }

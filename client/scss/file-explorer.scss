@@ -19,10 +19,7 @@
 
 		margin-top: -30px;
 
-		#create-folder-icon,
-		#forward-icon,
-		#backward-icon,
-		#layer-up-icon {
+		.navigation-icon {
 			width: 30px;
 			height: 30px;
 
@@ -33,6 +30,7 @@
 			justify-content: center;
 
 			fill: rgb(102, 113, 168);
+			transition: fill 0.2s;
 
 			&:hover {
 				cursor: pointer;
@@ -41,6 +39,10 @@
 
 				background-color: rgb(235, 240, 254);
 			}
+		}
+
+		.navigation-icon.disabled {
+			fill: hsl(230, 17%, 73%);
 		}
 
 		#forward-icon {
