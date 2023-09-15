@@ -1,8 +1,0 @@
-{
-	"compilerOptions": {
-		"types": ["node"],
-		"esModuleInterop": true,
-		"downlevelIteration": true,
-		"lib": ["ES2021"]
-	}
-}
