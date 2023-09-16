@@ -1,3 +1,2 @@
-node_modules
-/files/
-/client/css
+**/node_modules
+backend/dist
