@@ -1,5 +1,5 @@
 export abstract class AbstractQueue<T> {
-	private items: T[];
+	protected items: T[];
 
 	protected constructor() {
 		this.items = [];
