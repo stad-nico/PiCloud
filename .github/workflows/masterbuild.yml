@@ -1,0 +1,40 @@
+name: masterbuild
+run-name: ${{ github.ref_name }}
+
+on: push
+
+jobs:
+  build_backend:
+    name: build backend
+    runs-on: ["windows-latest", "ubuntu-latest"]
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: install npm modules
+        run: npm ci
+      - name: build
+        run: npm run build
+  unit_tests_backend:
+    name: unit tests backend
+    runs-on: ["windows-latest", "ubuntu-latest"]
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: install npm modules
+        run: npm ci
+      - name: run unit tests
+        run: npm run test:unit
+  e2e_tests_backend:
+    name: e2e tests backend
+    runs-on: ["windows-latest", "ubuntu-latest"]
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: install npm modules
+        run: npm ci
+      - name: run e2e tests
+        run: npm run test:e2e
+  
