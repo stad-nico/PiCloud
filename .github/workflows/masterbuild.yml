@@ -1,0 +1,10 @@
+name: masterbuild
+run-name: ${{ github.ref_name }}
+
+on: push
+
+jobs:
+  backend:
+    uses: ./.github/workflows/backend.yml
+  frontend:
+    uses: ./.github/workflows/frontend.yml
