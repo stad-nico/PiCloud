@@ -10,7 +10,7 @@ defaults:
 jobs:
   build_backend:
     name: build backend
-    runs-on: ["windows-latest", "ubuntu-latest"]
+    runs-on: [windows-latest, ubuntu-latest]
     steps:
       - name: install npm modules
         run: npm ci
@@ -18,7 +18,7 @@ jobs:
         run: npm run build
   unit_tests_backend:
     name: unit tests backend
-    runs-on: ["windows-latest", "ubuntu-latest"]
+    runs-on: [windows-latest, ubuntu-latest]
     steps:
       - name: install npm modules
         run: npm ci
@@ -26,7 +26,7 @@ jobs:
         run: npm run test:unit
   e2e_tests_backend:
     name: e2e tests backend
-    runs-on: ["windows-latest", "ubuntu-latest"]
+    runs-on: [windows-latest, ubuntu-latest]
     steps:
       - name: install npm modules
         run: npm ci
