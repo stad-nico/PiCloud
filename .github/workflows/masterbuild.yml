@@ -6,7 +6,7 @@ on: push
 jobs:
   build_backend:
     name: build backend
-    runs-on: ["windows-latest", "ubuntu-latest"]
+    runs-on: [windows-latest, ubuntu-latest]
     defaults:
       run:
         working-directory: ./backend
