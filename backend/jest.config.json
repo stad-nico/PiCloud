@@ -1,9 +1,9 @@
 {
 	"moduleFileExtensions": ["js", "json", "ts"],
 	"rootDir": ".",
-	"roots": ["test/e2e", "test/unit"],
+	"roots": ["test/e2e", "test/unit", "test/integration"],
 	"modulePaths": ["<rootDir>"],
-	"moduleDirectories": ["node_modules"],
+	"moduleDirectories": ["node_modules", "src"],
 	"testRegex": ".*\\.spec\\.ts$",
 	"transform": {
 		"^.+\\.(t|j)s$": ["ts-jest", { "isolatedModules": true }]

@@ -3,11 +3,9 @@ import { mockedDataSource } from 'test/mock/mockedDataSource.spec';
 import { mockedQueryRunner } from 'test/mock/mockedQueryRunner.spec';
 import { DataSource } from 'typeorm';
 
-jest.mock('typeorm', () => {
-	return {
-		DataSource: jest.fn().mockImplementation(() => mockedDataSource),
-	};
-});
+jest.mock('typeorm', () => ({
+	DataSource: jest.fn().mockImplementation(() => mockedDataSource),
+}));
 
 describe('withTransactionalQueryRunner', () => {
 	beforeEach(() => {

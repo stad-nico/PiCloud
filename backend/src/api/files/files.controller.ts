@@ -1,38 +1,45 @@
-import { Controller, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Controller, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadDto } from 'src/api/files/dtos/file.upload.dto';
 import { FileUploadResponseDto } from 'src/api/files/dtos/file.upload.response.dto';
-import { File } from 'src/api/files/entities/file.entity';
 import { FileUploadEntity } from 'src/api/files/entities/file.upload.entity';
 import { FilesService } from 'src/api/files/files.service';
 import { ILogger } from 'src/logging/ILogger';
 import { InjectLogger } from 'src/logging/InjectLogger';
-import { Error } from 'src/util/Error';
+import { ServerError } from 'src/util/ServerError';
 
 @Controller('files')
 export class FilesController {
 	private filesService: FilesService;
 
+	private configService: ConfigService;
+
 	@InjectLogger()
 	private logger!: ILogger;
 
-	constructor(fileService: FilesService) {
+	constructor(fileService: FilesService, configService: ConfigService) {
 		this.filesService = fileService;
+		this.configService = configService;
 	}
 
 	@Post(':path(*)')
 	@UseInterceptors(FileInterceptor('file'))
-	public async update(@Param() params: FileUploadDto, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponseDto> {
+	public async upload(@Param() params: FileUploadDto, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponseDto> {
 		let fullPath: string = params.path;
+
+		if (!file) {
+			throw new BadRequestException('file must not be empty');
+		}
 
 		this.logger.log(`[POST] Upload file ${fullPath}`);
 
 		let fileUploadEntity: FileUploadEntity = FileUploadEntity.from(fullPath, file);
 
-		let result: File | Error = await this.filesService.upload(fileUploadEntity);
+		let result = await this.filesService.upload(fileUploadEntity);
 
-		if (result instanceof Error) {
-			this.logger.error(`[RES] ${result.getMessage()}`);
+		if (result instanceof ServerError) {
+			this.logger.error(`[RES] ${result.message}`);
 			throw result.toHttpException();
 		}
 
