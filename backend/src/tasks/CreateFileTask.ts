@@ -7,9 +7,9 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 
 export class CreateFileTask extends AbstractTask<void | ServerError<HttpStatus.BAD_REQUEST | HttpStatus.CONFLICT>> {
-	private buffer: Buffer;
+	private readonly buffer: Buffer;
 
-	private fullPath: string;
+	private readonly fullPath: string;
 
 	constructor(buffer: Buffer, fullPath: string) {
 		super();

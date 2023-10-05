@@ -1,7 +1,7 @@
 import { ILogger } from 'src/logging/ILogger';
 
 export class MultiplexLogger implements ILogger {
-	private loggers: ILogger[];
+	private readonly loggers: ILogger[];
 
 	constructor(loggers: ILogger[]) {
 		this.loggers = loggers;

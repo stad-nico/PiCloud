@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, HttpException, HttpStatus, InternalServerErrorException } from '@nestjs/common';
 
 export class ServerError<T extends keyof ExceptionTypeMap> extends Error {
-	private status: T;
+	private readonly status: T;
 
 	constructor(message: string, status: T) {
 		super(message);

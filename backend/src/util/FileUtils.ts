@@ -5,7 +5,7 @@ import * as path from 'path';
 
 export class FileUtils {
 	@Inject(ConfigService)
-	private static configService: ConfigService;
+	private static readonly configService: ConfigService;
 
 	/**
 	 * Normalizes a path for the current os by replacing / or \ with `path.sep`

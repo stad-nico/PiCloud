@@ -1,7 +1,7 @@
 import { ILogger } from 'src/logging/ILogger';
 
 export class NotifyingLogger implements ILogger {
-	private loggersToNotify: ILogger[];
+	private readonly loggersToNotify: ILogger[];
 
 	constructor(loggersToNotify: ILogger[]) {
 		this.loggersToNotify = loggersToNotify;

@@ -11,12 +11,12 @@ import { ServerError } from 'src/util/ServerError';
 
 @Controller('files')
 export class FilesController {
-	private filesService: FilesService;
+	private readonly filesService: FilesService;
 
-	private configService: ConfigService;
+	private readonly configService: ConfigService;
 
 	@InjectLogger()
-	private logger!: ILogger;
+	private readonly logger!: ILogger;
 
 	constructor(fileService: FilesService, configService: ConfigService) {
 		this.filesService = fileService;

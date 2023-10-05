@@ -1,7 +1,7 @@
 type Listener<T extends Array<any>> = (...args: T) => void;
 
 export class EventEmitter<EventMap extends Record<string, Array<any>>> {
-	private eventListeners: {
+	private readonly eventListeners: {
 		[K in keyof EventMap]?: Set<Listener<EventMap[K]>>;
 	} = {};
 

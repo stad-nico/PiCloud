@@ -8,7 +8,7 @@ import { FileUploadEntity } from './entities/file.upload.entity';
 
 @Injectable()
 export class FilesService {
-	private dataSource: DataSource;
+	private readonly dataSource: DataSource;
 
 	constructor(dataSource: DataSource) {
 		this.dataSource = dataSource;
