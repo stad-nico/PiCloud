@@ -1,26 +1,19 @@
-import { BadRequestException, Controller, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { BadRequestException, Controller, Logger, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileUploadDto } from 'src/api/files/dtos/file.upload.dto';
 import { FileUploadResponseDto } from 'src/api/files/dtos/file.upload.response.dto';
 import { FileUploadEntity } from 'src/api/files/entities/file.upload.entity';
 import { FilesService } from 'src/api/files/files.service';
-import { ILogger } from 'src/logging/ILogger';
-import { InjectLogger } from 'src/logging/InjectLogger';
 import { ServerError } from 'src/util/ServerError';
 
 @Controller('files')
 export class FilesController {
+	private readonly logger = new Logger(FilesController.name);
+
 	private readonly filesService: FilesService;
 
-	private readonly configService: ConfigService;
-
-	@InjectLogger()
-	private readonly logger!: ILogger;
-
-	constructor(fileService: FilesService, configService: ConfigService) {
+	constructor(fileService: FilesService) {
 		this.filesService = fileService;
-		this.configService = configService;
 	}
 
 	@Post(':path(*)')

@@ -1,6 +1,7 @@
 import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { HttpExceptionFilter } from 'src/api/HttpExceptionFilter';
+import { Logger } from 'src/logging/Logger';
 
 export function configureApplication(application: INestApplication) {
 	application.useGlobalPipes(
@@ -10,5 +11,8 @@ export function configureApplication(application: INestApplication) {
 			},
 		})
 	);
+
 	application.useGlobalFilters(new HttpExceptionFilter());
+
+	application.useLogger(new Logger());
 }

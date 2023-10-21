@@ -1,12 +1,9 @@
-import { Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { Environment } from 'src/env.config';
 
 export class FileUtils {
-	@Inject(ConfigService)
-	private static readonly configService: ConfigService;
-
 	/**
 	 * Normalizes a path for the current os by replacing / or \ with `path.sep`
 	 *
@@ -15,6 +12,36 @@ export class FileUtils {
 	 */
 	public static normalizePathForOS(pathToNormalize: string): string {
 		return pathToNormalize.replaceAll(/(\/|\\)/gi, path.sep);
+	}
+
+	/**
+	 * Try to delete the directory recursively.
+	 * Throws error if fails.
+	 *
+	 * @throw fs error
+	 *
+	 * @param path the absolute path
+	 * @param recursive
+	 */
+	public static async deleteDirectoryOrFail(path: string, recursive: boolean = true): Promise<void> {
+		return await fs.rm(path, { recursive: recursive });
+	}
+
+	/**
+	 * Try to create the directory recursively if it does not already exists.
+	 * Throws error if fails.
+	 *
+	 * @throws fs Error
+	 *
+	 * @param path the absolute path
+	 * @returns void
+	 */
+	public static async createDirectoryIfNotPresent(path: string, recursive: boolean = true): Promise<void> {
+		if (await FileUtils.pathExists(path)) {
+			return;
+		}
+
+		await fs.mkdir(path, { recursive: recursive });
 	}
 
 	/**
@@ -28,30 +55,30 @@ export class FileUtils {
 	}
 
 	/**
-	 * Checks if a path does not leave the directory specified in `env.DISK_PATH` by joining it with `DISK_PATH`
+	 * Checks if a path does not leave the directory specified in `env.DISK_FULL_PATH` by joining it with `DISK_FULL_PATH`
 	 *
 	 * @example
-	 * process.env.DISK_PATH = "C:/test";
+	 * process.env.DISK_FULL_PATH = "C:/test";
 	 * isPathRelative("t.txt"); // returns true
 	 * isPathRelative("../../f.txt"); // returns false
 	 *
-	 * @param relativePath the path relative to `DISK_PATH` to check
+	 * @param relativePath the path relative to `DISK_FULL_PATH` to check
 	 * @returns
 	 */
-	public static isPathRelative(relativePath: string): boolean {
-		const diskPath: string = this.configService.getOrThrow('DISK_PATH');
+	public static isPathRelative(configService: ConfigService, relativePath: string): boolean {
+		const diskPath: string = configService.getOrThrow(Environment.DISK_FULL_PATH);
 		const relative = path.relative(diskPath, path.join(diskPath, relativePath));
 
 		return Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative);
 	}
 
 	/**
-	 * Joins a path with the environment variable `DISK_PATH` and returns normalized path
+	 * Joins a path with the environment variable `DISK_FULL_PATH` and returns normalized path
 	 *
-	 * @param relativePath the path relative to `DISK_PATH` to join
+	 * @param relativePath the path relative to `DISK_FULL_PATH` to join
 	 * @returns the joined and normalized path
 	 */
-	public static join(relativePath: string): string {
-		return path.join(this.configService.getOrThrow('DISK_PATH'), relativePath);
+	public static join(configService: ConfigService, relativePath: string): string {
+		return path.join(configService.getOrThrow(Environment.DISK_FULL_PATH), relativePath);
 	}
 }

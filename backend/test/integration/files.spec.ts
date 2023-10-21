@@ -1,50 +1,19 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import * as fs from 'fs/promises';
 import { File } from 'src/api/files/entities/file.entity';
-import { FilesModule } from 'src/api/files/files.module';
-import { configureApplication } from 'src/app.config';
 import { FileUtils } from 'src/util/FileUtils';
 import * as request from 'supertest';
 import { mockedQueryRunner } from 'test/mock/mockedQueryRunner.spec';
 import { DataSource, QueryRunner } from 'typeorm';
 
 describe('/files/', () => {
-	let app: INestApplication;
-	let dataSource: DataSource;
-	let module: TestingModule;
-
-	beforeAll(async () => {
-		module = await Test.createTestingModule({
-			imports: [
-				FilesModule,
-				TypeOrmModule.forRoot({
-					type: 'mysql',
-					host: 'localhost',
-					port: 3306,
-					username: 'root',
-					password: 'mysqldev',
-					database: 'cloud-test',
-					autoLoadEntities: true,
-					synchronize: true,
-				}),
-			],
-		}).compile();
-
-		app = module.createNestApplication();
-		configureApplication(app);
-
-		dataSource = module.get<DataSource>(DataSource);
-
-		await app.init();
-	});
+	let dataSource: DataSource = global.app.get<DataSource>(DataSource);
 
 	afterEach(async () => {
 		await dataSource.createQueryBuilder().delete().from(File).execute();
 	});
 
 	afterAll(async () => {
+		await dataSource.destroy();
 		await app.close();
 	});
 

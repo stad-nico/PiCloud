@@ -3,9 +3,9 @@ import { ILogger } from 'src/logging/ILogger';
 export class NotifyingLoggerWithContext implements ILogger {
 	private readonly loggersToNotify: ILogger[];
 
-	private readonly context: string;
+	private readonly context: string | undefined;
 
-	constructor(context: string, loggersToNotify: ILogger[]) {
+	constructor(context: string | undefined, loggersToNotify: ILogger[]) {
 		this.context = context;
 		this.loggersToNotify = loggersToNotify;
 	}

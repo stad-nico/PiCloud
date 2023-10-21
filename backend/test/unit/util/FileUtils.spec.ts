@@ -1,37 +1,53 @@
+import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { FileUtils } from 'src/util/FileUtils';
 
 jest.mock('fs/promises', () => ({
 	access: jest.fn(),
-}));
-
-jest.mock('src/env/InjectEnv.ts', () => ({
-	InjectEnv: jest.fn().mockReturnValue((target: any, key: string) => {
-		Object.defineProperty(target, key, {
-			get: () => 'test',
-		});
-	}),
+	rm: jest.fn(),
+	mkdir: jest.fn(),
 }));
 
 describe('FileUtils', () => {
+	let configService: ConfigService;
+
+	beforeAll(async () => {
+		const module: TestingModule = await Test.createTestingModule({
+			providers: [
+				{
+					provide: ConfigService,
+					useValue: {
+						getOrThrow: () => {
+							return 'test';
+						},
+					},
+				},
+			],
+		}).compile();
+
+		module.useLogger(undefined as any);
+		configService = module.get<ConfigService>(ConfigService);
+	});
+
 	describe('isPathRelative', () => {
 		it('should return true if path is a relative path that does not leave base dir', () => {
-			expect(FileUtils.isPathRelative('t/fff/t.txt')).toBe(true);
-			expect(FileUtils.isPathRelative('./t/fff/t.txt')).toBe(true);
-			expect(FileUtils.isPathRelative('/t/fff/t.txt')).toBe(true);
+			expect(FileUtils.isPathRelative(configService, 't/fff/t.txt')).toBe(true);
+			expect(FileUtils.isPathRelative(configService, './t/fff/t.txt')).toBe(true);
+			expect(FileUtils.isPathRelative(configService, '/t/fff/t.txt')).toBe(true);
 		});
 
 		it('should return true if path is a relative path in base dir', () => {
-			expect(FileUtils.isPathRelative('/t.txt')).toBe(true);
-			expect(FileUtils.isPathRelative('./t.txt')).toBe(true);
-			expect(FileUtils.isPathRelative('t.txt')).toBe(true);
+			expect(FileUtils.isPathRelative(configService, '/t.txt')).toBe(true);
+			expect(FileUtils.isPathRelative(configService, './t.txt')).toBe(true);
+			expect(FileUtils.isPathRelative(configService, 't.txt')).toBe(true);
 		});
 
 		it('should return false if path leaves base dir', () => {
-			expect(FileUtils.isPathRelative('../t.txt')).toBe(false);
-			expect(FileUtils.isPathRelative('./../t.txt')).toBe(false);
-			expect(FileUtils.isPathRelative('./t/f/../../../f.txt')).toBe(false);
+			expect(FileUtils.isPathRelative(configService, '../t.txt')).toBe(false);
+			expect(FileUtils.isPathRelative(configService, './../t.txt')).toBe(false);
+			expect(FileUtils.isPathRelative(configService, './t/f/../../../f.txt')).toBe(false);
 		});
 	});
 
@@ -51,13 +67,47 @@ describe('FileUtils', () => {
 
 	describe('join', () => {
 		it("should join the path with 'test' using path.join", () => {
-			expect(FileUtils.join('t.txt')).toBe(path.join('test', 't.txt'));
+			expect(FileUtils.join(configService, 't.txt')).toBe(path.join('test', 't.txt'));
 		});
 	});
 
 	describe('normalizePathForOS', () => {
 		it('should replace forward slashes with backslashes', () => {
 			expect(FileUtils['normalizePathForOS']('test/test.txt')).toBe('test\\test.txt');
+		});
+	});
+
+	describe('deleteDirectoryOrFail', () => {
+		it('should throw error if fs.rm throws error', () => {
+			(fs.rm as jest.Mock).mockRejectedValue(new Error('test'));
+
+			expect(FileUtils.deleteDirectoryOrFail('')).rejects.toStrictEqual(new Error('test'));
+			expect(fs.rm).toBeCalledWith('', { recursive: true });
+		});
+
+		it('should not throw error if fs.rm does not throw error', () => {
+			(fs.rm as jest.Mock).mockResolvedValue(undefined);
+
+			expect(FileUtils.deleteDirectoryOrFail('', false)).resolves.not.toThrow();
+			expect(fs.rm).toBeCalledWith('', { recursive: false });
+		});
+	});
+
+	describe('createDirectoryIfNotPresent', () => {
+		it('should not create dir if already present', async () => {
+			jest.spyOn(FileUtils, 'pathExists').mockResolvedValue(true);
+
+			await FileUtils.createDirectoryIfNotPresent('test');
+
+			expect(fs.mkdir).not.toBeCalled();
+		});
+
+		it('should create dir if not already present', async () => {
+			jest.spyOn(FileUtils, 'pathExists').mockResolvedValue(false);
+
+			await FileUtils.createDirectoryIfNotPresent('test', false);
+
+			expect(fs.mkdir).toBeCalled();
 		});
 	});
 });

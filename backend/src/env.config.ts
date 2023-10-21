@@ -1,12 +1,16 @@
 import { plainToInstance } from 'class-transformer';
 import { IsNumber, IsString, validateSync } from 'class-validator';
 
-class EnvVariables {
+export class EnvVariables {
 	@IsNumber()
 	PORT!: number;
 
 	@IsString()
-	DISK_PATH!: string;
+	DISK_FULL_PATH!: string;
+}
+
+export enum Environment {
+	DISK_FULL_PATH = 'DISK_FULL_PATH',
 }
 
 export function validate(config: Record<string, unknown>) {
@@ -16,5 +20,6 @@ export function validate(config: Record<string, unknown>) {
 	if (errors.length > 0) {
 		throw new Error(errors.toString());
 	}
+
 	return validatedConfig;
 }

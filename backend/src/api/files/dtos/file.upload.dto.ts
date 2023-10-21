@@ -4,11 +4,9 @@ export class FileUploadDto {
 	@Matches(/^(([^<>.|\/\\:"?]|\.(?!\.))+\/)*([^<>|.\/\\:"?]+(\.[^<>|.\/\\:"?]+)+)$/im, {
 		message: '$property must be a valid file path',
 	})
-	path!: string;
+	path: string;
 
-	constructor(path?: string) {
-		if (path) {
-			this.path = path;
-		}
+	constructor(path: string) {
+		this.path = path;
 	}
 }

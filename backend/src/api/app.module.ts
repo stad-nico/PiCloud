@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DiskModule } from 'src/disk/disk.module';
 import { validate } from 'src/env.config';
 import { FilesModule } from './files/files.module';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
-			isGlobal: true,
 			envFilePath: `../.${process.env.NODE_ENV?.trim() || 'dev'}.env`,
 			expandVariables: true,
 			validate: validate,
@@ -22,6 +22,8 @@ import { FilesModule } from './files/files.module';
 			autoLoadEntities: true,
 			synchronize: true,
 		}),
+
+		DiskModule.forRootAsync(),
 
 		FilesModule,
 	],

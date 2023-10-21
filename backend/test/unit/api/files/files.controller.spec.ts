@@ -1,4 +1,4 @@
-import { HttpStatus } from '@nestjs/common';
+import { BadRequestException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FileUploadResponseDto } from 'src/api/files/dtos/file.upload.response.dto';
 import { FilesController } from 'src/api/files/files.controller';
@@ -21,6 +21,7 @@ describe('FilesController', () => {
 			],
 		}).compile();
 
+		module.useLogger(undefined as any);
 		controller = module.get<FilesController>(FilesController);
 	});
 
@@ -38,8 +39,14 @@ describe('FilesController', () => {
 			path: '',
 		};
 
+		it('should throw BadRequestException if file is not given', async () => {
+			const error = new BadRequestException('file must not be empty');
+
+			await expect(controller.upload({ path: '' }, undefined as any)).rejects.toStrictEqual(error);
+		});
+
 		it('should throw error if service returns error', async () => {
-			let error = new ServerError('path /test/ is not a valid path', HttpStatus.BAD_REQUEST);
+			const error = new ServerError('path /test/ is not a valid path', HttpStatus.BAD_REQUEST);
 
 			jest.spyOn(mockedFilesService, 'upload').mockResolvedValue(error);
 

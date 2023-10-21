@@ -1,4 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as fs from 'fs/promises';
 import { FileUploadEntity } from 'src/api/files/entities/file.upload.entity';
@@ -18,11 +19,23 @@ jest.mock('fs/promises', () => ({
 describe('FilesService', () => {
 	let service: FilesService;
 
-	beforeEach(async () => {
+	beforeAll(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			providers: [FilesService, { provide: DataSource, useValue: mockedDataSource }],
+			providers: [
+				FilesService,
+				{ provide: DataSource, useValue: mockedDataSource },
+				{
+					provide: ConfigService,
+					useValue: {
+						getOrThrow: () => {
+							return 'abcde';
+						},
+					},
+				},
+			],
 		}).compile();
 
+		module.useLogger(undefined as any);
 		service = module.get<FilesService>(FilesService);
 	});
 
