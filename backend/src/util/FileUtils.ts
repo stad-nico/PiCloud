@@ -66,7 +66,7 @@ export class FileUtils {
 	 * @returns
 	 */
 	public static isPathRelative(configService: ConfigService, relativePath: string): boolean {
-		const diskPath: string = configService.getOrThrow(Environment.DISK_FULL_PATH);
+		const diskPath: string = configService.getOrThrow(Environment.DiskFullPath);
 		const relative = path.relative(diskPath, path.join(diskPath, relativePath));
 
 		return Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative);
@@ -79,6 +79,6 @@ export class FileUtils {
 	 * @returns the joined and normalized path
 	 */
 	public static join(configService: ConfigService, relativePath: string): string {
-		return path.join(configService.getOrThrow(Environment.DISK_FULL_PATH), relativePath);
+		return path.join(configService.getOrThrow(Environment.DiskFullPath), relativePath);
 	}
 }

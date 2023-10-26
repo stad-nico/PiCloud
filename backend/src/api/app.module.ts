@@ -5,7 +5,7 @@ import { DiskModule } from 'src/disk/disk.module';
 import { validate } from 'src/env.config';
 import { FilesModule } from './files/files.module';
 
-@Module({
+export const AppModuleConfig = {
 	imports: [
 		ConfigModule.forRoot({
 			envFilePath: `../.${process.env.NODE_ENV?.trim() || 'dev'}.env`,
@@ -27,5 +27,7 @@ import { FilesModule } from './files/files.module';
 
 		FilesModule,
 	],
-})
+};
+
+@Module(AppModuleConfig)
 export class AppModule {}

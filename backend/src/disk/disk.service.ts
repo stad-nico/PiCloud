@@ -1,17 +1,33 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { statfs } from 'fs/promises';
-import { Environment } from 'src/env.config';
+import { Environment, NodeEnv } from 'src/env.config';
 import { FileUtils } from 'src/util/FileUtils';
 
 @Injectable()
 export class DiskService {
 	private readonly logger = new Logger(DiskService.name);
 
+	private readonly configService: ConfigService;
+
 	private readonly fullPath: string;
 
+	private shouldCleanupOnShutdown: boolean;
+
 	constructor(configService: ConfigService) {
-		this.fullPath = configService.getOrThrow(Environment.DISK_FULL_PATH);
+		this.configService = configService;
+		this.fullPath = configService.getOrThrow(Environment.DiskFullPath);
+
+		const nodeEnv: NodeEnv = configService.get(Environment.NodeENV, NodeEnv.Develop);
+		this.shouldCleanupOnShutdown = nodeEnv === (NodeEnv.Testing || NodeEnv.Develop);
+	}
+
+	public async beforeApplicationShutdown(): Promise<void> {
+		if (!this.shouldCleanupOnShutdown) {
+			return;
+		}
+
+		return FileUtils.deleteDirectoryOrFail(this.configService.getOrThrow(Environment.DiskFullPath));
 	}
 
 	public async init() {

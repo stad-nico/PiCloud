@@ -1,5 +1,11 @@
 import { plainToInstance } from 'class-transformer';
-import { IsNumber, IsString, validateSync } from 'class-validator';
+import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
+
+export enum NodeEnv {
+	Develop = 'dev',
+	Production = 'prod',
+	Testing = 'test',
+}
 
 export class EnvVariables {
 	@IsNumber()
@@ -7,13 +13,20 @@ export class EnvVariables {
 
 	@IsString()
 	DISK_FULL_PATH!: string;
+
+	@IsEnum(NodeEnv)
+	NODE_ENV!: string;
 }
 
 export enum Environment {
-	DISK_FULL_PATH = 'DISK_FULL_PATH',
+	Port = 'PORT',
+	DiskFullPath = 'DISK_FULL_PATH',
+	NodeENV = 'NODE_ENV',
 }
 
 export function validate(config: Record<string, unknown>) {
+	config['NODE_ENV'] = process.env.NODE_ENV?.trim() || NodeEnv.Develop;
+
 	const validatedConfig = plainToInstance(EnvVariables, config, { enableImplicitConversion: true });
 	const errors = validateSync(validatedConfig, { skipMissingProperties: false });
 
