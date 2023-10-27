@@ -1,7 +1,8 @@
 import { BadRequestException, Controller, Logger, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileUploadDto } from 'src/api/files/dtos/file.upload.dto';
-import { FileUploadResponseDto } from 'src/api/files/dtos/file.upload.response.dto';
+import { FilePostDto } from 'src/api/files/dtos/file.post.dto';
+import { FilePostResponseDto } from 'src/api/files/dtos/file.post.response.dto';
+import { FileGetMetadataDto } from 'src/api/files/dtos/file.get-metadata.dto';
 import { FileUploadEntity } from 'src/api/files/entities/file.upload.entity';
 import { FilesService } from 'src/api/files/files.service';
 import { ServerError } from 'src/util/ServerError';
@@ -18,7 +19,7 @@ export class FilesController {
 
 	@Post(':path(*)')
 	@UseInterceptors(FileInterceptor('file'))
-	public async upload(@Param() params: FileUploadDto, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponseDto> {
+	public async post(@Param() params: FilePostDto, @UploadedFile() file: Express.Multer.File): Promise<FilePostResponseDto> {
 		let fullPath: string = params.path;
 
 		if (!file) {
@@ -38,5 +39,14 @@ export class FilesController {
 
 		this.logger.log(`[RES] ${FileUploadResponseDto.fromFile(result).path}`);
 		return FileUploadResponseDto.fromFile(result);
+	}
+
+	@Get(':path(*)/metadata')
+	public async getMetadata(@Param() params: FileGetMetadataDto) {
+		let fullPath: string = params.path;
+
+		this.logger.log(`[GET] Metadata ${fullPath}`);
+
+
 	}
 }
