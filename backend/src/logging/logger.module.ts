@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { Logger } from 'src/logging/Logger';
 
 @Module({

@@ -1,15 +1,17 @@
-import { BadRequestException, Controller, Logger, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Controller, Get, HttpStatus, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+
+import { FileMetadataDto } from 'src/api/files/dtos/file.metadata.dto';
+import { FileMetadataResponseDto } from 'src/api/files/dtos/file.metadata.response.dto';
 import { FileUploadDto } from 'src/api/files/dtos/file.upload.dto';
 import { FileUploadResponseDto } from 'src/api/files/dtos/file.upload.response.dto';
+import { FileMetadataEntity } from 'src/api/files/entities/file.metadata.entity';
 import { FileUploadEntity } from 'src/api/files/entities/file.upload.entity';
 import { FilesService } from 'src/api/files/files.service';
 import { ServerError } from 'src/util/ServerError';
 
 @Controller('files')
 export class FilesController {
-	private readonly logger = new Logger(FilesController.name);
-
 	private readonly filesService: FilesService;
 
 	constructor(fileService: FilesService) {
@@ -18,25 +20,39 @@ export class FilesController {
 
 	@Post(':path(*)')
 	@UseInterceptors(FileInterceptor('file'))
-	public async upload(@Param() params: FileUploadDto, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponseDto> {
+	public async uploadFile(@Param() params: FileUploadDto, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponseDto> {
 		let fullPath: string = params.path;
 
 		if (!file) {
 			throw new BadRequestException('file must not be empty');
 		}
 
-		this.logger.log(`[POST] Upload file ${fullPath}`);
-
 		let fileUploadEntity: FileUploadEntity = FileUploadEntity.from(fullPath, file);
 
-		let result = await this.filesService.upload(fileUploadEntity);
-
-		if (result instanceof ServerError) {
-			this.logger.error(`[RES] ${result.message}`);
-			throw result.toHttpException();
+		try {
+			return await this.filesService.upload(fileUploadEntity);
+		} catch (e) {
+			if (e instanceof ServerError) {
+				throw e.toHttpException();
+			} else {
+				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
+			}
 		}
+	}
 
-		this.logger.log(`[RES] ${FileUploadResponseDto.fromFile(result).path}`);
-		return FileUploadResponseDto.fromFile(result);
+	@Get(':path(*)/metadata')
+	public async getMetadata(@Param() params: FileMetadataDto): Promise<FileMetadataResponseDto> {
+		let fileMetadataEntity: FileMetadataEntity = FileMetadataEntity.from(params);
+		console.log(params);
+
+		try {
+			return await this.filesService.getMetadata(fileMetadataEntity);
+		} catch (e) {
+			if (e instanceof ServerError) {
+				throw e.toHttpException();
+			} else {
+				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
+			}
+		}
 	}
 }

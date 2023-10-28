@@ -1,5 +1,6 @@
-import * as path from 'path';
 import { File } from 'src/api/files/entities/file.entity';
+
+import * as path from 'path';
 
 export class FileUploadEntity {
 	fullPath: string;
