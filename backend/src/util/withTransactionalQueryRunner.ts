@@ -14,6 +14,7 @@ export async function withTransactionalQueryRunner<T>(dataSource: DataSource, ca
 		return result;
 	} catch (e) {
 		await queryRunner.rollbackTransaction();
+
 		throw e;
 	} finally {
 		await queryRunner.release();

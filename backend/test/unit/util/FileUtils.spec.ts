@@ -1,8 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+
+import { FileUtils } from 'src/util/FileUtils';
+
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { FileUtils } from 'src/util/FileUtils';
 
 jest.mock('fs/promises', () => ({
 	access: jest.fn(),

@@ -15,7 +15,7 @@ export class EnvVariables {
 	DISK_FULL_PATH!: string;
 
 	@IsEnum(NodeEnv)
-	NODE_ENV!: string;
+	NODE_ENV!: NodeEnv;
 }
 
 export enum Environment {
@@ -25,7 +25,7 @@ export enum Environment {
 }
 
 export function validate(config: Record<string, unknown>) {
-	config['NODE_ENV'] = process.env.NODE_ENV?.trim() || NodeEnv.Develop;
+	config['NODE_ENV'] = (process.env.NODE_ENV ?? NodeEnv.Develop).trim();
 
 	const validatedConfig = plainToInstance(EnvVariables, config, { enableImplicitConversion: true });
 	const errors = validateSync(validatedConfig, { skipMissingProperties: false });

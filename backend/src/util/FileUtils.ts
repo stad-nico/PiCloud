@@ -1,7 +1,9 @@
 import { ConfigService } from '@nestjs/config';
+
+import { Environment } from 'src/env.config';
+
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { Environment } from 'src/env.config';
 
 export class FileUtils {
 	/**
@@ -67,6 +69,8 @@ export class FileUtils {
 	 */
 	public static isPathRelative(configService: ConfigService, relativePath: string): boolean {
 		const diskPath: string = configService.getOrThrow(Environment.DiskFullPath);
+		console.log(path.join(diskPath, relativePath));
+		console.log(path.relative(diskPath, path.join(diskPath, relativePath)));
 		const relative = path.relative(diskPath, path.join(diskPath, relativePath));
 
 		return Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative);

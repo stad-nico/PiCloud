@@ -1,7 +1,8 @@
+import { DataSource } from 'typeorm';
+
 import { withTransactionalQueryRunner } from 'src/util/withTransactionalQueryRunner';
 import { mockedDataSource } from 'test/mock/mockedDataSource.spec';
 import { mockedQueryRunner } from 'test/mock/mockedQueryRunner.spec';
-import { DataSource } from 'typeorm';
 
 jest.mock('typeorm', () => ({
 	DataSource: jest.fn().mockImplementation(() => mockedDataSource),

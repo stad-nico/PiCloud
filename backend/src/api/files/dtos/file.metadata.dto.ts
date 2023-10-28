@@ -1,6 +1,6 @@
 import { Matches } from 'class-validator';
 
-export class FilePostDto {
+export class FileMetadataDto {
 	@Matches(/^(([^<>.|\/\\:"?]|\.(?!\.))+\/)*([^<>|.\/\\:"?]+(\.[^<>|.\/\\:"?]+)+)$/im, {
 		message: '$property must be a valid file path',
 	})

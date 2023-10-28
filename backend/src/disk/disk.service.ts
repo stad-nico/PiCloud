@@ -1,8 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { statfs } from 'fs/promises';
+
 import { Environment, NodeEnv } from 'src/env.config';
 import { FileUtils } from 'src/util/FileUtils';
+
+import { statfs } from 'fs/promises';
 
 @Injectable()
 export class DiskService {
@@ -19,7 +21,7 @@ export class DiskService {
 		this.fullPath = configService.getOrThrow(Environment.DiskFullPath);
 
 		const nodeEnv: NodeEnv = configService.get(Environment.NodeENV, NodeEnv.Develop);
-		this.shouldCleanupOnShutdown = nodeEnv === (NodeEnv.Testing || NodeEnv.Develop);
+		this.shouldCleanupOnShutdown = nodeEnv !== NodeEnv.Production;
 	}
 
 	public async beforeApplicationShutdown(): Promise<void> {

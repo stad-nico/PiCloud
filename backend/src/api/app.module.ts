@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { DiskModule } from 'src/disk/disk.module';
 import { validate } from 'src/env.config';
 import { FilesModule } from './files/files.module';
@@ -8,7 +9,7 @@ import { FilesModule } from './files/files.module';
 export const AppModuleConfig = {
 	imports: [
 		ConfigModule.forRoot({
-			envFilePath: `../.${process.env.NODE_ENV?.trim() || 'dev'}.env`,
+			envFilePath: `../.${(process.env.NODE_ENV ?? 'dev').trim()}.env`,
 			expandVariables: true,
 			validate: validate,
 		}),

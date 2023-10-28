@@ -1,4 +1,11 @@
-import { BadRequestException, ConflictException, HttpException, HttpStatus, InternalServerErrorException } from '@nestjs/common';
+import {
+	BadRequestException,
+	ConflictException,
+	HttpException,
+	HttpStatus,
+	InternalServerErrorException,
+	NotFoundException,
+} from '@nestjs/common';
 
 export class ServerError<T extends keyof ExceptionTypeMap> extends Error {
 	private readonly status: T;
@@ -15,12 +22,14 @@ export class ServerError<T extends keyof ExceptionTypeMap> extends Error {
 }
 
 type ExceptionTypeMap = {
+	[HttpStatus.NOT_FOUND]: NotFoundException;
 	[HttpStatus.BAD_REQUEST]: BadRequestException;
 	[HttpStatus.CONFLICT]: ConflictException;
 	[HttpStatus.INTERNAL_SERVER_ERROR]: InternalServerErrorException;
 };
 
 const ExceptionClassMap: Record<keyof ExceptionTypeMap, { new (...args: any[]): HttpException }> = {
+	[HttpStatus.NOT_FOUND]: NotFoundException,
 	[HttpStatus.BAD_REQUEST]: BadRequestException,
 	[HttpStatus.CONFLICT]: ConflictException,
 	[HttpStatus.INTERNAL_SERVER_ERROR]: InternalServerErrorException,
