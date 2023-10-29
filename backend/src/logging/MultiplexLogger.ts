@@ -8,27 +8,27 @@ export class MultiplexLogger implements ILogger {
 	}
 
 	debug(message: string): void {
-		for (let logger of this.loggers) {
+		for (const logger of this.loggers) {
 			logger.debug(message);
 		}
 	}
 	log(message: string): void {
-		for (let logger of this.loggers) {
+		for (const logger of this.loggers) {
 			logger.log(message);
 		}
 	}
 	warn(message: string): void {
-		for (let logger of this.loggers) {
+		for (const logger of this.loggers) {
 			logger.warn(message);
 		}
 	}
 	error(message: string): void {
-		for (let logger of this.loggers) {
+		for (const logger of this.loggers) {
 			logger.error(message);
 		}
 	}
 	fatal(message: string): void {
-		for (let logger of this.loggers) {
+		for (const logger of this.loggers) {
 			logger.fatal(message);
 		}
 	}

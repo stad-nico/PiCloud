@@ -12,7 +12,9 @@ import { ServerError } from 'src/util/ServerError';
 import { mockedDataSource } from 'test/mock/mockedDataSource.spec';
 import { mockedEntityManager } from 'test/mock/mockedEntityManager.spec';
 
-import * as fs from 'fs/promises';
+import * as fs from 'fs';
+import * as fsPromises from 'fs/promises';
+import { FileDownloadResponseDto } from 'src/api/files/dtos/file.download.response.dto';
 
 // prevents any modification to fs because jest.fn() returns undefined by default
 jest.mock('fs/promises', () => ({
@@ -69,7 +71,7 @@ describe('FilesService', () => {
 			const dto = FileUploadEntity.from('../test/t.txt', file);
 
 			await expect(service.upload(dto)).rejects.toStrictEqual(
-				new ServerError('path ../test/t.txt is not a valid path', HttpStatus.BAD_REQUEST)
+				new ServerError('path must be a valid file path', HttpStatus.BAD_REQUEST)
 			);
 		});
 
@@ -85,7 +87,7 @@ describe('FilesService', () => {
 
 		it("should throw error 'could not create file'", async () => {
 			const error = new Error('could not create file');
-			jest.spyOn(fs, 'writeFile').mockRejectedValue(error);
+			jest.spyOn(fsPromises, 'writeFile').mockRejectedValue(error);
 
 			const dto = FileUploadEntity.from('test.txt', file);
 
@@ -94,7 +96,7 @@ describe('FilesService', () => {
 
 		it('should create file without error', async () => {
 			jest.spyOn(mockedEntityManager, 'save').mockResolvedValue({ fullPath: 'test' });
-			jest.spyOn(fs, 'writeFile').mockResolvedValue();
+			jest.spyOn(fsPromises, 'writeFile').mockResolvedValue();
 
 			const dto = FileUploadEntity.from('test.txt', file);
 
@@ -116,6 +118,41 @@ describe('FilesService', () => {
 			jest.spyOn(mockedEntityManager, 'findOne').mockResolvedValue(response);
 
 			await expect(service.getMetadata({ path: '' })).resolves.toStrictEqual(response);
+		});
+	});
+
+	describe('download', () => {
+		it("should throw error 'file does not exist' in db layer", async () => {
+			jest.spyOn(mockedEntityManager, 'findOne').mockResolvedValueOnce(null);
+
+			await expect(service.download({ path: 'test/t.txt' })).rejects.toStrictEqual(
+				new ServerError('file at test/t.txt does not exist', HttpStatus.NOT_FOUND)
+			);
+		});
+
+		it("should throw error 'file does not exist' in fs layer", async () => {
+			jest.spyOn(mockedEntityManager, 'findOne').mockResolvedValueOnce({ fullPath: 'test/t.txt' });
+			jest.spyOn(FileUtils, 'pathExists').mockResolvedValueOnce(false);
+
+			await expect(service.download({ path: 'test/t.txt' })).rejects.toStrictEqual(
+				new ServerError('file at test/t.txt does not exist', HttpStatus.NOT_FOUND)
+			);
+		});
+
+		it('should return response dto', async () => {
+			const file = {
+				fullPath: 'test/test.txt',
+				name: 'test.txt',
+				mimeType: 'mimeTest',
+			};
+
+			jest.spyOn(mockedEntityManager, 'findOne').mockResolvedValue(file);
+			jest.spyOn(FileUtils, 'pathExists').mockResolvedValue(true);
+			jest.spyOn(fs, 'createReadStream').mockReturnValue('teststream' as any);
+
+			await expect(service.download({ path: '' } as any)).resolves.toStrictEqual(
+				FileDownloadResponseDto.from('test.txt', 'mimeTest', 'teststream' as any)
+			);
 		});
 	});
 });

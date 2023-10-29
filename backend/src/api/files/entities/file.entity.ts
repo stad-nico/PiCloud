@@ -3,25 +3,25 @@ import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } fro
 @Entity('files')
 export class File {
 	@PrimaryColumn({ type: 'varchar', nullable: false })
-	fullPath!: string;
+	readonly fullPath: string;
 
 	@Column({ type: 'varchar', nullable: false })
-	name!: string;
+	readonly name: string;
 
 	@Column({ type: 'varchar', nullable: false })
-	path!: string;
+	readonly path: string;
 
 	@Column({ type: 'varchar', nullable: false })
-	mimeType!: string;
+	readonly mimeType: string;
 
 	@Column({ type: 'bigint', nullable: false })
-	size!: number;
+	readonly size: number;
 
 	@CreateDateColumn({ type: 'timestamp', nullable: false })
-	created!: Date;
+	readonly created!: Date;
 
 	@UpdateDateColumn({ type: 'timestamp', nullable: false })
-	updated!: Date;
+	readonly updated!: Date;
 
 	constructor(fullPath: string, name: string, path: string, mimeType: string, size: number) {
 		this.fullPath = fullPath;

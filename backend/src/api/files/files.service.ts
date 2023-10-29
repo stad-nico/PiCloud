@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 
@@ -11,13 +11,14 @@ import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 import { withTransactionalQueryRunner } from 'src/util/withTransactionalQueryRunner';
 
+import { createReadStream } from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { FileDownloadResponseDto } from 'src/api/files/dtos/file.download.response.dto';
+import { FileDownloadEntity } from 'src/api/files/entities/file.download.entity';
 
 @Injectable()
 export class FilesService {
-	private readonly logger = new Logger(FilesService.name);
-
 	private readonly dataSource: DataSource;
 
 	private readonly configService: ConfigService;
@@ -33,13 +34,13 @@ export class FilesService {
 				throw new ServerError(`file at ${fileUploadEntity.fullPath} already exists`, HttpStatus.CONFLICT);
 			}
 
-			let result = await runner.manager.save(fileUploadEntity.toFile());
+			const result = await runner.manager.save(fileUploadEntity.toFile());
 
 			if (!FileUtils.isPathRelative(this.configService, fileUploadEntity.fullPath)) {
 				throw new ServerError(`path must be a valid file path`, HttpStatus.BAD_REQUEST);
 			}
 
-			let resolvedPath = await FileUtils.join(this.configService, fileUploadEntity.fullPath);
+			const resolvedPath = await FileUtils.join(this.configService, fileUploadEntity.fullPath);
 
 			if (await FileUtils.pathExists(resolvedPath)) {
 				throw new ServerError(`file at ${fileUploadEntity.fullPath} already exists`, HttpStatus.CONFLICT);
@@ -61,13 +62,31 @@ export class FilesService {
 
 	public async getMetadata(fileMetadataEntity: FileMetadataEntity): Promise<FileMetadataResponseDto> {
 		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
-			let file: File | null = await runner.manager.findOne(File, { where: { fullPath: fileMetadataEntity.path } });
+			const file: File | null = await runner.manager.findOne(File, { where: { fullPath: fileMetadataEntity.path } });
 
 			if (!file) {
 				throw new ServerError(`file at ${fileMetadataEntity.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			return FileMetadataResponseDto.from(file);
+		});
+	}
+
+	public async download(fileDownloadEntity: FileDownloadEntity): Promise<FileDownloadResponseDto> {
+		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
+			const file: File | null = await runner.manager.findOne(File, { where: { fullPath: fileDownloadEntity.path } });
+
+			if (!file) {
+				throw new ServerError(`file at ${fileDownloadEntity.path} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			const diskPath = FileUtils.join(this.configService, file.fullPath);
+
+			if (!(await FileUtils.pathExists(diskPath))) {
+				throw new ServerError(`file at ${fileDownloadEntity.path} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			return FileDownloadResponseDto.from(file.name, file.mimeType, createReadStream(diskPath));
 		});
 	}
 }

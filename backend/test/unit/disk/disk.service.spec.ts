@@ -4,10 +4,14 @@ import { DiskService } from 'src/disk/disk.service';
 import { NodeEnv } from 'src/env.config';
 import { FileUtils } from 'src/util/FileUtils';
 
+import * as fsPromises from 'fs/promises';
+
 describe('disk.service.ts', () => {
 	let configService: ConfigService = {
 		get: () => {},
-		getOrThrow: () => {},
+		getOrThrow: () => {
+			return 'test';
+		},
 	} as unknown as ConfigService;
 
 	describe('cleanup', () => {
@@ -45,14 +49,28 @@ describe('disk.service.ts', () => {
 		});
 	});
 
-	it('should throw error on init', async () => {
-		jest.spyOn(FileUtils, 'pathExists').mockResolvedValue(false);
-		jest.spyOn(FileUtils, 'createDirectoryIfNotPresent').mockRejectedValue('error');
-		jest.spyOn(configService, 'getOrThrow').mockReturnValue('test');
+	describe('init', () => {
+		it('should not throw error on init', async () => {
+			jest.spyOn(fsPromises, 'statfs').mockResolvedValueOnce({ bsize: 100, bfree: 100 } as any);
+			jest.spyOn(FileUtils, 'pathExists').mockResolvedValueOnce(true);
 
-		const diskService = new DiskService(configService);
+			const diskService = new DiskService(configService);
 
-		await expect(diskService.init()).rejects.toStrictEqual(new Error(`Could not create the storage location test: error`));
+			const logSpy = jest.spyOn(diskService['logger'], 'log');
+
+			await expect(diskService.init()).resolves.not.toThrow();
+			expect(logSpy).toBeCalledWith('Storage location test has 9.77 KiB of free space');
+		});
+
+		it('should throw error on init', async () => {
+			jest.spyOn(FileUtils, 'pathExists').mockResolvedValue(false);
+			jest.spyOn(FileUtils, 'createDirectoryIfNotPresent').mockRejectedValue('error');
+			jest.spyOn(configService, 'getOrThrow').mockReturnValue('test');
+
+			const diskService = new DiskService(configService);
+
+			await expect(diskService.init()).rejects.toStrictEqual(new Error(`Could not create the storage location test: error`));
+		});
 	});
 
 	describe('formatBytes', () => {

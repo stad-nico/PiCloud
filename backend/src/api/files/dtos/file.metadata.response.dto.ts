@@ -1,19 +1,19 @@
 import { File } from 'src/api/files/entities/file.entity';
 
 export class FileMetadataResponseDto {
-	fullPath: string;
+	readonly fullPath: string;
 
-	name: string;
+	readonly name: string;
 
-	path: string;
+	readonly path: string;
 
-	mimeType: string;
+	readonly mimeType: string;
 
-	size: number;
+	readonly size: number;
 
-	created: Date;
+	readonly created: Date;
 
-	updated: Date;
+	readonly updated: Date;
 
 	constructor(fullPath: string, name: string, path: string, mimeType: string, size: number, created: Date, updated: Date) {
 		this.fullPath = fullPath;

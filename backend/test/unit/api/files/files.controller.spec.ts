@@ -78,4 +78,30 @@ describe('FilesController', () => {
 			await expect(controller.getMetadata({ path: '' })).resolves.toStrictEqual(response);
 		});
 	});
+
+	describe('download', () => {
+		it('should throw http exception if service throws error', async () => {
+			const error = new ServerError('test error', HttpStatus.NOT_FOUND);
+			jest.spyOn(mockedFilesService, 'download').mockRejectedValue(error);
+
+			await expect(controller.download({ path: '' }, { header: () => {} } as any)).rejects.toStrictEqual(error.toHttpException());
+		});
+
+		it('should return streamable file and set headers', async () => {
+			const res = { header: () => {} };
+			const resSpy = jest.spyOn(res, 'header');
+			const result = {
+				mimeType: 'test/mime',
+				name: 'test.txt',
+				readableStream: Readable.from('test content'),
+			};
+			jest.spyOn(mockedFilesService, 'download').mockResolvedValue(result);
+
+			await expect((await controller.download({ path: '' }, res as any)).getStream().read()).toStrictEqual('test content');
+			expect(resSpy).toBeCalledWith({
+				'Content-Type': 'test/mime',
+				'Content-Disposition': 'attachment; filename=test.txt',
+			});
+		});
+	});
 });

@@ -1,9 +1,9 @@
 import { FileUploadDto } from 'src/api/files/dtos/file.upload.dto';
 
 export class FileMetadataEntity {
-	path: string;
+	readonly path: string;
 
-	constructor(path: string) {
+	private constructor(path: string) {
 		this.path = path;
 	}
 

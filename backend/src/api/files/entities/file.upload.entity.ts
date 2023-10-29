@@ -3,17 +3,17 @@ import { File } from 'src/api/files/entities/file.entity';
 import * as path from 'path';
 
 export class FileUploadEntity {
-	fullPath: string;
+	readonly fullPath: string;
 
-	name: string;
+	readonly name: string;
 
-	path: string;
+	readonly path: string;
 
-	mimeType: string;
+	readonly mimeType: string;
 
-	size: number;
+	readonly size: number;
 
-	buffer: Buffer;
+	readonly buffer: Buffer;
 
 	private constructor(fullPath: string, name: string, path: string, mimeType: string, size: number, buffer: Buffer) {
 		this.fullPath = fullPath;

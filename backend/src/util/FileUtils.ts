@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { Environment } from 'src/env.config';
 
-import * as fs from 'fs/promises';
+import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 
 export class FileUtils {
@@ -26,7 +26,7 @@ export class FileUtils {
 	 * @param recursive
 	 */
 	public static async deleteDirectoryOrFail(path: string, recursive: boolean = true): Promise<void> {
-		return await fs.rm(path, { recursive: recursive });
+		return await fsPromises.rm(path, { recursive: recursive });
 	}
 
 	/**
@@ -43,7 +43,7 @@ export class FileUtils {
 			return;
 		}
 
-		await fs.mkdir(path, { recursive: recursive });
+		await fsPromises.mkdir(path, { recursive: recursive });
 	}
 
 	/**
@@ -53,7 +53,7 @@ export class FileUtils {
 	 * @returns true if the path exists, otherwise false
 	 */
 	public static async pathExists(path: string): Promise<boolean> {
-		return (await fs.access(FileUtils.normalizePathForOS(path)).catch(() => false)) === undefined;
+		return (await fsPromises.access(FileUtils.normalizePathForOS(path)).catch(() => false)) === undefined;
 	}
 
 	/**
@@ -69,8 +69,6 @@ export class FileUtils {
 	 */
 	public static isPathRelative(configService: ConfigService, relativePath: string): boolean {
 		const diskPath: string = configService.getOrThrow(Environment.DiskFullPath);
-		console.log(path.join(diskPath, relativePath));
-		console.log(path.relative(diskPath, path.join(diskPath, relativePath)));
 		const relative = path.relative(diskPath, path.join(diskPath, relativePath));
 
 		return Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative);
