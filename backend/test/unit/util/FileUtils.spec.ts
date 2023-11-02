@@ -74,8 +74,9 @@ describe('FileUtils', () => {
 	});
 
 	describe('normalizePathForOS', () => {
-		it('should replace forward slashes with backslashes', () => {
-			expect(FileUtils['normalizePathForOS']('test/test.txt')).toBe('test\\test.txt');
+		it('should replace slashes with path.sep', () => {
+			expect(FileUtils['normalizePathForOS']('test/test.txt')).toBe('test/test.txt'.replaceAll(/(\/|\\)/gi, path.sep));
+			expect(FileUtils['normalizePathForOS']('test\\test.txt')).toBe('test/test.txt'.replaceAll(/(\/|\\)/gi, path.sep));
 		});
 	});
 
