@@ -29,8 +29,8 @@ describe('FileUtils', () => {
 			],
 		}).compile();
 
-		module.useLogger(undefined as any);
-		configService = module.get<ConfigService>(ConfigService);
+		module.useLogger(false);
+		configService = module.get(ConfigService);
 	});
 
 	describe('isPathRelative', () => {

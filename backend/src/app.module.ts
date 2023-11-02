@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { DiskModule } from 'src/disk/disk.module';
 import { validate } from 'src/env.config';
-import { FilesModule } from './files/files.module';
+import { FilesModule } from './api/files/files.module';
 
 export const AppModuleConfig = {
 	imports: [

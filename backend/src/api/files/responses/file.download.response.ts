@@ -1,6 +1,6 @@
 import { ReadStream } from 'fs';
 
-export class FileDownloadResponseDto {
+export class FileDownloadResponse {
 	readonly name: string;
 
 	readonly readableStream: ReadStream;
@@ -13,7 +13,7 @@ export class FileDownloadResponseDto {
 		this.readableStream = readableStream;
 	}
 
-	public static from(name: string, mimeType: string, readableStream: ReadStream): FileDownloadResponseDto {
-		return new FileDownloadResponseDto(name, mimeType, readableStream);
+	public static from(name: string, mimeType: string, readableStream: ReadStream): FileDownloadResponse {
+		return new FileDownloadResponse(name, mimeType, readableStream);
 	}
 }

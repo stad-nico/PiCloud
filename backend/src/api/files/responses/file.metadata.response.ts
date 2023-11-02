@@ -1,6 +1,6 @@
 import { File } from 'src/api/files/entities/file.entity';
 
-export class FileMetadataResponseDto {
+export class FileMetadataResponse {
 	readonly fullPath: string;
 
 	readonly name: string;
@@ -25,7 +25,7 @@ export class FileMetadataResponseDto {
 		this.updated = updated;
 	}
 
-	public static from(file: File): FileMetadataResponseDto {
-		return new FileMetadataResponseDto(file.fullPath, file.name, file.path, file.mimeType, file.size, file.created, file.updated);
+	public static from(file: File): FileMetadataResponse {
+		return new FileMetadataResponse(file.fullPath, file.name, file.path, file.mimeType, file.size, file.created, file.updated);
 	}
 }

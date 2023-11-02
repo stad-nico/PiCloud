@@ -3,10 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 
-import { FileMetadataResponseDto } from 'src/api/files/dtos/file.metadata.response.dto';
-import { FileUploadResponseDto } from 'src/api/files/dtos/file.upload.response.dto';
-import { FileUploadEntity } from 'src/api/files/entities/file.upload.entity';
+import { FileUploadDto } from 'src/api/files/dtos';
 import { FilesService } from 'src/api/files/files.service';
+import { FileDownloadResponse, FileMetadataResponse, FileUploadResponse } from 'src/api/files/responses';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 import { mockedDataSource } from 'test/mock/mockedDataSource.spec';
@@ -14,7 +13,6 @@ import { mockedEntityManager } from 'test/mock/mockedEntityManager.spec';
 
 import * as fs from 'fs';
 import * as fsPromises from 'fs/promises';
-import { FileDownloadResponseDto } from 'src/api/files/dtos/file.download.response.dto';
 
 // prevents any modification to fs because jest.fn() returns undefined by default
 jest.mock('fs/promises', () => ({
@@ -41,8 +39,8 @@ describe('FilesService', () => {
 			],
 		}).compile();
 
-		module.useLogger(undefined as any);
-		service = module.get<FilesService>(FilesService);
+		module.useLogger(false);
+		service = module.get(FilesService);
 	});
 
 	describe('upload', () => {
@@ -60,7 +58,7 @@ describe('FilesService', () => {
 		it("should throw error 'file already exists' in db layer", async () => {
 			jest.spyOn(mockedEntityManager, 'exists').mockResolvedValue(true);
 
-			const dto = FileUploadEntity.from('test/test.txt', file);
+			const dto = FileUploadDto.from('test/test.txt', file);
 
 			await expect(service.upload(dto)).rejects.toStrictEqual(
 				new ServerError('file at test/test.txt already exists', HttpStatus.CONFLICT)
@@ -68,7 +66,7 @@ describe('FilesService', () => {
 		});
 
 		it("should throw error 'path is not a valid path' in fs layer", async () => {
-			const dto = FileUploadEntity.from('../test/t.txt', file);
+			const dto = FileUploadDto.from('../test/t.txt', file);
 
 			await expect(service.upload(dto)).rejects.toStrictEqual(
 				new ServerError('path must be a valid file path', HttpStatus.BAD_REQUEST)
@@ -78,7 +76,7 @@ describe('FilesService', () => {
 		it("should throw error 'file already exists' in fs layer", async () => {
 			jest.spyOn(FileUtils, 'pathExists').mockResolvedValue(true);
 
-			const dto = FileUploadEntity.from('test.txt', file);
+			const dto = FileUploadDto.from('test.txt', file);
 
 			await expect(service.upload(dto)).rejects.toStrictEqual(
 				new ServerError('file at test.txt already exists', HttpStatus.CONFLICT)
@@ -89,7 +87,7 @@ describe('FilesService', () => {
 			const error = new Error('could not create file');
 			jest.spyOn(fsPromises, 'writeFile').mockRejectedValue(error);
 
-			const dto = FileUploadEntity.from('test.txt', file);
+			const dto = FileUploadDto.from('test.txt', file);
 
 			await expect(service.upload(dto)).rejects.toStrictEqual(error);
 		});
@@ -98,9 +96,9 @@ describe('FilesService', () => {
 			jest.spyOn(mockedEntityManager, 'save').mockResolvedValue({ fullPath: 'test' });
 			jest.spyOn(fsPromises, 'writeFile').mockResolvedValue();
 
-			const dto = FileUploadEntity.from('test.txt', file);
+			const dto = FileUploadDto.from('test.txt', file);
 
-			await expect(service.upload(dto)).resolves.toStrictEqual(new FileUploadResponseDto('test'));
+			await expect(service.upload(dto)).resolves.toStrictEqual(new FileUploadResponse('test'));
 		});
 	});
 
@@ -114,7 +112,7 @@ describe('FilesService', () => {
 		});
 
 		it('should return file metadata', async () => {
-			const response = new FileMetadataResponseDto('', '', '', '', 0, new Date(), new Date());
+			const response = new FileMetadataResponse('', '', '', '', 0, new Date(), new Date());
 			jest.spyOn(mockedEntityManager, 'findOne').mockResolvedValue(response);
 
 			await expect(service.getMetadata({ path: '' })).resolves.toStrictEqual(response);
@@ -151,7 +149,7 @@ describe('FilesService', () => {
 			jest.spyOn(fs, 'createReadStream').mockReturnValue('teststream' as any);
 
 			await expect(service.download({ path: '' } as any)).resolves.toStrictEqual(
-				FileDownloadResponseDto.from('test.txt', 'mimeTest', 'teststream' as any)
+				FileDownloadResponse.from('test.txt', 'mimeTest', 'teststream' as any)
 			);
 		});
 	});

@@ -1,12 +1,13 @@
-import { Matches } from 'class-validator';
+import { FileDownloadParams } from 'src/api/files/params/file.download.params';
 
 export class FileDownloadDto {
-	@Matches(/^(([^<>.|\/\\:"?]|\.(?!\.))+\/)*([^<>|.\/\\:"?]+(\.[^<>|.\/\\:"?]+)+)$/im, {
-		message: '$property must be a valid file path',
-	})
 	readonly path: string;
 
-	constructor(path: string) {
+	private constructor(path: string) {
 		this.path = path;
+	}
+
+	public static from(fileDownloadParams: FileDownloadParams): FileDownloadDto {
+		return new FileDownloadDto(fileDownloadParams.path);
 	}
 }

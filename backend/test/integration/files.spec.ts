@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { DataSource, QueryRunner } from 'typeorm';
 
-import { AppModuleConfig } from 'src/api/app.module';
-import { FileMetadataResponseDto } from 'src/api/files/dtos/file.metadata.response.dto';
 import { File } from 'src/api/files/entities/file.entity';
+import { FileMetadataResponse } from 'src/api/files/responses';
 import { configureApplication } from 'src/app.config';
+import { AppModuleConfig } from 'src/app.module';
 import { FileUtils } from 'src/util/FileUtils';
 import { mockedQueryRunner } from 'test/mock/mockedQueryRunner.spec';
 
@@ -24,8 +24,8 @@ describe('/files/', () => {
 		app = testingModule.createNestApplication();
 		configureApplication(app);
 
-		dataSource = testingModule.get<DataSource>(DataSource);
-		configService = testingModule.get<ConfigService>(ConfigService);
+		dataSource = testingModule.get(DataSource);
+		configService = testingModule.get(ConfigService);
 
 		await app.init();
 	});
@@ -148,7 +148,7 @@ describe('/files/', () => {
 	describe('/files/:path/metadata (GET)', () => {
 		it('200 - get metadata', async () => {
 			const date = new Date();
-			const metadata = new FileMetadataResponseDto('', '', '', '', 0, date, date) as {};
+			const metadata = new FileMetadataResponse('', '', '', '', 0, date, date) as {};
 			jest.spyOn(dataSource, 'createQueryRunner').mockReturnValueOnce(mockedQueryRunner as any);
 			jest.spyOn(mockedQueryRunner.manager, 'findOne').mockResolvedValueOnce(metadata);
 

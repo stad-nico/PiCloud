@@ -1,12 +1,13 @@
-import { Matches } from 'class-validator';
+import { FileMetadataParams } from 'src/api/files/params/file.metadata.params';
 
 export class FileMetadataDto {
-	@Matches(/^(([^<>.|\/\\:"?]|\.(?!\.))+\/)*([^<>|.\/\\:"?]+(\.[^<>|.\/\\:"?]+)+)$/im, {
-		message: '$property must be a valid file path',
-	})
-	path: string;
+	readonly path: string;
 
-	constructor(path: string) {
+	private constructor(path: string) {
 		this.path = path;
+	}
+
+	public static from(fileMetadataParams: FileMetadataParams): FileMetadataDto {
+		return new FileMetadataDto(fileMetadataParams.path);
 	}
 }

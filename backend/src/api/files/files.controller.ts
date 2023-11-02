@@ -12,16 +12,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
-import { FileDownloadDto } from 'src/api/files/dtos/file.download.dto';
 
-import { FileMetadataDto } from 'src/api/files/dtos/file.metadata.dto';
-import { FileMetadataResponseDto } from 'src/api/files/dtos/file.metadata.response.dto';
-import { FileUploadDto } from 'src/api/files/dtos/file.upload.dto';
-import { FileUploadResponseDto } from 'src/api/files/dtos/file.upload.response.dto';
-import { FileDownloadEntity } from 'src/api/files/entities/file.download.entity';
-import { FileMetadataEntity } from 'src/api/files/entities/file.metadata.entity';
-import { FileUploadEntity } from 'src/api/files/entities/file.upload.entity';
+import { FileDownloadDto, FileMetadataDto, FileUploadDto } from 'src/api/files/dtos';
 import { FilesService } from 'src/api/files/files.service';
+import { FileDownloadParams, FileMetadataParams, FileUploadParams } from 'src/api/files/params';
+import { FileDownloadResponse, FileMetadataResponse, FileUploadResponse } from 'src/api/files/responses';
 import { ServerError } from 'src/util/ServerError';
 
 @Controller('files')
@@ -34,17 +29,17 @@ export class FilesController {
 
 	@Post(':path(*)')
 	@UseInterceptors(FileInterceptor('file'))
-	public async uploadFile(@Param() params: FileUploadDto, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponseDto> {
+	public async uploadFile(@Param() params: FileUploadParams, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponse> {
 		const fullPath: string = params.path;
 
 		if (!file) {
 			throw new BadRequestException('file must not be empty');
 		}
 
-		const fileUploadEntity: FileUploadEntity = FileUploadEntity.from(fullPath, file);
+		const fileUploadDto: FileUploadDto = FileUploadDto.from(fullPath, file);
 
 		try {
-			return await this.filesService.upload(fileUploadEntity);
+			return await this.filesService.upload(fileUploadDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				throw e.toHttpException();
@@ -55,11 +50,11 @@ export class FilesController {
 	}
 
 	@Get(':path(*)/metadata')
-	public async getMetadata(@Param() params: FileMetadataDto): Promise<FileMetadataResponseDto> {
-		const fileMetadataEntity: FileMetadataEntity = FileMetadataEntity.from(params);
+	public async getMetadata(@Param() params: FileMetadataParams): Promise<FileMetadataResponse> {
+		const fileMetadataDto: FileMetadataDto = FileMetadataDto.from(params);
 
 		try {
-			return await this.filesService.getMetadata(fileMetadataEntity);
+			return await this.filesService.getMetadata(fileMetadataDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				throw e.toHttpException();
@@ -70,11 +65,11 @@ export class FilesController {
 	}
 
 	@Get(':path(*)/download')
-	public async download(@Param() params: FileDownloadDto, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
-		const fileDownloadEntity: FileDownloadEntity = FileDownloadEntity.from(params);
+	public async download(@Param() params: FileDownloadParams, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+		const fileDownloadDto: FileDownloadDto = FileDownloadDto.from(params);
 
 		try {
-			const result = await this.filesService.download(fileDownloadEntity);
+			const result: FileDownloadResponse = await this.filesService.download(fileDownloadDto);
 
 			result.readableStream.on('error', () => {
 				res.header({

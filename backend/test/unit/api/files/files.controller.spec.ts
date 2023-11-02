@@ -1,10 +1,9 @@
 import { BadRequestException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { FileMetadataResponseDto } from 'src/api/files/dtos/file.metadata.response.dto';
-import { FileUploadResponseDto } from 'src/api/files/dtos/file.upload.response.dto';
 import { FilesController } from 'src/api/files/files.controller';
 import { FilesService } from 'src/api/files/files.service';
+import { FileMetadataResponse, FileUploadResponse } from 'src/api/files/responses';
 import { ServerError } from 'src/util/ServerError';
 import { mockedFilesService } from 'test/mock/mockedFilesService.spec';
 
@@ -24,8 +23,8 @@ describe('FilesController', () => {
 			],
 		}).compile();
 
-		module.useLogger(undefined as any);
-		controller = module.get<FilesController>(FilesController);
+		module.useLogger(false);
+		controller = module.get(FilesController);
 	});
 
 	describe('upload', () => {
@@ -56,7 +55,7 @@ describe('FilesController', () => {
 		});
 
 		it('should return response if service returns response', async () => {
-			const response = new FileUploadResponseDto('test');
+			const response = new FileUploadResponse('test');
 			jest.spyOn(mockedFilesService, 'upload').mockResolvedValue(response);
 
 			await expect(controller.uploadFile({ path: '' }, file)).resolves.toStrictEqual(response);
@@ -72,7 +71,7 @@ describe('FilesController', () => {
 		});
 
 		it('should return response if service returns response', async () => {
-			const response = new FileMetadataResponseDto('', '', '', '', 0, new Date(), new Date());
+			const response = new FileMetadataResponse('', '', '', '', 0, new Date(), new Date());
 			jest.spyOn(mockedFilesService, 'getMetadata').mockResolvedValue(response);
 
 			await expect(controller.getMetadata({ path: '' })).resolves.toStrictEqual(response);
