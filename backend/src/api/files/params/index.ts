@@ -1,5 +1,6 @@
-import { FileDownloadParams } from 'src/api/files/params/file.download.params';
-import { FileMetadataParams } from 'src/api/files/params/file.metadata.params';
-import { FileUploadParams } from 'src/api/files/params/file.upload.params';
+import { FileDeleteParams } from './file.delete.params';
+import { FileDownloadParams } from './file.download.params';
+import { FileMetadataParams } from './file.metadata.params';
+import { FileUploadParams } from './file.upload.params';
 
-export { FileDownloadParams, FileMetadataParams, FileUploadParams };
+export { FileDeleteParams, FileDownloadParams, FileMetadataParams, FileUploadParams };

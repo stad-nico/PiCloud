@@ -18,6 +18,7 @@ import * as fsPromises from 'fs/promises';
 jest.mock('fs/promises', () => ({
 	writeFile: jest.fn(),
 	mkdir: jest.fn(),
+	rm: jest.fn(),
 }));
 
 describe('FilesService', () => {
@@ -137,7 +138,7 @@ describe('FilesService', () => {
 			);
 		});
 
-		it('should return response dto', async () => {
+		it('should return response', async () => {
 			const file = {
 				fullPath: 'test/test.txt',
 				name: 'test.txt',

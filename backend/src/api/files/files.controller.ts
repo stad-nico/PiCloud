@@ -3,6 +3,7 @@ import {
 	Controller,
 	Delete,
 	Get,
+	HttpCode,
 	HttpStatus,
 	Param,
 	Post,
@@ -14,15 +15,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 
-import { FileDownloadDto, FileMetadataDto, FileUploadDto } from 'src/api/files/dtos';
+import { FileDeleteDto, FileDownloadDto, FileMetadataDto, FileUploadDto } from 'src/api/files/dtos';
 import { FilesService } from 'src/api/files/files.service';
-import { FileDownloadParams, FileMetadataParams, FileUploadParams } from 'src/api/files/params';
-import { FileDownloadResponse, FileMetadataResponse, FileUploadResponse } from 'src/api/files/responses';
+import { FileDeleteParams, FileDownloadParams, FileMetadataParams, FileUploadParams } from 'src/api/files/params';
+import { FileDeleteResponse, FileDownloadResponse, FileMetadataResponse, FileUploadResponse } from 'src/api/files/responses';
 import { ServerError } from 'src/util/ServerError';
-import { FileDeleteResponse } from './responses/file.delete.response';
-import { ParamsTokenFactory } from '@nestjs/core/pipes';
-import { FileDeleteParams } from './params/file.delete.params';
-import { FileDeleteDto } from './dtos/file.delete.dto';
 
 @Controller('files')
 export class FilesController {
@@ -98,18 +95,19 @@ export class FilesController {
 		}
 	}
 
-	@Delete(":path(*)")
+	@Delete(':path(*)')
+	@HttpCode(204)
 	public async delete(@Param() params: FileDeleteParams): Promise<FileDeleteResponse> {
 		try {
 			const fileDeleteDto: FileDeleteDto = FileDeleteDto.from(params);
-			
+
 			return await this.filesService.delete(fileDeleteDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				throw e.toHttpException();
 			} else {
-				throw new ServerError("something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
-			}	
-		} 				
+				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
+			}
+		}
 	}
 }

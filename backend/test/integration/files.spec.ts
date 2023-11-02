@@ -293,4 +293,14 @@ describe('/files/', () => {
 			});
 		});
 	});
+
+	describe('files/:path (DELETE)', () => {
+		it('204 - delete success', () => {});
+
+		it('400 - path must be a valid file path', async () => {});
+
+		it('404 - file not found', async () => {});
+
+		it('500 - something went wrong', () => {});
+	});
 });
