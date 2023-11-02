@@ -12,6 +12,8 @@ import { withTransactionalQueryRunner } from 'src/util/withTransactionalQueryRun
 import { createReadStream } from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { FileDeleteDto } from './dtos/file.delete.dto';
+import { FileDeleteResponse } from './responses/file.delete.response';
 
 @Injectable()
 export class FilesService {
@@ -84,5 +86,25 @@ export class FilesService {
 
 			return FileDownloadResponse.from(file.name, file.mimeType, createReadStream(diskPath));
 		});
+	}
+
+	public async delete(fileDeleteDto: FileDeleteDto): Promise<FileDeleteResponse> {
+		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
+			const fullPath = FileUtils.join(this.configService, fileDeleteDto.path);
+
+			if (await FileUtils.pathExists(fullPath)) {
+				try {
+					await fs.rm(fullPath);
+				} catch (e) {
+					throw new Error("could not delete file")
+				}
+			}
+
+			if (await runner.manager.exists(File, {where: {fullPath: fileDeleteDto.path}})) {
+				await runner.manager.delete(File, {fullPath: fileDeleteDto.path});
+			}
+
+			return new FileDeleteResponse();	
+		})
 	}
 }

@@ -1,6 +1,7 @@
 import {
 	BadRequestException,
 	Controller,
+	Delete,
 	Get,
 	HttpStatus,
 	Param,
@@ -18,6 +19,10 @@ import { FilesService } from 'src/api/files/files.service';
 import { FileDownloadParams, FileMetadataParams, FileUploadParams } from 'src/api/files/params';
 import { FileDownloadResponse, FileMetadataResponse, FileUploadResponse } from 'src/api/files/responses';
 import { ServerError } from 'src/util/ServerError';
+import { FileDeleteResponse } from './responses/file.delete.response';
+import { ParamsTokenFactory } from '@nestjs/core/pipes';
+import { FileDeleteParams } from './params/file.delete.params';
+import { FileDeleteDto } from './dtos/file.delete.dto';
 
 @Controller('files')
 export class FilesController {
@@ -36,9 +41,9 @@ export class FilesController {
 			throw new BadRequestException('file must not be empty');
 		}
 
-		const fileUploadDto: FileUploadDto = FileUploadDto.from(fullPath, file);
-
 		try {
+			const fileUploadDto: FileUploadDto = FileUploadDto.from(fullPath, file);
+
 			return await this.filesService.upload(fileUploadDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
@@ -51,9 +56,9 @@ export class FilesController {
 
 	@Get(':path(*)/metadata')
 	public async getMetadata(@Param() params: FileMetadataParams): Promise<FileMetadataResponse> {
-		const fileMetadataDto: FileMetadataDto = FileMetadataDto.from(params);
-
 		try {
+			const fileMetadataDto: FileMetadataDto = FileMetadataDto.from(params);
+
 			return await this.filesService.getMetadata(fileMetadataDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
@@ -66,9 +71,8 @@ export class FilesController {
 
 	@Get(':path(*)/download')
 	public async download(@Param() params: FileDownloadParams, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
-		const fileDownloadDto: FileDownloadDto = FileDownloadDto.from(params);
-
 		try {
+			const fileDownloadDto: FileDownloadDto = FileDownloadDto.from(params);
 			const result: FileDownloadResponse = await this.filesService.download(fileDownloadDto);
 
 			result.readableStream.on('error', () => {
@@ -92,5 +96,20 @@ export class FilesController {
 				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
 			}
 		}
+	}
+
+	@Delete(":path(*)")
+	public async delete(@Param() params: FileDeleteParams): Promise<FileDeleteResponse> {
+		try {
+			const fileDeleteDto: FileDeleteDto = FileDeleteDto.from(params);
+			
+			return await this.filesService.delete(fileDeleteDto);
+		} catch (e) {
+			if (e instanceof ServerError) {
+				throw e.toHttpException();
+			} else {
+				throw new ServerError("something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+			}	
+		} 				
 	}
 }
