@@ -12,13 +12,16 @@ export class DiskService {
 
 	private readonly configService: ConfigService;
 
-	private readonly fullPath: string;
+	private readonly storageLocation: string;
+
+	private readonly recycleLocation: string;
 
 	private shouldCleanupOnShutdown: boolean;
 
 	constructor(configService: ConfigService) {
 		this.configService = configService;
-		this.fullPath = configService.getOrThrow(Environment.DiskFullPath);
+		this.storageLocation = configService.getOrThrow(Environment.DiskStoragePath);
+		this.recycleLocation = configService.getOrThrow(Environment.DiskRecyclePath);
 
 		const nodeEnv: NodeEnv = configService.get(Environment.NodeENV, NodeEnv.Develop);
 		this.shouldCleanupOnShutdown = nodeEnv !== NodeEnv.Production;
@@ -29,22 +32,47 @@ export class DiskService {
 			return;
 		}
 
-		return FileUtils.deleteDirectoryOrFail(this.configService.getOrThrow(Environment.DiskFullPath));
+		this.logger.log('Cleaning up...');
+
+		await FileUtils.deleteDirectoryOrFail(this.configService.getOrThrow(Environment.DiskStoragePath));
+		await FileUtils.deleteDirectoryOrFail(this.configService.getOrThrow(Environment.DiskRecyclePath));
+
+		this.logger.log('Finished cleaning up');
 	}
 
 	public async init() {
-		if (!(await FileUtils.pathExists(this.fullPath))) {
+		await this.initStorageLocation();
+		await this.initRecycleLocation();
+	}
+
+	private async initRecycleLocation() {
+		if (!(await FileUtils.pathExists(this.recycleLocation))) {
 			try {
-				await FileUtils.createDirectoryIfNotPresent(this.fullPath);
+				await FileUtils.createDirectoryIfNotPresent(this.recycleLocation);
 			} catch (e) {
-				throw new Error(`Could not create the storage location ${this.fullPath}: ${e}`);
+				throw new Error(`Could not create the recycle location ${this.recycleLocation}: ${e}`);
 			}
 		}
 
-		const stats = await statfs(this.fullPath);
+		const stats = await statfs(this.storageLocation);
 		const freeSpace = stats.bsize * stats.bfree;
 
-		this.logger.log(`Storage location ${this.fullPath} has ${this.formatBytes(freeSpace)} of free space`);
+		this.logger.log(`Recycle location ${this.storageLocation} has ${this.formatBytes(freeSpace)} of free space`);
+	}
+
+	private async initStorageLocation() {
+		if (!(await FileUtils.pathExists(this.storageLocation))) {
+			try {
+				await FileUtils.createDirectoryIfNotPresent(this.storageLocation);
+			} catch (e) {
+				throw new Error(`Could not create the storage location ${this.storageLocation}: ${e}`);
+			}
+		}
+
+		const stats = await statfs(this.storageLocation);
+		const freeSpace = stats.bsize * stats.bfree;
+
+		this.logger.log(`Storage location ${this.storageLocation} has ${this.formatBytes(freeSpace)} of free space`);
 	}
 
 	// https://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript

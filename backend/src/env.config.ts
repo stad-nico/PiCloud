@@ -12,7 +12,10 @@ export class EnvVariables {
 	PORT!: number;
 
 	@IsString()
-	DISK_FULL_PATH!: string;
+	DISK_STORAGE_PATH!: string;
+
+	@IsString()
+	DISK_RECYCLE_PATH!: string;
 
 	@IsEnum(NodeEnv)
 	NODE_ENV!: NodeEnv;
@@ -20,7 +23,8 @@ export class EnvVariables {
 
 export enum Environment {
 	Port = 'PORT',
-	DiskFullPath = 'DISK_FULL_PATH',
+	DiskStoragePath = 'DISK_STORAGE_PATH',
+	DiskRecyclePath = 'DISK_RECYCLE_PATH',
 	NodeENV = 'NODE_ENV',
 }
 

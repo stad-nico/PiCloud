@@ -1,4 +1,4 @@
-import { FileDeleteParams } from 'src/api/files/params/file.delete.params';
+import { FileDeleteParams } from 'src/api/files/classes/delete/file.delete.params';
 
 export class FileDeleteDto {
 	readonly path: string;

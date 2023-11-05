@@ -1,6 +1,8 @@
 import { File } from 'src/api/files/entities/file.entity';
 
 export class FileMetadataResponse {
+	readonly uuid: string;
+
 	readonly fullPath: string;
 
 	readonly name: string;
@@ -15,7 +17,8 @@ export class FileMetadataResponse {
 
 	readonly updated: Date;
 
-	constructor(fullPath: string, name: string, path: string, mimeType: string, size: number, created: Date, updated: Date) {
+	constructor(uuid: string, fullPath: string, name: string, path: string, mimeType: string, size: number, created: Date, updated: Date) {
+		this.uuid = uuid;
 		this.fullPath = fullPath;
 		this.name = name;
 		this.path = path;
@@ -26,6 +29,15 @@ export class FileMetadataResponse {
 	}
 
 	public static from(file: File): FileMetadataResponse {
-		return new FileMetadataResponse(file.fullPath, file.name, file.path, file.mimeType, file.size, file.created, file.updated);
+		return new FileMetadataResponse(
+			file.uuid,
+			file.fullPath,
+			file.name,
+			file.path,
+			file.mimeType,
+			file.size,
+			file.created,
+			file.updated
+		);
 	}
 }

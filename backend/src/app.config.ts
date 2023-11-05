@@ -12,10 +12,13 @@ export function configureApplication(application: INestApplication) {
 			exceptionFactory: (errors: ValidationError[]) => {
 				return new BadRequestException(Object.values(errors[0].constraints!)[0]);
 			},
+			transform: true,
 		})
 	);
 
 	application.useGlobalFilters(new HttpExceptionFilter());
+
+	application.enableShutdownHooks();
 
 	const configService = application.get<ConfigService>(ConfigService);
 	const isInTestMode = configService.get(Environment.NodeENV) === NodeEnv.Testing;

@@ -154,4 +154,8 @@ describe('FilesService', () => {
 			);
 		});
 	});
+
+	describe('delete', () => {});
+
+	describe('restore', () => {});
 });

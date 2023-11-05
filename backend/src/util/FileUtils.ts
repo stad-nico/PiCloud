@@ -57,30 +57,55 @@ export class FileUtils {
 	}
 
 	/**
-	 * Checks if a path does not leave the directory specified in `env.DISK_FULL_PATH` by joining it with `DISK_FULL_PATH`
+	 * Checks if a path does not leave the directory specified in `env.DISK_STORAGE_PATH` by joining it with `DISK_STORAGE_PATH`
 	 *
 	 * @example
-	 * process.env.DISK_FULL_PATH = "C:/test";
+	 * process.env.DISK_STORAGE_PATH = "C:/test";
 	 * isPathRelative("t.txt"); // returns true
 	 * isPathRelative("../../f.txt"); // returns false
 	 *
-	 * @param relativePath the path relative to `DISK_FULL_PATH` to check
+	 * @param relativePath the path relative to `DISK_STORAGE_PATH` to check
 	 * @returns
 	 */
 	public static isPathRelative(configService: ConfigService, relativePath: string): boolean {
-		const diskPath: string = configService.getOrThrow(Environment.DiskFullPath);
+		const diskPath: string = configService.getOrThrow(Environment.DiskStoragePath);
 		const relative = path.relative(diskPath, path.join(diskPath, relativePath));
 
 		return Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative);
 	}
 
 	/**
-	 * Joins a path with the environment variable `DISK_FULL_PATH` and returns normalized path
+	 * Joins a path with the environment variable `env` and returns normalized path
 	 *
-	 * @param relativePath the path relative to `DISK_FULL_PATH` to join
-	 * @returns the joined and normalized path
+	 * @param relativePath the path to join
+	 * @returns the absolute and normalized path
 	 */
-	public static join(configService: ConfigService, relativePath: string): string {
-		return path.join(configService.getOrThrow(Environment.DiskFullPath), relativePath);
+	public static join(configService: ConfigService, relativePath: string, env: Environment): string {
+		return path.join(configService.getOrThrow(env), relativePath);
+	}
+
+	public static async writeFile(absolutePath: string, buffer: Buffer, recursive: boolean = true): Promise<void> {
+		const normalizedPath = this.normalizePathForOS(absolutePath);
+
+		if (recursive) {
+			if (!(await FileUtils.pathExists(path.dirname(normalizedPath)))) {
+				await fsPromises.mkdir(path.dirname(normalizedPath), { recursive: true });
+			}
+		}
+
+		await fsPromises.writeFile(normalizedPath, buffer);
+	}
+
+	public static async copyFile(from: string, to: string, recursive: boolean = true): Promise<void> {
+		const fromNormalized = this.normalizePathForOS(from);
+		const toNormalized = this.normalizePathForOS(to);
+
+		if (recursive) {
+			if (!(await FileUtils.pathExists(path.dirname(toNormalized)))) {
+				await fsPromises.mkdir(path.dirname(toNormalized), { recursive: true });
+			}
+		}
+
+		await fsPromises.copyFile(fromNormalized, toNormalized);
 	}
 }
