@@ -4,7 +4,7 @@ import { v4 as generateUUID } from 'uuid';
 
 @Entity('files')
 export class File {
-	@PrimaryColumn('uuid')
+	@PrimaryColumn('uuid', { unique: true })
 	readonly uuid: string;
 
 	@Column({ type: 'varchar', nullable: false })
@@ -22,19 +22,31 @@ export class File {
 	@Column({ type: 'bigint', nullable: false })
 	readonly size: number;
 
+	@Column({ type: 'boolean', nullable: false })
+	readonly isRecycled: boolean;
+
 	@CreateDateColumn({ type: 'timestamp', nullable: false })
 	readonly created!: Date;
 
 	@UpdateDateColumn({ type: 'timestamp', nullable: false })
 	readonly updated!: Date;
 
-	constructor(fullPath: string, name: string, path: string, mimeType: string, size: number, uuid: string = generateUUID()) {
+	constructor(
+		fullPath: string,
+		name: string,
+		path: string,
+		mimeType: string,
+		size: number,
+		isRecycled: boolean = false,
+		uuid: string = generateUUID()
+	) {
 		this.uuid = uuid;
 		this.fullPath = fullPath;
 		this.name = name;
 		this.path = path;
 		this.mimeType = mimeType;
 		this.size = size;
+		this.isRecycled = isRecycled;
 	}
 
 	public getUuidAsDirPath(): string {

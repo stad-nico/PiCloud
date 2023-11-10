@@ -1,4 +1,4 @@
-import { RecycledFile } from 'src/api/files/entities/recycledFile.entity';
+import { File } from 'src/api/files/entities/file.entity';
 
 export class FileDeleteResponse {
 	readonly uuid: string;
@@ -7,7 +7,7 @@ export class FileDeleteResponse {
 		this.uuid = uuid;
 	}
 
-	public static fromRecycledFile(recycledFile: RecycledFile): FileDeleteResponse {
-		return new FileDeleteResponse(recycledFile.uuid);
+	public static from(file: File): FileDeleteResponse {
+		return new FileDeleteResponse(file.uuid);
 	}
 }

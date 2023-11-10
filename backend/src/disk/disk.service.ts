@@ -48,7 +48,11 @@ export class DiskService {
 	private async initRecycleLocation() {
 		if (!(await FileUtils.pathExists(this.recycleLocation))) {
 			try {
+				this.logger.log('Trying to initialize recycle location...');
+
 				await FileUtils.createDirectoryIfNotPresent(this.recycleLocation);
+
+				this.logger.log('Successfully initialized recycle location');
 			} catch (e) {
 				throw new Error(`Could not create the recycle location ${this.recycleLocation}: ${e}`);
 			}
@@ -63,7 +67,11 @@ export class DiskService {
 	private async initStorageLocation() {
 		if (!(await FileUtils.pathExists(this.storageLocation))) {
 			try {
+				this.logger.log('Trying to initialize storage location...');
+
 				await FileUtils.createDirectoryIfNotPresent(this.storageLocation);
+
+				this.logger.log('Successfully initialized storage location');
 			} catch (e) {
 				throw new Error(`Could not create the storage location ${this.storageLocation}: ${e}`);
 			}

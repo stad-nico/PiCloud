@@ -7,7 +7,7 @@ export class FileRestoreResponse {
 		this.path = path;
 	}
 
-	public static fromFile(file: File): FileRestoreResponse {
+	public static from(file: File): FileRestoreResponse {
 		return new FileRestoreResponse(file.fullPath);
 	}
 }
