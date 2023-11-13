@@ -8,7 +8,7 @@ import { FileMetadataResponse } from 'src/api/files/responses';
 import { configureApplication } from 'src/app.config';
 import { AppModuleConfig } from 'src/app.module';
 import { FileUtils } from 'src/util/FileUtils';
-import { mockedQueryRunner } from 'test/mock/mockedQueryRunner.spec';
+import { mockedQueryRunner } from 'test/mocks/mockedQueryRunner.spec';
 
 import * as fsPromises from 'fs/promises';
 import * as request from 'supertest';
@@ -39,7 +39,7 @@ describe('/files/', () => {
 		await app.close();
 	});
 
-	describe('/files/:path (POST)', () => {
+	describe('POST /files/:path', () => {
 		it('201 - file uploaded successfully', async () => {
 			const filename = 'test.txt';
 			const dirPath = 'files/test';
@@ -145,7 +145,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('/files/:path/metadata (GET)', () => {
+	describe('GET /files/:path/metadata', () => {
 		it('200 - get metadata', async () => {
 			const date = new Date();
 			const metadata = new FileMetadataResponse('', '', '', '', 0, date, date) as {};
@@ -198,7 +198,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('/files/:path/download (GET)', () => {
+	describe('GET /files/:path/download', () => {
 		it('200 - download success', async () => {
 			jest.spyOn(dataSource, 'createQueryRunner').mockReturnValueOnce(mockedQueryRunner as any);
 			jest.spyOn(mockedQueryRunner.manager, 'findOne').mockResolvedValueOnce({
@@ -294,7 +294,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('files/:path (DELETE)', () => {
+	describe('DELETE files/:path', () => {
 		it('204 - delete success', () => {});
 
 		it('400 - path must be a valid file path', async () => {});

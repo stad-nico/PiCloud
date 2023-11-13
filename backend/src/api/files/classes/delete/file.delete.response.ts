@@ -3,7 +3,7 @@ import { File } from 'src/api/files/entities/file.entity';
 export class FileDeleteResponse {
 	readonly uuid: string;
 
-	constructor(uuid: string) {
+	private constructor(uuid: string) {
 		this.uuid = uuid;
 	}
 

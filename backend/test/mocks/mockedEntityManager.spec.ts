@@ -3,4 +3,5 @@ export const mockedEntityManager = {
 	save: jest.fn(),
 	findOne: jest.fn(),
 	delete: jest.fn(),
+	update: jest.fn(),
 };

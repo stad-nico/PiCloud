@@ -1,4 +1,4 @@
-import { mockedEntityManager } from 'test/mock/mockedEntityManager.spec';
+import { mockedEntityManager } from 'test/mocks/mockedEntityManager.spec';
 
 export const mockedQueryRunner = {
 	connect: jest.fn(),

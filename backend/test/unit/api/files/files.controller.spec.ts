@@ -1,12 +1,17 @@
-import { HttpStatus } from '@nestjs/common';
+import { HttpStatus, StreamableFile } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { FilesController } from 'src/api/files/files.controller';
 import { FilesService } from 'src/api/files/files.service';
-import { FileDeleteResponse, FileMetadataResponse, FileUploadResponse } from 'src/api/files/responses';
 import { ServerError } from 'src/util/ServerError';
-import { mockedFilesService } from 'test/mock/mockedFilesService.spec';
+import { mockedFilesService } from 'test/mocks/mockedFilesService.spec';
 
+import { ReadStream } from 'fs';
+import { FileDeleteParams, FileDeleteResponse } from 'src/api/files/classes/delete';
+import { FileDownloadParams, FileDownloadResponse } from 'src/api/files/classes/download';
+import { FileMetadataParams } from 'src/api/files/classes/metadata';
+import { FileRenameBody, FileRenameParams, FileRenameQueryParams, FileRenameResponse } from 'src/api/files/classes/rename';
+import { FileUploadParams, FileUploadQueryParams, FileUploadResponse } from 'src/api/files/classes/upload';
 import { Readable } from 'stream';
 
 describe('FilesController', () => {
@@ -41,120 +46,217 @@ describe('FilesController', () => {
 			path: '',
 		};
 
+		afterEach(() => {
+			jest.clearAllMocks();
+		});
+
 		it('should throw BadRequestException if file is not given', async () => {
+			const params = new FileUploadParams('');
+			const query = new FileUploadQueryParams();
 			const error = new ServerError('file must not be empty', HttpStatus.BAD_REQUEST);
 
-			await expect(controller.upload({ path: '' }, undefined as any)).rejects.toStrictEqual(error.toHttpException());
+			await expect(controller.upload(params, query, null as any)).rejects.toStrictEqual(error.toHttpException());
 		});
 
 		it('should throw error if service throws ServerError', async () => {
+			const params = new FileUploadParams('');
+			const query = new FileUploadQueryParams();
 			const error = new ServerError('path /test/ is not a valid path', HttpStatus.BAD_REQUEST);
-			jest.spyOn(mockedFilesService, 'upload').mockRejectedValue(error);
 
-			await expect(controller.upload({ path: '' }, file)).rejects.toStrictEqual(error.toHttpException());
+			jest.spyOn(mockedFilesService, 'upload').mockRejectedValueOnce(error);
+
+			await expect(controller.upload(params, query, file)).rejects.toStrictEqual(error.toHttpException());
 		});
 
 		it('should throw InternalServerError if service throws Error', async () => {
-			const error = new Error('test error');
-			jest.spyOn(mockedFilesService, 'upload').mockRejectedValue(error);
+			const params = new FileUploadParams('');
+			const query = new FileUploadQueryParams();
+			const serviceError = new Error('test error');
+			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
 
-			await expect(controller.upload({ path: '' }, file)).rejects.toStrictEqual(
-				new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException()
-			);
+			jest.spyOn(mockedFilesService, 'upload').mockRejectedValueOnce(serviceError);
+
+			await expect(controller.upload(params, query, file)).rejects.toStrictEqual(error.toHttpException());
 		});
 
 		it('should return response if service returns response', async () => {
-			const response = new FileUploadResponse('test');
-			jest.spyOn(mockedFilesService, 'upload').mockResolvedValue(response);
+			const params = new FileUploadParams('');
+			const query = new FileUploadQueryParams();
+			const response = new (FileUploadResponse as any)('test');
 
-			await expect(controller.upload({ path: '' }, file)).resolves.toStrictEqual(response);
+			jest.spyOn(mockedFilesService, 'upload').mockResolvedValueOnce(response);
+
+			await expect(controller.upload(params, query, file)).resolves.toStrictEqual(response);
 		});
 	});
 
-	describe('get metadata', () => {
-		it('should throw error if service throws ServerError', async () => {
-			const error = new ServerError('path /test/ is not a valid path', HttpStatus.BAD_REQUEST);
-			jest.spyOn(mockedFilesService, 'getMetadata').mockRejectedValue(error);
+	describe('metadata', () => {
+		afterEach(() => {
+			jest.clearAllMocks();
+		});
 
-			await expect(controller.getMetadata({ path: '' })).rejects.toStrictEqual(error.toHttpException());
+		it('should throw error if service throws ServerError', async () => {
+			const params = new FileMetadataParams('');
+			const error = new ServerError('path /test/ is not a valid path', HttpStatus.BAD_REQUEST);
+
+			jest.spyOn(mockedFilesService, 'metadata').mockRejectedValueOnce(error);
+
+			await expect(controller.metadata(params)).rejects.toStrictEqual(error.toHttpException());
 		});
 
 		it('should throw InternalServerError if service throws Error', async () => {
-			const error = new Error('test error');
-			jest.spyOn(mockedFilesService, 'getMetadata').mockRejectedValue(error);
+			const params = new FileMetadataParams('');
+			const serviceError = new Error('test error');
+			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
 
-			await expect(controller.getMetadata({ path: '' })).rejects.toStrictEqual(
-				new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException()
-			);
+			jest.spyOn(mockedFilesService, 'metadata').mockRejectedValueOnce(serviceError);
+
+			await expect(controller.metadata(params)).rejects.toStrictEqual(error.toHttpException());
 		});
 
 		it('should return response if service returns response', async () => {
-			const response = new FileMetadataResponse('', '', '', '', 0, new Date(), new Date());
-			jest.spyOn(mockedFilesService, 'getMetadata').mockResolvedValue(response);
+			const params = new FileMetadataParams('');
+			const response = new (FileUploadResponse as any)('test');
 
-			await expect(controller.getMetadata({ path: '' })).resolves.toStrictEqual(response);
+			jest.spyOn(mockedFilesService, 'metadata').mockResolvedValueOnce(response);
+
+			await expect(controller.metadata(params)).resolves.toStrictEqual(response);
 		});
 	});
 
 	describe('download', () => {
+		afterEach(() => {
+			jest.clearAllMocks();
+		});
 		it('should throw error if service throws ServerError', async () => {
-			const error = new ServerError('path /test/ is not a valid path', HttpStatus.BAD_REQUEST);
-			jest.spyOn(mockedFilesService, 'download').mockRejectedValue(error);
+			const params = new FileDownloadParams('');
+			const error = new ServerError('test', HttpStatus.INTERNAL_SERVER_ERROR);
 
-			await expect(controller.download({ path: '' }, { header: () => {} } as any)).rejects.toStrictEqual(error.toHttpException());
+			jest.spyOn(mockedFilesService, 'download').mockRejectedValueOnce(error);
+
+			await expect(controller.download(params, null as any)).rejects.toStrictEqual(error.toHttpException());
 		});
 
-		it('should throw InternalServerError if service throws Error', async () => {
-			const error = new Error('test error');
-			jest.spyOn(mockedFilesService, 'download').mockRejectedValue(error);
+		it('should throw InternalServerError if service throws error', async () => {
+			const params = new FileDownloadParams('');
+			const serviceError = new Error('error');
+			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
 
-			await expect(controller.download({ path: '' }, { header: () => {} } as any)).rejects.toStrictEqual(
-				new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException()
-			);
+			jest.spyOn(mockedFilesService, 'download').mockRejectedValueOnce(serviceError);
+
+			await expect(controller.download(params, null as any)).rejects.toStrictEqual(error.toHttpException());
 		});
 
-		it('should return streamable file and set headers', async () => {
-			const res = { header: () => {} };
-			const resSpy = jest.spyOn(res, 'header');
-			const result = {
-				mimeType: 'test/mime',
-				name: 'test.txt',
-				readableStream: Readable.from('test content'),
-			};
-			jest.spyOn(mockedFilesService, 'download').mockResolvedValue(result);
+		it('should set response to InternalServerError if ReadStream fails', async () => {
+			const response = { header: jest.fn().mockReturnThis(), status: jest.fn().mockReturnThis(), json: jest.fn().mockReturnThis() };
+			var errorFunction = null;
+			const result = FileDownloadResponse.from('', '', {
+				on: (a: string, callback: Function) => {
+					errorFunction = callback;
+				},
+			} as any);
+			const params = new FileDownloadParams('');
+			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException().getResponse();
 
-			await expect((await controller.download({ path: '' }, res as any)).getStream().read()).toStrictEqual('test content');
-			expect(resSpy).toBeCalledWith({
-				'Content-Type': 'test/mime',
-				'Content-Disposition': 'attachment; filename=test.txt',
+			jest.spyOn(mockedFilesService, 'download').mockResolvedValueOnce(result);
+
+			await controller.download(params, response as any);
+
+			expect(errorFunction).not.toBeNull();
+
+			errorFunction!();
+
+			expect(response.header).toHaveBeenCalledWith({ 'Content-Type': 'application/json' });
+			expect(response.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+			expect(response.json).toHaveBeenCalledWith(error);
+		});
+
+		it('should return response if service returns response and set correct headers', async () => {
+			const response = { header: jest.fn() };
+			const params = new FileDownloadParams('');
+			const result = FileDownloadResponse.from('testName', 'testMime', new ReadStream('.' as any));
+
+			jest.spyOn(mockedFilesService, 'download').mockResolvedValueOnce(result);
+
+			await expect(controller.download(params, response as any)).resolves.toBeInstanceOf(StreamableFile);
+			expect(response.header).toHaveBeenCalledWith({
+				'Content-Type': 'testMime',
+				'Content-Disposition': 'attachment; filename=testName',
 			});
 		});
 	});
 
-	describe('delete', () => {
-		it('should throw error if service throws ServerError', async () => {
-			const error = new ServerError('path /test/ is not a valid path', HttpStatus.BAD_REQUEST);
-			jest.spyOn(mockedFilesService, 'delete').mockRejectedValue(error);
-
-			await expect(controller.delete({ path: '' })).rejects.toStrictEqual(error.toHttpException());
+	describe('rename', () => {
+		afterEach(() => {
+			jest.clearAllMocks();
 		});
 
-		it('should throw InternalServerError if service throws Error', async () => {
-			const error = new Error('test error');
-			jest.spyOn(mockedFilesService, 'delete').mockRejectedValue(error);
+		it('should throw error if service throws ServerError', async () => {
+			const params = new FileRenameParams('');
+			const query = new FileRenameQueryParams();
+			const body = new FileRenameBody('');
+			const error = new ServerError('test', HttpStatus.INTERNAL_SERVER_ERROR);
 
-			await expect(controller.delete({ path: '' })).rejects.toStrictEqual(
-				new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException()
-			);
+			jest.spyOn(mockedFilesService, 'rename').mockRejectedValueOnce(error);
+
+			await expect(controller.rename(params, query, body)).rejects.toStrictEqual(error.toHttpException());
+		});
+
+		it('should throw InternalServerError if service throws error', async () => {
+			const params = new FileRenameParams('');
+			const query = new FileRenameQueryParams();
+			const body = new FileRenameBody('');
+			const serviceError = new Error('');
+			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+
+			jest.spyOn(mockedFilesService, 'rename').mockRejectedValueOnce(serviceError);
+
+			await expect(controller.rename(params, query, body)).rejects.toStrictEqual(error.toHttpException());
 		});
 
 		it('should return response if service returns response', async () => {
-			const response = new FileDeleteResponse();
-			jest.spyOn(mockedFilesService, 'delete').mockResolvedValue(response);
+			const params = new FileRenameParams('');
+			const query = new FileRenameQueryParams();
+			const body = new FileRenameBody('');
+			const response = new (FileRenameResponse as any)('abc');
 
-			await expect(controller.delete({ path: '' })).resolves.toStrictEqual(response);
+			jest.spyOn(mockedFilesService, 'rename').mockResolvedValueOnce(response);
+
+			await expect(controller.rename(params, query, body)).resolves.toStrictEqual(response);
 		});
 	});
 
-	describe('restore', () => {});
+	describe('delete', () => {
+		afterEach(() => {
+			jest.clearAllMocks();
+		});
+
+		it('should throw error if service throws ServerError', async () => {
+			const params = new FileDeleteParams('');
+			const error = new ServerError('test', HttpStatus.INTERNAL_SERVER_ERROR);
+
+			jest.spyOn(mockedFilesService, 'delete').mockRejectedValueOnce(error);
+
+			await expect(controller.delete(params)).rejects.toStrictEqual(error.toHttpException());
+		});
+
+		it('should throw InternalServerError if service throws error', async () => {
+			const params = new FileDeleteParams('');
+			const serviceError = new Error('');
+			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+
+			jest.spyOn(mockedFilesService, 'delete').mockRejectedValueOnce(serviceError);
+
+			await expect(controller.delete(params)).rejects.toStrictEqual(error.toHttpException());
+		});
+
+		it('should return response if service returns response', async () => {
+			const params = new FileDeleteParams('');
+			const response = new (FileDeleteResponse as any)('abc');
+
+			jest.spyOn(mockedFilesService, 'delete').mockResolvedValueOnce(response);
+
+			await expect(controller.delete(params)).resolves.toStrictEqual(response);
+		});
+	});
 });

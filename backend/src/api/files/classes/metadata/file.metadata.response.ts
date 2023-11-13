@@ -17,7 +17,16 @@ export class FileMetadataResponse {
 
 	readonly updated: Date;
 
-	constructor(uuid: string, fullPath: string, name: string, path: string, mimeType: string, size: number, created: Date, updated: Date) {
+	private constructor(
+		uuid: string,
+		fullPath: string,
+		name: string,
+		path: string,
+		mimeType: string,
+		size: number,
+		created: Date,
+		updated: Date
+	) {
 		this.uuid = uuid;
 		this.fullPath = fullPath;
 		this.name = name;

@@ -7,7 +7,7 @@ export class FileRenameQueryParams {
 	@Transform(({ value }) => value === 'true')
 	override: boolean = false;
 
-	constructor(override: boolean) {
+	constructor(override: boolean = false) {
 		this.override = override;
 	}
 }

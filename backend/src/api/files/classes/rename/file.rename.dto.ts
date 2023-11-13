@@ -5,7 +5,7 @@ export class FileRenameDto {
 
 	readonly destinationPath: string;
 
-	constructor(sourcePath: string, destinationPath: string) {
+	private constructor(sourcePath: string, destinationPath: string) {
 		this.sourcePath = sourcePath;
 		this.destinationPath = destinationPath;
 	}

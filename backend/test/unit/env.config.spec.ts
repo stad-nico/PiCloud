@@ -5,15 +5,18 @@ describe('env.config.ts', () => {
 	describe('validate', () => {
 		const config: Record<string, unknown> = {
 			PORT: 3000,
-			DISK_FULL_PATH: 'test',
+			DISK_STORAGE_PATH: 'storagePath',
+			DISK_RECYCLE_PATH: 'recyclePath',
 		};
 
 		it('should validate config', () => {
 			expect(() => validate(config)).not.toThrow();
 			expect(validate(config)).toBeInstanceOf(EnvVariables);
-			expect(validate(config)).toMatchObject({
+			expect({ ...validate(config) }).toStrictEqual({
 				PORT: 3000,
-				DISK_FULL_PATH: 'test',
+				DISK_STORAGE_PATH: 'storagePath',
+				DISK_RECYCLE_PATH: 'recyclePath',
+				NODE_ENV: NodeEnv.Testing,
 			});
 		});
 
@@ -22,7 +25,8 @@ describe('env.config.ts', () => {
 
 			expect({ ...validate(config) }).toStrictEqual({
 				PORT: 3000,
-				DISK_FULL_PATH: 'test',
+				DISK_STORAGE_PATH: 'storagePath',
+				DISK_RECYCLE_PATH: 'recyclePath',
 				NODE_ENV: NodeEnv.Develop,
 			});
 		});
@@ -32,7 +36,8 @@ describe('env.config.ts', () => {
 
 			expect({ ...validate(config) }).toStrictEqual({
 				PORT: 3000,
-				DISK_FULL_PATH: 'test',
+				DISK_STORAGE_PATH: 'storagePath',
+				DISK_RECYCLE_PATH: 'recyclePath',
 				NODE_ENV: NodeEnv.Testing,
 			});
 		});

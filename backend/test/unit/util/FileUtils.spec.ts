@@ -5,6 +5,7 @@ import { FileUtils } from 'src/util/FileUtils';
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { Environment } from 'src/env.config';
 
 jest.mock('fs/promises', () => ({
 	access: jest.fn(),
@@ -69,7 +70,7 @@ describe('FileUtils', () => {
 
 	describe('join', () => {
 		it("should join the path with 'test' using path.join", () => {
-			expect(FileUtils.join(configService, 't.txt')).toBe(path.join('test', 't.txt'));
+			expect(FileUtils.join(configService, 't.txt', Environment.DiskStoragePath)).toBe(path.join('test', 't.txt'));
 		});
 	});
 
@@ -85,14 +86,14 @@ describe('FileUtils', () => {
 			(fs.rm as jest.Mock).mockRejectedValue(new Error('test'));
 
 			expect(FileUtils.deleteDirectoryOrFail('')).rejects.toStrictEqual(new Error('test'));
-			expect(fs.rm).toBeCalledWith('', { recursive: true });
+			expect(fs.rm).toHaveBeenCalledWith('', { recursive: true });
 		});
 
 		it('should not throw error if fs.rm does not throw error', () => {
 			(fs.rm as jest.Mock).mockResolvedValue(undefined);
 
 			expect(FileUtils.deleteDirectoryOrFail('', false)).resolves.not.toThrow();
-			expect(fs.rm).toBeCalledWith('', { recursive: false });
+			expect(fs.rm).toHaveBeenCalledWith('', { recursive: false });
 		});
 	});
 

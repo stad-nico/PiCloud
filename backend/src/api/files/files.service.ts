@@ -18,7 +18,7 @@ import { FileUploadDto, FileUploadResponse } from 'src/api/files/classes/upload'
 import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
 import { lookup } from 'mime-types';
-import path from 'path';
+import * as path from 'path';
 
 @Injectable()
 export class FilesService {
@@ -41,21 +41,24 @@ export class FilesService {
 				throw new ServerError(`file at ${fileUploadDto.fullPath} already exists`, HttpStatus.CONFLICT);
 			}
 
-			const result = await runner.manager.save(fileUploadDto.toFile());
+			if (override && existingFile) {
+				await runner.manager.delete(File, { uuid: existingFile.uuid });
+			}
+
+			const result = await runner.manager.save(File, fileUploadDto.toFile());
 
 			if (!FileUtils.isPathRelative(this.configService, fileUploadDto.fullPath)) {
 				throw new ServerError(`path must be a valid file path`, HttpStatus.BAD_REQUEST);
 			}
 
-			const resolvedPath = await FileUtils.join(this.configService, result.getUuidAsDirPath(), Environment.DiskStoragePath);
-
+			const resolvedPath = FileUtils.join(this.configService, result.getUuidAsDirPath(), Environment.DiskStoragePath);
 			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
 
 			return FileUploadResponse.fromFile(result);
 		});
 	}
 
-	public async getMetadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse> {
+	public async metadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse> {
 		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
 			const fileToFetch: File | null = await runner.manager.findOne(File, {
 				where: { fullPath: fileMetadataDto.path, isRecycled: false },
@@ -104,6 +107,7 @@ export class FilesService {
 			const sourcePath = FileUtils.join(this.configService, fileToDelete.getUuidAsDirPath(), Environment.DiskStoragePath);
 			const destinationPath = FileUtils.join(this.configService, fileToDelete.getUuidAsDirPath(), Environment.DiskRecyclePath);
 			await FileUtils.copyFile(sourcePath, destinationPath);
+			await fsPromises.rm(sourcePath);
 
 			return FileDeleteResponse.from(fileToDelete);
 		});
@@ -135,7 +139,6 @@ export class FilesService {
 
 			const sourcePath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskRecyclePath);
 			const destinationPath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskStoragePath);
-
 			await FileUtils.copyFile(sourcePath, destinationPath);
 			await fsPromises.rm(sourcePath);
 
@@ -165,13 +168,18 @@ export class FilesService {
 				await runner.manager.delete(File, { uuid: existingFile.uuid });
 			}
 
-			const result = await runner.manager.save(File, {
-				...fileToRename,
-				fullPath: fileRenameDto.destinationPath,
-				name: path.basename(fileRenameDto.destinationPath),
-				path: path.dirname(fileRenameDto.destinationPath),
-				mimeType: lookup(fileRenameDto.destinationPath) || 'application/octet-stream',
-			});
+			const result = await runner.manager.save(
+				File,
+				new File(
+					fileRenameDto.destinationPath,
+					path.basename(fileRenameDto.destinationPath),
+					path.dirname(fileRenameDto.destinationPath),
+					lookup(fileRenameDto.destinationPath) || 'application/octet-stream',
+					fileToRename.size,
+					false,
+					fileToRename.uuid
+				)
+			);
 
 			return FileRenameResponse.from(result);
 		});

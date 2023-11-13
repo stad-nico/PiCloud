@@ -3,7 +3,7 @@ import { File } from 'src/api/files/entities/file.entity';
 export class FileRestoreResponse {
 	readonly path: string;
 
-	constructor(path: string) {
+	private constructor(path: string) {
 		this.path = path;
 	}
 

@@ -1,5 +1,4 @@
 import {
-	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -62,13 +61,13 @@ export class FilesController {
 		@Query() query: FileUploadQueryParams,
 		@UploadedFile() file: Express.Multer.File
 	): Promise<FileUploadResponse> {
-		const fullPath: string = params.path;
-
-		if (!file) {
-			throw new BadRequestException('file must not be empty');
-		}
-
 		try {
+			const fullPath: string = params.path;
+
+			if (!file) {
+				throw new ServerError('file must not be empty', HttpStatus.BAD_REQUEST);
+			}
+
 			const fileUploadDto = FileUploadDto.from(fullPath, file);
 
 			return await this.filesService.upload(fileUploadDto, query.override);
@@ -84,11 +83,11 @@ export class FilesController {
 	}
 
 	@Get(':path(*)/metadata')
-	public async getMetadata(@Param() params: FileMetadataParams): Promise<FileMetadataResponse> {
+	public async metadata(@Param() params: FileMetadataParams): Promise<FileMetadataResponse> {
 		try {
 			const fileMetadataDto = FileMetadataDto.from(params);
 
-			return await this.filesService.getMetadata(fileMetadataDto);
+			return await this.filesService.metadata(fileMetadataDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -104,7 +103,13 @@ export class FilesController {
 	public async download(@Param() params: FileDownloadParams, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
 		try {
 			const fileDownloadDto = FileDownloadDto.from(params);
+
 			const result = await this.filesService.download(fileDownloadDto);
+
+			res.header({
+				'Content-Type': result.mimeType,
+				'Content-Disposition': `attachment; filename=${result.name}`,
+			});
 
 			result.readableStream.on('error', () => {
 				res.header({
@@ -114,13 +119,9 @@ export class FilesController {
 					.json(new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException().getResponse());
 			});
 
-			res.header({
-				'Content-Type': result.mimeType,
-				'Content-Disposition': `attachment; filename=${result.name}`,
-			});
-
 			return new StreamableFile(result.readableStream);
 		} catch (e) {
+			console.log(e);
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
 				throw e.toHttpException();
