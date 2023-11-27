@@ -123,4 +123,17 @@ export class FileUtils {
 
 		await fsPromises.copyFile(fromNormalized, toNormalized);
 	}
+
+	/**
+	 * Empties a directory by removing all files and subfolder from it
+	 *
+	 * @param absolutePath the directory path
+	 */
+	public static async emptyDirectory(absolutePath: string): Promise<void> {
+		const files = await fsPromises.readdir(absolutePath);
+
+		for (const file of files) {
+			await fsPromises.rm(path.join(absolutePath, file), { recursive: true });
+		}
+	}
 }

@@ -50,9 +50,13 @@ export class FilesService {
 			if (overwrite && existingFile) {
 				await runner.manager.delete(File, { uuid: existingFile.uuid });
 
-				const existingFilePath = FileUtils.join(this.configService, existingFile.getUuidAsDirPath(), Environment.DiskStoragePath);
-
 				try {
+					const existingFilePath = FileUtils.join(
+						this.configService,
+						existingFile.getUuidAsDirPath(),
+						Environment.DiskStoragePath
+					);
+
 					await fsPromises.rm(existingFilePath);
 				} catch (e) {
 					this.logger.warn(`Failed to delete file ${existingFile.uuid} (${existingFile.fullPath}) from recycle location: ${e}`);

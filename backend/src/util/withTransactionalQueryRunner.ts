@@ -1,7 +1,7 @@
 import { DataSource, QueryRunner } from 'typeorm';
 
 export async function withTransactionalQueryRunner<T>(dataSource: DataSource, callback: (runner: QueryRunner) => Promise<T>): Promise<T> {
-	const queryRunner: QueryRunner = dataSource.createQueryRunner();
+	const queryRunner = await dataSource.createQueryRunner();
 
 	await queryRunner.connect();
 	await queryRunner.startTransaction();

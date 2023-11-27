@@ -53,16 +53,16 @@ describe('FilesService', () => {
 		service = module.get(FilesService);
 	});
 
+	afterEach(() => {
+		jest.clearAllMocks();
+	});
+
 	describe('upload', () => {
 		const file = {
 			mimetype: 'text/plain',
 			buffer: Buffer.from('buffer'),
 			size: 0,
 		};
-
-		afterEach(() => {
-			jest.clearAllMocks();
-		});
 
 		it("should throw error 'path is not a valid path' if path is invalid", async () => {
 			const dto = FileUploadDto.from('../test/t.txt', file);
@@ -143,10 +143,6 @@ describe('FilesService', () => {
 	});
 
 	describe('metadata', () => {
-		afterEach(() => {
-			jest.clearAllMocks();
-		});
-
 		it("should throw error 'file does not exist'", async () => {
 			const dto: FileMetadataDto = new (FileMetadataDto as any)('test/t.txt');
 			const error = new ServerError(`file at ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -167,10 +163,6 @@ describe('FilesService', () => {
 	});
 
 	describe('download', () => {
-		afterEach(() => {
-			jest.clearAllMocks();
-		});
-
 		it("should throw error 'file does not exist' in db layer", async () => {
 			const dto: FileDownloadDto = new (FileDownloadDto as any)('test/test.txt');
 			const error = new ServerError(`file at ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -216,10 +208,6 @@ describe('FilesService', () => {
 	});
 
 	describe('delete', () => {
-		afterEach(() => {
-			jest.clearAllMocks();
-		});
-
 		it("should throw error 'file does not exist'", async () => {
 			const dto: FileDeleteDto = new (FileDeleteDto as any)('test/path.txt');
 			const error = new ServerError(`file at ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -251,10 +239,6 @@ describe('FilesService', () => {
 	});
 
 	describe('restore', () => {
-		afterEach(() => {
-			jest.clearAllMocks();
-		});
-
 		it("should throw error 'uuid does not exist'", async () => {
 			const dto: FileRestoreDto = new (FileRestoreDto as any)('testUuid');
 			const error = new ServerError(`uuid ${dto.uuid} does not exist`, HttpStatus.NOT_FOUND);
@@ -341,10 +325,6 @@ describe('FilesService', () => {
 	});
 
 	describe('rename', () => {
-		afterEach(() => {
-			jest.clearAllMocks();
-		});
-
 		it("should throw error 'file does not exist'", async () => {
 			const dto: FileRenameDto = new (FileRenameDto as any)('sourcePath', 'destPath');
 			const error = new ServerError(`file at ${dto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);

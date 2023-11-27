@@ -15,7 +15,7 @@ describe('withTransactionalQueryRunner', () => {
 
 	it('should catch the error, rollback the transaction, release the runner and rethrow the error', async () => {
 		await expect(
-			withTransactionalQueryRunner(new DataSource({ type: 'mariadb' }), (runner) => {
+			withTransactionalQueryRunner(new DataSource({ type: 'mysql' }), (runner) => {
 				throw new Error('test');
 			})
 		).rejects.toThrowError('test');
