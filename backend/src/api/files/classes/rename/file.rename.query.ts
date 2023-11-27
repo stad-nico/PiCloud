@@ -5,9 +5,9 @@ export class FileRenameQueryParams {
 	@IsOptional()
 	@IsBoolean()
 	@Transform(({ value }) => value === 'true')
-	override: boolean = false;
+	overwrite: boolean = false;
 
-	constructor(override: boolean = false) {
-		this.override = override;
+	constructor(overwrite: boolean = false) {
+		this.overwrite = overwrite;
 	}
 }

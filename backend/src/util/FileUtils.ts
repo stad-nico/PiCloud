@@ -23,7 +23,7 @@ export class FileUtils {
 	 * @throw fs error
 	 *
 	 * @param path the absolute path
-	 * @param recursive
+	 * @param recursive whether subfolders should get deleted
 	 */
 	public static async deleteDirectoryOrFail(path: string, recursive: boolean = true): Promise<void> {
 		return await fsPromises.rm(path, { recursive: recursive });
@@ -36,6 +36,7 @@ export class FileUtils {
 	 * @throws fs Error
 	 *
 	 * @param path the absolute path
+	 * @param recursive whether subfolders should be created
 	 * @returns void
 	 */
 	public static async createDirectoryIfNotPresent(path: string, recursive: boolean = true): Promise<void> {
@@ -84,6 +85,13 @@ export class FileUtils {
 		return path.join(configService.getOrThrow(env), relativePath);
 	}
 
+	/**
+	 * Writes a buffer to the disk
+	 *
+	 * @param absolutePath the destination path
+	 * @param buffer the content
+	 * @param recursive
+	 */
 	public static async writeFile(absolutePath: string, buffer: Buffer, recursive: boolean = true): Promise<void> {
 		const normalizedPath = this.normalizePathForOS(absolutePath);
 
@@ -96,6 +104,13 @@ export class FileUtils {
 		await fsPromises.writeFile(normalizedPath, buffer);
 	}
 
+	/**
+	 * Copies a file
+	 *
+	 * @param from the source path
+	 * @param to the destination path
+	 * @param recursive
+	 */
 	public static async copyFile(from: string, to: string, recursive: boolean = true): Promise<void> {
 		const fromNormalized = this.normalizePathForOS(from);
 		const toNormalized = this.normalizePathForOS(to);

@@ -5,9 +5,9 @@ export class FileRestoreQueryParams {
 	@IsOptional()
 	@IsBoolean()
 	@Transform(({ value }) => value === 'true')
-	override: boolean = false;
+	overwrite: boolean = false;
 
-	constructor(override: boolean) {
-		this.override = override;
+	constructor(overwrite: boolean) {
+		this.overwrite = overwrite;
 	}
 }

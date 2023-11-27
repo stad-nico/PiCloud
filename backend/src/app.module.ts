@@ -14,6 +14,7 @@ export const AppModuleConfig = {
 			validate: validate,
 		}),
 		TypeOrmModule.forRoot({
+			bigNumberStrings: false,
 			type: 'mysql',
 			host: 'localhost',
 			port: 3306,

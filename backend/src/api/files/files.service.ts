@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 
@@ -22,6 +22,8 @@ import * as path from 'path';
 
 @Injectable()
 export class FilesService {
+	private readonly logger = new Logger(FilesService.name);
+
 	private readonly dataSource: DataSource;
 
 	private readonly configService: ConfigService;
@@ -31,25 +33,33 @@ export class FilesService {
 		this.configService = configService;
 	}
 
-	public async upload(fileUploadDto: FileUploadDto, override: boolean = false): Promise<FileUploadResponse> {
+	public async upload(fileUploadDto: FileUploadDto, overwrite: boolean = false): Promise<FileUploadResponse> {
 		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
 			const existingFile: File | null = await runner.manager.findOne(File, {
 				where: { fullPath: fileUploadDto.fullPath, isRecycled: false },
 			});
 
-			if (!override && existingFile) {
+			if (!overwrite && existingFile) {
 				throw new ServerError(`file at ${fileUploadDto.fullPath} already exists`, HttpStatus.CONFLICT);
 			}
-
-			if (override && existingFile) {
-				await runner.manager.delete(File, { uuid: existingFile.uuid });
-			}
-
-			const result = await runner.manager.save(File, fileUploadDto.toFile());
 
 			if (!FileUtils.isPathRelative(this.configService, fileUploadDto.fullPath)) {
 				throw new ServerError(`path must be a valid file path`, HttpStatus.BAD_REQUEST);
 			}
+
+			if (overwrite && existingFile) {
+				await runner.manager.delete(File, { uuid: existingFile.uuid });
+
+				const existingFilePath = FileUtils.join(this.configService, existingFile.getUuidAsDirPath(), Environment.DiskStoragePath);
+
+				try {
+					await fsPromises.rm(existingFilePath);
+				} catch (e) {
+					this.logger.warn(`Failed to delete file ${existingFile.uuid} (${existingFile.fullPath}) from recycle location: ${e}`);
+				}
+			}
+
+			const result = await runner.manager.save(File, fileUploadDto.toFile());
 
 			const resolvedPath = FileUtils.join(this.configService, result.getUuidAsDirPath(), Environment.DiskStoragePath);
 			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
@@ -107,13 +117,18 @@ export class FilesService {
 			const sourcePath = FileUtils.join(this.configService, fileToDelete.getUuidAsDirPath(), Environment.DiskStoragePath);
 			const destinationPath = FileUtils.join(this.configService, fileToDelete.getUuidAsDirPath(), Environment.DiskRecyclePath);
 			await FileUtils.copyFile(sourcePath, destinationPath);
-			await fsPromises.rm(sourcePath);
+
+			try {
+				await fsPromises.rm(sourcePath);
+			} catch (e) {
+				this.logger.warn(`Failed to delete file ${fileToDelete.uuid} (${fileToDelete.fullPath}) from recycle location: ${e}`);
+			}
 
 			return FileDeleteResponse.from(fileToDelete);
 		});
 	}
 
-	public async restore(fileRestoreDto: FileRestoreDto, override: boolean = false): Promise<FileRestoreResponse> {
+	public async restore(fileRestoreDto: FileRestoreDto, overwrite: boolean = false): Promise<FileRestoreResponse> {
 		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
 			const fileToRestore: File | null = await runner.manager.findOne(File, {
 				where: { uuid: fileRestoreDto.uuid, isRecycled: true },
@@ -127,11 +142,11 @@ export class FilesService {
 				where: { fullPath: fileToRestore.fullPath, isRecycled: false },
 			});
 
-			if (!override && existingFile) {
+			if (!overwrite && existingFile) {
 				throw new ServerError(`file at ${fileToRestore.fullPath} already exists`, HttpStatus.CONFLICT);
 			}
 
-			if (override && existingFile) {
+			if (overwrite && existingFile) {
 				await runner.manager.delete(File, { uuid: existingFile.uuid });
 			}
 
@@ -140,13 +155,18 @@ export class FilesService {
 			const sourcePath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskRecyclePath);
 			const destinationPath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskStoragePath);
 			await FileUtils.copyFile(sourcePath, destinationPath);
-			await fsPromises.rm(sourcePath);
+
+			try {
+				await fsPromises.rm(sourcePath);
+			} catch (e) {
+				this.logger.warn(`Failed to delete file ${fileToRestore.uuid} (${fileToRestore.fullPath}) from recycle location: ${e}`);
+			}
 
 			return FileRestoreResponse.from(fileToRestore);
 		});
 	}
 
-	public async rename(fileRenameDto: FileRenameDto, override: boolean = false): Promise<FileRenameResponse> {
+	public async rename(fileRenameDto: FileRenameDto, overwrite: boolean = false): Promise<FileRenameResponse> {
 		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
 			const fileToRename: File | null = await runner.manager.findOne(File, {
 				where: { fullPath: fileRenameDto.sourcePath, isRecycled: false },
@@ -160,11 +180,15 @@ export class FilesService {
 				where: { fullPath: fileRenameDto.destinationPath, isRecycled: false },
 			});
 
-			if (!override && existingFile) {
+			if (!FileUtils.isPathRelative(this.configService, fileRenameDto.destinationPath)) {
+				throw new ServerError(`newPath must be a valid file path`, HttpStatus.BAD_REQUEST);
+			}
+
+			if (!overwrite && existingFile) {
 				throw new ServerError(`file at ${fileRenameDto.destinationPath} already exists`, HttpStatus.CONFLICT);
 			}
 
-			if (override && existingFile) {
+			if (overwrite && existingFile) {
 				await runner.manager.delete(File, { uuid: existingFile.uuid });
 			}
 

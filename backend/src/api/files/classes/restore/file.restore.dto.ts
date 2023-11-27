@@ -8,6 +8,6 @@ export class FileRestoreDto {
 	}
 
 	public static from(fileRestoreParams: FileRestoreParams): FileRestoreDto {
-		return new FileRestoreDto(fileRestoreParams.uuid);
+		return new FileRestoreDto(fileRestoreParams.id);
 	}
 }

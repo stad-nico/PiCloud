@@ -37,12 +37,12 @@ export class FilesController {
 		this.filesService = fileService;
 	}
 
-	@Post(':uuid/restore')
+	@Post(':id/restore')
 	public async restore(@Param() params: FileRestoreParams, @Query() query: FileRestoreQueryParams): Promise<FileRestoreResponse> {
 		try {
 			const fileRestoreDto = FileRestoreDto.from(params);
 
-			return await this.filesService.restore(fileRestoreDto, query.override);
+			return await this.filesService.restore(fileRestoreDto, query.overwrite);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -70,7 +70,7 @@ export class FilesController {
 
 			const fileUploadDto = FileUploadDto.from(fullPath, file);
 
-			return await this.filesService.upload(fileUploadDto, query.override);
+			return await this.filesService.upload(fileUploadDto, query.overwrite);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -121,7 +121,6 @@ export class FilesController {
 
 			return new StreamableFile(result.readableStream);
 		} catch (e) {
-			console.log(e);
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
 				throw e.toHttpException();
@@ -141,7 +140,7 @@ export class FilesController {
 		try {
 			const fileRenameDto = FileRenameDto.from(params, body);
 
-			return await this.filesService.rename(fileRenameDto, query.override);
+			return await this.filesService.rename(fileRenameDto, query.overwrite);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);

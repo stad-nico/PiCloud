@@ -71,7 +71,7 @@ describe('FilesService', () => {
 			await expect(service.upload(dto)).rejects.toStrictEqual(error);
 		});
 
-		it("should throw error 'file already exists' if override is false and file already exists in db", async () => {
+		it("should throw error 'file already exists' if overwrite is false and file already exists in db", async () => {
 			jest.spyOn(mockedEntityManager, 'findOne').mockResolvedValueOnce(true);
 
 			const dto = FileUploadDto.from('test/test.txt', file);
@@ -80,7 +80,7 @@ describe('FilesService', () => {
 			await expect(service.upload(dto, false)).rejects.toStrictEqual(error);
 		});
 
-		it('should save file in db and write to disk if override is false and file does not already exist in db', async () => {
+		it('should save file in db and write to disk if overwrite is false and file does not already exist in db', async () => {
 			const dto = FileUploadDto.from('test.txt', file);
 			const response = new (FileUploadResponse as any)('test/testfile.txt');
 			const joinedPath = 'testPath';
@@ -100,7 +100,7 @@ describe('FilesService', () => {
 			expect(saveSpy).toHaveBeenCalledWith(File, dto.toFile());
 		});
 
-		it('should delete existing file from db, save new file in db and write to disk if override is true and file does already exist in db', async () => {
+		it('should delete existing file from db, save new file in db and write to disk if overwrite is true and file does already exist in db', async () => {
 			const dto = FileUploadDto.from('test.txt', file);
 			const response = new (FileUploadResponse as any)('test/testfile.txt');
 			const joinedPath = 'testPath';
@@ -121,7 +121,7 @@ describe('FilesService', () => {
 			expect(saveSpy).toHaveBeenCalledWith(File, dto.toFile());
 		});
 
-		it('should save file in db and write to disk if override is true and file does not already exist in db', async () => {
+		it('should save file in db and write to disk if overwrite is true and file does not already exist in db', async () => {
 			const dto = FileUploadDto.from('test.txt', file);
 			const response = new (FileUploadResponse as any)('test/testfile.txt');
 			const joinedPath = 'testPath';
@@ -264,7 +264,7 @@ describe('FilesService', () => {
 			await expect(service.restore(dto)).rejects.toStrictEqual(error);
 		});
 
-		it("should throw error 'file already exists' if override is false and there is already a file at the destination", async () => {
+		it("should throw error 'file already exists' if overwrite is false and there is already a file at the destination", async () => {
 			const dbFindResult = { fullPath: 'testFullPath' };
 
 			const dto: FileRestoreDto = new (FileRestoreDto as any)('testUuid');
@@ -275,7 +275,7 @@ describe('FilesService', () => {
 			await expect(service.restore(dto, false)).rejects.toStrictEqual(error);
 		});
 
-		it('should delete existing file from db, update file in db and copy back to original location if override is true and file exists at destination', async () => {
+		it('should delete existing file from db, update file in db and copy back to original location if overwrite is true and file exists at destination', async () => {
 			const dbFindResult = { fullPath: 'fullPath', uuid: 'testUuidSource', getUuidAsDirPath: jest.fn().mockReturnValue('') };
 			const dbFindExistingResult = { uuid: 'testUuidDest' };
 
@@ -297,7 +297,7 @@ describe('FilesService', () => {
 			expect(rmSpy).toHaveBeenCalledWith('source');
 		});
 
-		it('should update file in db and copy back to original location if override is true and no file at destination', async () => {
+		it('should update file in db and copy back to original location if overwrite is true and no file at destination', async () => {
 			const dbFindResult = { fullPath: 'fullPath', uuid: 'testUuidSource', getUuidAsDirPath: jest.fn().mockReturnValue('') };
 
 			const dto: FileRestoreDto = new (FileRestoreDto as any)('');
@@ -318,7 +318,7 @@ describe('FilesService', () => {
 			expect(rmSpy).toHaveBeenCalledWith('source');
 		});
 
-		it('should update file in db and copy back to original location if override is false and no file at destination', async () => {
+		it('should update file in db and copy back to original location if overwrite is false and no file at destination', async () => {
 			const dbFindResult = { fullPath: 'fullPath', uuid: 'testUuidSource', getUuidAsDirPath: jest.fn().mockReturnValue('') };
 
 			const dto: FileRestoreDto = new (FileRestoreDto as any)('');
@@ -354,7 +354,7 @@ describe('FilesService', () => {
 			await expect(service.rename(dto)).rejects.toStrictEqual(error);
 		});
 
-		it("should throw error 'file already exists' if override is false and a file at the destination already exists", async () => {
+		it("should throw error 'file already exists' if overwrite is false and a file at the destination already exists", async () => {
 			const dto: FileRenameDto = new (FileRenameDto as any)('sourcePath', 'destPath');
 			const error = new ServerError(`file at ${dto.destinationPath} already exists`, HttpStatus.CONFLICT);
 
@@ -363,7 +363,7 @@ describe('FilesService', () => {
 			await expect(service.rename(dto, false)).rejects.toStrictEqual(error);
 		});
 
-		it('should delete existing file from db and save new file in db if override is true and file at destination already exists', async () => {
+		it('should delete existing file from db and save new file in db if overwrite is true and file at destination already exists', async () => {
 			const dbFindResult = { uuid: 'testUuid1', size: 11, getUuidAsDirPath: jest.fn().mockReturnValue('testPath') };
 			const dbFindExistingResult = { uuid: 'testUuid2' };
 			const dbSaveResult = { fullPath: 'testPath', getUuidAsDirPath: jest.fn().mockReturnValue('test') };
@@ -392,7 +392,7 @@ describe('FilesService', () => {
 			expect(saveSpy).toHaveBeenCalledWith(File, dbSaveParam);
 		});
 
-		it('should update file in db if override is true and no file at destination exists', async () => {
+		it('should update file in db if overwrite is true and no file at destination exists', async () => {
 			const dbFindResult = { uuid: 'testUuid1', size: 19, getUuidAsDirPath: jest.fn().mockReturnValue('testPath') };
 			const dbSaveResult = { fullPath: 'testPath', getUuidAsDirPath: jest.fn().mockReturnValue('test') };
 
@@ -420,7 +420,7 @@ describe('FilesService', () => {
 			expect(saveSpy).toHaveBeenCalledWith(File, dbSaveParam);
 		});
 
-		it('should update file in db if override is false and no file at destination exists', async () => {
+		it('should update file in db if overwrite is false and no file at destination exists', async () => {
 			const dbFindResult = { uuid: 'testUuid1', size: 19, getUuidAsDirPath: jest.fn().mockReturnValue('testPath') };
 			const dbSaveResult = { fullPath: 'testPath', getUuidAsDirPath: jest.fn().mockReturnValue('test') };
 
