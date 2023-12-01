@@ -48,8 +48,8 @@ describe('/files/', () => {
 
 		await dataSource.createQueryBuilder().delete().from(File).execute();
 
-		// await FileUtils.emptyDirectory(configService.getOrThrow(Environment.DiskStoragePath));
-		// await FileUtils.emptyDirectory(configService.getOrThrow(Environment.DiskRecyclePath));d
+		await FileUtils.emptyDirectory(configService.getOrThrow(Environment.DiskStoragePath));
+		await FileUtils.emptyDirectory(configService.getOrThrow(Environment.DiskRecyclePath));
 	});
 
 	describe('POST /files/:path', () => {
@@ -839,26 +839,25 @@ describe('/files/', () => {
 			it('should set isRecycled to true and delete file', async () => {
 				const path = 'test.txt';
 				const file = new File(path, 'test.txt', '.', 'text/plain', 19);
-				// const body = { uuid: file.uuid };
+				const body = { uuid: file.uuid };
 
 				const fileSourcePath = FileUtils.join(configService, file.getUuidAsDirPath(), Environment.DiskStoragePath);
-				// const fileDestinationPath = FileUtils.join(configService, file.getUuidAsDirPath(), Environment.DiskRecyclePath);
+				const fileDestinationPath = FileUtils.join(configService, file.getUuidAsDirPath(), Environment.DiskRecyclePath);
 
 				await runner.manager.save(File, file);
 				await FileUtils.writeFile('C:\\cloud-test\\df\\4b\\9fc0-6714-4ab1-93ac-69cdffdead5e.txt', Buffer.from('test'));
 
-				// const response = await request(app.getHttpServer()).delete(`${apiPath}${path}`);
+				const response = await request(app.getHttpServer()).delete(`${apiPath}${path}`);
 
-				// const foundFile = await runner.manager.findOne(File, { where: { fullPath: path } });
-				// const sourcePathExists = await FileUtils.pathExists(fileSourcePath);
-				// const destinationPathExists = await FileUtils.pathExists(fileDestinationPath);
+				const foundFile = await runner.manager.findOne(File, { where: { fullPath: path } });
+				const sourcePathExists = await FileUtils.pathExists(fileSourcePath);
+				const destinationPathExists = await FileUtils.pathExists(fileDestinationPath);
 
-				expect(true).toBeTruthy();
-				// expect(response.statusCode).toStrictEqual(200);
-				// expect(response.body).toStrictEqual(body);
-				// expect(foundFile?.isRecycled).toBeTruthy();
-				// expect(sourcePathExists).toBeFalsy();
-				// expect(destinationPathExists).toBeTruthy();
+				expect(response.statusCode).toStrictEqual(200);
+				expect(response.body).toStrictEqual(body);
+				expect(foundFile?.isRecycled).toBeTruthy();
+				expect(sourcePathExists).toBeFalsy();
+				expect(destinationPathExists).toBeTruthy();
 			});
 
 			it("should set isRecycled to true and don't fail if deleting fails", async () => {
