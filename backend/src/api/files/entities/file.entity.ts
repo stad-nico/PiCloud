@@ -1,4 +1,3 @@
-import { extension } from 'mime-types';
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { v4 as generateUUID } from 'uuid';
 
@@ -50,10 +49,6 @@ export class File {
 	}
 
 	public getUuidAsDirPath(): string {
-		return (
-			this.uuid.match(/.{1,2}/g)!.reduce((acc, curr, ind) => (acc += ind === 1 || ind === 2 ? '/' + curr : curr)) +
-			'.' +
-			extension(this.mimeType)
-		);
+		return this.uuid.match(/.{1,2}/g)!.reduce((acc, curr, ind) => (acc += ind === 1 || ind === 2 ? '/' + curr : curr));
 	}
 }

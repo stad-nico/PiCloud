@@ -48,51 +48,124 @@ describe('/files/', () => {
 		await FileUtils.emptyDirectory(configService.getOrThrow(Environment.DiskRecyclePath));
 	});
 
-	describe('', () => {
-		it('should upload file, fail if trying to upload again at same path and download correct content', async () => {
-			const filePath = 'test/a/b/c.txt';
-			const firstFileContent = Buffer.from('firstTestContent');
-			const secondFileContent = Buffer.from('secondTestContent');
+	it('should upload file, rename successfully to file with different mimeType, download correct content and fail when trying to download at old path', async () => {
+		const filePath = 'test/a/b/c.txt';
+		const newPath = 'test.csv';
+		const fileContent = Buffer.from('firstTestContent');
 
-			const uploadResponse = await request(app.getHttpServer())
-				.post(`${apiPath}${filePath}`)
-				.attach('file', firstFileContent, 'filename.txt');
+		const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'filename.txt');
 
-			const secondUploadResponse = await request(app.getHttpServer())
-				.post(`${apiPath}${filePath}`)
-				.attach('file', secondFileContent, 'filename.txt');
+		expect(uploadResponse.statusCode).toStrictEqual(201);
+		expect(uploadResponse.body).toStrictEqual({ path: filePath });
 
-			const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+		const renameResponse = await request(app.getHttpServer()).patch(`${apiPath}${filePath}`).send({ newPath: newPath });
 
-			expect(uploadResponse.statusCode).toStrictEqual(201);
-			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+		expect(renameResponse.statusCode).toStrictEqual(200);
+		expect(renameResponse.body).toStrictEqual({ path: newPath });
 
-			expect(secondUploadResponse.statusCode).toStrictEqual(409);
+		const failedDownloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
 
-			expect(downloadResponse.statusCode).toStrictEqual(200);
-			expect(downloadResponse.body).toStrictEqual(firstFileContent);
-		});
+		expect(failedDownloadResponse.statusCode).toStrictEqual(404);
 
-		it('should upload file, return metadata and download with correct content', async () => {
-			const filePath = 'test/a/b/c.txt';
-			const fileContent = Buffer.from('testContent');
+		const successfulDownloadResponse = await request(app.getHttpServer()).get(`${apiPath}${newPath}/download`).responseType('blob');
 
-			const uploadResponse = await request(app.getHttpServer())
-				.post(`${apiPath}${filePath}`)
-				.attach('file', fileContent, 'filename.txt');
+		expect(successfulDownloadResponse.statusCode).toStrictEqual(200);
+		expect(successfulDownloadResponse.body).toStrictEqual(fileContent);
+	});
 
-			const metadataResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/metadata`);
+	it('should upload file, rename successfully to file with same mimeType, download correct content and fail when trying to download at old path', async () => {
+		const filePath = 'test/a/b/c.txt';
+		const newPath = 'test.txt';
+		const fileContent = Buffer.from('firstTestContent');
 
-			const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+		const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'filename.txt');
 
-			expect(uploadResponse.statusCode).toStrictEqual(201);
-			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+		expect(uploadResponse.statusCode).toStrictEqual(201);
+		expect(uploadResponse.body).toStrictEqual({ path: filePath });
 
-			expect(metadataResponse.statusCode).toStrictEqual(200);
-			expect(metadataResponse.body).not.toStrictEqual({});
+		const renameResponse = await request(app.getHttpServer()).patch(`${apiPath}${filePath}`).send({ newPath: newPath });
 
-			expect(downloadResponse.statusCode).toStrictEqual(200);
-			expect(downloadResponse.body).toStrictEqual(fileContent);
-		});
+		expect(renameResponse.statusCode).toStrictEqual(200);
+		expect(renameResponse.body).toStrictEqual({ path: newPath });
+
+		const failedDownloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+
+		expect(failedDownloadResponse.statusCode).toStrictEqual(404);
+
+		const successfulDownloadResponse = await request(app.getHttpServer()).get(`${apiPath}${newPath}/download`).responseType('blob');
+
+		expect(successfulDownloadResponse.statusCode).toStrictEqual(200);
+		expect(successfulDownloadResponse.body).toStrictEqual(fileContent);
+	});
+
+	it('should upload file, replace if trying to upload again at same path with overwrite=true and download correct content', async () => {
+		const filePath = 'test/a/b/c.txt';
+		const firstFileContent = Buffer.from('firstTestContent');
+		const secondFileContent = Buffer.from('secondTestContent');
+
+		const uploadResponse = await request(app.getHttpServer())
+			.post(`${apiPath}${filePath}`)
+			.attach('file', firstFileContent, 'filename.txt');
+
+		expect(uploadResponse.statusCode).toStrictEqual(201);
+		expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+		const secondUploadResponse = await request(app.getHttpServer())
+			.post(`${apiPath}${filePath}?overwrite=true`)
+			.attach('file', secondFileContent, 'filename.txt');
+
+		expect(secondUploadResponse.statusCode).toStrictEqual(201);
+		expect(secondUploadResponse.body).toStrictEqual({ path: filePath });
+
+		const downloadResponse = await request(app.getHttpServer())
+			.get(`${apiPath}${filePath}/download?overwrite=false`)
+			.responseType('blob');
+
+		expect(downloadResponse.statusCode).toStrictEqual(200);
+		expect(downloadResponse.body).toStrictEqual(secondFileContent);
+	});
+
+	it('should upload file, fail if trying to upload again at same path and download correct content', async () => {
+		const filePath = 'test/a/b/c.txt';
+		const firstFileContent = Buffer.from('firstTestContent');
+		const secondFileContent = Buffer.from('secondTestContent');
+
+		const uploadResponse = await request(app.getHttpServer())
+			.post(`${apiPath}${filePath}`)
+			.attach('file', firstFileContent, 'filename.txt');
+
+		expect(uploadResponse.statusCode).toStrictEqual(201);
+		expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+		const secondUploadResponse = await request(app.getHttpServer())
+			.post(`${apiPath}${filePath}?overwrite=false`)
+			.attach('file', secondFileContent, 'filename.txt');
+
+		expect(secondUploadResponse.statusCode).toStrictEqual(409);
+
+		const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+
+		expect(downloadResponse.statusCode).toStrictEqual(200);
+		expect(downloadResponse.body).toStrictEqual(firstFileContent);
+	});
+
+	it('should upload file, return metadata and download with correct content', async () => {
+		const filePath = 'test/a/b/c.txt';
+		const fileContent = Buffer.from('testContent');
+
+		const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'filename.txt');
+
+		expect(uploadResponse.statusCode).toStrictEqual(201);
+		expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+		const metadataResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/metadata`);
+
+		expect(metadataResponse.statusCode).toStrictEqual(200);
+		expect(metadataResponse.body).not.toStrictEqual({});
+
+		const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+
+		expect(downloadResponse.statusCode).toStrictEqual(200);
+		expect(downloadResponse.body).toStrictEqual(fileContent);
 	});
 });
