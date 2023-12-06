@@ -1,5 +1,6 @@
 import { File } from 'src/api/files/entities/file.entity';
 
+import { lookup } from 'mime-types';
 import * as path from 'path';
 
 export class FileUploadDto {
@@ -25,7 +26,14 @@ export class FileUploadDto {
 	}
 
 	public static from(fullPath: string, file: Pick<Express.Multer.File, 'mimetype' | 'size' | 'buffer'>): FileUploadDto {
-		return new FileUploadDto(fullPath, path.basename(fullPath), path.dirname(fullPath), file.mimetype, file.size, file.buffer);
+		return new FileUploadDto(
+			fullPath,
+			path.basename(fullPath),
+			path.dirname(fullPath),
+			lookup(fullPath) || 'octet-stream',
+			file.size,
+			file.buffer
+		);
 	}
 
 	public toFile(): File {

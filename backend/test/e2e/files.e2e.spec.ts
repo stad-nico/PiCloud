@@ -168,5 +168,86 @@ describe('/files/', () => {
 
 			expect(uploadResponse.statusCode).toStrictEqual(400);
 		});
+
+		it('should fail uploading a file if path leaves dir', async () => {
+			const filePath = '../../../../../test.txt';
+
+			const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`);
+
+			expect(uploadResponse.statusCode).toStrictEqual(400);
+		});
+
+		it('should upload file and set correct mimeType depending on filePath and not on attached file name', async () => {
+			const filePath = 'f/c/test.txt';
+			const fileContent = Buffer.from('firstContent');
+
+			const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'file.csv');
+
+			const metadataResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/metadata`);
+
+			expect(uploadResponse.statusCode).toStrictEqual(201);
+			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(metadataResponse.body.mimeType).toStrictEqual('text/plain');
+		});
+	});
+
+	describe('GET /files/:path/download', () => {
+		it('should download file with correct content and correct headers', async () => {
+			const filePath = 'test/a/b/c.csv';
+			const fileContent = Buffer.from('testContent');
+
+			const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'abc.csv');
+
+			const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+
+			expect(uploadResponse.statusCode).toStrictEqual(201);
+			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(downloadResponse.statusCode).toStrictEqual(200);
+			expect(downloadResponse.body).toStrictEqual(fileContent);
+			expect(downloadResponse.headers['content-disposition']).toStrictEqual('attachment; filename=c.csv');
+			expect(downloadResponse.headers['content-type']).toStrictEqual('text/csv; charset=utf-8');
+		});
+
+		it('should download correct file with correct content and correct headers when multiple files with same name but different extensions', async () => {
+			const firstFilePath = 'test/a/b/c.csv';
+			const firstFileContent = Buffer.from('firstTestContent');
+
+			const secondFilePath = 'test/a/b/c.txt';
+			const secondFileContent = Buffer.from('secondTestContent');
+
+			const firstUploadResponse = await request(app.getHttpServer())
+				.post(`${apiPath}${firstFilePath}`)
+				.attach('file', firstFileContent, 'abc.csv');
+
+			const secondUploadResponse = await request(app.getHttpServer())
+				.post(`${apiPath}${secondFilePath}`)
+				.attach('file', secondFileContent, 'abc.csv');
+
+			const firstDownloadResponse = await request(app.getHttpServer())
+				.get(`${apiPath}${firstFilePath}/download`)
+				.responseType('blob');
+
+			const secondDownloadResponse = await request(app.getHttpServer())
+				.get(`${apiPath}${secondFilePath}/download`)
+				.responseType('blob');
+
+			expect(firstUploadResponse.statusCode).toStrictEqual(201);
+			expect(firstUploadResponse.body).toStrictEqual({ path: firstFilePath });
+
+			expect(secondUploadResponse.statusCode).toStrictEqual(201);
+			expect(secondUploadResponse.body).toStrictEqual({ path: secondFilePath });
+
+			expect(firstDownloadResponse.statusCode).toStrictEqual(200);
+			expect(firstDownloadResponse.body).toStrictEqual(firstFileContent);
+			expect(firstDownloadResponse.headers['content-disposition']).toStrictEqual('attachment; filename=c.csv');
+			expect(firstDownloadResponse.headers['content-type']).toStrictEqual('text/csv; charset=utf-8');
+
+			expect(secondDownloadResponse.statusCode).toStrictEqual(200);
+			expect(secondDownloadResponse.body).toStrictEqual(secondFileContent);
+			expect(secondDownloadResponse.headers['content-disposition']).toStrictEqual('attachment; filename=c.txt');
+			expect(secondDownloadResponse.headers['content-type']).toStrictEqual('text/plain; charset=utf-8');
+		});
 	});
 });
