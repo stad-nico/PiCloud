@@ -1,4 +1,4 @@
-import { FileDownloadParams } from 'src/api/files/classes/download/file.download.params';
+import { FileDownloadParams } from 'src/api/file/classes/download/file.download.params';
 
 export class FileDownloadDto {
 	readonly path: string;

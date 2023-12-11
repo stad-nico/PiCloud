@@ -1,4 +1,4 @@
-import { FileRenameBody, FileRenameParams } from 'src/api/files/classes/rename';
+import { FileRenameBody, FileRenameParams } from 'src/api/file/classes/rename';
 
 export class FileRenameDto {
 	readonly sourcePath: string;

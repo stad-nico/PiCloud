@@ -1,4 +1,4 @@
-import { FileRestoreParams } from 'src/api/files/classes/restore';
+import { FileRestoreParams } from 'src/api/file/classes/restore';
 
 export class FileRestoreDto {
 	readonly uuid: string;

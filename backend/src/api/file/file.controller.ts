@@ -17,24 +17,24 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 
-import { FilesService } from 'src/api/files/files.service';
+import { FileService } from 'src/api/file/file.service';
 import { ServerError } from 'src/util/ServerError';
 
-import { FileDeleteDto, FileDeleteParams, FileDeleteResponse } from 'src/api/files/classes/delete';
-import { FileDownloadDto, FileDownloadParams } from 'src/api/files/classes/download';
-import { FileMetadataDto, FileMetadataParams, FileMetadataResponse } from 'src/api/files/classes/metadata';
-import { FileRenameBody, FileRenameDto, FileRenameParams, FileRenameQueryParams, FileRenameResponse } from 'src/api/files/classes/rename';
-import { FileRestoreDto, FileRestoreParams, FileRestoreQueryParams, FileRestoreResponse } from 'src/api/files/classes/restore';
-import { FileUploadDto, FileUploadParams, FileUploadQueryParams, FileUploadResponse } from 'src/api/files/classes/upload';
+import { FileDeleteDto, FileDeleteParams, FileDeleteResponse } from 'src/api/file/classes/delete';
+import { FileDownloadDto, FileDownloadParams } from 'src/api/file/classes/download';
+import { FileMetadataDto, FileMetadataParams, FileMetadataResponse } from 'src/api/file/classes/metadata';
+import { FileRenameBody, FileRenameDto, FileRenameParams, FileRenameQueryParams, FileRenameResponse } from 'src/api/file/classes/rename';
+import { FileRestoreDto, FileRestoreParams, FileRestoreQueryParams, FileRestoreResponse } from 'src/api/file/classes/restore';
+import { FileUploadDto, FileUploadParams, FileUploadQueryParams, FileUploadResponse } from 'src/api/file/classes/upload';
 
-@Controller('files')
-export class FilesController {
-	private readonly logger = new Logger(FilesController.name);
+@Controller('file')
+export class FileController {
+	private readonly logger = new Logger(FileController.name);
 
-	private readonly filesService: FilesService;
+	private readonly fileService: FileService;
 
-	constructor(fileService: FilesService) {
-		this.filesService = fileService;
+	constructor(fileService: FileService) {
+		this.fileService = fileService;
 	}
 
 	@Post(':id/restore')
@@ -42,7 +42,7 @@ export class FilesController {
 		try {
 			const fileRestoreDto = FileRestoreDto.from(params);
 
-			return await this.filesService.restore(fileRestoreDto, query.overwrite);
+			return await this.fileService.restore(fileRestoreDto, query.overwrite);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -70,7 +70,7 @@ export class FilesController {
 
 			const fileUploadDto = FileUploadDto.from(fullPath, file);
 
-			return await this.filesService.upload(fileUploadDto, query.overwrite);
+			return await this.fileService.upload(fileUploadDto, query.overwrite);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -87,7 +87,7 @@ export class FilesController {
 		try {
 			const fileMetadataDto = FileMetadataDto.from(params);
 
-			return await this.filesService.metadata(fileMetadataDto);
+			return await this.fileService.metadata(fileMetadataDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -104,7 +104,7 @@ export class FilesController {
 		try {
 			const fileDownloadDto = FileDownloadDto.from(params);
 
-			const result = await this.filesService.download(fileDownloadDto);
+			const result = await this.fileService.download(fileDownloadDto);
 
 			res.header({
 				'Content-Type': result.mimeType,
@@ -140,7 +140,7 @@ export class FilesController {
 		try {
 			const fileRenameDto = FileRenameDto.from(params, body);
 
-			return await this.filesService.rename(fileRenameDto, query.overwrite);
+			return await this.fileService.rename(fileRenameDto, query.overwrite);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -157,7 +157,7 @@ export class FilesController {
 		try {
 			const fileDeleteDto = FileDeleteDto.from(params);
 
-			return await this.filesService.delete(fileDeleteDto);
+			return await this.fileService.delete(fileDeleteDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);

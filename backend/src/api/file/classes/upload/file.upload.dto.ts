@@ -1,4 +1,4 @@
-import { File } from 'src/api/files/entities/file.entity';
+import { File } from 'src/api/file/entities/file.entity';
 
 import { lookup } from 'mime-types';
 import * as path from 'path';

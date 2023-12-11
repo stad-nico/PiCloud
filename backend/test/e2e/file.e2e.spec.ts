@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { DataSource, QueryRunner } from 'typeorm';
 
-import { File } from 'src/api/files/entities/file.entity';
+import { File } from 'src/api/file/entities/file.entity';
 import { configureApplication } from 'src/app.config';
 import { AppModuleConfig } from 'src/app.module';
 import { Environment } from 'src/env.config';
@@ -11,13 +11,13 @@ import { FileUtils } from 'src/util/FileUtils';
 
 import * as request from 'supertest';
 
-describe('/files/', () => {
+describe('/file/', () => {
 	let app: INestApplication;
 	let dataSource: DataSource;
 	let configService: ConfigService;
 	let runner: QueryRunner;
 
-	const apiPath = '/files/';
+	const apiPath = '/file/';
 
 	beforeAll(async () => {
 		const testingModule = await Test.createTestingModule(AppModuleConfig).compile();
@@ -48,7 +48,7 @@ describe('/files/', () => {
 		await FileUtils.emptyDirectory(configService.getOrThrow(Environment.DiskRecyclePath));
 	});
 
-	describe('POST /files/:path', () => {
+	describe('POST /file/:path', () => {
 		it('should upload file and download correct content', async () => {
 			const filePath = 'test/a/b/c.txt';
 			const fileContent = Buffer.from('testContent');
@@ -192,7 +192,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('POST /files/:path/restore', () => {
+	describe('POST /file/:path/restore', () => {
 		it('should fail trying to restore file if already exists and overwrite=false and download correct content', async () => {
 			const filePath = 'test/abcdef.txt';
 			const fileContent = Buffer.from('fileContent');
@@ -284,7 +284,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('GET /files/:path/download', () => {
+	describe('GET /file/:path/download', () => {
 		it('should download file with correct content and correct headers', async () => {
 			const filePath = 'test/a/b/c.csv';
 			const fileContent = Buffer.from('testContent');
@@ -343,7 +343,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('GET /files/:path/metadata', () => {
+	describe('GET /file/:path/metadata', () => {
 		it('should return correct metadata after creation', async () => {
 			const filePath = 'y/7y/fw.txt';
 			const fileContent = Buffer.from('fileContent');
@@ -371,7 +371,7 @@ describe('/files/', () => {
 		it("'updated' should change but 'created' should not on replacing", async () => {});
 	});
 
-	describe('PATCH /files/:path', () => {
+	describe('PATCH /file/:path', () => {
 		it('should successfully rename file and fail to download original file', async () => {
 			const filePath = 'a/b/c.txt';
 			const fileContent = Buffer.from('fileContent');
@@ -431,7 +431,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('DELETE /files/:path', () => {
+	describe('DELETE /file/:path', () => {
 		it('should delete file and fail trying to download', async () => {
 			const filePath = 'x/y/z.txt';
 			const fileContent = Buffer.from('fjkelrg');

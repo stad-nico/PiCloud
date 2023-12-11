@@ -1,35 +1,35 @@
 import { HttpStatus, StreamableFile } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { FilesController } from 'src/api/files/files.controller';
-import { FilesService } from 'src/api/files/files.service';
+import { FileController } from 'src/api/file/file.controller';
+import { FileService } from 'src/api/file/file.service';
 import { ServerError } from 'src/util/ServerError';
 import { mockedFilesService } from 'test/mocks/mockedFilesService.spec';
 
 import { ReadStream } from 'fs';
-import { FileDeleteParams, FileDeleteResponse } from 'src/api/files/classes/delete';
-import { FileDownloadParams, FileDownloadResponse } from 'src/api/files/classes/download';
-import { FileMetadataParams } from 'src/api/files/classes/metadata';
-import { FileRenameBody, FileRenameParams, FileRenameQueryParams, FileRenameResponse } from 'src/api/files/classes/rename';
-import { FileUploadParams, FileUploadQueryParams, FileUploadResponse } from 'src/api/files/classes/upload';
+import { FileDeleteParams, FileDeleteResponse } from 'src/api/file/classes/delete';
+import { FileDownloadParams, FileDownloadResponse } from 'src/api/file/classes/download';
+import { FileMetadataParams } from 'src/api/file/classes/metadata';
+import { FileRenameBody, FileRenameParams, FileRenameQueryParams, FileRenameResponse } from 'src/api/file/classes/rename';
+import { FileUploadParams, FileUploadQueryParams, FileUploadResponse } from 'src/api/file/classes/upload';
 import { Readable } from 'stream';
 
-describe('FilesController', () => {
-	let controller: FilesController;
+describe('FileController', () => {
+	let controller: FileController;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			controllers: [FilesController],
+			controllers: [FileController],
 			providers: [
 				{
-					provide: FilesService,
+					provide: FileService,
 					useValue: mockedFilesService,
 				},
 			],
 		}).compile();
 
 		module.useLogger(false);
-		controller = module.get(FilesController);
+		controller = module.get(FileController);
 	});
 
 	describe('upload', () => {

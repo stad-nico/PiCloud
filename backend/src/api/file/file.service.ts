@@ -2,18 +2,18 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 
-import { File } from 'src/api/files/entities/file.entity';
+import { File } from 'src/api/file/entities/file.entity';
 import { Environment } from 'src/env.config';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 import { withTransactionalQueryRunner } from 'src/util/withTransactionalQueryRunner';
 
-import { FileDeleteDto, FileDeleteResponse } from 'src/api/files/classes/delete';
-import { FileDownloadDto, FileDownloadResponse } from 'src/api/files/classes/download';
-import { FileMetadataDto, FileMetadataResponse } from 'src/api/files/classes/metadata';
-import { FileRenameDto, FileRenameResponse } from 'src/api/files/classes/rename';
-import { FileRestoreDto, FileRestoreResponse } from 'src/api/files/classes/restore';
-import { FileUploadDto, FileUploadResponse } from 'src/api/files/classes/upload';
+import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/classes/delete';
+import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/classes/download';
+import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/classes/metadata';
+import { FileRenameDto, FileRenameResponse } from 'src/api/file/classes/rename';
+import { FileRestoreDto, FileRestoreResponse } from 'src/api/file/classes/restore';
+import { FileUploadDto, FileUploadResponse } from 'src/api/file/classes/upload';
 
 import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
@@ -21,8 +21,8 @@ import { lookup } from 'mime-types';
 import * as path from 'path';
 
 @Injectable()
-export class FilesService {
-	private readonly logger = new Logger(FilesService.name);
+export class FileService {
+	private readonly logger = new Logger(FileService.name);
 
 	private readonly dataSource: DataSource;
 

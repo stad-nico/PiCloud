@@ -4,12 +4,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { DiskModule } from 'src/disk/disk.module';
 import { validate } from 'src/env.config';
-import { FilesModule } from './api/files/files.module';
+import { FileModule } from './api/file/file.module';
 
 export const AppModuleConfig = {
 	imports: [
 		ConfigModule.forRoot({
-			envFilePath: `../.${(process.env.NODE_ENV ?? 'dev').trim()}.env`,
+			envFilePath: `../${(process.env.NODE_ENV ?? 'dev').trim()}.env`,
 			expandVariables: true,
 			validate: validate,
 		}),
@@ -27,7 +27,7 @@ export const AppModuleConfig = {
 
 		DiskModule.forRootAsync(),
 
-		FilesModule,
+		FileModule,
 	],
 };
 

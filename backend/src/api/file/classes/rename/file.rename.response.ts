@@ -1,4 +1,4 @@
-import { File } from 'src/api/files/entities/file.entity';
+import { File } from 'src/api/file/entities/file.entity';
 
 export class FileRenameResponse {
 	readonly path: string;

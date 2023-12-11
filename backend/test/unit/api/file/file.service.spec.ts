@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 
-import { FilesService } from 'src/api/files/files.service';
+import { FileService } from 'src/api/file/file.service';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 import { mockedDataSource } from 'test/mocks/mockedDataSource.spec';
@@ -11,13 +11,13 @@ import { mockedEntityManager } from 'test/mocks/mockedEntityManager.spec';
 
 import * as fs from 'fs';
 import * as fsPromises from 'fs/promises';
-import { FileDeleteDto, FileDeleteResponse } from 'src/api/files/classes/delete';
-import { FileDownloadDto, FileDownloadResponse } from 'src/api/files/classes/download';
-import { FileMetadataDto, FileMetadataResponse } from 'src/api/files/classes/metadata';
-import { FileRenameDto, FileRenameResponse } from 'src/api/files/classes/rename';
-import { FileRestoreDto, FileRestoreResponse } from 'src/api/files/classes/restore';
-import { FileUploadDto, FileUploadResponse } from 'src/api/files/classes/upload';
-import { File } from 'src/api/files/entities/file.entity';
+import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/classes/delete';
+import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/classes/download';
+import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/classes/metadata';
+import { FileRenameDto, FileRenameResponse } from 'src/api/file/classes/rename';
+import { FileRestoreDto, FileRestoreResponse } from 'src/api/file/classes/restore';
+import { FileUploadDto, FileUploadResponse } from 'src/api/file/classes/upload';
+import { File } from 'src/api/file/entities/file.entity';
 
 // prevent any modification to fs
 jest.mock('fs/promises', () => ({
@@ -30,13 +30,13 @@ jest.mock('uuid', () => ({
 	v4: jest.fn().mockReturnValue('testUuid'),
 }));
 
-describe('FilesService', () => {
-	let service: FilesService;
+describe('FileService', () => {
+	let service: FileService;
 
 	beforeAll(async () => {
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
-				FilesService,
+				FileService,
 				{ provide: DataSource, useValue: mockedDataSource },
 				{
 					provide: ConfigService,
@@ -50,7 +50,7 @@ describe('FilesService', () => {
 		}).compile();
 
 		module.useLogger(false);
-		service = module.get(FilesService);
+		service = module.get(FileService);
 	});
 
 	afterEach(() => {

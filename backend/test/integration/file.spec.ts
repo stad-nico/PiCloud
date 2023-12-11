@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { DataSource, QueryRunner } from 'typeorm';
 
-import { File } from 'src/api/files/entities/file.entity';
+import { File } from 'src/api/file/entities/file.entity';
 import { configureApplication } from 'src/app.config';
 import { AppModuleConfig } from 'src/app.module';
 import { Environment } from 'src/env.config';
@@ -15,13 +15,13 @@ import * as request from 'supertest';
 import { mockedQueryRunner } from 'test/mocks/mockedQueryRunner.spec';
 import { v4 as generateUuid } from 'uuid';
 
-describe('/files/', () => {
+describe('/file/', () => {
 	let app: INestApplication;
 	let dataSource: DataSource;
 	let configService: ConfigService;
 	let runner: QueryRunner;
 
-	const apiPath = '/files/';
+	const apiPath = '/file/';
 
 	beforeAll(async () => {
 		const testingModule = await Test.createTestingModule(AppModuleConfig).compile();
@@ -52,7 +52,7 @@ describe('/files/', () => {
 		await FileUtils.emptyDirectory(configService.getOrThrow(Environment.DiskRecyclePath));
 	});
 
-	describe('POST /files/:path', () => {
+	describe(`POST ${apiPath}:path`, () => {
 		describe('201 - file uploaded successfully', () => {
 			it("should return 201 if file does not already exist and query param 'overwrite' is false", async () => {
 				const fileToExpect = {
@@ -289,7 +289,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('POST /files/:uuid/restore', () => {
+	describe(`POST ${apiPath}:uuid/restore`, () => {
 		describe('201 - file restored successfully', () => {
 			it("should return 200 if file does not already exist and query param 'overwrite' is false", async () => {
 				const file = new File('test/t.txt', 't.txt', 'test', 'text/plain', 11, true);
@@ -487,7 +487,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('GET /files/:path/metadata', () => {
+	describe(`GET ${apiPath}:path/metadata`, () => {
 		it('200 - get metadata', async () => {
 			const path = 'test/t.txt';
 			const file = new File(path, 't.txt', 'test', 'text/plain', 19);
@@ -543,7 +543,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('GET /files/:path/download', () => {
+	describe(`GET ${apiPath}:path/download`, () => {
 		it('200 - download success', async () => {
 			const file = new File('test/t.txt', 't.txt', 'test', 'text/plain', 19);
 			const content = Buffer.from('testContent');
@@ -617,7 +617,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('PATCH /files/:path', () => {
+	describe(`PATCH ${apiPath}:path`, () => {
 		describe('200 - file renamed successfully', () => {
 			it("should return 200 if file does not already exist and query param 'overwrite' is not given", async () => {
 				const fileToRename = new File('test/a.txt', 'a.txt', 'test', 'text/plain', 11);
@@ -834,7 +834,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('DELETE /files/:path', () => {
+	describe(`DELETE ${apiPath}:path`, () => {
 		describe('200 - delete success', () => {
 			it('should set isRecycled to true and delete file', async () => {
 				const path = 'test.txt';
