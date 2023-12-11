@@ -192,6 +192,98 @@ describe('/files/', () => {
 		});
 	});
 
+	describe('POST /files/:path/restore', () => {
+		it('should fail trying to restore file if already exists and overwrite=false and download correct content', async () => {
+			const filePath = 'test/abcdef.txt';
+			const fileContent = Buffer.from('fileContent');
+			const secondFileContent = Buffer.from('otherContent');
+
+			const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'a.txt');
+
+			const deleteResponse = await request(app.getHttpServer()).delete(`${apiPath}${filePath}`);
+
+			const secondUploadResponse = await request(app.getHttpServer())
+				.post(`${apiPath}${filePath}`)
+				.attach('file', secondFileContent, 'a.txt');
+
+			const restoreResponse = await request(app.getHttpServer()).post(`${apiPath}${deleteResponse.body.uuid}/restore`);
+
+			const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+
+			expect(uploadResponse.statusCode).toStrictEqual(201);
+			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(deleteResponse.statusCode).toStrictEqual(200);
+			expect(deleteResponse.body).toStrictEqual({ uuid: expect.any(String) });
+
+			expect(secondUploadResponse.statusCode).toStrictEqual(201);
+			expect(secondUploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(restoreResponse.statusCode).toStrictEqual(409);
+
+			expect(downloadResponse.statusCode).toStrictEqual(200);
+			expect(downloadResponse.body).toStrictEqual(secondFileContent);
+		});
+
+		it('should restore file and download original content', async () => {
+			const filePath = 'a/b/c/d.txt';
+			const fileContent = Buffer.from('testContent');
+
+			const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'a.txt');
+
+			const deleteResponse = await request(app.getHttpServer()).delete(`${apiPath}${filePath}`);
+
+			const restoreResponse = await request(app.getHttpServer()).post(`${apiPath}${deleteResponse.body.uuid}/restore`);
+
+			const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+
+			expect(uploadResponse.statusCode).toStrictEqual(201);
+			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(deleteResponse.statusCode).toStrictEqual(200);
+			expect(deleteResponse.body).toStrictEqual({ uuid: expect.any(String) });
+
+			expect(restoreResponse.statusCode).toStrictEqual(201);
+			expect(restoreResponse.body).toStrictEqual({ path: filePath });
+
+			expect(downloadResponse.statusCode).toStrictEqual(200);
+			expect(downloadResponse.body).toStrictEqual(fileContent);
+		});
+
+		it('should restore file, overwrite existing and download correct content with overwrite=false', async () => {
+			const filePath = 'test/x/y/z.txt';
+			const fileContent = Buffer.from('fileContent');
+			const secondFileContent = Buffer.from('secondFileContent');
+
+			const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'file.txt');
+
+			const deleteResponse = await request(app.getHttpServer()).delete(`${apiPath}${filePath}`);
+
+			const secondUploadResponse = await request(app.getHttpServer())
+				.post(`${apiPath}${filePath}`)
+				.attach('file', secondFileContent, 'file.txt');
+
+			const restoreResponse = await request(app.getHttpServer()).post(`${apiPath}${deleteResponse.body.uuid}/restore?overwrite=true`);
+
+			const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+
+			expect(uploadResponse.statusCode).toStrictEqual(201);
+			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(deleteResponse.statusCode).toStrictEqual(200);
+			expect(deleteResponse.body).toStrictEqual({ uuid: expect.any(String) });
+
+			expect(secondUploadResponse.statusCode).toStrictEqual(201);
+			expect(secondUploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(restoreResponse.statusCode).toStrictEqual(201);
+			expect(restoreResponse.body).toStrictEqual({ path: filePath });
+
+			expect(downloadResponse.statusCode).toStrictEqual(200);
+			expect(downloadResponse.body).toStrictEqual(fileContent);
+		});
+	});
+
 	describe('GET /files/:path/download', () => {
 		it('should download file with correct content and correct headers', async () => {
 			const filePath = 'test/a/b/c.csv';
@@ -210,7 +302,7 @@ describe('/files/', () => {
 			expect(downloadResponse.headers['content-type']).toStrictEqual('text/csv; charset=utf-8');
 		});
 
-		it('should download correct file with correct content and correct headers when multiple files with same name but different extensions', async () => {
+		it('should download correct file with correct content and correct headers when multiple files with same name but different extensions exist', async () => {
 			const firstFilePath = 'test/a/b/c.csv';
 			const firstFileContent = Buffer.from('firstTestContent');
 
@@ -248,6 +340,155 @@ describe('/files/', () => {
 			expect(secondDownloadResponse.body).toStrictEqual(secondFileContent);
 			expect(secondDownloadResponse.headers['content-disposition']).toStrictEqual('attachment; filename=c.txt');
 			expect(secondDownloadResponse.headers['content-type']).toStrictEqual('text/plain; charset=utf-8');
+		});
+	});
+
+	describe('GET /files/:path/metadata', () => {
+		it('should return correct metadata after creation', async () => {
+			const filePath = 'y/7y/fw.txt';
+			const fileContent = Buffer.from('fileContent');
+
+			const date = Date.now();
+			const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'a.txt');
+
+			const metadataResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/metadata`);
+
+			expect(uploadResponse.statusCode).toStrictEqual(201);
+			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(metadataResponse.statusCode).toStrictEqual(200);
+			expect(metadataResponse.body.fullPath).toStrictEqual(filePath);
+			expect(metadataResponse.body.name).toStrictEqual('fw.txt');
+			expect(metadataResponse.body.path).toStrictEqual('y/7y');
+			expect(metadataResponse.body.mimeType).toStrictEqual('text/plain');
+			expect(+metadataResponse.body.size).toStrictEqual(11);
+			expect(Date.parse(metadataResponse.body.created)).toBeGreaterThanOrEqual(date);
+			expect(Date.parse(metadataResponse.body.created)).toBeLessThanOrEqual(date + 5000);
+			expect(metadataResponse.body.updated).toStrictEqual(metadataResponse.body.created);
+			expect(metadataResponse.body.uuid).toStrictEqual(expect.any(String));
+		});
+
+		it("'updated' should change but 'created' should not on replacing", async () => {});
+	});
+
+	describe('PATCH /files/:path', () => {
+		it('should successfully rename file and fail to download original file', async () => {
+			const filePath = 'a/b/c.txt';
+			const fileContent = Buffer.from('fileContent');
+			const renamedPath = 'a/xyz.csv';
+
+			const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'a.txt');
+
+			const renameResponse = await request(app.getHttpServer()).patch(`${apiPath}${filePath}`).send({ newPath: renamedPath });
+
+			const firstDownloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+
+			const secondDownloadResponse = await request(app.getHttpServer()).get(`${apiPath}${renamedPath}/download`).responseType('blob');
+
+			expect(uploadResponse.statusCode).toStrictEqual(201);
+			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(renameResponse.statusCode).toStrictEqual(200);
+			expect(renameResponse.body).toStrictEqual({ path: renamedPath });
+
+			expect(firstDownloadResponse.statusCode).toStrictEqual(404);
+
+			expect(secondDownloadResponse.statusCode).toStrictEqual(200);
+			expect(secondDownloadResponse.body).toStrictEqual(fileContent);
+		});
+
+		it('should successfully replace existing file on renaming  and download content of replaced file', async () => {
+			const firstFilePath = 'a/b/c.txt';
+			const firstFileContent = Buffer.from('firstContent');
+			const secondFilePath = 'a/r.csv';
+			const secondFileContent = Buffer.from('firstContent');
+
+			const firstUploadResponse = await request(app.getHttpServer())
+				.post(`${apiPath}${firstFilePath}`)
+				.attach('file', firstFileContent, 'a.txt');
+
+			const secondUploadResponse = await request(app.getHttpServer())
+				.post(`${apiPath}${secondFilePath}`)
+				.attach('file', secondFileContent, 'a.txt');
+
+			const renameResponse = await request(app.getHttpServer())
+				.patch(`${apiPath}${firstFilePath}?overwrite=true`)
+				.send({ newPath: secondFilePath });
+
+			const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${secondFilePath}/download`).responseType('blob');
+
+			expect(firstUploadResponse.statusCode).toStrictEqual(201);
+			expect(firstUploadResponse.body).toStrictEqual({ path: firstFilePath });
+
+			expect(secondUploadResponse.statusCode).toStrictEqual(201);
+			expect(secondUploadResponse.body).toStrictEqual({ path: secondFilePath });
+
+			expect(renameResponse.statusCode).toStrictEqual(200);
+			expect(renameResponse.body).toStrictEqual({ path: secondFilePath });
+
+			expect(downloadResponse.statusCode).toStrictEqual(200);
+			expect(downloadResponse.body).toStrictEqual(secondFileContent);
+		});
+	});
+
+	describe('DELETE /files/:path', () => {
+		it('should delete file and fail trying to download', async () => {
+			const filePath = 'x/y/z.txt';
+			const fileContent = Buffer.from('fjkelrg');
+
+			const uploadResponse = await request(app.getHttpServer()).post(`${apiPath}${filePath}`).attach('file', fileContent, 'test.txt');
+
+			const deleteResponse = await request(app.getHttpServer()).delete(`${apiPath}${filePath}`);
+
+			const downloadResponse = await request(app.getHttpServer()).get(`${apiPath}${filePath}/download`).responseType('blob');
+
+			expect(uploadResponse.statusCode).toStrictEqual(201);
+			expect(uploadResponse.body).toStrictEqual({ path: filePath });
+
+			expect(deleteResponse.statusCode).toStrictEqual(200);
+			expect(deleteResponse.body).toStrictEqual({ uuid: expect.any(String) });
+
+			expect(downloadResponse.statusCode).toStrictEqual(404);
+		});
+
+		it('should delete file and fail trying to download that file but succeed trying to download same file with different extension', async () => {
+			const firstFilePath = 'a/b/c.txt';
+			const firstFileContent = Buffer.from('firstContent');
+
+			const secondFilePath = 'a/b/c.csv';
+			const secondFileContent = Buffer.from('secondContent');
+
+			const firstUploadResponse = await request(app.getHttpServer())
+				.post(`${apiPath}${firstFilePath}`)
+				.attach('file', firstFileContent, 'test.txt');
+
+			const secondUploadResponse = await request(app.getHttpServer())
+				.post(`${apiPath}${secondFilePath}`)
+				.attach('file', secondFileContent, 'test.csv');
+
+			const deleteResponse = await request(app.getHttpServer()).delete(`${apiPath}${firstFilePath}`);
+
+			const firstDownloadResponse = await request(app.getHttpServer())
+				.get(`${apiPath}${firstFilePath}/download`)
+				.responseType('blob');
+
+			const secondDownloadResponse = await request(app.getHttpServer())
+				.get(`${apiPath}${secondFilePath}/download`)
+				.responseType('blob');
+
+			expect(firstUploadResponse.statusCode).toStrictEqual(201);
+			expect(firstUploadResponse.body).toStrictEqual({ path: firstFilePath });
+
+			expect(secondUploadResponse.statusCode).toStrictEqual(201);
+			expect(secondUploadResponse.body).toStrictEqual({ path: secondFilePath });
+
+			expect(deleteResponse.statusCode).toStrictEqual(200);
+			expect(deleteResponse.body).toStrictEqual({ uuid: expect.any(String) });
+
+			expect(firstDownloadResponse.statusCode).toStrictEqual(404);
+
+			expect(secondDownloadResponse.statusCode).toStrictEqual(200);
+			expect(secondDownloadResponse.body).toStrictEqual(secondFileContent);
 		});
 	});
 });

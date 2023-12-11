@@ -289,7 +289,7 @@ describe('/files/', () => {
 		});
 	});
 
-	describe('POST /files/:path/restore', () => {
+	describe('POST /files/:uuid/restore', () => {
 		describe('201 - file restored successfully', () => {
 			it("should return 200 if file does not already exist and query param 'overwrite' is false", async () => {
 				const file = new File('test/t.txt', 't.txt', 'test', 'text/plain', 11, true);
@@ -845,7 +845,10 @@ describe('/files/', () => {
 				const fileDestinationPath = FileUtils.join(configService, file.getUuidAsDirPath(), Environment.DiskRecyclePath);
 
 				await runner.manager.save(File, file);
-				await FileUtils.writeFile('C:\\cloud-test\\df\\4b\\9fc0-6714-4ab1-93ac-69cdffdead5e.txt', Buffer.from('test'));
+				await FileUtils.writeFile(
+					FileUtils.join(configService, file.getUuidAsDirPath(), Environment.DiskStoragePath),
+					Buffer.from('test')
+				);
 
 				const response = await request(app.getHttpServer()).delete(`${apiPath}${path}`);
 
