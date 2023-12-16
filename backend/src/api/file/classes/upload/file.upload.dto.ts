@@ -1,4 +1,4 @@
-import { File } from 'src/api/file/entities/file.entity';
+import { File } from 'src/db/entities/File';
 
 import { lookup } from 'mime-types';
 import * as path from 'path';
@@ -37,6 +37,7 @@ export class FileUploadDto {
 	}
 
 	public toFile(): File {
-		return new File(this.fullPath, this.name, this.path, this.mimeType, this.size);
+		return {} as File;
+		// return new File(this.fullPath, this.name, this.path, this.mimeType, this.size);
 	}
 }

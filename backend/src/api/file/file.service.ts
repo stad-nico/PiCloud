@@ -1,12 +1,10 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DataSource } from 'typeorm';
 
-import { File } from 'src/api/file/entities/file.entity';
+import { File } from 'src/db/entities/File';
 import { Environment } from 'src/env.config';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
-import { withTransactionalQueryRunner } from 'src/util/withTransactionalQueryRunner';
 
 import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/classes/delete';
 import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/classes/download';
@@ -15,6 +13,7 @@ import { FileRenameDto, FileRenameResponse } from 'src/api/file/classes/rename';
 import { FileRestoreDto, FileRestoreResponse } from 'src/api/file/classes/restore';
 import { FileUploadDto, FileUploadResponse } from 'src/api/file/classes/upload';
 
+import { EntityManager } from '@mikro-orm/mysql';
 import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
 import { lookup } from 'mime-types';
@@ -24,20 +23,18 @@ import * as path from 'path';
 export class FileService {
 	private readonly logger = new Logger(FileService.name);
 
-	private readonly dataSource: DataSource;
+	private readonly entityManager: EntityManager;
 
 	private readonly configService: ConfigService;
 
-	constructor(dataSource: DataSource, configService: ConfigService) {
-		this.dataSource = dataSource;
+	constructor(entityManager: EntityManager, configService: ConfigService) {
+		this.entityManager = entityManager;
 		this.configService = configService;
 	}
 
 	public async upload(fileUploadDto: FileUploadDto, overwrite: boolean = false): Promise<FileUploadResponse> {
-		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
-			const existingFile: File | null = await runner.manager.findOne(File, {
-				where: { fullPath: fileUploadDto.fullPath, isRecycled: false },
-			});
+		return await this.entityManager.transactional(async (entityManager) => {
+			const existingFile = await entityManager.findOne(File, { fullPath: fileUploadDto.fullPath, isRecycled: false });
 
 			if (!overwrite && existingFile) {
 				throw new ServerError(`file at ${fileUploadDto.fullPath} already exists`, HttpStatus.CONFLICT);
@@ -48,7 +45,7 @@ export class FileService {
 			}
 
 			if (overwrite && existingFile) {
-				await runner.manager.delete(File, { uuid: existingFile.uuid });
+				await entityManager.nativeDelete(File, { uuid: existingFile.uuid });
 
 				try {
 					const existingFilePath = FileUtils.join(
@@ -63,7 +60,7 @@ export class FileService {
 				}
 			}
 
-			const result = await runner.manager.save(File, fileUploadDto.toFile());
+			const result = await entityManager.upsert(File, fileUploadDto.toFile());
 
 			const resolvedPath = FileUtils.join(this.configService, result.getUuidAsDirPath(), Environment.DiskStoragePath);
 			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
@@ -73,10 +70,8 @@ export class FileService {
 	}
 
 	public async metadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse> {
-		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
-			const fileToFetch: File | null = await runner.manager.findOne(File, {
-				where: { fullPath: fileMetadataDto.path, isRecycled: false },
-			});
+		return await this.entityManager.transactional(async (entityManager) => {
+			const fileToFetch = await entityManager.findOne(File, { fullPath: fileMetadataDto.path, isRecycled: false });
 
 			if (!fileToFetch) {
 				throw new ServerError(`file at ${fileMetadataDto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -87,10 +82,8 @@ export class FileService {
 	}
 
 	public async download(fileDownloadDto: FileDownloadDto): Promise<FileDownloadResponse> {
-		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
-			const fileToDownload: File | null = await runner.manager.findOne(File, {
-				where: { fullPath: fileDownloadDto.path, isRecycled: false },
-			});
+		return await this.entityManager.transactional(async (entityManager) => {
+			const fileToDownload = await entityManager.findOne(File, { fullPath: fileDownloadDto.path, isRecycled: false });
 
 			if (!fileToDownload) {
 				throw new ServerError(`file at ${fileDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -107,16 +100,14 @@ export class FileService {
 	}
 
 	public async delete(fileDeleteDto: FileDeleteDto): Promise<FileDeleteResponse> {
-		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
-			const fileToDelete: File | null = await runner.manager.findOne(File, {
-				where: { fullPath: fileDeleteDto.path, isRecycled: false },
-			});
+		return await this.entityManager.transactional(async (entityManager) => {
+			const fileToDelete = await entityManager.findOne(File, { fullPath: fileDeleteDto.path, isRecycled: false });
 
 			if (!fileToDelete) {
 				throw new ServerError(`file at ${fileDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			await runner.manager.update(File, { uuid: fileToDelete.uuid }, { isRecycled: true });
+			await entityManager.nativeUpdate(File, { uuid: fileToDelete.uuid }, { isRecycled: true });
 
 			const sourcePath = FileUtils.join(this.configService, fileToDelete.getUuidAsDirPath(), Environment.DiskStoragePath);
 			const destinationPath = FileUtils.join(this.configService, fileToDelete.getUuidAsDirPath(), Environment.DiskRecyclePath);
@@ -133,28 +124,24 @@ export class FileService {
 	}
 
 	public async restore(fileRestoreDto: FileRestoreDto, overwrite: boolean = false): Promise<FileRestoreResponse> {
-		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
-			const fileToRestore: File | null = await runner.manager.findOne(File, {
-				where: { uuid: fileRestoreDto.uuid, isRecycled: true },
-			});
+		return await this.entityManager.transactional(async (entityManager) => {
+			const fileToRestore = await entityManager.findOne(File, { uuid: fileRestoreDto.uuid, isRecycled: true });
 
 			if (!fileToRestore) {
 				throw new ServerError(`uuid ${fileRestoreDto.uuid} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const existingFile: File | null = await runner.manager.findOne(File, {
-				where: { fullPath: fileToRestore.fullPath, isRecycled: false },
-			});
+			const existingFile = await entityManager.findOne(File, { fullPath: fileToRestore.fullPath, isRecycled: false });
 
 			if (!overwrite && existingFile) {
 				throw new ServerError(`file at ${fileToRestore.fullPath} already exists`, HttpStatus.CONFLICT);
 			}
 
 			if (overwrite && existingFile) {
-				await runner.manager.delete(File, { uuid: existingFile.uuid });
+				await entityManager.nativeDelete(File, { uuid: existingFile.uuid });
 			}
 
-			await runner.manager.update(File, { uuid: fileToRestore.uuid }, { isRecycled: false });
+			await entityManager.nativeUpdate(File, { uuid: fileToRestore.uuid }, { isRecycled: false });
 
 			const sourcePath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskRecyclePath);
 			const destinationPath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskStoragePath);
@@ -171,18 +158,14 @@ export class FileService {
 	}
 
 	public async rename(fileRenameDto: FileRenameDto, overwrite: boolean = false): Promise<FileRenameResponse> {
-		return await withTransactionalQueryRunner(this.dataSource, async (runner) => {
-			const fileToRename: File | null = await runner.manager.findOne(File, {
-				where: { fullPath: fileRenameDto.sourcePath, isRecycled: false },
-			});
+		return await this.entityManager.transactional(async (entityManager) => {
+			const fileToRename = await entityManager.findOne(File, { fullPath: fileRenameDto.sourcePath, isRecycled: false });
 
 			if (!fileToRename) {
 				throw new ServerError(`file at ${fileRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const existingFile: File | null = await runner.manager.findOne(File, {
-				where: { fullPath: fileRenameDto.destinationPath, isRecycled: false },
-			});
+			const existingFile = await entityManager.findOne(File, { fullPath: fileRenameDto.destinationPath, isRecycled: false });
 
 			if (!FileUtils.isPathRelative(this.configService, fileRenameDto.destinationPath)) {
 				throw new ServerError(`newPath must be a valid file path`, HttpStatus.BAD_REQUEST);
@@ -193,21 +176,20 @@ export class FileService {
 			}
 
 			if (overwrite && existingFile) {
-				await runner.manager.delete(File, { uuid: existingFile.uuid });
+				await entityManager.nativeDelete(File, { uuid: existingFile.uuid });
 			}
 
-			const result = await runner.manager.save(
-				File,
-				new File(
-					fileRenameDto.destinationPath,
-					path.basename(fileRenameDto.destinationPath),
-					path.dirname(fileRenameDto.destinationPath),
-					lookup(fileRenameDto.destinationPath) || 'application/octet-stream',
-					fileToRename.size,
-					false,
-					fileToRename.uuid
-				)
+			const file = new File(
+				fileRenameDto.destinationPath,
+				path.basename(fileRenameDto.destinationPath),
+				path.dirname(fileRenameDto.destinationPath),
+				lookup(fileRenameDto.destinationPath) || 'application/octet-stream',
+				fileToRename.size,
+				false,
+				fileToRename.uuid
 			);
+
+			const result = await entityManager.upsert(File, file);
 
 			return FileRenameResponse.from(result);
 		});

@@ -1,6 +1,6 @@
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { DiskModule } from 'src/disk/disk.module';
 import { validate } from 'src/env.config';
@@ -13,16 +13,13 @@ export const AppModuleConfig = {
 			expandVariables: true,
 			validate: validate,
 		}),
-		TypeOrmModule.forRoot({
-			bigNumberStrings: false,
-			type: 'mysql',
+		MikroOrmModule.forRoot({
 			host: 'localhost',
 			port: 3306,
-			username: 'root',
-			password: 'mysqldev',
-			database: 'cloud',
+			dbName: 'cloud',
+			password: 'root',
+			user: 'root',
 			autoLoadEntities: true,
-			synchronize: true,
 		}),
 
 		DiskModule.forRootAsync(),

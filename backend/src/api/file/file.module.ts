@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { File } from 'src/api/file/entities/file.entity';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { File } from 'src/db/entities/File';
 import { FileController } from './file.controller';
 import { FileService } from './file.service';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([File])],
+	imports: [MikroOrmModule.forFeature([File])],
 	controllers: [FileController],
 	providers: [FileService, ConfigService],
 })

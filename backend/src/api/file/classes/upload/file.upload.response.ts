@@ -1,4 +1,4 @@
-import { File } from 'src/api/file/entities/file.entity';
+import { File } from 'src/db/entities/File';
 
 export class FileUploadResponse {
 	readonly path: string;
