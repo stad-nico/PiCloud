@@ -5,13 +5,20 @@ import { v4 as generateUuid } from 'uuid';
 @Entity({ tableName: 'files' })
 export class File extends BaseEntity {
 	@Property({ type: 'int', nullable: false })
-	size!: number;
+	size: number;
 
 	@Property({ type: 'string', nullable: false })
-	mimeType!: string;
+	mimeType: string;
 
-	public constructor(name: string, size: number, mimeType: string, isRecycled: boolean = false, uuid: string = generateUuid()) {
-		super(name, isRecycled, uuid);
+	public constructor(
+		name: string,
+		parent: string,
+		size: number,
+		mimeType: string,
+		isRecycled: boolean = false,
+		uuid: string = generateUuid()
+	) {
+		super(name, parent, isRecycled, uuid);
 
 		this.size = size;
 		this.mimeType = mimeType;
