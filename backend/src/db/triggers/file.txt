@@ -1,0 +1,19 @@
+CREATE DEFINER=`root`@`localhost` TRIGGER `files_AFTER_INSERT` AFTER INSERT ON `files` FOR EACH ROW BEGIN
+	INSERT INTO tree (parent, child, depth)
+    SELECT NEW.parent, NEW.uuid, 1;
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `files_AFTER_UPDATE` AFTER UPDATE ON `files` FOR EACH ROW BEGIN
+	IF OLD.uuid != NEW.uuid THEN
+		UPDATE tree SET child = NEW.uuid WHERE child = OLD.uuid AND parent != "";
+    END IF;
+    
+    IF OLD.parent != NEW.parent THEN
+		UPDATE tree SET parent = NEW.parent WHERE child = OLD.uuid AND parent = OLD.parent;
+    END IF;
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `files_AFTER_DELETE` AFTER DELETE ON `files` FOR EACH ROW BEGIN
+	DELETE FROM tree
+    WHERE child = OLD.uuid AND parent = OLD.parent AND depth = 1;
+END
