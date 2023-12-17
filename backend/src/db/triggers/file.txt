@@ -1,6 +1,10 @@
 CREATE DEFINER=`root`@`localhost` TRIGGER `files_AFTER_INSERT` AFTER INSERT ON `files` FOR EACH ROW BEGIN
-	INSERT INTO tree (parent, child, depth)
-    SELECT NEW.parent, NEW.uuid, 1;
+	INSERT INTO tree (parent,child,depth)
+    SELECT 3, 3, 0
+    UNION ALL
+    SELECT parent, 3, depth + 1
+      FROM tree 
+      WHERE child = "2";
 END
 
 CREATE DEFINER=`root`@`localhost` TRIGGER `files_AFTER_UPDATE` AFTER UPDATE ON `files` FOR EACH ROW BEGIN
@@ -15,5 +19,5 @@ END
 
 CREATE DEFINER=`root`@`localhost` TRIGGER `files_AFTER_DELETE` AFTER DELETE ON `files` FOR EACH ROW BEGIN
 	DELETE FROM tree
-    WHERE child = OLD.uuid AND parent = OLD.parent AND depth = 1;
+    WHERE child = OLD.uuid;
 END
