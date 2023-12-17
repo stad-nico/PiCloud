@@ -1,33 +1,44 @@
 CREATE DEFINER=`root`@`localhost` TRIGGER `directories_AFTER_INSERT` AFTER INSERT ON `directories` FOR EACH ROW BEGIN
 	# create first flat entry (self, self, 0) 
 	INSERT INTO tree (parent, child, depth)
-	SELECT NEW.uuid, NEW.uuid, 0;
+		SELECT NEW.uuid, NEW.uuid, 0;
     
     # create hierarchical entries
     # depends on flat entries - must be a seperate insert
     INSERT INTO tree (parent, child, depth) 
-    SELECT p.parent, c.child, p.depth + c.depth + 1
-    FROM tree p JOIN tree c
-    WHERE p.child = NEW.parent AND c.parent = NEW.uuid;
+    	SELECT p.parent, c.child, p.depth + c.depth + 1
+    		FROM tree p JOIN tree c
+    		WHERE p.child = NEW.parent AND c.parent = NEW.uuid;
 END
 
 CREATE DEFINER=`root`@`localhost` TRIGGER `directories_AFTER_UPDATE` AFTER UPDATE ON `directories` FOR EACH ROW BEGIN
 	IF OLD.uuid != NEW.uuid THEN
-		UPDATE tree SET parent = NEW.uuid WHERE parent = OLD.uuid AND child != ""; 
-        UPDATE tree SET child = NEW.uuid WHERE child = OLD.uuid AND parent != ""; 
+		UPDATE tree 
+		SET parent = NEW.uuid 
+			WHERE parent = OLD.uuid; 
+
+        UPDATE tree 
+		SET child = NEW.uuid 
+			WHERE child = OLD.uuid; 
     END IF;
     
     IF OLD.parent != NEW.parent THEN
 		# remove all paths to subtree but not paths inside the subtree
 		DELETE FROM tree 
 		WHERE tree.child IN 
-				(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent = NEW.uuid AND a.child != "" AND tree.child != "" AND tree.parent != "")
+				(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent = NEW.uuid)
             AND tree.parent NOT IN
-				(SELECT child FROM (SELECT * FROM tree) AS b WHERE b.parent = NEW.uuid AND b.child != "" AND tree.child != "" AND tree.parent != "");
+				(SELECT child FROM (SELECT * FROM tree) AS b WHERE b.parent = NEW.uuid);
                 
 		INSERT INTO tree (parent, child, depth)
-		SELECT supertree.parent, subtree.child, supertree.depth + subtree.depth + 1
-		FROM tree AS supertree JOIN tree AS subtree
-		WHERE subtree.parent = NEW.uuid AND supertree.child = NEW.parent;
+			SELECT supertree.parent, subtree.child, supertree.depth + subtree.depth + 1
+				FROM tree AS supertree JOIN tree AS subtree
+				WHERE subtree.parent = NEW.uuid AND supertree.child = NEW.parent;
     END IF;
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `directories_AFTER_DELETE` AFTER DELETE ON `directories` FOR EACH ROW BEGIN
+	DELETE FROM tree
+    WHERE tree.child IN 
+		(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent = OLD.uuid)
 END
