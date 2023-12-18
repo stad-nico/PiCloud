@@ -26,6 +26,12 @@ export enum Environment {
 	DiskStoragePath = 'DISK_STORAGE_PATH',
 	DiskRecyclePath = 'DISK_RECYCLE_PATH',
 	NodeENV = 'NODE_ENV',
+	DBHost = 'DB_HOST',
+	DBPort = 'DB_PORT',
+	DBName = 'DB_NAME',
+	DBPassword = 'DB_PASSWORD',
+	DBUsername = 'DB_USERNAME',
+	DBConnectionRetries = 'DB_CONNECTION_RETRIES',
 }
 
 export function validate(config: Record<string, unknown>) {

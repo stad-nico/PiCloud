@@ -1,28 +1,28 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { DiskService } from 'src/disk/disk.service';
+import { MySqlService } from 'src/db/mysql.service';
 
 @Module({
-	providers: [DiskService, ConfigService],
-	exports: [DiskService],
+	providers: [MySqlService, ConfigService],
+	exports: [MySqlService],
 })
-export class DiskModule {
+export class MySqlModule {
 	public static async forRootAsync(): Promise<DynamicModule> {
 		return {
-			module: DiskModule,
+			module: MySqlModule,
 			providers: [
+				ConfigService,
 				{
-					provide: DiskService,
+					provide: MySqlService,
 					inject: [ConfigService],
 					useFactory: async (configService: ConfigService) => {
-						const service = new DiskService(configService);
+						const service = new MySqlService(configService);
 						await service.init();
 
 						return service;
 					},
 				},
-				ConfigService,
 			],
 		};
 	}

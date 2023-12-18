@@ -40,5 +40,5 @@ END
 CREATE DEFINER=`root`@`localhost` TRIGGER `directories_AFTER_DELETE` AFTER DELETE ON `directories` FOR EACH ROW BEGIN
 	DELETE FROM tree
     WHERE tree.child IN 
-		(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent = OLD.uuid)
+		(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent = OLD.uuid);
 END

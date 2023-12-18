@@ -18,7 +18,7 @@ export class DiskService {
 
 	private shouldCleanupOnShutdown: boolean;
 
-	constructor(configService: ConfigService) {
+	public constructor(configService: ConfigService) {
 		this.configService = configService;
 		this.storageLocation = configService.getOrThrow(Environment.DiskStoragePath);
 		this.recycleLocation = configService.getOrThrow(Environment.DiskRecyclePath);
@@ -40,12 +40,12 @@ export class DiskService {
 		this.logger.log('Finished cleaning up');
 	}
 
-	public async init() {
+	public async init(): Promise<void> {
 		await this.initStorageLocation();
 		await this.initRecycleLocation();
 	}
 
-	private async initRecycleLocation() {
+	private async initRecycleLocation(): Promise<void> {
 		if (!(await FileUtils.pathExists(this.recycleLocation))) {
 			try {
 				this.logger.log('Trying to initialize recycle location...');
@@ -64,7 +64,7 @@ export class DiskService {
 		this.logger.log(`Recycle location ${this.storageLocation} has ${this.formatBytes(freeSpace)} of free space`);
 	}
 
-	private async initStorageLocation() {
+	private async initStorageLocation(): Promise<void> {
 		if (!(await FileUtils.pathExists(this.storageLocation))) {
 			try {
 				this.logger.log('Trying to initialize storage location...');
@@ -84,7 +84,7 @@ export class DiskService {
 	}
 
 	// https://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript
-	private formatBytes(bytes: number, decimals: number = 2) {
+	private formatBytes(bytes: number, decimals: number = 2): string {
 		if (!+bytes) return '0 Bytes';
 
 		const k = 1024;
