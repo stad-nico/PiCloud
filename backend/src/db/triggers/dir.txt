@@ -42,3 +42,17 @@ CREATE DEFINER=`root`@`localhost` TRIGGER `directories_AFTER_DELETE` AFTER DELET
     WHERE tree.child IN 
 		(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent = OLD.uuid);
 END
+
+
+#### RECURSIVE GET PATH
+WITH RECURSIVE prev_ (iteration, uuid, name, parent) as (
+	SELECT 0, uuid, name, parent
+    FROM directories
+    WHERE uuid = "13"
+	UNION ALL
+    SELECT prev_.iteration + 1, next_.uuid, next_.name, next_.parent
+    FROM directories AS next_
+    INNER JOIN prev_
+    ON next_.uuid = prev_.parent
+)
+SELECT GROUP_CONCAT(name ORDER BY iteration DESC SEPARATOR "/") FROM prev_

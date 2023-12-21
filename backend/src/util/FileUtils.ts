@@ -136,4 +136,8 @@ export class FileUtils {
 			await fsPromises.rm(path.join(absolutePath, file), { recursive: true });
 		}
 	}
+
+	public static uuidToDirPath(uuid: string): string {
+		return uuid.match(/.{1,2}/g)!.reduce((acc, curr, ind) => (acc += ind === 1 || ind === 2 ? '/' + curr : curr));
+	}
 }

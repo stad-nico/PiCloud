@@ -1,26 +1,68 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Pool, createPool } from 'mysql2/promise';
+import { Pool, PoolConnection, createPool } from 'mysql2/promise';
+import { IDatabaseService } from 'src/db/DatabaseService';
 import { Environment } from 'src/env.config';
 
 @Injectable()
-export class MySqlService {
+export class MySqlService implements IDatabaseService {
 	private readonly logger = new Logger(MySqlService.name);
 
 	private readonly configService: ConfigService;
 
-	private connection: Pool | undefined;
+	private pool: Pool;
+
+	private connection: PoolConnection | undefined;
 
 	public constructor(configService: ConfigService) {
 		this.configService = configService;
+
+		this.pool = this.connect();
 	}
 
-	public async query(query: string, params: unknown): Promise<unknown> {
-		if (!this.connection) {
-			await this.init();
+	private connect(): Pool {
+		return createPool({
+			host: this.configService.getOrThrow(Environment.DBHost),
+			port: this.configService.getOrThrow(Environment.DBPort),
+			password: this.configService.getOrThrow(Environment.DBPassword),
+			user: this.configService.getOrThrow(Environment.DBUsername),
+			database: this.configService.getOrThrow(Environment.DBName),
+		});
+	}
+
+	public async executePreparedStatement(query: string, params: unknown): Promise<unknown> {
+		if (this.connection) {
+			return this.connection.execute(query, params);
 		}
 
-		return await this.connection!.execute(query, params);
+		return await this.pool.execute(query, params);
+	}
+
+	public async startTransaction(): Promise<void> {
+		const connection = await this.pool.getConnection();
+		connection.beginTransaction();
+
+		this.connection = connection;
+	}
+
+	public async commitTransaction(): Promise<void> {
+		if (!this.connection) {
+			return;
+		}
+
+		await this.connection.commit();
+
+		this.connection.release();
+	}
+
+	public async rollbackTransaction(): Promise<void> {
+		if (!this.connection) {
+			return;
+		}
+
+		await this.connection.rollback();
+
+		this.connection.release();
 	}
 
 	public async init(): Promise<void> {
@@ -31,7 +73,7 @@ export class MySqlService {
 
 		while (retries-- > 0) {
 			try {
-				this.connection = await this.connect();
+				this.pool = this.connect();
 
 				this.logger.log('Successfully connected to database');
 
@@ -43,15 +85,5 @@ export class MySqlService {
 		}
 
 		throw new Error(`Could not connect to the database: ${lastError}`);
-	}
-
-	private async connect(): Promise<Pool> {
-		return await createPool({
-			host: this.configService.getOrThrow(Environment.DBHost),
-			port: this.configService.getOrThrow(Environment.DBPort),
-			password: this.configService.getOrThrow(Environment.DBPassword),
-			user: this.configService.getOrThrow(Environment.DBUsername),
-			database: this.configService.getOrThrow(Environment.DBName),
-		});
 	}
 }
