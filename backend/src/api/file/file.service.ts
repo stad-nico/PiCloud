@@ -1,7 +1,6 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { File } from 'src/db/entities/File';
 import { Environment } from 'src/env.config';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
@@ -44,13 +43,15 @@ export class FileService {
 		fileUploadRepository: IFileUploadRepository,
 		fileMetadataRepository: IFileMetadataRepository,
 		fileDownloadRepository: IFileDownloadRepository,
-		fileDeleteRepository: IFileDeleteRepository
+		fileDeleteRepository: IFileDeleteRepository,
+		fileRenameRepository: IFileRenameRepository
 	) {
 		this.configService = configService;
 		this.fileUploadRepository = fileUploadRepository;
 		this.fileMetadataRepository = fileMetadataRepository;
 		this.fileDownloadRepository = fileDownloadRepository;
 		this.fileDeleteRepository = fileDeleteRepository;
+		this.fileRenameRepository = fileRenameRepository;
 	}
 
 	public async upload(fileUploadDto: FileUploadDto, overwrite: boolean = false): Promise<FileUploadResponse> {
