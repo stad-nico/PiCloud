@@ -40,9 +40,9 @@ export class FileMetadataResponse {
 	public static from(file: File): FileMetadataResponse {
 		return new FileMetadataResponse(
 			file.uuid,
-			file.fullPath,
+			/*file.fullPath, */ 'fff',
 			file.name,
-			file.path,
+			/*file.path,*/ 'aaa',
 			file.mimeType,
 			file.size,
 			file.created,

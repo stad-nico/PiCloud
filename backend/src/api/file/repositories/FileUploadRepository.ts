@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CommonFileRepository, ICommonFileRepository } from 'src/api/file/repositories/CommonFileRepository';
 import { File } from 'src/db/entities/File';
 
+export const IFileUploadRepository = Symbol('IFileUploadRepository');
+
 export interface IFileUploadRepository extends ICommonFileRepository {
 	getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'>>;
 	hardDeleteByUuid(uuid: string): Promise<void>;
@@ -11,7 +13,7 @@ export interface IFileUploadRepository extends ICommonFileRepository {
 @Injectable()
 export class FileUploadRepository extends CommonFileRepository implements IFileUploadRepository {
 	public async getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'>> {
-		return super.selectByPathAndColumns(path, { isRecycled: false }, ['uuid']);
+		return super.selectByPathAndNotRecycled(path, ['uuid']);
 	}
 
 	public override async hardDeleteByUuid(uuid: string): Promise<void> {

@@ -19,6 +19,24 @@ export class EnvVariables {
 
 	@IsEnum(NodeEnv)
 	NODE_ENV!: NodeEnv;
+
+	@IsString()
+	DB_HOST!: string;
+
+	@IsNumber()
+	DB_PORT!: number;
+
+	@IsString()
+	DB_NAME!: string;
+
+	@IsString()
+	DB_USERNAME!: string;
+
+	@IsString()
+	DB_PASSWORD!: string;
+
+	@IsNumber()
+	DB_CONNECTION_RETRIES!: number;
 }
 
 export enum Environment {

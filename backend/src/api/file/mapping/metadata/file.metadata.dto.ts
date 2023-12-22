@@ -1,4 +1,4 @@
-import { FileMetadataParams } from 'src/api/file/classes/metadata/file.metadata.params';
+import { FileMetadataParams } from 'src/api/file/mapping/metadata/file.metadata.params';
 
 export class FileMetadataDto {
 	readonly path: string;

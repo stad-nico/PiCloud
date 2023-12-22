@@ -8,6 +8,6 @@ export class FileRestoreResponse {
 	}
 
 	public static from(file: File): FileRestoreResponse {
-		return new FileRestoreResponse(file.fullPath);
+		return new FileRestoreResponse('fullPath insert here too');
 	}
 }

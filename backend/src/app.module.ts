@@ -14,14 +14,6 @@ export const AppModuleConfig = {
 			validate: validate,
 		}),
 		MySqlModule.forRootAsync(),
-		// MikroOrmModule.forRoot({
-		// 	host: 'localhost',
-		// 	port: 3306,
-		// 	dbName: 'cloud',
-		// 	password: 'root',
-		// 	user: 'root',
-		// 	autoLoadEntities: true,
-		// }),
 
 		DiskModule.forRootAsync(),
 

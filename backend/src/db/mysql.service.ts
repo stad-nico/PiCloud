@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Pool, PoolConnection, createPool } from 'mysql2/promise';
+import { PoolConnection, QueryOptions, createPool } from 'mysql2/promise';
+import { Pool } from 'mysql2/typings/mysql/lib/Pool';
 import { IDatabaseService } from 'src/db/DatabaseService';
 import { Environment } from 'src/env.config';
 
@@ -10,14 +11,40 @@ export class MySqlService implements IDatabaseService {
 
 	private readonly configService: ConfigService;
 
-	private pool: Pool;
+	private static pool: Pool;
 
 	private connection: PoolConnection | undefined;
 
 	public constructor(configService: ConfigService) {
 		this.configService = configService;
+	}
 
-		this.pool = this.connect();
+	public async init(): Promise<Pool> {
+		this.logger.log('Trying to connect to database...');
+
+		let retries = this.configService.get(Environment.DBConnectionRetries) ?? 4;
+		let lastError;
+
+		while (retries-- > 1) {
+			try {
+				const pool = await this.connect();
+				console.log(pool);
+
+				if (!pool) {
+					throw new Error('NOP');
+				}
+
+				this.logger.log('Successfully connected to database');
+				MySqlService.pool = pool;
+				console.log(this);
+				return pool as any;
+			} catch (e) {
+				lastError = e;
+				this.logger.error(`Attempt failed, retrying... (${retries} retries left)`);
+			}
+		}
+
+		throw new Error(`Could not connect to the database: ${lastError}`);
 	}
 
 	private connect(): Pool {
@@ -27,19 +54,30 @@ export class MySqlService implements IDatabaseService {
 			password: this.configService.getOrThrow(Environment.DBPassword),
 			user: this.configService.getOrThrow(Environment.DBUsername),
 			database: this.configService.getOrThrow(Environment.DBName),
-		});
+		}).pool;
 	}
 
-	public async executePreparedStatement(query: string, params: unknown): Promise<unknown> {
+	public async executePreparedStatement<T>(query: string, params: unknown): Promise<Partial<T>> {
+		let result: [Partial<T>];
+		const options: QueryOptions = {
+			sql: query,
+			values: params,
+			namedPlaceholders: true,
+		};
+
 		if (this.connection) {
-			return this.connection.execute(query, params);
+			result = (await this.connection.execute(options))[0] as unknown as [Partial<T>];
+		} else {
+			result = (await MySqlService.pool.promise().execute(options))[0] as unknown as [Partial<T>];
 		}
 
-		return await this.pool.execute(query, params);
+		return result[0];
 	}
 
 	public async startTransaction(): Promise<void> {
-		const connection = await this.pool.getConnection();
+		const connection = await MySqlService.pool.promise().getConnection();
+		connection.config.namedPlaceholders = true;
+
 		connection.beginTransaction();
 
 		this.connection = connection;
@@ -63,27 +101,5 @@ export class MySqlService implements IDatabaseService {
 		await this.connection.rollback();
 
 		this.connection.release();
-	}
-
-	public async init(): Promise<void> {
-		this.logger.log('Trying to connect to database...');
-
-		let retries = this.configService.getOrThrow(Environment.DBConnectionRetries);
-		let lastError;
-
-		while (retries-- > 0) {
-			try {
-				this.pool = this.connect();
-
-				this.logger.log('Successfully connected to database');
-
-				return;
-			} catch (e) {
-				lastError = e;
-				this.logger.error(`Attempt failed, retrying...`);
-			}
-		}
-
-		throw new Error(`Could not connect to the database: ${lastError}`);
 	}
 }

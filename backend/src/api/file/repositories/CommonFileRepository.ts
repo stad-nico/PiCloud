@@ -1,6 +1,7 @@
 import { IDatabaseService } from 'src/db/DatabaseService';
 import { IRepository, Repository } from 'src/db/Repository';
 import { File } from 'src/db/entities/File';
+import { hardDeleteByUuid, selectByPathAndNotRecycled } from 'src/db/queries/File';
 
 export interface ICommonFileRepository extends IRepository {}
 
@@ -8,23 +9,32 @@ export class CommonFileRepository extends Repository implements ICommonFileRepos
 	public constructor(databaseService: IDatabaseService) {
 		super(databaseService);
 	}
-	// protected selectByColumns(columns: Record<string, unknown>, columnsToSelect: string[]): Promise<unknown> {
-	// 	throw new Error('Method not implemented.');
-	// }
 
-	public async selectByPathAndColumns<T extends keyof File>(
-		path: string,
-		columns: Record<string, unknown>,
-		columnsToSelect: T[]
-	): Promise<Pick<File, T>> {}
+	private map<T extends keyof File>(entity: Partial<File>, columnsToSelect: T[]): Pick<File, T> {
+		let result: Pick<File, T> = {} as any;
 
-	protected async hardDeleteByUuid(uuid: string): Promise<void> {
-		this.databaseService.executePreparedStatement('DELETE FROM files WHERE uuid = :uuid', { uuid: uuid });
+		for (const column of columnsToSelect) {
+			if (entity[column] === undefined) {
+				throw new Error(`Insufficient database columns for mapping: needed ${columnsToSelect} but received ${entity}`);
+			} else {
+				result[column] = entity[column]!;
+			}
+		}
+
+		return result;
 	}
 
-	// protected async selectByPath(path: string, columns: unknown): Promise<unknown> {
-	// 	throw new Error('Method not implemented.');
-	// }
-}
+	protected async selectByPathAndNotRecycled<T extends keyof File>(path: string, columnsToSelect: T[]): Promise<Pick<File, T>> {
+		const { query, params } = selectByPathAndNotRecycled(path, columnsToSelect);
 
-const m = await new CommonFileRepository(0 as any).selectByPathAndColumns('fff', {}, ['created', 'uuid']);
+		const result = await this.databaseService.executePreparedStatement<File>(query, params);
+
+		return this.map(result, columnsToSelect);
+	}
+
+	protected async hardDeleteByUuid(uuid: string): Promise<void> {
+		const { query, params } = hardDeleteByUuid(uuid);
+
+		await this.databaseService.executePreparedStatement(query, params);
+	}
+}

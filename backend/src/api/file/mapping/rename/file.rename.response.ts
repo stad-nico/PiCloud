@@ -8,6 +8,6 @@ export class FileRenameResponse {
 	}
 
 	public static from(file: File): FileRenameResponse {
-		return new FileRenameResponse(file.fullPath);
+		return new FileRenameResponse('fullPath insert here');
 	}
 }

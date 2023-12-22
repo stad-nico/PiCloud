@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { Environment } from 'src/env.config';
@@ -8,14 +8,10 @@ import { ServerError } from 'src/util/ServerError';
 import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/mapping/download';
 import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/mapping/metadata';
-import { FileRenameDto, FileRenameResponse } from 'src/api/file/mapping/rename';
-import { FileRestoreDto, FileRestoreResponse } from 'src/api/file/mapping/restore';
 import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
 
 import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
-import { lookup } from 'mime-types';
-import * as path from 'path';
 import { IFileDeleteRepository } from 'src/api/file/repositories/FileDeleteRepository';
 import { IFileDownloadRepository } from 'src/api/file/repositories/FileDownloadRepository';
 import { IFileMetadataRepository } from 'src/api/file/repositories/FileMetadataRepository';
@@ -40,11 +36,11 @@ export class FileService {
 
 	constructor(
 		configService: ConfigService,
-		fileUploadRepository: IFileUploadRepository,
-		fileMetadataRepository: IFileMetadataRepository,
-		fileDownloadRepository: IFileDownloadRepository,
-		fileDeleteRepository: IFileDeleteRepository,
-		fileRenameRepository: IFileRenameRepository
+		@Inject(IFileUploadRepository) fileUploadRepository: IFileUploadRepository,
+		@Inject(IFileMetadataRepository) fileMetadataRepository: IFileMetadataRepository,
+		@Inject(IFileDownloadRepository) fileDownloadRepository: IFileDownloadRepository,
+		@Inject(IFileDeleteRepository) fileDeleteRepository: IFileDeleteRepository,
+		@Inject(IFileRenameRepository) fileRenameRepository: IFileRenameRepository
 	) {
 		this.configService = configService;
 		this.fileUploadRepository = fileUploadRepository;
@@ -149,75 +145,75 @@ export class FileService {
 		});
 	}
 
-	public async restore(fileRestoreDto: FileRestoreDto, overwrite: boolean = false): Promise<FileRestoreResponse> {
-		return await this.entityManager.transactional(async (entityManager) => {
-			const fileToRestore = await entityManager.findOne(File, { uuid: fileRestoreDto.uuid, isRecycled: true });
+	// public async restore(fileRestoreDto: FileRestoreDto, overwrite: boolean = false): Promise<FileRestoreResponse> {
+	// 	return await this.entityManager.transactional(async (entityManager) => {
+	// 		const fileToRestore = await entityManager.findOne(File, { uuid: fileRestoreDto.uuid, isRecycled: true });
 
-			if (!fileToRestore) {
-				throw new ServerError(`uuid ${fileRestoreDto.uuid} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 		if (!fileToRestore) {
+	// 			throw new ServerError(`uuid ${fileRestoreDto.uuid} does not exist`, HttpStatus.NOT_FOUND);
+	// 		}
 
-			const existingFile = await entityManager.findOne(File, { fullPath: fileToRestore.fullPath, isRecycled: false });
+	// 		const existingFile = await entityManager.findOne(File, { fullPath: fileToRestore.fullPath, isRecycled: false });
 
-			if (!overwrite && existingFile) {
-				throw new ServerError(`file at ${fileToRestore.fullPath} already exists`, HttpStatus.CONFLICT);
-			}
+	// 		if (!overwrite && existingFile) {
+	// 			throw new ServerError(`file at ${fileToRestore.fullPath} already exists`, HttpStatus.CONFLICT);
+	// 		}
 
-			if (overwrite && existingFile) {
-				await entityManager.nativeDelete(File, { uuid: existingFile.uuid });
-			}
+	// 		if (overwrite && existingFile) {
+	// 			await entityManager.nativeDelete(File, { uuid: existingFile.uuid });
+	// 		}
 
-			await entityManager.nativeUpdate(File, { uuid: fileToRestore.uuid }, { isRecycled: false });
+	// 		await entityManager.nativeUpdate(File, { uuid: fileToRestore.uuid }, { isRecycled: false });
 
-			const sourcePath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskRecyclePath);
-			const destinationPath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskStoragePath);
-			await FileUtils.copyFile(sourcePath, destinationPath);
+	// 		const sourcePath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskRecyclePath);
+	// 		const destinationPath = FileUtils.join(this.configService, fileToRestore.getUuidAsDirPath(), Environment.DiskStoragePath);
+	// 		await FileUtils.copyFile(sourcePath, destinationPath);
 
-			try {
-				await fsPromises.rm(sourcePath);
-			} catch (e) {
-				this.logger.warn(`Failed to delete file ${fileToRestore.uuid} (${fileToRestore.fullPath}) from recycle location: ${e}`);
-			}
+	// 		try {
+	// 			await fsPromises.rm(sourcePath);
+	// 		} catch (e) {
+	// 			this.logger.warn(`Failed to delete file ${fileToRestore.uuid} (${fileToRestore.fullPath}) from recycle location: ${e}`);
+	// 		}
 
-			return FileRestoreResponse.from(fileToRestore);
-		});
-	}
+	// 		return FileRestoreResponse.from(fileToRestore);
+	// 	});
+	// }
 
-	public async rename(fileRenameDto: FileRenameDto, overwrite: boolean = false): Promise<FileRenameResponse> {
-		return await this.fileRenameRepository.transactional(async () => {
-			const fileToRename = await this.fileRenameRepository.selectSizeAndUuidByPathAndNotRecycled(fileRenameDto.sourcePath);
+	// public async rename(fileRenameDto: FileRenameDto, overwrite: boolean = false): Promise<FileRenameResponse> {
+	// 	return await this.fileRenameRepository.transactional(async () => {
+	// 		const fileToRename = await this.fileRenameRepository.selectSizeAndUuidByPathAndNotRecycled(fileRenameDto.sourcePath);
 
-			if (!fileToRename) {
-				throw new ServerError(`file at ${fileRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 		if (!fileToRename) {
+	// 			throw new ServerError(`file at ${fileRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
+	// 		}
 
-			const existingFile = await this.fileRenameRepository.getUuidByPathAndNotRecycled(fileRenameDto.destinationPath);
+	// 		const existingFile = await this.fileRenameRepository.getUuidByPathAndNotRecycled(fileRenameDto.destinationPath);
 
-			if (!FileUtils.isPathRelative(this.configService, fileRenameDto.destinationPath)) {
-				throw new ServerError(`newPath must be a valid file path`, HttpStatus.BAD_REQUEST);
-			}
+	// 		if (!FileUtils.isPathRelative(this.configService, fileRenameDto.destinationPath)) {
+	// 			throw new ServerError(`newPath must be a valid file path`, HttpStatus.BAD_REQUEST);
+	// 		}
 
-			if (!overwrite && existingFile) {
-				throw new ServerError(`file at ${fileRenameDto.destinationPath} already exists`, HttpStatus.CONFLICT);
-			}
+	// 		if (!overwrite && existingFile) {
+	// 			throw new ServerError(`file at ${fileRenameDto.destinationPath} already exists`, HttpStatus.CONFLICT);
+	// 		}
 
-			if (overwrite && existingFile) {
-				await this.fileRenameRepository.hardDeleteByUuid(existingFile.uuid);
-			}
+	// 		if (overwrite && existingFile) {
+	// 			await this.fileRenameRepository.hardDeleteByUuid(existingFile.uuid);
+	// 		}
 
-			const file = new File(
-				fileRenameDto.destinationPath,
-				path.basename(fileRenameDto.destinationPath),
-				path.dirname(fileRenameDto.destinationPath),
-				lookup(fileRenameDto.destinationPath) || 'application/octet-stream',
-				fileToRename.size,
-				false,
-				fileToRename.uuid
-			);
+	// 		const file = new File(
+	// 			fileRenameDto.destinationPath,
+	// 			path.basename(fileRenameDto.destinationPath),
+	// 			path.dirname(fileRenameDto.destinationPath),
+	// 			lookup(fileRenameDto.destinationPath) || 'application/octet-stream',
+	// 			fileToRename.size,
+	// 			false,
+	// 			fileToRename.uuid
+	// 		);
 
-			const result = await entityManager.upsert(File, file);
+	// 		const result = await entityManager.upsert(File, file);
 
-			return FileRenameResponse.from(result);
-		});
-	}
+	// 		return FileRenameResponse.from(result);
+	// 	});
+	// }
 }
