@@ -1,6 +1,7 @@
 import { File } from 'src/db/entities/File';
 
-type QueryBundle = { query: string; params: Record<string, string | number | boolean> };
+export type QueryParams = Record<string, string | number | boolean>;
+export type QueryBundle = { query: string; params: QueryParams };
 
 export function hardDeleteByUuid(uuid: string): QueryBundle {
 	return {

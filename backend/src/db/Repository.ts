@@ -1,3 +1,4 @@
+import { Connection } from 'src/db/Connection';
 import { IDatabaseService } from 'src/db/DatabaseService';
 
 export interface IRepository {
@@ -5,25 +6,29 @@ export interface IRepository {
 }
 
 export abstract class Repository implements IRepository {
-	protected readonly databaseService: IDatabaseService;
+	private readonly databaseService: IDatabaseService;
 
 	protected constructor(databaseService: IDatabaseService) {
 		this.databaseService = databaseService;
 	}
 
-	public async transactional<T>(callback: () => Promise<T>): Promise<T> {
-		await this.databaseService.startTransaction();
+	public async transactional<T>(callback: (connection: Connection) => Promise<T>): Promise<T> {
+		const connection = await this.databaseService.getConnection();
+
+		await connection.startTransaction();
 
 		try {
-			const result = await callback();
+			const result = await callback(connection);
 
-			await this.databaseService.commitTransaction();
+			await connection.commitTransaction();
 
 			return result;
 		} catch (e) {
-			await this.databaseService.rollbackTransaction();
+			await connection.rollbackTransaction();
 
 			throw e;
+		} finally {
+			connection.release();
 		}
 	}
 }

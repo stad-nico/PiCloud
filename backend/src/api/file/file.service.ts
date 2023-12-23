@@ -16,6 +16,7 @@ import { IFileDeleteRepository } from 'src/api/file/repositories/FileDeleteRepos
 import { IFileDownloadRepository } from 'src/api/file/repositories/FileDownloadRepository';
 import { IFileMetadataRepository } from 'src/api/file/repositories/FileMetadataRepository';
 import { IFileRenameRepository } from 'src/api/file/repositories/FileRenameRepository';
+import { FileRepository } from 'src/api/file/repositories/FileRepository';
 import { IFileUploadRepository } from 'src/api/file/repositories/FileUploadRepository';
 
 @Injectable()
@@ -24,15 +25,7 @@ export class FileService {
 
 	private readonly configService: ConfigService;
 
-	private readonly fileUploadRepository: IFileUploadRepository;
-
-	private readonly fileMetadataRepository: IFileMetadataRepository;
-
-	private readonly fileDownloadRepository: IFileDownloadRepository;
-
-	private readonly fileDeleteRepository: IFileDeleteRepository;
-
-	private readonly fileRenameRepository: IFileRenameRepository;
+	private readonly fileRepository: FileRepository;
 
 	constructor(
 		configService: ConfigService,
@@ -51,8 +44,8 @@ export class FileService {
 	}
 
 	public async upload(fileUploadDto: FileUploadDto, overwrite: boolean = false): Promise<FileUploadResponse> {
-		return await this.fileUploadRepository.transactional(async () => {
-			const existingFile = await this.fileUploadRepository.getUuidByPathAndNotRecycled(fileUploadDto.fullPath);
+		return await this.fileRepository.transactional(async (connection) => {
+			const existingFile = await this.fileRepository.getUuidByPathAndNotRecycled(connection, fileUploadDto.fullPath);
 
 			if (!overwrite && existingFile) {
 				throw new ServerError(`file at ${fileUploadDto.fullPath} already exists`, HttpStatus.CONFLICT);
