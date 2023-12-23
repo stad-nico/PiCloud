@@ -57,7 +57,7 @@ export class MySqlService implements IDatabaseService {
 		}).pool;
 	}
 
-	public async executePreparedStatement<T>(query: string, params: unknown): Promise<Partial<T>> {
+	public async executePreparedStatement<T>(query: string, params: unknown): Promise<Partial<T> | null> {
 		let result: [Partial<T>];
 		const options: QueryOptions = {
 			sql: query,
@@ -70,8 +70,7 @@ export class MySqlService implements IDatabaseService {
 		} else {
 			result = (await MySqlService.pool.promise().execute(options))[0] as unknown as [Partial<T>];
 		}
-
-		return result[0];
+		return result[0] ?? null;
 	}
 
 	public async startTransaction(): Promise<void> {

@@ -5,12 +5,12 @@ import { File } from 'src/db/entities/File';
 export const IFileMetadataRepository = Symbol('IFileMetadataRepository');
 
 export interface IFileMetadataRepository extends ICommonFileRepository {
-	getFullByPathAndNotRecycled(path: string): Promise<File>;
+	getFullEntityByPathAndNotRecycled(path: string): Promise<File | null>;
 }
 
 @Injectable()
 export class FileMetadataRepository extends CommonFileRepository implements IFileMetadataRepository {
-	public async getFullByPathAndNotRecycled(path: string): Promise<File> {
+	public async getFullEntityByPathAndNotRecycled(path: string): Promise<File | null> {
 		return super.selectByPathAndNotRecycled(path, ['uuid', 'name', 'parent', 'size', 'isRecycled', 'created', 'updated', 'mimeType']);
 	}
 }

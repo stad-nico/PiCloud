@@ -10,7 +10,7 @@ export class CommonFileRepository extends Repository implements ICommonFileRepos
 		super(databaseService);
 	}
 
-	private map<T extends keyof File>(entity: Partial<File>, columnsToSelect: T[]): Pick<File, T> {
+	protected map<T extends keyof File>(entity: Partial<File>, columnsToSelect: T[]): Pick<File, T> {
 		let result: Pick<File, T> = {} as any;
 
 		for (const column of columnsToSelect) {
@@ -24,10 +24,14 @@ export class CommonFileRepository extends Repository implements ICommonFileRepos
 		return result;
 	}
 
-	protected async selectByPathAndNotRecycled<T extends keyof File>(path: string, columnsToSelect: T[]): Promise<Pick<File, T>> {
+	protected async selectByPathAndNotRecycled<T extends keyof File>(path: string, columnsToSelect: T[]): Promise<Pick<File, T> | null> {
 		const { query, params } = selectByPathAndNotRecycled(path, columnsToSelect);
 
 		const result = await this.databaseService.executePreparedStatement<File>(query, params);
+
+		if (!result) {
+			return null;
+		}
 
 		return this.map(result, columnsToSelect);
 	}

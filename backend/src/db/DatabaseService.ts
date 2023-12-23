@@ -1,5 +1,5 @@
 export interface IDatabaseService {
-	executePreparedStatement<T>(query: string, params: Record<string, string | boolean | number>): Promise<Partial<T>>;
+	executePreparedStatement<T>(query: string, params: Record<string, string | boolean | number>): Promise<Partial<T> | null>;
 	startTransaction(): Promise<void>;
 	rollbackTransaction(): Promise<void>;
 	commitTransaction(): Promise<void>;

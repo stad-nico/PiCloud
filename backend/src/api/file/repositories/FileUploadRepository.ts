@@ -5,14 +5,14 @@ import { File } from 'src/db/entities/File';
 export const IFileUploadRepository = Symbol('IFileUploadRepository');
 
 export interface IFileUploadRepository extends ICommonFileRepository {
-	getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'>>;
+	getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'> | null>;
 	hardDeleteByUuid(uuid: string): Promise<void>;
 	insertAndSelectUuidAndPath(file: unknown): Promise<{ uuid: string; path: string }>;
 }
 
 @Injectable()
 export class FileUploadRepository extends CommonFileRepository implements IFileUploadRepository {
-	public async getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'>> {
+	public async getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'> | null> {
 		return super.selectByPathAndNotRecycled(path, ['uuid']);
 	}
 

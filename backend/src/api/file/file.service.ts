@@ -89,7 +89,7 @@ export class FileService {
 
 	public async metadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse> {
 		return await this.fileMetadataRepository.transactional(async () => {
-			const fileToFetch = await this.fileMetadataRepository.getFullByPathAndNotRecycled(fileMetadataDto.path);
+			const fileToFetch = await this.fileMetadataRepository.getFullEntityByPathAndNotRecycled(fileMetadataDto.path);
 
 			if (!fileToFetch) {
 				throw new ServerError(`file at ${fileMetadataDto.path} does not exist`, HttpStatus.NOT_FOUND);

@@ -5,13 +5,13 @@ import { File } from 'src/db/entities/File';
 export const IFileDeleteRepository = Symbol('IFileDeleteRepository');
 
 export interface IFileDeleteRepository extends ICommonFileRepository {
-	getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'>>;
+	getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'> | null>;
 	softDelete(uuid: string): Promise<void>;
 }
 
 @Injectable()
 export class FileDeleteRepository extends CommonFileRepository implements IFileDeleteRepository {
-	public async getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'>> {
+	public async getUuidByPathAndNotRecycled(path: string): Promise<Pick<File, 'uuid'> | null> {
 		return super.selectByPathAndNotRecycled(path, ['uuid']);
 	}
 
