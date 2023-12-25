@@ -1,43 +1,61 @@
 import { File } from 'src/db/entities/File';
 
 import { lookup } from 'mime-types';
-import * as path from 'path';
+import * as path_ from 'path';
+import { FileUploadParams } from 'src/api/file/mapping/upload/file.upload.params';
 
+/**
+ * Used for mapping the http upload request parameters to a dto object for transferring to the `FileService`
+ */
 export class FileUploadDto {
-	readonly fullPath: string;
-
-	readonly name: string;
-
+	/**
+	 * The path of the file to upload to.
+	 * Includes the file `name` and extension (e.g `secret/things/password.md`)
+	 */
 	readonly path: string;
 
+	/**
+	 * The `mimeType` of the file
+	 */
 	readonly mimeType: string;
 
-	readonly size: number;
-
+	/**
+	 * The binary contents of the file
+	 */
 	readonly buffer: Buffer;
 
-	private constructor(fullPath: string, name: string, path: string, mimeType: string, size: number, buffer: Buffer) {
-		this.fullPath = fullPath;
-		this.name = name;
+	private constructor(path: string, mimeType: string, buffer: Buffer) {
 		this.path = path;
 		this.mimeType = mimeType;
-		this.size = size;
 		this.buffer = buffer;
 	}
 
-	public static from(fullPath: string, file: Pick<Express.Multer.File, 'mimetype' | 'size' | 'buffer'>): FileUploadDto {
-		return new FileUploadDto(
-			fullPath,
-			path.basename(fullPath),
-			path.dirname(fullPath),
-			lookup(fullPath) || 'octet-stream',
-			file.size,
-			file.buffer
-		);
+	/**
+	 * Instantiates a new `FileUploadDto` from the http parameters
+	 *
+	 * @param {FileUploadParams} fileUploadParams - The metadata request parameters
+	 * @returns {FileUploadDto} A new `FileUploadDto` instance
+	 */
+	public static from(path: string, file: Pick<Express.Multer.File, 'mimetype' | 'size' | 'buffer'>): FileUploadDto {
+		return new FileUploadDto(path_.normalize(path), lookup(path) || 'octet-stream', file.buffer);
 	}
 
-	public toFile(): File {
-		return {} as File;
-		// return new File(this.fullPath, this.name, this.path, this.mimeType, this.size);
+	/**
+	 * Creates a `File` object with the following necessary keys for a db insert:
+	 * - `name`
+	 * - `parent`
+	 * - `size`
+	 * - `mimeType`
+	 *
+	 * @param {string} parent - The uuid of the parent directory
+	 * @returns {Pick<File, 'name' | 'parent' | 'size' | 'mimeType'>} A new `File` object
+	 */
+	public toFile(parent: string): Pick<File, 'name' | 'parent' | 'size' | 'mimeType'> {
+		return {
+			name: path_.basename(this.path),
+			size: Buffer.byteLength(this.buffer),
+			mimeType: this.mimeType,
+			parent: parent,
+		};
 	}
 }

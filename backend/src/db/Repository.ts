@@ -2,7 +2,7 @@ import { Connection } from 'src/db/Connection';
 import { IDatabaseService } from 'src/db/DatabaseService';
 
 export interface IRepository {
-	transactional<T>(callback: () => Promise<T>): Promise<T>;
+	transactional<T>(callback: (connection: Connection) => Promise<T>): Promise<T>;
 }
 
 export abstract class Repository implements IRepository {

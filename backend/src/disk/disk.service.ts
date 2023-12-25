@@ -61,7 +61,7 @@ export class DiskService {
 		const stats = await statfs(this.storageLocation);
 		const freeSpace = stats.bsize * stats.bfree;
 
-		this.logger.log(`Recycle location ${this.storageLocation} has ${this.formatBytes(freeSpace)} of free space`);
+		this.logger.log(`Recycle location ${this.recycleLocation} has ${this.formatBytes(freeSpace)} of free space`);
 	}
 
 	private async initStorageLocation(): Promise<void> {
