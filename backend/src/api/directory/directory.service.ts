@@ -41,18 +41,6 @@ export class DirectoryService {
 		});
 	}
 
-	// public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
-	// 	return await this.directoryRepository.transactional(async (connection) => {
-	// 		if (path.dirname(directoryRenameDto.sourcePath) === path.dirname(directoryRenameDto.destPath)) {
-	// 			await this.directoryRepository.renameByPath(
-	// 				connection,
-	// 				directoryRenameDto.sourcePath,
-	// 				path.basename(directoryRenameDto.destPath)
-	// 			);
-	// 		}
-	// 	});
-	// }
-
 	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse> {
 		return await this.directoryRepository.transactional(async (connection) => {
 			const directory = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, directoryDeleteDto.path);

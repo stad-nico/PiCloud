@@ -1,10 +1,9 @@
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
-import { PathUtils } from 'src/util/PathUtils';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class DirectoryCreateParams {
 	@IsNotEmpty()
 	@IsString()
-	@Matches(PathUtils.validDirectoryPathRegExp, { message: 'path must be a valid directory path' })
+	// @Matches(PathUtils.validDirectoryPathRegExp, { message: 'path must be a valid directory path' })
 	readonly path: string;
 
 	constructor(path: string) {

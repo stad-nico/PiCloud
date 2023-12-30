@@ -41,7 +41,7 @@ export class DirectoryRepository extends Repository implements IDirectoryReposit
 		await connection.executePreparedStatement(insert(directory.parent, directory.name));
 	}
 
-	softDeleteSubtreeByRootUuid(connection: Connection, rootUuid: string): Promise<void> {
+	public async softDeleteSubtreeByRootUuid(connection: Connection, rootUuid: string): Promise<void> {
 		throw new Error('Method not implemented.');
 	}
 	renameByPath(connection: Connection, path: string, name: string): Promise<void> {
