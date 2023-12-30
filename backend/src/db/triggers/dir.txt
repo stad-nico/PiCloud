@@ -56,3 +56,18 @@ WITH RECURSIVE prev_ (iteration, uuid, name, parent) as (
     ON next_.uuid = prev_.parent
 )
 SELECT GROUP_CONCAT(name ORDER BY iteration DESC SEPARATOR "/") FROM prev_
+
+### RECURSIVE GET uuid
+WITH RECURSIVE prev (nextPath, uuid, iteration) AS (
+	SELECT "/", CAST(NULL AS VARCHAR(255)), 0
+	
+	UNION ALL
+	
+	SELECT GET_PATH_AFTER_UPMOST_DIRNAME(prev.nextPath), next.uuid, prev.iteration + 1
+	FROM directories AS next
+	INNER JOIN prev WHERE 
+		(next.parent IS NULL AND prev.uuid IS NULL AND next.name = GET_UPMOST_DIRNAME(prev.nextPath)) OR
+		(next.parent = prev.uuid AND next.name = GET_UPMOST_DIRNAME(prev.nextPath)) OR 
+		(GET_UPMOST_DIRNAME(prev.nextPath) = "" AND next.name = prev.nextPath AND next.parent = prev.uuid)
+)
+SELECT uuid FROM prev;

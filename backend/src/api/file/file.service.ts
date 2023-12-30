@@ -47,7 +47,7 @@ export class FileService {
 				throw new ServerError(`directory at ${fileUploadDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const fullPath = path.join(fileUploadDto.path, fileUploadDto.name);
+			const fullPath = path.join(fileUploadDto.path, '');
 			const existingFile = await this.fileRepository.getUuidByPathAndNotRecycled(connection, fullPath);
 
 			if (!overwrite && existingFile) {

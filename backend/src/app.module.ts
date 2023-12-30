@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { DirectoryModule } from 'src/api/directory/directory.module';
 import { MariaDBModule } from 'src/db/mariadb.module';
 import { DiskModule } from 'src/disk/disk.module';
 import { validate } from 'src/env.config';
-import { FileModule } from './api/file/file.module';
 
 export const AppModuleConfig = {
 	imports: [
@@ -17,7 +17,8 @@ export const AppModuleConfig = {
 
 		DiskModule.forRootAsync(),
 
-		FileModule,
+		// FileModule,
+		DirectoryModule,
 	],
 };
 
