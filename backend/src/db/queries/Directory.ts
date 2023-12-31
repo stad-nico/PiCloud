@@ -146,19 +146,19 @@ const getMetadataByUuidQuery = `
 		SELECT COUNT(*) AS filesAmt
 		FROM tree
 		INNER JOIN files ON tree.parent = files.uuid
-		WHERE tree.parent = :uuid
+		WHERE tree.parent = :uuid AND files.isRecycled = 0
 	),
 	directoriesAmt AS (
 		SELECT COUNT(*) - 1 AS directoriesAmt
 		FROM tree
 		INNER JOIN directories ON tree.parent = directories.uuid
-		WHERE tree.parent = :uuid
+		WHERE tree.parent = :uuid AND directories.isRecycled = 0
 	),
 	size AS (
 		SELECT COUNT(size) AS size
 		FROM tree
 		INNER JOIN files ON tree.child = files.uuid
-		WHERE tree.parent = :uuid
+		WHERE tree.parent = :uuid AND files.isRecycled = 0
 	)
 	
 	SELECT uuid, name, path, size, filesAmt AS \`files\`, directoriesAmt AS \`directories\`, createdAt AS created, updatedAt as updated
@@ -180,7 +180,7 @@ const getFilesContentByUuidQuery = `
 	SELECT name, mimeType, size, createdAt AS created, updatedAt AS updated
 	FROM tree
 	INNER JOIN files ON tree.child = files.uuid AND tree.depth = 1
-	WHERE tree.parent = :uuid
+	WHERE tree.parent = :uuid AND files.isRecycled = 0
 `;
 
 export function getDirectoriesContentByUuid(uuid: string): QueryBundle {
@@ -201,5 +201,19 @@ const getDirectoriesContentByUuidQuery = `
 	FROM tree
 	CROSS JOIN size
 	INNER JOIN directories ON tree.child = directories.uuid AND tree.depth = 1
-	WHERE tree.parent = :uuid
+	WHERE tree.parent = :uuid AND directories.isRecycled = 0
+`;
+
+export function getFilesUuidByRootUuid(uuid: string): QueryBundle {
+	return {
+		query: getFilesUuidByRootUuidQuery,
+		params: { uuid: uuid },
+	};
+}
+
+const getFilesUuidByRootUuidQuery = `
+	SELECT uuid
+	FROM tree
+	INNER JOIN files ON tree.child = files.uuid
+	WHERE tree.parent = :uuid AND files.isRecycled = 0
 `;
