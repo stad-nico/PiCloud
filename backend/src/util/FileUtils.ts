@@ -1,9 +1,7 @@
-import { ConfigService } from '@nestjs/config';
-
-import { Environment } from 'src/env.config';
-
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';
+
+import { PathUtils } from 'src/util/PathUtils';
 
 export class FileUtils {
 	/**
@@ -40,49 +38,11 @@ export class FileUtils {
 	 * @returns void
 	 */
 	public static async createDirectoryIfNotPresent(path: string, recursive: boolean = true): Promise<void> {
-		if (await FileUtils.pathExists(path)) {
+		if (await PathUtils.pathExists(path)) {
 			return;
 		}
 
 		await fsPromises.mkdir(path, { recursive: recursive });
-	}
-
-	/**
-	 * Checks if a path exists on the fs by normalizing the path first and then using `fs.access`
-	 *
-	 * @param path the absolute path to check
-	 * @returns true if the path exists, otherwise false
-	 */
-	public static async pathExists(path: string): Promise<boolean> {
-		return (await fsPromises.access(FileUtils.normalizePathForOS(path)).catch(() => false)) === undefined;
-	}
-
-	/**
-	 * Checks if a path does not leave the directory specified in `env.DISK_STORAGE_PATH` by joining it with `DISK_STORAGE_PATH`
-	 *
-	 * @example
-	 * process.env.DISK_STORAGE_PATH = "C:/test";
-	 * isPathRelative("t.txt"); // returns true
-	 * isPathRelative("../../f.txt"); // returns false
-	 *
-	 * @param relativePath the path relative to `DISK_STORAGE_PATH` to check
-	 * @returns
-	 */
-	public static isPathRelative(configService: ConfigService, relativePath: string): boolean {
-		const diskPath: string = configService.getOrThrow(Environment.DiskStoragePath);
-		const relative = path.relative(diskPath, path.join(diskPath, relativePath));
-
-		return Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative);
-	}
-
-	/**
-	 * Joins a path with the environment variable `env` and returns normalized path
-	 *
-	 * @param relativePath the path to join
-	 * @returns the absolute and normalized path
-	 */
-	public static join(configService: ConfigService, relativePath: string, env: Environment): string {
-		return path.join(configService.getOrThrow(env), relativePath);
 	}
 
 	/**
@@ -96,7 +56,7 @@ export class FileUtils {
 		const normalizedPath = this.normalizePathForOS(absolutePath);
 
 		if (recursive) {
-			if (!(await FileUtils.pathExists(path.dirname(normalizedPath)))) {
+			if (!(await PathUtils.pathExists(path.dirname(normalizedPath)))) {
 				await fsPromises.mkdir(path.dirname(normalizedPath), { recursive: true });
 			}
 		}
@@ -116,7 +76,7 @@ export class FileUtils {
 		const toNormalized = this.normalizePathForOS(to);
 
 		if (recursive) {
-			if (!(await FileUtils.pathExists(path.dirname(toNormalized)))) {
+			if (!(await PathUtils.pathExists(path.dirname(toNormalized)))) {
 				await fsPromises.mkdir(path.dirname(toNormalized), { recursive: true });
 			}
 		}
@@ -135,9 +95,5 @@ export class FileUtils {
 		for (const file of files) {
 			await fsPromises.rm(path.join(absolutePath, file), { recursive: true });
 		}
-	}
-
-	public static uuidToDirPath(uuid: string): string {
-		return uuid.match(/.{1,2}/g)!.reduce((acc, curr, ind) => (acc += ind === 1 || ind === 2 ? '/' + curr : curr));
 	}
 }

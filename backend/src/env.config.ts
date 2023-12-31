@@ -12,10 +12,10 @@ export class EnvVariables {
 	PORT!: number;
 
 	@IsString()
-	DISK_STORAGE_PATH!: string;
+	STORAGE_PATH!: string;
 
 	@IsString()
-	DISK_RECYCLE_PATH!: string;
+	DIRECTORY_NAME!: string;
 
 	@IsEnum(NodeEnv)
 	NODE_ENV!: NodeEnv;
@@ -41,8 +41,8 @@ export class EnvVariables {
 
 export enum Environment {
 	Port = 'PORT',
-	DiskStoragePath = 'DISK_STORAGE_PATH',
-	DiskRecyclePath = 'DISK_RECYCLE_PATH',
+	StoragePath = 'STORAGE_PATH',
+	DirectoryName = 'DIRECTORY_NAME',
 	NodeENV = 'NODE_ENV',
 	DBHost = 'DB_HOST',
 	DBPort = 'DB_PORT',

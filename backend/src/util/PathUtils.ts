@@ -1,6 +1,9 @@
 import { ConfigService } from '@nestjs/config';
+
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';
+
+import { StoragePath } from 'src/disk/disk.service';
 import { Environment } from 'src/env.config';
 
 /**
@@ -70,20 +73,20 @@ export class PathUtils {
 	 * @returns {string} whether the path is relative
 	 */
 	public static isPathRelative(configService: ConfigService, relativePath: string): boolean {
-		const diskPath: string = configService.getOrThrow(Environment.DiskStoragePath);
+		const diskPath: string = path.join(configService.getOrThrow(Environment.StoragePath), StoragePath.Data);
 		const relative = path.relative(diskPath, path.join(diskPath, relativePath));
 
 		return Boolean(relative) && !relative.startsWith('..') && !path.isAbsolute(relative);
 	}
 
 	/**
-	 * Join a path with an environment variable `env`
+	 * Join a path with the storage location
 	 *
 	 * @param {string} relativePath the path to join
 	 * @returns {string} the absolute joined path
 	 */
-	public static join(configService: ConfigService, relativePath: string, env: Environment): string {
-		return path.join(configService.getOrThrow(env), relativePath);
+	public static join(configService: ConfigService, relativePath: string, storagePath: StoragePath): string {
+		return path.join(configService.getOrThrow(Environment.StoragePath), storagePath, relativePath);
 	}
 
 	/**

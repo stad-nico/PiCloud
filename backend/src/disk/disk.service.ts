@@ -1,10 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import { statfs } from 'fs/promises';
+import * as path from 'path';
+
 import { Environment, NodeEnv } from 'src/env.config';
 import { FileUtils } from 'src/util/FileUtils';
+import { PathUtils } from 'src/util/PathUtils';
 
-import { statfs } from 'fs/promises';
+export enum StoragePath {
+	Data = 'data',
+	Bin = 'bin',
+	Temp = 'temp',
+}
 
 @Injectable()
 export class DiskService {
@@ -12,16 +20,16 @@ export class DiskService {
 
 	private readonly configService: ConfigService;
 
-	private readonly storageLocation: string;
-
-	private readonly recycleLocation: string;
+	private readonly storageLocationPath: string;
 
 	private shouldCleanupOnShutdown: boolean;
 
 	public constructor(configService: ConfigService) {
 		this.configService = configService;
-		this.storageLocation = configService.getOrThrow(Environment.DiskStoragePath);
-		this.recycleLocation = configService.getOrThrow(Environment.DiskRecyclePath);
+		this.storageLocationPath = path.join(
+			this.configService.getOrThrow(Environment.StoragePath),
+			this.configService.getOrThrow(Environment.DirectoryName)
+		);
 
 		const nodeEnv: NodeEnv = configService.get(Environment.NodeENV, NodeEnv.Develop);
 		this.shouldCleanupOnShutdown = nodeEnv !== NodeEnv.Production;
@@ -34,53 +42,35 @@ export class DiskService {
 
 		this.logger.log('Cleaning up...');
 
-		await FileUtils.deleteDirectoryOrFail(this.configService.getOrThrow(Environment.DiskStoragePath));
-		await FileUtils.deleteDirectoryOrFail(this.configService.getOrThrow(Environment.DiskRecyclePath));
+		await FileUtils.deleteDirectoryOrFail(this.storageLocationPath);
 
 		this.logger.log('Finished cleaning up');
 	}
 
 	public async init(): Promise<void> {
 		await this.initStorageLocation();
-		await this.initRecycleLocation();
-	}
-
-	private async initRecycleLocation(): Promise<void> {
-		if (!(await FileUtils.pathExists(this.recycleLocation))) {
-			try {
-				this.logger.log('Trying to initialize recycle location...');
-
-				await FileUtils.createDirectoryIfNotPresent(this.recycleLocation);
-
-				this.logger.log('Successfully initialized recycle location');
-			} catch (e) {
-				throw new Error(`Could not create the recycle location ${this.recycleLocation}: ${e}`);
-			}
-		}
-
-		const stats = await statfs(this.storageLocation);
-		const freeSpace = stats.bsize * stats.bfree;
-
-		this.logger.log(`Recycle location ${this.recycleLocation} has ${this.formatBytes(freeSpace)} of free space`);
 	}
 
 	private async initStorageLocation(): Promise<void> {
-		if (!(await FileUtils.pathExists(this.storageLocation))) {
+		if (!(await PathUtils.pathExists(this.storageLocationPath))) {
 			try {
-				this.logger.log('Trying to initialize storage location...');
+				this.logger.log(`Trying to initialize storage location '${this.storageLocationPath}' ...`);
 
-				await FileUtils.createDirectoryIfNotPresent(this.storageLocation);
+				await FileUtils.createDirectoryIfNotPresent(this.storageLocationPath);
+				await FileUtils.createDirectoryIfNotPresent(path.join(this.storageLocationPath, StoragePath.Bin));
+				await FileUtils.createDirectoryIfNotPresent(path.join(this.storageLocationPath, StoragePath.Data));
+				await FileUtils.createDirectoryIfNotPresent(path.join(this.storageLocationPath, StoragePath.Temp));
 
 				this.logger.log('Successfully initialized storage location');
 			} catch (e) {
-				throw new Error(`Could not create the storage location ${this.storageLocation}: ${e}`);
+				throw new Error(`Could not create storage location '${this.storageLocationPath}': ${e}`);
 			}
 		}
 
-		const stats = await statfs(this.storageLocation);
+		const stats = await statfs(this.storageLocationPath);
 		const freeSpace = stats.bsize * stats.bfree;
 
-		this.logger.log(`Storage location ${this.storageLocation} has ${this.formatBytes(freeSpace)} of free space`);
+		this.logger.log(`Storage location ${this.storageLocationPath} has ${this.formatBytes(freeSpace)} of free space`);
 	}
 
 	// https://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript

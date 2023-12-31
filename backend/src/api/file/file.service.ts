@@ -1,23 +1,23 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { Environment } from 'src/env.config';
-import { FileUtils } from 'src/util/FileUtils';
-import { ServerError } from 'src/util/ServerError';
-
-import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/mapping/delete';
-import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/mapping/download';
-import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/mapping/metadata';
-import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
-
 import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
 import { lookup } from 'mime-types';
 import * as path from 'path';
+
+import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/mapping/delete';
+import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/mapping/download';
+import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/mapping/metadata';
 import { FileRenameDto, FileRenameResponse } from 'src/api/file/mapping/rename';
 import { FileRestoreDto, FileRestoreResponse } from 'src/api/file/mapping/restore';
+import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
 import { IDirectoryRepository } from 'src/api/file/repositories/DirectoryRepository';
 import { IFileRepository } from 'src/api/file/repositories/FileRepository';
+import { StoragePath } from 'src/disk/disk.service';
+import { FileUtils } from 'src/util/FileUtils';
+import { PathUtils } from 'src/util/PathUtils';
+import { ServerError } from 'src/util/ServerError';
 
 @Injectable()
 export class FileService {
@@ -54,7 +54,7 @@ export class FileService {
 				throw new ServerError(`file at ${fullPath} already exists`, HttpStatus.CONFLICT);
 			}
 
-			if (!FileUtils.isPathRelative(this.configService, fullPath)) {
+			if (!PathUtils.isPathRelative(this.configService, fullPath)) {
 				throw new ServerError(`path must be a valid file path`, HttpStatus.BAD_REQUEST);
 			}
 
@@ -62,10 +62,10 @@ export class FileService {
 				await this.fileRepository.hardDeleteByUuid(connection, existingFile.uuid);
 
 				try {
-					const existingFilePath = FileUtils.join(
+					const existingFilePath = PathUtils.join(
 						this.configService,
-						FileUtils.uuidToDirPath(existingFile.uuid),
-						Environment.DiskStoragePath
+						PathUtils.uuidToDirPath(existingFile.uuid),
+						StoragePath.Data
 					);
 
 					await fsPromises.rm(existingFilePath);
@@ -80,7 +80,7 @@ export class FileService {
 				throw new Error('inserting entity into db failed');
 			}
 
-			const resolvedPath = FileUtils.join(this.configService, FileUtils.uuidToDirPath(result.uuid), Environment.DiskStoragePath);
+			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.uuid), StoragePath.Data);
 			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
 
 			return FileUploadResponse.from(result.path);
@@ -107,9 +107,9 @@ export class FileService {
 				throw new ServerError(`file at ${fileDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const diskPath = FileUtils.join(this.configService, FileUtils.uuidToDirPath(fileToDownload.uuid), Environment.DiskStoragePath);
+			const diskPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(fileToDownload.uuid), StoragePath.Data);
 
-			if (!(await FileUtils.pathExists(diskPath))) {
+			if (!(await PathUtils.pathExists(diskPath))) {
 				throw new ServerError(`file at ${fileDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
@@ -127,12 +127,8 @@ export class FileService {
 
 			await this.fileRepository.softDeleteByUuid(connection, fileToDelete.uuid);
 
-			const sourcePath = FileUtils.join(this.configService, FileUtils.uuidToDirPath(fileToDelete.uuid), Environment.DiskStoragePath);
-			const destinationPath = FileUtils.join(
-				this.configService,
-				FileUtils.uuidToDirPath(fileToDelete.uuid),
-				Environment.DiskRecyclePath
-			);
+			const sourcePath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(fileToDelete.uuid), StoragePath.Data);
+			const destinationPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(fileToDelete.uuid), StoragePath.Bin);
 			await FileUtils.copyFile(sourcePath, destinationPath);
 
 			try {
@@ -165,9 +161,9 @@ export class FileService {
 
 			await this.fileRepository.restoreByUuid(connection, fileRestoreDto.uuid);
 
-			const dirPath = FileUtils.uuidToDirPath(fileRestoreDto.uuid);
-			const sourcePath = FileUtils.join(this.configService, dirPath, Environment.DiskRecyclePath);
-			const destinationPath = FileUtils.join(this.configService, dirPath, Environment.DiskStoragePath);
+			const dirPath = PathUtils.uuidToDirPath(fileRestoreDto.uuid);
+			const sourcePath = PathUtils.join(this.configService, dirPath, StoragePath.Bin);
+			const destinationPath = PathUtils.join(this.configService, dirPath, StoragePath.Data);
 			await FileUtils.copyFile(sourcePath, destinationPath);
 
 			try {
@@ -190,7 +186,7 @@ export class FileService {
 
 			const existingFile = await this.fileRepository.getUuidByPathAndNotRecycled(connection, fileRenameDto.destinationPath);
 
-			if (!FileUtils.isPathRelative(this.configService, fileRenameDto.destinationPath)) {
+			if (!PathUtils.isPathRelative(this.configService, fileRenameDto.destinationPath)) {
 				throw new ServerError(`newPath must be a valid file path`, HttpStatus.BAD_REQUEST);
 			}
 
