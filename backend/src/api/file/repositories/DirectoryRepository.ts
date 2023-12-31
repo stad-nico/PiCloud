@@ -12,6 +12,7 @@ import {
 	doesNotRecycledDirectoryWithParentAndNameAlreadyExist,
 	getDirectoriesContentByUuid,
 	getFilesContentByUuid,
+	getFilesUuidByRootUuid,
 	getMetadataByUuid,
 	getUuidByParentAndNameAndNotRecycled,
 	getUuidByPathAndNotRecycled,
@@ -35,6 +36,7 @@ export interface IDirectoryRepository extends IRepository {
 	updateParentByUuid(connection: Connection, uuid: string, newParent: string): Promise<void>;
 	getMetadataByUuid(connection: Connection, uuid: string): Promise<DirectoryMetadataResponseType | null>;
 	getContentByUuid(connection: Connection, uuid: string): Promise<DirectoryContentResponseType | null>;
+	getFilesUuidByRootUuid(connection: Connection, uuid: string): Promise<string[]>;
 }
 
 export class DirectoryRepository extends Repository implements IDirectoryRepository {
@@ -108,5 +110,11 @@ export class DirectoryRepository extends Repository implements IDirectoryReposit
 			files: files,
 			directories: directories,
 		};
+	}
+
+	public async getFilesUuidByRootUuid(connection: Connection, uuid: string): Promise<string[]> {
+		const result = (await connection.executePreparedStatement(getFilesUuidByRootUuid(uuid))) as { uuid: string }[];
+
+		return result.map((x) => x.uuid);
 	}
 }

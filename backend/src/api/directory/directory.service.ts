@@ -6,6 +6,8 @@ import { DirectoryCreateDto } from 'src/api/directory/mapping/create/directory.c
 import { DirectoryCreateResponse } from 'src/api/directory/mapping/create/directory.create.response';
 import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete/directory.delete.dto';
 import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete/directory.delete.response';
+import { DirectoryDownloadDto } from 'src/api/directory/mapping/download/directory.download.dto';
+import { DirectoryDownloadResponse } from 'src/api/directory/mapping/download/directory.download.response';
 import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata/directory.metadata.dto';
 import { DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata/directory.metadata.response';
 import { DirectoryRenameDto } from 'src/api/directory/mapping/rename/directory.rename.dto';
@@ -47,9 +49,23 @@ export class DirectoryService {
 		});
 	}
 
+	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
+		return await this.directoryRepository.transactional(async (connection) => {
+			const directory = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, directoryDownloadDto.path);
+
+			if (!directory) {
+				throw new ServerError(`directory at ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			const contents = await this.directoryRepository.getFilesUuidByRootUuid(connection, directory.uuid);
+
+			console.log(contents);
+			return 0 as any;
+		});
+	}
+
 	public async metadata(directoryMetadataDto: DirectoryMetadataDto): Promise<DirectoryMetadataResponse> {
 		return await this.directoryRepository.transactional(async (connection) => {
-			console.log(directoryMetadataDto.path);
 			const directory = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, directoryMetadataDto.path);
 
 			if (!directory) {
