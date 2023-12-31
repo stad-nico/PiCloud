@@ -10,7 +10,10 @@ export class MariaDBConnection implements TransactionalConnection {
 	}
 
 	async executePreparedStatement(queryBundle: QueryBundle): Promise<any> {
-		return await this.connection.execute({ sql: queryBundle.query, namedPlaceholders: true }, queryBundle.params);
+		return await this.connection.execute(
+			{ sql: queryBundle.query, namedPlaceholders: true, bigIntAsNumber: true, dateStrings: true },
+			queryBundle.params
+		);
 	}
 
 	async release(): Promise<void> {

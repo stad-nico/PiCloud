@@ -7,15 +7,15 @@ import { Environment } from 'src/env.config';
  * Utility class for path operations
  */
 export class PathUtils {
-	public static readonly validFileNameRegExp = `([-_.]?[a-zA-Z0-9])([-_. ]?[a-zA-Z0-9])*`;
+	public static readonly ValidFileNameRegExp = `([-_.]?[a-zA-Z0-9])([-_. ]?[a-zA-Z0-9])*`;
 
-	public static readonly validDirectoryPathRegExp = new RegExp(
-		`^(${this.validFileNameRegExp}[\\\/])*(${this.validFileNameRegExp}[\\\/]?)$`,
+	public static readonly ValidDirectoryPathRegExp = new RegExp(
+		`^(${PathUtils.ValidFileNameRegExp}[\\/\\\\])*(${PathUtils.ValidFileNameRegExp}[\\/\\\\]?)$`,
 		'm'
 	);
 
 	/**
-	 * Normalize a path by replacing multiple slashes with a single one.
+	 * Normalize a path by replacing multiple slashes with a single forward slash.
 	 * Leading slashes or dots (`../`, `./`, `/`) are removed, a single trailing slash is ensured.
 	 *
 	 * @param {string} pathToNormalize - the path to normalize
@@ -25,8 +25,22 @@ export class PathUtils {
 		let result = path.normalize(pathToNormalize + '/');
 
 		result = result.replaceAll(/\s+/g, ' ');
-		result = result.replaceAll(/[\/\\]+/g, path.sep);
+		result = result.replaceAll(/[\/\\]+/g, '/');
 		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '');
+
+		return result;
+	}
+
+	/**
+	 * Prepare a path for fs by replacing all slashes with one single `/` or `\` depending on the OS
+	 *
+	 * @param {string} pathToPrepare - the path to prepare
+	 * @returns {string} the prepared path
+	 */
+	public static prepareForFS(pathToPrepare: string): string {
+		let result = PathUtils.normalize(pathToPrepare);
+
+		result = result.replaceAll(/[\/\\]+/g, path.sep);
 
 		return result;
 	}
@@ -95,7 +109,6 @@ export class PathUtils {
 	 * @returns {boolean} whether the path is valid
 	 */
 	public static isValidDirectoryPath(path: string): boolean {
-		console.log(path, PathUtils.validDirectoryPathRegExp);
-		return PathUtils.validDirectoryPathRegExp.test(path);
+		return PathUtils.ValidDirectoryPathRegExp.test(path);
 	}
 }
