@@ -1,7 +1,5 @@
 CREATE DEFINER=`root`@`localhost` TRIGGER `files_AFTER_INSERT` AFTER INSERT ON `files` FOR EACH ROW BEGIN
 	INSERT INTO tree (parent,child,depth)
-    SELECT NEW.uuid, NEW.uuid, 0
-    UNION ALL
     SELECT parent, NEW.uuid, depth + 1
       FROM tree 
       WHERE child = NEW.parent;
