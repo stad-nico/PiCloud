@@ -13,11 +13,11 @@ export const AppModuleConfig = {
 			expandVariables: true,
 			validate: validate,
 		}),
+
 		MariaDBModule,
 
 		DiskModule.forRootAsync(),
 
-		// FileModule,
 		DirectoryModule,
 	],
 };

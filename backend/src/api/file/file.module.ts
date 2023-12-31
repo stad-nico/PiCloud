@@ -3,15 +3,15 @@ import { ConfigService } from '@nestjs/config';
 
 import { FileRepository, IFileRepository } from 'src/api/file/repositories/FileRepository';
 import { IDatabaseService } from 'src/db/DatabaseService';
+import { MariaDBModule } from 'src/db/mariadb.module';
 import { MariaDBService } from 'src/db/mariadb.service';
 import { FileController } from './file.controller';
 import { FileService } from './file.service';
 
 @Module({
-	imports: [],
+	imports: [MariaDBModule],
 	controllers: [FileController],
 	providers: [
-		MariaDBService,
 		FileService,
 		ConfigService,
 		{
