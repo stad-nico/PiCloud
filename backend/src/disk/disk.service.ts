@@ -26,10 +26,7 @@ export class DiskService {
 
 	public constructor(configService: ConfigService) {
 		this.configService = configService;
-		this.storageLocationPath = path.join(
-			this.configService.getOrThrow(Environment.StoragePath),
-			this.configService.getOrThrow(Environment.DirectoryName)
-		);
+		this.storageLocationPath = this.configService.getOrThrow(Environment.StoragePath);
 
 		const nodeEnv: NodeEnv = configService.get(Environment.NodeENV, NodeEnv.Develop);
 		this.shouldCleanupOnShutdown = nodeEnv !== NodeEnv.Production;

@@ -14,9 +14,6 @@ export class EnvVariables {
 	@IsString()
 	STORAGE_PATH!: string;
 
-	@IsString()
-	DIRECTORY_NAME!: string;
-
 	@IsEnum(NodeEnv)
 	NODE_ENV!: NodeEnv;
 
@@ -42,7 +39,6 @@ export class EnvVariables {
 export enum Environment {
 	Port = 'PORT',
 	StoragePath = 'STORAGE_PATH',
-	DirectoryName = 'DIRECTORY_NAME',
 	NodeENV = 'NODE_ENV',
 	DBHost = 'DB_HOST',
 	DBPort = 'DB_PORT',

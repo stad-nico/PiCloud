@@ -1,6 +1,10 @@
+import { Archiver, ArchiverError, create as createArchiver } from 'archiver';
+import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 
+import { ConfigService } from '@nestjs/config';
+import { StoragePath } from 'src/disk/disk.service';
 import { PathUtils } from 'src/util/PathUtils';
 
 export class FileUtils {
@@ -95,5 +99,26 @@ export class FileUtils {
 		for (const file of files) {
 			await fsPromises.rm(path.join(absolutePath, file), { recursive: true });
 		}
+	}
+
+	public static async createZIPArchive(configService: ConfigService, files: { uuid: string; path: string }[]): Promise<Archiver> {
+		return new Promise<Archiver>((resolve, reject) => {
+			const archive = createArchiver('zip');
+
+			const errorHandler = (error: ArchiverError) => reject(error);
+			const successHandler = () => resolve(archive);
+
+			archive.on('error', errorHandler);
+			archive.on('close', successHandler);
+			archive.on('end', successHandler);
+			archive.on('finish', successHandler);
+
+			for (const file of files) {
+				const dirPath = PathUtils.join(configService, PathUtils.uuidToDirPath(file.uuid), StoragePath.Data);
+				archive.append(createReadStream(dirPath), { name: file.path });
+			}
+
+			archive.finalize();
+		});
 	}
 }

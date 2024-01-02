@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { DirectoryController } from 'src/api/directory/directory.controller';
 import { DirectoryService } from 'src/api/directory/directory.service';
@@ -12,6 +13,7 @@ import { MariaDBService } from 'src/db/mariadb.service';
 	controllers: [DirectoryController],
 	providers: [
 		DirectoryService,
+		ConfigService,
 		{
 			provide: IDirectoryRepository,
 			inject: [MariaDBService],

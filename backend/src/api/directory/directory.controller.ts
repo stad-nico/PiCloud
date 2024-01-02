@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, HttpStatus, Logger, Param, Patch, Post, StreamableFile } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Logger, Param, Patch, Post, Res, StreamableFile } from '@nestjs/common';
+import { Response } from 'express';
 import { DirectoryService } from 'src/api/directory/directory.service';
 import { DirectoryContentDto } from 'src/api/directory/mapping/content/directory.content.dto';
 import { DirectoryContentParams } from 'src/api/directory/mapping/content/directory.content.params';
@@ -48,11 +49,21 @@ export class DirectoryController {
 	}
 
 	@Get(':path(*)/download')
-	public async download(@Param() directoryDownloadParams: DirectoryDownloadParams): Promise<StreamableFile> {
+	public async download(
+		@Param() directoryDownloadParams: DirectoryDownloadParams,
+		@Res({ passthrough: true }) res: Response
+	): Promise<StreamableFile> {
 		try {
 			const directoryDownloadDto = DirectoryDownloadDto.from(directoryDownloadParams);
 
-			return new StreamableFile((await this.directoryService.download(directoryDownloadDto)).readStream);
+			const result = await this.directoryService.download(directoryDownloadDto);
+
+			res.header({
+				'Content-Type': result.mimeType,
+				'Content-Disposition': `attachment; filename=${result.name}`,
+			});
+
+			return new StreamableFile(result.readable);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);

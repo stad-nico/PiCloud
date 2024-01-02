@@ -29,3 +29,109 @@ DETERMINISTIC BEGIN
 END//
 
 DELIMITER ;
+
+
+### get file path
+CREATE DEFINER=`root`@`localhost` FUNCTION `GET_FILE_PATH`(
+	`uuid` VARCHAR(255)
+)
+RETURNS varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci
+LANGUAGE SQL
+DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	DECLARE path VARCHAR(255) DEFAULT (SELECT name FROM files WHERE files.uuid = uuid);
+	DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parent FROM files WHERE files.uuid = uuid); 
+
+	WHILE nextUuid IS NOT NULL DO
+		SET path = CONCAT((SELECT name FROM directories WHERE directories.uuid = nextUuid), "/", path);
+		SET nextUuid = (SELECT parent FROM directories WHERE directories.uuid = nextUuid);
+	
+	END WHILE;
+
+	RETURN path;
+END
+
+
+
+
+## get dir path 
+CREATE DEFINER=`root`@`localhost` FUNCTION `GET_DIRECTORY_PATH`(
+	`uuid` VARCHAR(255)
+)
+RETURNS varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci
+LANGUAGE SQL
+DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	DECLARE path VARCHAR(255) DEFAULT (SELECT name FROM directories WHERE directories.uuid = uuid);
+	DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parent FROM directories WHERE directories.uuid = uuid); 
+
+	IF uuid IS NULL THEN
+		RETURN "/";
+	END IF;
+
+	WHILE nextUuid IS NOT NULL DO
+		SET path = CONCAT((SELECT name FROM directories WHERE directories.uuid = nextUuid), "/", path);
+		SET nextUuid = (SELECT parent FROM directories WHERE directories.uuid = nextUuid);
+	
+	END WHILE;
+
+	RETURN path;
+END
+
+
+
+### get dir uuid
+CREATE DEFINER=`root`@`localhost` FUNCTION `GET_DIRECTORY_UUID`(
+	`path` VARCHAR(255)
+)
+RETURNS varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci
+LANGUAGE SQL
+DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	DECLARE nextPath VARCHAR(255) DEFAULT TRIM(LEADING "/" FROM path);
+	DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath));
+	
+	SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
+	
+	WHILE nextPath != "" DO
+		SET nextUuid = (SELECT uuid FROM directories WHERE directories.parent = nextUuid AND directories.name = GET_UPMOST_DIRNAME(nextPath));
+		SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
+	END WHILE;
+	
+	RETURN nextUuid;
+END
+
+
+
+### get file uuid
+CREATE DEFINER=`root`@`localhost` FUNCTION `GET_FILE_UUID`(
+	`path` VARCHAR(255)
+)
+RETURNS varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci
+LANGUAGE SQL
+DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	DECLARE nextPath VARCHAR(255) DEFAULT TRIM(LEADING "/" FROM path);
+	DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath));
+	
+	SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
+	
+	WHILE LOCATE("/", nextPath) != 0 DO
+		SET nextUuid = (SELECT uuid FROM directories WHERE directories.parent = nextUuid AND directories.name = GET_UPMOST_DIRNAME(nextPath));
+		SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
+	END WHILE;
+	
+	RETURN (SELECT uuid FROM files WHERE files.name = nextPath AND files.parent = nextUuid);
+END
