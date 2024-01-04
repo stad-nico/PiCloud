@@ -1,58 +1,59 @@
-import { Connection } from 'src/db/Connection';
-import { IDatabaseService } from 'src/db/DatabaseService';
-import { IRepository, Repository } from 'src/db/Repository';
-import { File } from 'src/db/entities/File';
-import { hardDeleteByUuid, selectByPathAndNotRecycled } from 'src/db/queries/File';
+// import { Connection } from 'src/db/Connection';
+// import { IDatabaseService } from 'src/db/DatabaseService';
+// import { IRepository, Repository } from 'src/db/Repository';
+// import { File, FileNullables } from 'src/db/entities/File';
 
-export const IFileRepository = Symbol('IFileRepository');
+// export const IFileRepository = Symbol('IFileRepository');
 
-export interface IFileRepository extends IRepository {
-	getSizeAndUuidByPathAndNotRecycled(connection: Connection, path: string): Promise<Pick<File, 'uuid' | 'size'> | null>;
+// export type NarrowedNullable<T extends keyof File> = {
+// 	[K in T]: K extends FileNullables ? File[K] | null : File[K];
+// };
 
-	getPathByUuidAndRecycled(connection: Connection, path: string): Promise<{ path: string } | null>;
+// export type RecursiveWhere<T extends keyof File> = NarrowedNullable<keyof Pick<File, 'parent'>> & Partial<NarrowedNullable<T>>;
 
-	getUuidByPathAndNotRecycled(connection: Connection, path: string): Promise<Pick<File, 'uuid'> | null>;
+// export interface IFileRepository extends IRepository {
+// 	selectOne<T extends keyof File, K extends keyof File>(
+// 		connection: Connection,
+// 		where: NarrowedNullable<T>,
+// 		columns: Array<K>
+// 	): Promise<NarrowedNullable<K> | null>;
 
-	hardDeleteByUuid(connection: Connection, uuid: string): Promise<void>;
+// 	selectAll<T extends keyof File, K extends keyof File>(
+// 		connection: Connection,
+// 		where: NarrowedNullable<T>,
+// 		columns: Array<K>
+// 	): Promise<Array<NarrowedNullable<K>>>;
 
-	insertAndSelectUuidAndPath(
-		connection: Connection,
-		file: Pick<File, 'name' | 'mimeType' | 'size' | 'parent'>
-	): Promise<(Pick<File, 'uuid'> & { path: string }) | null>;
+// 	selectAllRecursive<T extends keyof File, K extends keyof File>(
+// 		connection: Connection,
+// 		where: RecursiveWhere<T>,
+// 		columns: Array<K>
+// 	): Promise<Array<NarrowedNullable<K>>>;
 
-	getFullEntityByPathAndNotRecycled(connection: Connection, path: string): Promise<File | null>;
+// 	getSizeAndUuidByPathAndNotRecycled(connection: Connection, path: string): Promise<Pick<File, 'uuid' | 'size'> | null>;
 
-	getByPathAndNotRecycled(connection: Connection, path: string): Promise<Pick<File, 'uuid' | 'name' | 'mimeType'> | null>;
+// 	getPathByUuidAndRecycled(connection: Connection, path: string): Promise<{ path: string } | null>;
 
-	softDeleteByUuid(connection: Connection, uuid: string): Promise<void>;
+// 	getUuidByPathAndNotRecycled(connection: Connection, path: string): Promise<Pick<File, 'uuid'> | null>;
 
-	restoreByUuid(connection: Connection, uuid: string): Promise<void>;
-}
+// 	hardDeleteByUuid(connection: Connection, uuid: string): Promise<void>;
 
-export class FileRepository extends Repository {
-	public constructor(databaseService: IDatabaseService) {
-		super(databaseService);
-	}
+// 	insertAndSelectUuidAndPath(
+// 		connection: Connection,
+// 		file: Pick<File, 'name' | 'mimeType' | 'size' | 'parent'>
+// 	): Promise<(Pick<File, 'uuid'> & { path: string }) | null>;
 
-	private async selectByPathAndNotRecycled<T extends keyof File>(
-		connection: Connection,
-		path: string,
-		columnsToSelect: T[]
-	): Promise<Pick<File, T> | null> {
-		const result = await connection.executePreparedStatement(selectByPathAndNotRecycled(path, columnsToSelect));
+// 	getFullEntityByPathAndNotRecycled(connection: Connection, path: string): Promise<File | null>;
 
-		if (!result) {
-			return null;
-		}
+// 	getByPathAndNotRecycled(connection: Connection, path: string): Promise<Pick<File, 'uuid' | 'name' | 'mimeType'> | null>;
 
-		return result as any;
-	}
+// 	softDeleteByUuid(connection: Connection, uuid: string): Promise<void>;
 
-	public async hardDeleteByUuid(connection: Connection, uuid: string): Promise<void> {
-		await connection.executePreparedStatement(hardDeleteByUuid(uuid));
-	}
+// 	restoreByUuid(connection: Connection, uuid: string): Promise<void>;
+// }
 
-	public async getUuidByPathAndNotRecycled(connection: Connection, path: string): Promise<Pick<File, 'uuid'> | null> {
-		return this.selectByPathAndNotRecycled(connection, path, ['uuid']);
-	}
-}
+// export class FileRepository extends Repository {
+// 	public constructor(databaseService: IDatabaseService) {
+// 		super(databaseService);
+// 	}
+// }

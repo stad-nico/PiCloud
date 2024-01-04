@@ -1,120 +1,94 @@
-import {
-	DirectoryContentDirectoryType,
-	DirectoryContentFileType,
-	DirectoryContentResponseType,
-} from 'src/api/directory/mapping/content/directory.content.response';
-import { DirectoryMetadataResponseType } from 'src/api/directory/mapping/metadata/directory.metadata.response';
-import { Connection } from 'src/db/Connection';
-import { IDatabaseService } from 'src/db/DatabaseService';
-import { IRepository, Repository } from 'src/db/Repository';
-import { Directory } from 'src/db/entities/Directory';
-import {
-	doesNotRecycledDirectoryWithParentAndNameAlreadyExist,
-	getDirectoriesContentByUuid,
-	getFilesContentByUuid,
-	getFilesUuidByRootUuid,
-	getMetadataByUuid,
-	getUuidByParentAndNameAndNotRecycled,
-	getUuidByPathAndNotRecycled,
-	hardDeleteByUuid,
-	insert,
-	renameByUuid,
-	softDeleteSubtreeByRootUuid,
-	updateParentByUuid,
-} from 'src/db/queries/Directory';
+// import { Connection } from 'src/db/Connection';
+// import { IDatabaseService } from 'src/db/DatabaseService';
+// import { IRepository, Repository } from 'src/db/Repository';
+// import { Directory2, SelectKeys, SelectOneResult, SelectOptions, WhereKeys, WhereOptions } from 'src/db/entities/Directory';
 
-export const IDirectoryRepository = Symbol('IDirectoryRepository');
+// export const IDirectoryRepository = Symbol('IDirectoryRepository');
 
-export interface IDirectoryRepository extends IRepository {
-	getUuidByPathAndNotRecycled(connection: Connection, path: string): Promise<Pick<Directory, 'uuid'> | null>;
-	doesNotRecycledDirectoryWithParentAndNameAlreadyExist(connection: Connection, parentUuid: string, name: string): Promise<boolean>;
-	insert(connection: Connection, directory: Pick<Directory, 'name' | 'parent'>): Promise<void>;
-	softDeleteSubtreeByRootUuid(connection: Connection, rootUuid: string): Promise<void>;
-	renameByUuid(connection: Connection, uuid: string, name: string): Promise<void>;
-	getUuidByParentAndNameAndNotRecycled(connection: Connection, parent: string, name: string): Promise<Pick<Directory, 'uuid'> | null>;
-	hardDeleteByUuid(connection: Connection, uuid: string): Promise<void>;
-	updateParentByUuid(connection: Connection, uuid: string, newParent: string): Promise<void>;
-	getMetadataByUuid(connection: Connection, uuid: string): Promise<DirectoryMetadataResponseType | null>;
-	getContentByUuid(connection: Connection, uuid: string): Promise<DirectoryContentResponseType | null>;
-	getFilesUuidByRootUuid(connection: Connection, uuid: string): Promise<string[]>;
-}
+// export type Nullable<T> = { [K in keyof T]: T[K] | null };
 
-export class DirectoryRepository extends Repository implements IDirectoryRepository {
-	public constructor(databaseService: IDatabaseService) {
-		super(databaseService);
-	}
+// export interface IDirectoryRepository extends IRepository<Directory2> {
+// 	selectOne<W extends WhereKeys<Directory2>, S extends SelectKeys<Directory2>>(
+// 		connection: Connection,
+// 		where: WhereOptions<Directory2, W>,
+// 		select: SelectOptions<Directory2>
+// 	): Promise<SelectOneResult>;
+// 	// update<W extends WhereKeys, S extends keyof Directory>(
+// 	// 	connection: Connection,
+// 	// 	where: WhereOptions<W>,
+// 	// 	partial: UpdatePartial<S>
+// 	// ): Promise<void>;
+// 	// hardDelete<W extends WhereKeys>(connection: Connection, where: WhereOptions<W>): Promise<void>;
+// 	// softDelete<W extends WhereKeys>(connection: Connection, where: SoftDeleteWhereOptions<W>): Promise<void>;
+// 	// insert<T extends keyof Directory>(connection: Connection, values: InsertPartial<T>): Promise<void>;
+// }
 
-	public async getUuidByPathAndNotRecycled(connection: Connection, path: string): Promise<Pick<Directory, 'uuid'> | null> {
-		const result = (await connection.executePreparedStatement(getUuidByPathAndNotRecycled(path))) as [Pick<Directory, 'uuid'> | null];
+// export class DirectoryRepository extends Repository<Directory2> implements IDirectoryRepository {
+// 	public constructor(databaseService: IDatabaseService) {
+// 		super(databaseService);
+// 	}
 
-		return result[0];
-	}
+// 	public async selectOne<S extends SelectKeys<Directory2>>(
+// 		connection: Connection,
+// 		where: WhereOptions<Directory2, WhereKeys<Directory2>>,
+// 		select: SelectOptions<Directory2, SelectKeys<Directory2>>
+// 	): Promise<SelectOneResult<Directory2, SelectKeys<Directory2>>> {
+// 		throw new Error('Method not implemented.');
+// 	}
 
-	public async doesNotRecycledDirectoryWithParentAndNameAlreadyExist(
-		connection: Connection,
-		parentUuid: string,
-		name: string
-	): Promise<boolean> {
-		const result = (await connection.executePreparedStatement(
-			doesNotRecycledDirectoryWithParentAndNameAlreadyExist(parentUuid, name)
-		)) as [{ 'COUNT(1)': number }];
+// 	// public async hardDelete<W extends WhereKeys>(connection: Connection, where: WhereOptions<W>): Promise<void> {
+// 	// 	await connection.executePreparedStatement(hardDelete(where));
+// 	// }
 
-		return result[0]['COUNT(1)'] > 0;
-	}
+// 	// public async softDelete<W extends WhereKeys>(connection: Connection, where: SoftDeleteWhereOptions<W>): Promise<void> {
+// 	// 	await connection.executePreparedStatement(softDelete(where));
+// 	// }
 
-	public async insert(connection: Connection, directory: Pick<Directory, 'name' | 'parent'>): Promise<void> {
-		await connection.executePreparedStatement(insert(directory.parent, directory.name));
-	}
+// 	// public async insert<T extends keyof Directory>(connection: Connection, values: InsertPartial<T>): Promise<void> {
+// 	// 	await connection.executePreparedStatement(insert(values));
+// 	// }
 
-	public async softDeleteSubtreeByRootUuid(connection: Connection, rootUuid: string): Promise<void> {
-		await connection.executePreparedStatement(softDeleteSubtreeByRootUuid(rootUuid));
-	}
+// 	// public async update<T extends keyof DirectorySelectOptions, K extends keyof Directory>(
+// 	// 	connection: Connection,
+// 	// 	where: WhereOptions<T>,
+// 	// 	partial: UpdatePartial<K>
+// 	// ): Promise<void> {
+// 	// 	await connection.executePreparedStatement(update(where, partial));
+// 	// }
 
-	public async renameByUuid(connection: Connection, uuid: string, name: string): Promise<void> {
-		await connection.executePreparedStatement(renameByUuid(uuid, name));
-	}
+// 	// public async selectAll<W extends WhereKeys, S extends SelectKeys>(
+// 	// 	connection: Connection,
+// 	// 	where: WhereOptions<W>,
+// 	// 	columns: SelectOptions<S>
+// 	// ): Promise<SelectAllResult<S>> {
+// 	// 	const rawResult = await connection.executePreparedStatement(selectAll(where, columns));
 
-	public async getUuidByParentAndNameAndNotRecycled(
-		connection: Connection,
-		parent: string,
-		name: string
-	): Promise<Pick<Directory, 'uuid'> | null> {
-		const result = (await connection.executePreparedStatement(getUuidByParentAndNameAndNotRecycled(parent, name))) as [
-			Pick<Directory, 'uuid'> | null,
-		];
+// 	// 	const result = this.map(rawResult);
 
-		return result[0];
-	}
+// 	// 	return result;
+// 	// }
 
-	public async hardDeleteByUuid(connection: Connection, uuid: string): Promise<void> {
-		await connection.executePreparedStatement(hardDeleteByUuid(uuid));
-	}
+// 	// private map<S extends SelectKeys>(rows: Array<Nullable<Pick<DirectorySelectOptions, S>>>): Array<ValidEntity<S>> {
+// 	// 	const result: Array<ValidEntity<S>> = [];
 
-	public async updateParentByUuid(connection: Connection, uuid: string, newParent: string): Promise<void> {
-		await connection.executePreparedStatement(updateParentByUuid(uuid, newParent));
-	}
+// 	// 	for (const row of rows) {
+// 	// 		if (this.isValid(row)) {
+// 	// 			result.push(row);
+// 	// 		}
+// 	// 	}
 
-	public async getMetadataByUuid(connection: Connection, uuid: string): Promise<DirectoryMetadataResponseType | null> {
-		const result = (await connection.executePreparedStatement(getMetadataByUuid(uuid))) as [DirectoryMetadataResponseType | null];
+// 	// 	return result;
+// 	// }
 
-		return result[0];
-	}
+// 	// public isValid<S extends SelectKeys>(row: Nullable<Pick<DirectorySelectOptions, S>>): row is ValidEntity<S> {
+// 	// 	const entries = Object.entries(row) as Array<[S, unknown]>;
 
-	public async getContentByUuid(connection: Connection, uuid: string): Promise<DirectoryContentResponseType | null> {
-		const files = (await connection.executePreparedStatement(getFilesContentByUuid(uuid))) as DirectoryContentFileType[];
-		const directories = (await connection.executePreparedStatement(
-			getDirectoriesContentByUuid(uuid)
-		)) as DirectoryContentDirectoryType[];
+// 	// 	for (let [row, value] of entries) {
+// 	// 		if (value === null && !DirectoryNullables.includes(row)) {
+// 	// 			return false;
+// 	// 		}
+// 	// 	}
 
-		return {
-			files: files,
-			directories: directories,
-		};
-	}
-
-	public async getFilesUuidByRootUuid(connection: Connection, uuid: string): Promise<string[]> {
-		const result = (await connection.executePreparedStatement(getFilesUuidByRootUuid(uuid))) as { uuid: string }[];
-
-		return result.map((x) => x.uuid);
-	}
-}
+// 	// 	return true;
+// 	// }
+// }

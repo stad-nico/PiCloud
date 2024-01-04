@@ -1,34 +1,61 @@
-import { Connection } from 'src/db/Connection';
-import { IDatabaseService } from 'src/db/DatabaseService';
+// import { Connection } from 'src/db/Connection';
+// import { IDatabaseService } from 'src/db/DatabaseService';
+// import { BaseEntity, SelectKeys, SelectOneResult, SelectOptions, WhereKeys, WhereOptions } from 'src/db/entities/Directory';
 
-export interface IRepository {
-	transactional<T>(callback: (connection: Connection) => Promise<T>): Promise<T>;
-}
+// export interface IRepository<Entity extends BaseEntity> {
+// 	// selectAll<W extends WhereKeys<E>, S extends SelectKeys<E>>(
+// 	// 	connection: Connection,
+// 	// 	where: WhereOptions<E, W>,
+// 	// 	select: SelectOptions<E, S>
+// 	// ): Promise<SelectAllResult<E, S>>;
 
-export abstract class Repository implements IRepository {
-	private readonly databaseService: IDatabaseService;
+// 	// selectOne<W extends WhereKeys<E>, S extends SelectKeys<E>>(
+// 	// 	connection: Connection,
+// 	// 	where: WhereOptions<E, W>,
+// 	// 	select: SelectOptions<E, S>
+// 	// ): Promise<SelectOneResult<E, S>>;
 
-	protected constructor(databaseService: IDatabaseService) {
-		this.databaseService = databaseService;
-	}
+// 	// update<W extends WhereKeys<E>, S>(connection: Connection, where: WhereOptions<E, W>, partial: UpdatePartial<S>): Promise<void>;
 
-	public async transactional<T>(callback: (connection: Connection) => Promise<T>): Promise<T> {
-		const connection = await this.databaseService.getConnection();
+// 	transactional<T>(callback: (connection: Connection) => Promise<T>): Promise<T>;
+// }
 
-		await connection.startTransaction();
+// export abstract class Repository<Entity extends BaseEntity> implements IRepository<Entity> {
+// 	private readonly databaseService: IDatabaseService;
 
-		try {
-			const result = await callback(connection);
+// 	protected constructor(databaseService: IDatabaseService) {
+// 		this.databaseService = databaseService;
+// 	}
 
-			await connection.commitTransaction();
+// 	// abstract selectAll<W extends WhereKeys<Entity>, S extends SelectKeys<Entity>>(
+// 	// 	connection: Connection,
+// 	// 	where: WhereOptions<Entity, W>,
+// 	// 	select: SelectOptions<Entity, S>
+// 	// ): Promise<SelectAllResult<Entity, S>>;
 
-			return result;
-		} catch (e) {
-			await connection.rollbackTransaction();
+// 	abstract selectOne<W extends WhereKeys<Entity>, S extends SelectKeys<Entity>>(
+// 		connection: Connection,
+// 		where: WhereOptions<Entity, W>,
+// 		select: SelectOptions<Entity, S>
+// 	): Promise<SelectOneResult<Entity, S>>;
 
-			throw e;
-		} finally {
-			connection.release();
-		}
-	}
-}
+// 	public async transactional<T>(callback: (connection: Connection) => Promise<T>): Promise<T> {
+// 		const connection = await this.databaseService.getConnection();
+
+// 		await connection.startTransaction();
+
+// 		try {
+// 			const result = await callback(connection);
+
+// 			await connection.commitTransaction();
+
+// 			return result;
+// 		} catch (e) {
+// 			await connection.rollbackTransaction();
+
+// 			throw e;
+// 		} finally {
+// 			connection.release();
+// 		}
+// 	}
+// }

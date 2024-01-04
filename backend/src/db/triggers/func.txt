@@ -135,3 +135,64 @@ BEGIN
 	
 	RETURN (SELECT uuid FROM files WHERE files.name = nextPath AND files.parent = nextUuid);
 END
+
+
+
+
+### get dir size
+CREATE DEFINER=`root`@`localhost` FUNCTION `GET_DIRECTORY_SIZE`(
+	`uuid` VARCHAR(255)
+)
+RETURNS bigint(20)
+LANGUAGE SQL
+DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	RETURN (
+		SELECT SUM(size)
+		FROM tree
+		INNER JOIN files ON tree.child = files.uuid
+		WHERE tree.parent = uuid AND files.isRecycled = 0
+	);
+END
+
+
+### get dir files amt
+CREATE DEFINER=`root`@`localhost` FUNCTION `GET_DIRECTORY_FILES_AMT`(
+	`uuid` VARCHAR(255)
+)
+RETURNS int(11)
+LANGUAGE SQL
+DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	RETURN (
+		SELECT COUNT(*)
+		FROM tree
+		INNER JOIN files ON tree.child = files.uuid
+		WHERE tree.parent = "0" AND files.isRecycled = 0
+	);
+END
+
+### get dir subdir amt
+CREATE DEFINER=`root`@`localhost` FUNCTION `GET_DIRECTORY_SUBDIR_AMT`(
+	`uuid` VARCHAR(255)
+)
+RETURNS int(11)
+LANGUAGE SQL
+DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	RETURN (
+		SELECT COUNT(*) - 1
+		FROM tree
+		INNER JOIN directories ON tree.child = directories.uuid
+		WHERE tree.parent = uuid AND directories.isRecycled = 0
+	);
+END

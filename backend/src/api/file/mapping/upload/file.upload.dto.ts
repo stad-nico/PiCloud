@@ -1,5 +1,3 @@
-import { File } from 'src/db/entities/File';
-
 import { lookup } from 'mime-types';
 import * as path_ from 'path';
 import { FileUploadParams } from 'src/api/file/mapping/upload/file.upload.params';
@@ -50,12 +48,12 @@ export class FileUploadDto {
 	 * @param {string} parent - The uuid of the parent directory
 	 * @returns {Pick<File, 'name' | 'parent' | 'size' | 'mimeType'>} A new `File` object
 	 */
-	public toFile(parent: string): Pick<File, 'name' | 'parent' | 'size' | 'mimeType'> {
-		return {
-			name: path_.basename(this.path),
-			size: Buffer.byteLength(this.buffer),
-			mimeType: this.mimeType,
-			parent: parent,
-		};
-	}
+	// public toFile(parent: string): Pick<File, 'name' | 'parent' | 'size' | 'mimeType'> {
+	// 	return {
+	// 		name: path_.basename(this.path),
+	// 		size: Buffer.byteLength(this.buffer),
+	// 		mimeType: this.mimeType,
+	// 		parent: parent,
+	// 	};
+	// }
 }

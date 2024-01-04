@@ -1,5 +1,5 @@
-import { TransactionalConnection } from 'src/db/Connection';
+// import { TransactionalConnection } from 'src/db/Connection';
 
-export interface IDatabaseService {
-	getConnection(): Promise<TransactionalConnection>;
-}
+// export interface IDatabaseService {
+// 	getConnection(): Promise<TransactionalConnection>;
+// }

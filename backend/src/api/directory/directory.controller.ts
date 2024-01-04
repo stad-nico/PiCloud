@@ -33,10 +33,13 @@ export class DirectoryController {
 
 	@Get(':path(*)/content')
 	public async content(@Param() directoryContentParams: DirectoryContentParams): Promise<DirectoryContentResponse> {
+		this.logger.log(`[Get] ${directoryContentParams.path}/content`);
+
 		try {
 			const directoryContentDto = DirectoryContentDto.from(directoryContentParams);
 
-			return await this.directoryService.content(directoryContentDto);
+			return 0 as any;
+			// return await this.directoryService.content(directoryContentDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -53,17 +56,21 @@ export class DirectoryController {
 		@Param() directoryDownloadParams: DirectoryDownloadParams,
 		@Res({ passthrough: true }) res: Response
 	): Promise<StreamableFile> {
+		this.logger.log(`[Get] ${directoryDownloadParams.path}/download`);
+
 		try {
 			const directoryDownloadDto = DirectoryDownloadDto.from(directoryDownloadParams);
 
-			const result = await this.directoryService.download(directoryDownloadDto);
+			// const result = await this.directoryService.download(directoryDownloadDto);
 
-			res.header({
-				'Content-Type': result.mimeType,
-				'Content-Disposition': `attachment; filename=${result.name}`,
-			});
+			// res.header({
+			// 	'Content-Type': result.mimeType,
+			// 	'Content-Disposition': `attachment; filename=${result.name}`,
+			// });
 
-			return new StreamableFile(result.readable);
+			// return new StreamableFile(result.readable);
+
+			return 0 as any;
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -75,12 +82,16 @@ export class DirectoryController {
 		}
 	}
 
-	@Get(':path(*)')
+	@Get(':path(*)/metadata')
 	public async metadata(@Param() directoryMetadataParams: DirectoryMetadataParams): Promise<DirectoryMetadataResponse> {
+		this.logger.log(`[Get] ${directoryMetadataParams.path}/metadata`);
+
 		try {
 			const directoryMetadataDto = DirectoryMetadataDto.from(directoryMetadataParams);
 
-			return await this.directoryService.metadata(directoryMetadataDto);
+			// return await this.directoryService.metadata(directoryMetadataDto);
+
+			return 0 as any;
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -94,10 +105,13 @@ export class DirectoryController {
 
 	@Post(':path(*)')
 	public async create(@Param() directoryCreateParams: DirectoryCreateParams): Promise<DirectoryCreateResponse> {
+		this.logger.log(`[Post] ${directoryCreateParams.path}`);
+
 		try {
 			const directoryCreateDto = DirectoryCreateDto.from(directoryCreateParams);
 
-			return await this.directoryService.create(directoryCreateDto);
+			// return await this.directoryService.create(directoryCreateDto);
+			return 0 as any;
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -114,10 +128,13 @@ export class DirectoryController {
 		@Param() directoryRenameParams: DirectoryRenameParams,
 		@Body() directoryRenameBody: DirectoryRenameBody
 	): Promise<DirectoryRenameResponse> {
+		this.logger.log(`[Patch] ${directoryRenameParams.path} to ${directoryRenameBody.newPath}`);
+
 		try {
 			const directoryRenameDto = DirectoryRenameDto.from(directoryRenameParams, directoryRenameBody);
 
-			return await this.directoryService.rename(directoryRenameDto);
+			// return await this.directoryService.rename(directoryRenameDto);
+			return 0 as any;
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -131,10 +148,12 @@ export class DirectoryController {
 
 	@Delete(':path(*)')
 	public async delete(@Param() directoryDeleteParams: DirectoryDeleteParams): Promise<DirectoryDeleteResponse> {
+		this.logger.log(`[Delete] ${directoryDeleteParams.path}`);
 		try {
 			const directoryDeleteDto = DirectoryDeleteDto.from(directoryDeleteParams);
 
-			return await this.directoryService.delete(directoryDeleteDto);
+			// return await this.directoryService.delete(directoryDeleteDto);
+			return 0 as any;
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);

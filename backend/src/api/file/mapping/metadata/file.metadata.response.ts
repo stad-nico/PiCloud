@@ -1,5 +1,3 @@
-import { File } from 'src/db/entities/File';
-
 export class FileMetadataResponse {
 	readonly uuid: string;
 
@@ -37,16 +35,16 @@ export class FileMetadataResponse {
 		this.updated = updated;
 	}
 
-	public static from(file: File): FileMetadataResponse {
-		return new FileMetadataResponse(
-			file.uuid,
-			/*file.fullPath, */ 'fff',
-			file.name,
-			/*file.path,*/ 'aaa',
-			file.mimeType,
-			file.size,
-			file.created,
-			file.updated
-		);
-	}
+	// public static from(file: File): FileMetadataResponse {
+	// 	return new FileMetadataResponse(
+	// 		file.uuid,
+	// 		/*file.fullPath, */ 'fff',
+	// 		file.name,
+	// 		/*file.path,*/ 'aaa',
+	// 		file.mimeType,
+	// 		file.size,
+	// 		file.created,
+	// 		file.updated
+	// 	);
+	// }
 }

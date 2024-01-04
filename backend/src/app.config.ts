@@ -20,7 +20,7 @@ export function configureApplication(application: INestApplication) {
 		application.useGlobalPipes(
 			new TestValidationPipe({
 				exceptionFactory: (errors: ValidationError[]) => {
-					return new BadRequestException(Object.values(errors[0].constraints!)[0]);
+					return new BadRequestException(Object.values(errors[0]?.constraints!)[0]);
 				},
 				transform: true,
 			})
@@ -30,7 +30,7 @@ export function configureApplication(application: INestApplication) {
 		application.useGlobalPipes(
 			new ValidationPipe({
 				exceptionFactory: (errors: ValidationError[]) => {
-					return new BadRequestException(Object.values(errors[0].constraints!)[0]);
+					return new BadRequestException(Object.values(errors[0]?.constraints!)[0]);
 				},
 				transform: true,
 			})

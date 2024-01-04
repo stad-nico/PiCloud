@@ -1,157 +1,149 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import * as path from 'path';
-import { DirectoryContentDto } from 'src/api/directory/mapping/content/directory.content.dto';
-import { DirectoryContentResponse } from 'src/api/directory/mapping/content/directory.content.response';
-import { DirectoryCreateDto } from 'src/api/directory/mapping/create/directory.create.dto';
-import { DirectoryCreateResponse } from 'src/api/directory/mapping/create/directory.create.response';
-import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete/directory.delete.dto';
-import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete/directory.delete.response';
-import { DirectoryDownloadDto } from 'src/api/directory/mapping/download/directory.download.dto';
-import { DirectoryDownloadResponse } from 'src/api/directory/mapping/download/directory.download.response';
-import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata/directory.metadata.dto';
-import { DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata/directory.metadata.response';
-import { DirectoryRenameDto } from 'src/api/directory/mapping/rename/directory.rename.dto';
-import { DirectoryRenameResponse } from 'src/api/directory/mapping/rename/directory.rename.response';
-import { IDirectoryRepository } from 'src/api/file/repositories/DirectoryRepository';
-import { ServerError } from 'src/util/ServerError';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DirectoryService {
-	private readonly directoryRepository: IDirectoryRepository;
+	private readonly configService: ConfigService;
 
-	public constructor(@Inject(IDirectoryRepository) directoryRepository: IDirectoryRepository) {
-		this.directoryRepository = directoryRepository;
+	public constructor(configService: ConfigService) {
+		this.configService = configService;
 	}
 
-	public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
-		return await this.directoryRepository.transactional(async (connection) => {
-			const parentPath = path.dirname(directoryCreateDto.path);
+	// public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
+	// 	return await this.directoryRepository.transactional(async (connection) => {
+	// 		const existingDirectory = await this.directoryRepository.selectOne(
+	// 			connection,
+	// 			{ path: directoryCreateDto.path, isRecycled: false },
+	// 			['uuid']
+	// 		);
 
-			const parent = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, parentPath);
+	// 		if (existingDirectory) {
+	// 			throw new ServerError(`directory at ${directoryCreateDto.path} already exists`, HttpStatus.CONFLICT);
+	// 		}
 
-			if (!parent) {
-				throw new ServerError(`directory at ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 		const parentPath = path.dirname(directoryCreateDto.path);
 
-			const directoryAlreadyExists = await this.directoryRepository.doesNotRecycledDirectoryWithParentAndNameAlreadyExist(
-				connection,
-				parent.uuid,
-				path.basename(directoryCreateDto.path)
-			);
+	// 		const parent = await this.directoryRepository.selectOne(connection, { path: parentPath, isRecycled: false }, ['uuid']);
 
-			if (directoryAlreadyExists) {
-				throw new ServerError(`directory at ${directoryCreateDto.path} already exists`, HttpStatus.CONFLICT);
-			}
+	// 		if (!parent) {
+	// 			throw new ServerError(`directory at ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
+	// 		}
 
-			await this.directoryRepository.insert(connection, directoryCreateDto.toDirectory(parent.uuid));
+	// 		await this.directoryRepository.insert(connection, { name: path.basename(directoryCreateDto.path), parent: parent.uuid });
 
-			return DirectoryCreateResponse.from(directoryCreateDto);
-		});
-	}
+	// 		return DirectoryCreateResponse.from(directoryCreateDto);
+	// 	});
+	// }
 
-	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
-		return await this.directoryRepository.transactional(async (connection) => {
-			const directory = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, directoryDownloadDto.path);
+	// public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
+	// 	const r = await this.directoryRepository.selectOne(connection, { parent: null, path: 'X' }, ['uuid', 'parent']);
 
-			if (!directory) {
-				throw new ServerError(`directory at ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 	return await this.directoryRepository.transactional(async (connection) => {
+	// 		const directory = await this.directoryRepository.selectOne(connection, { path: directoryDownloadDto.path, isRecycled: false }, [
+	// 			'uuid',
+	// 			'path',
+	// 			'name',
+	// 		]);
 
-			const contents = await this.directoryRepository.getFilesUuidByRootUuid(connection, directory.uuid);
+	// 		if (!directory) {
+	// 			throw new ServerError(`directory at ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
+	// 		}
 
-			console.log(contents);
-			return 0 as any;
-		});
-	}
+	// 		let contents = await this.fileRepository.selectAllRecursive(connection, { parent: directory.uuid }, ['uuid', 'path']);
+	// 		contents = contents.map((x) => ({ uuid: x.uuid, path: x.path.replace(directory.path, '') }));
 
-	public async metadata(directoryMetadataDto: DirectoryMetadataDto): Promise<DirectoryMetadataResponse> {
-		return await this.directoryRepository.transactional(async (connection) => {
-			const directory = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, directoryMetadataDto.path);
+	// 		const archive = await FileUtils.createZIPArchive(this.configService, contents);
 
-			if (!directory) {
-				throw new ServerError(`directory at ${directoryMetadataDto.path} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 		return DirectoryDownloadResponse.from(directory.name + '.zip', 'application/zip', archive);
+	// 	});
+	// }
 
-			const response = await this.directoryRepository.getMetadataByUuid(connection, directory.uuid);
+	// public async metadata(directoryMetadataDto: DirectoryMetadataDto): Promise<DirectoryMetadataResponse> {
+	// 	return await this.directoryRepository.transactional(async (connection) => {
+	// 		const directory = await this.directoryRepository.selectOne(connection, { path: directoryMetadataDto.path }, ['uuid']);
 
-			if (!response) {
-				throw new ServerError(`directory at ${directoryMetadataDto.path} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 		if (!directory) {
+	// 			throw new ServerError(`directory at ${directoryMetadataDto.path} does not exist`, HttpStatus.NOT_FOUND);
+	// 		}
 
-			return DirectoryMetadataResponse.from(response);
-		});
-	}
+	// 		// prettier-ignore
+	// 		const response = await this.directoryRepository.selectOne(connection, { uuid: directory.uuid },
+	// 			['uuid', 'name', 'path', 'size', 'filesAmt', 'directoriesAmt', 'created', 'updated']
+	// 		);
 
-	public async content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
-		return await this.directoryRepository.transactional(async (connection) => {
-			console.log(directoryContentDto.path);
-			const directory = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, directoryContentDto.path);
+	// 		if (!response) {
+	// 			throw new ServerError(`directory at ${directoryMetadataDto.path} does not exist`, HttpStatus.NOT_FOUND);
+	// 		}
 
-			if (!directory) {
-				throw new ServerError(`directory at ${directoryContentDto.path} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 		return DirectoryMetadataResponse.from(response);
+	// 	});
+	// }
 
-			const content = await this.directoryRepository.getContentByUuid(connection, directory.uuid);
+	// public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
+	// 	return await this.directoryRepository.transactional(async (connection) => {
+	// 		const sourceDirectory = await this.directoryRepository.selectOne(connection, { path: directoryRenameDto.sourcePath }, ['uuid']);
 
-			if (!content) {
-				throw new ServerError(`directory at ${directoryContentDto.path} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 		if (!sourceDirectory) {
+	// 			throw new ServerError(`directory at ${directoryRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
+	// 		}
 
-			return DirectoryContentResponse.from(content.files, content.directories);
-		});
-	}
+	// 		const destinationParentPath = path.dirname(directoryRenameDto.destPath);
+	// 		const destinationParent = await this.directoryRepository.selectOne(
+	// 			connection,
+	// 			{ path: destinationParentPath, isRecycled: false },
+	// 			['uuid']
+	// 		);
 
-	public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
-		return await this.directoryRepository.transactional(async (connection) => {
-			const sourceDirectory = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, directoryRenameDto.sourcePath);
+	// 		if (!destinationParent) {
+	// 			throw new ServerError(`directory at ${destinationParentPath} does not exist`, HttpStatus.NOT_FOUND);
+	// 		}
 
-			if (!sourceDirectory) {
-				throw new ServerError(`directory at ${directoryRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 		const destinationName = path.basename(directoryRenameDto.destPath);
+	// 		const destinationDirectory = await this.directoryRepository.selectOne(
+	// 			connection,
+	// 			{ parent: destinationParent.uuid, name: destinationName, isRecycled: false },
+	// 			['uuid']
+	// 		);
 
-			const destinationParentPath = path.dirname(directoryRenameDto.destPath);
-			const destinationParent = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, destinationParentPath);
+	// 		if (destinationDirectory && !directoryRenameDto.overwrite) {
+	// 			throw new ServerError(`directory at ${directoryRenameDto.destPath} already exists`, HttpStatus.CONFLICT);
+	// 		}
 
-			if (!destinationParent) {
-				throw new ServerError(`directory at ${destinationParentPath} does not exist`, HttpStatus.NOT_FOUND);
-			}
+	// 		if (destinationDirectory && directoryRenameDto.overwrite) {
+	// 			await this.directoryRepository.hardDelete(connection, { uuid: destinationDirectory.uuid });
+	// 		}
 
-			const destinationName = path.basename(directoryRenameDto.destPath);
-			const destinationDirectory = await this.directoryRepository.getUuidByParentAndNameAndNotRecycled(
-				connection,
-				destinationParent.uuid,
-				destinationName
-			);
+	// 		await this.directoryRepository.update(
+	// 			connection,
+	// 			{ uuid: sourceDirectory.uuid },
+	// 			{ name: path.basename(directoryRenameDto.destPath) }
+	// 		);
 
-			if (destinationDirectory && !directoryRenameDto.overwrite) {
-				throw new ServerError(`directory at ${directoryRenameDto.destPath} already exists`, HttpStatus.CONFLICT);
-			}
+	// 		if (path.dirname(directoryRenameDto.sourcePath) !== path.dirname(directoryRenameDto.destPath)) {
+	// 			await this.directoryRepository.update(connection, { uuid: sourceDirectory.uuid }, { parent: destinationParent.uuid });
+	// 		}
 
-			if (destinationDirectory && directoryRenameDto.overwrite) {
-				await this.directoryRepository.hardDeleteByUuid(connection, destinationDirectory.uuid);
-			}
+	// 		return DirectoryRenameResponse.from(directoryRenameDto);
+	// 	});
+	// }
 
-			await this.directoryRepository.renameByUuid(connection, sourceDirectory.uuid, path.basename(directoryRenameDto.destPath));
+	// public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse> {
+	// 	return await this.directoryRepository.transactional(async (connection) => {
+	// 		const directory = await this.directoryRepository.selectOne(connection, { path: directoryDeleteDto.path, isRecycled: false }, [
+	// 			'uuid',
+	// 		]);
 
-			if (path.dirname(directoryRenameDto.sourcePath) !== path.dirname(directoryRenameDto.destPath)) {
-				await this.directoryRepository.updateParentByUuid(connection, sourceDirectory.uuid, destinationParent.uuid);
-			}
+	// 		if (!directory) {
+	// 			throw new ServerError(`directory at ${directoryDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
+	// 		}
 
-			return DirectoryRenameResponse.from(directoryRenameDto);
-		});
-	}
+	// 		await this.directoryRepository.softDelete(connection, { root: directory.uuid });
 
-	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse> {
-		return await this.directoryRepository.transactional(async (connection) => {
-			const directory = await this.directoryRepository.getUuidByPathAndNotRecycled(connection, directoryDeleteDto.path);
+	// 		return DirectoryDeleteResponse.from(directory.uuid);
+	// 	});
+	// }
 
-			if (!directory) {
-				throw new ServerError(`directory at ${directoryDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
-			}
-
-			await this.directoryRepository.softDeleteSubtreeByRootUuid(connection, directory.uuid);
-
-			return DirectoryDeleteResponse.from(directory.uuid);
-		});
-	}
+	// public async content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
+	// 	return 0 as any;
+	// }
 }

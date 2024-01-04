@@ -1,34 +1,36 @@
-import { PoolConnection } from 'mariadb';
-import { TransactionalConnection } from 'src/db/Connection';
-import { QueryBundle } from 'src/db/queries/File';
+// import { PoolConnection } from 'mariadb';
+// import { TransactionalConnection } from 'src/db/Connection';
+// import { QueryBundle } from 'src/db/queries/File';
 
-export class MariaDBConnection implements TransactionalConnection {
-	private readonly connection: PoolConnection;
+// export class MariaDBConnection implements TransactionalConnection {
+// 	private readonly connection: PoolConnection;
 
-	public constructor(connection: PoolConnection) {
-		this.connection = connection;
-	}
+// 	public constructor(connection: PoolConnection) {
+// 		this.connection = connection;
+// 	}
 
-	async executePreparedStatement(queryBundle: QueryBundle): Promise<any> {
-		return await this.connection.execute(
-			{ sql: queryBundle.query, namedPlaceholders: true, bigIntAsNumber: true, dateStrings: true },
-			queryBundle.params
-		);
-	}
+// 	async executePreparedStatement(queryBundle: QueryBundle): Promise<any> {
+// 		return await this.connection.execute(
+// 			{ sql: queryBundle.query, namedPlaceholders: true, bigIntAsNumber: true, dateStrings: true },
+// 			queryBundle.params
+// 		);
+// 	}
 
-	async release(): Promise<void> {
-		await this.connection.release();
-	}
+// 	async release(): Promise<void> {
+// 		await this.connection.release();
+// 	}
 
-	async startTransaction(): Promise<void> {
-		await this.connection.beginTransaction();
-	}
+// 	async startTransaction(): Promise<void> {
+// 		await this.connection.beginTransaction();
+// 	}
 
-	async commitTransaction(): Promise<void> {
-		await this.connection.commit();
-	}
+// 	async commitTransaction(): Promise<void> {
+// 		await this.connection.commit();
+// 	}
 
-	async rollbackTransaction(): Promise<void> {
-		await this.connection.rollback();
-	}
-}
+// 	async rollbackTransaction(): Promise<void> {
+// 		await this.connection.rollback();
+// 	}
+// }
+
+// //

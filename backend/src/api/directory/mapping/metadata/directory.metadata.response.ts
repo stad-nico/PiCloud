@@ -3,8 +3,8 @@ import { Directory } from 'src/db/entities/Directory';
 export type DirectoryMetadataResponseType = Pick<Directory, 'uuid' | 'name' | 'created' | 'updated'> & {
 	path: string;
 	size: number;
-	files: number;
-	directories: number;
+	filesAmt: number;
+	directoriesAmt: number;
 };
 
 export class DirectoryMetadataResponse {
@@ -50,8 +50,8 @@ export class DirectoryMetadataResponse {
 			obj.name,
 			obj.path,
 			obj.size,
-			obj.files,
-			obj.directories,
+			obj.filesAmt,
+			obj.directoriesAmt,
 			obj.created + '',
 			obj.updated + ''
 		);
