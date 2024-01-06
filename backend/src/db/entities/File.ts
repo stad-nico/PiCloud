@@ -9,9 +9,15 @@ export class File {
 	@Column({ type: 'varchar', nullable: false })
 	readonly name!: string;
 
-	@ManyToOne(() => Directory, { onUpdate: 'RESTRICT', onDelete: 'RESTRICT', nullable: true })
-	@JoinColumn({ name: 'parent', referencedColumnName: 'uuid' })
-	readonly parent!: Directory | null;
+	// @ManyToOne(() => Directory, { onUpdate: 'RESTRICT', onDelete: 'RESTRICT', nullable: true })
+	// @JoinColumn({ name: 'parent', referencedColumnName: 'uuid' })
+	// readonly parent!: Directory | null;
+
+	@ManyToOne(() => Directory, (directory) => directory.uuid, { onUpdate: 'RESTRICT', onDelete: 'RESTRICT', nullable: true })
+	@JoinColumn({ name: 'parent' })
+	private _parent!: never;
+
+	readonly parent!: string | null;
 
 	@Column({ type: 'varchar', nullable: false, default: 'application/octet-stream' })
 	readonly mimeType!: string;

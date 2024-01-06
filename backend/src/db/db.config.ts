@@ -1,19 +1,32 @@
+import { ConfigService } from '@nestjs/config';
+import { Environment } from 'src/env.config';
 import { DataSource, DataSourceOptions } from 'typeorm';
 
-export const databaseConfig: DataSourceOptions = {
-	// TypeORM PostgreSQL DB Drivers
-	type: 'mariadb',
-	host: 'localhost',
-	port: 3306,
-	username: 'root',
-	password: 'mariadbdev',
-	// Database name
-	database: 'test',
-	// Synchronize database schema with entities
-	synchronize: false,
-	entities: ['dist/db/entities/*.js'],
-	migrations: ['dist/db/migrations/*.js'],
-};
+function env(env: Environment, p: ConfigService | NodeJS.ProcessEnv) {
+	if (p instanceof ConfigService) {
+		return p.getOrThrow(env);
+	}
 
-const dataSource = new DataSource(databaseConfig);
+	return p[env];
+}
+
+export function databaseConfig(p: ConfigService | NodeJS.ProcessEnv = process.env): DataSourceOptions {
+	return {
+		type: 'mariadb',
+		host: env(Environment.DBHost, p),
+		port: env(Environment.DBPort, p),
+		username: env(Environment.DBUsername, p),
+		password: env(Environment.DBPassword, p),
+		database: env(Environment.DBName, p),
+		synchronize: true,
+		entities: ['dist/db/entities/*.js'],
+		migrations: ['dist/db/migrations/*.js'],
+		migrationsTransactionMode: 'each',
+		dateStrings: true,
+		supportBigNumbers: true,
+		bigNumberStrings: false,
+	};
+}
+
+const dataSource = new DataSource(databaseConfig());
 export default dataSource;

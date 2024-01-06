@@ -89,9 +89,7 @@ export class DirectoryController {
 		try {
 			const directoryMetadataDto = DirectoryMetadataDto.from(directoryMetadataParams);
 
-			// return await this.directoryService.metadata(directoryMetadataDto);
-
-			return 0 as any;
+			return await this.directoryService.metadata(directoryMetadataDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -110,8 +108,7 @@ export class DirectoryController {
 		try {
 			const directoryCreateDto = DirectoryCreateDto.from(directoryCreateParams);
 
-			// return await this.directoryService.create(directoryCreateDto);
-			return 0 as any;
+			return await this.directoryService.create(directoryCreateDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -152,8 +149,7 @@ export class DirectoryController {
 		try {
 			const directoryDeleteDto = DirectoryDeleteDto.from(directoryDeleteParams);
 
-			// return await this.directoryService.delete(directoryDeleteDto);
-			return 0 as any;
+			return await this.directoryService.delete(directoryDeleteDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);

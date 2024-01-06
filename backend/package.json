@@ -7,8 +7,8 @@
 	"license": "UNLICENSED",
 	"scripts": {
 		"typeorm": "ts-node-dev ./node_modules/typeorm/cli.js",
-		"migration:generate": "npm run build && npm run typeorm migration:generate -- -d src/db/db.config.ts",
-		"migration:run": "npm run build && npm run typeorm migration:run -- -d src/db/db.config.ts",
+		"migrations:generate": "npm run build && npm run typeorm migration:generate -- -d src/db/db.config.ts",
+		"migrations:run": "npm run build && npm run typeorm migration:run -- -d src/db/db.config.ts",
 		"build": "nest build",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
 		"start": "SET NODE_ENV=dev && nest start",

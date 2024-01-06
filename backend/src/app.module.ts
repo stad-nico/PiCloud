@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { DirectoryModule } from 'src/api/directory/directory.module';
@@ -17,7 +17,10 @@ export const AppModuleConfig = {
 			validate: validate,
 		}),
 
-		TypeOrmModule.forRoot(databaseConfig),
+		TypeOrmModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: async (configService: ConfigService) => databaseConfig(configService),
+		}),
 
 		DiskModule.forRootAsync(),
 

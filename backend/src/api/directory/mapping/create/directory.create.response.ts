@@ -1,5 +1,3 @@
-import { DirectoryCreateDto } from 'src/api/directory/mapping/create/directory.create.dto';
-
 export class DirectoryCreateResponse {
 	readonly path: string;
 
@@ -7,7 +5,7 @@ export class DirectoryCreateResponse {
 		this.path = path;
 	}
 
-	public static from(directoryCreateDto: DirectoryCreateDto): DirectoryCreateResponse {
-		return new DirectoryCreateResponse(directoryCreateDto.path);
+	public static from(path: string): DirectoryCreateResponse {
+		return new DirectoryCreateResponse(path);
 	}
 }
