@@ -1,13 +1,13 @@
 import { ConfigService } from '@nestjs/config';
-import { Environment } from 'src/env.config';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { Environment } from '../env.config';
 
 function env(env: Environment, p: ConfigService | NodeJS.ProcessEnv) {
 	if (p instanceof ConfigService) {
 		return p.getOrThrow(env);
 	}
-
-	return p[env];
+	console.log(env, p[env]);
+	return p[env] || 'ddd';
 }
 
 export function databaseConfig(p: ConfigService | NodeJS.ProcessEnv = process.env): DataSourceOptions {

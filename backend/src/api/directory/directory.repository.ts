@@ -5,26 +5,34 @@ import { Tree } from 'src/db/entities/Tree';
 import { EntityManager } from 'typeorm';
 
 type DirectoryGetMetadataDBResult = Omit<Directory, 'parent' | 'isRecycled'> & {
-	path: string;
 	size: number;
 	files: number;
 	directories: number;
 };
 
+type DirectoryGetContentDBResult = {
+	files: Array<Pick<File, 'name' | 'mimeType' | 'size' | 'created' | 'updated'>>;
+	directories: Array<Pick<Directory, 'name' | 'created' | 'updated'> & { size: number }>;
+};
+
 export interface IDirectoryRepository {
-	select(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<Directory | null>;
+	select(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<Pick<Directory, 'uuid'> | null>;
 	exists(entityManager: EntityManager, path: string): Promise<boolean>;
 	insert(entityManager: EntityManager, name: string, parent: string | null, isRecycled: boolean): Promise<void>;
 	softDelete(entityManager: EntityManager, root: string): Promise<void>;
-	getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null>;
+	getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult>;
 }
 
 @Injectable()
 export class DirectoryRepository implements IDirectoryRepository {
-	public async select(entityManager: EntityManager, path: string, isRecycled: boolean = false): Promise<Directory | null> {
+	public async select(
+		entityManager: EntityManager,
+		path: string,
+		isRecycled: boolean = false
+	): Promise<Pick<Directory, 'uuid' | 'name'> | null> {
 		return await entityManager
 			.createQueryBuilder()
-			.select('directories')
+			.select(['name', 'uuid'])
 			.from(Directory, 'directories')
 			.where('isRecycled = :isRecycled', { isRecycled: isRecycled ? '1' : '0' })
 			.andWhere('uuid = GET_DIRECTORY_UUID(:path)', { path: path })
@@ -66,50 +74,64 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.execute();
 	}
 
-	public async getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null> {
-		const size = await entityManager
-			.createQueryBuilder()
-			.select('CAST(SUM(size) AS UNSIGNED INT)', 'size')
-			.from(Tree, 'tree')
-			.innerJoin(File, 'files', 'files.uuid = tree.child')
-			.where('tree.parent = GET_DIRECTORY_UUID(:path) AND files.isRecycled = 0', { path: path });
-
-		const files = await entityManager
+	public async getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult> {
+		const files = entityManager
 			.createQueryBuilder()
 			.select('COUNT(*)', 'filesAmt')
 			.from(Tree, 'tree')
 			.innerJoin(File, 'files', 'files.uuid = tree.child')
 			.where('tree.parent = GET_DIRECTORY_UUID(:path) AND files.isRecycled = 0', { path: path });
 
-		const directories = await entityManager
+		const directories = entityManager
 			.createQueryBuilder()
 			.select('COUNT(*) - 1', 'directoriesAmt')
 			.from(Tree, 'tree')
 			.innerJoin(Directory, 'directories', 'directories.uuid = tree.child')
 			.where('tree.parent = GET_DIRECTORY_UUID(:path) AND directories.isRecycled = 0', { path: path });
 
-		return (
-			(await entityManager
-				.createQueryBuilder()
-				.select([
-					'uuid',
-					'name',
-					'size',
-					'filesAmt AS files',
-					'directoriesAmt AS directories',
-					'GET_DIRECTORY_PATH(uuid) AS path',
-					'created',
-					'updated',
-				])
-				.addCommonTableExpression(size, 'size')
-				.addCommonTableExpression(files, 'filesAmt')
-				.addCommonTableExpression(directories, 'directoriesAmt')
-				.from(Directory, 'directories')
-				.innerJoin('size', 'size')
-				.innerJoin('filesAmt', 'filesAmt')
-				.innerJoin('directoriesAmt', 'directoriesAmt')
-				.where('uuid = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
-				.getRawOne()) || null
-		);
+		const result = await entityManager
+			.createQueryBuilder()
+			.select([
+				'uuid',
+				'name',
+				'GET_DIRECTORY_SIZE(GET_DIRECTORY_PATH(uuid)) AS size',
+				'filesAmt AS files',
+				'directoriesAmt AS directories',
+				'created',
+				'updated',
+			])
+			.addCommonTableExpression(files, 'filesAmt')
+			.addCommonTableExpression(directories, 'directoriesAmt')
+			.from(Directory, 'directories')
+			.innerJoin('filesAmt', 'filesAmt')
+			.innerJoin('directoriesAmt', 'directoriesAmt')
+			.where('uuid = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
+			.getRawOne();
+
+		return result || null;
+	}
+
+	public async getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult> {
+		const files: Array<Pick<File, 'name' | 'mimeType' | 'size' | 'created' | 'updated'>> = await entityManager
+			.createQueryBuilder()
+			.select(['name', 'mimeType', 'size', 'created', 'updated'])
+			.from(File, 'files')
+			.where('parent = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
+			.getRawMany();
+
+		const directories: Array<Pick<Directory, 'name' | 'created' | 'updated'> & { size: number }> = await entityManager
+			.createQueryBuilder()
+			.select(['name', 'GET_DIRECTORY_SIZE(uuid) AS size', 'created', 'updated'])
+			.from(Directory, 'directories')
+			.where('parent = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
+			.getRawMany();
+
+		return { files: files, directories: directories };
+	}
+
+	public async getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<{ uuid: string; path: string }>> {
+		const files = await entityManager.createQueryBuilder().select();
+
+		return 0 as any;
 	}
 }

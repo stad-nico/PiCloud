@@ -1,5 +1,4 @@
 import { Directory } from 'src/db/entities/Directory';
-import { PathUtils } from 'src/util/PathUtils';
 
 export type DirectoryMetadataResponseType = Pick<Directory, 'uuid' | 'name' | 'created' | 'updated'> & {
 	path: string;
@@ -49,7 +48,7 @@ export class DirectoryMetadataResponse {
 		return new DirectoryMetadataResponse(
 			obj.uuid,
 			obj.name,
-			PathUtils.normalize(obj.path),
+			obj.path,
 			obj.size,
 			obj.files,
 			obj.directories,

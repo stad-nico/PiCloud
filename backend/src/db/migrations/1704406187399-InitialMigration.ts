@@ -93,7 +93,7 @@ const getDirectoryUuidFunc = `
 	CREATE OR REPLACE FUNCTION \`GET_DIRECTORY_UUID\`(\`path\` VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC
 	BEGIN
 		DECLARE nextPath VARCHAR(255) DEFAULT TRIM(LEADING "/" FROM path);
-		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath));
+		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath) AND directories.parent IS NULL);
 	
 		SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
 	
@@ -122,6 +122,17 @@ const getDirectoryPathFunc = `
 		END WHILE;
 
 		RETURN path;
+	END`;
+
+const getDirectorySizeFunc = `
+	CREATE OR REPLACE FUNCTION \`GET_DIRECTORY_SIZE\`(\`uuid\` VARCHAR(255)) RETURNS bigint(20) DETERMINISTIC
+	BEGIN
+		RETURN (
+			SELECT COALESCE(SUM(size),0) AS size
+			FROM tree
+			INNER JOIN files ON tree.child = files.uuid
+			WHERE tree.parent = uuid AND files.isRecycled = 0
+		);
 	END`;
 
 const directoriesAfterInsertTrigger = `
@@ -215,6 +226,7 @@ export class InitialMigration1704406187399 implements MigrationInterface {
 		await queryRunner.query(getDirectoryUuidFunc);
 		await queryRunner.query(getFilePathFunc);
 		await queryRunner.query(getFileUuidFunc);
+		await queryRunner.query(getDirectorySizeFunc);
 
 		await queryRunner.query(createDirectoriesTable);
 		await queryRunner.query(createFilesTable);
@@ -235,6 +247,7 @@ export class InitialMigration1704406187399 implements MigrationInterface {
 		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_DIRECTORY_UUID\``);
 		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_FILE_PATH\``);
 		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_FILE_UUID\``);
+		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_DIRECTORY_SIZE\``);
 
 		await queryRunner.query(`DROP TABLE \`files\``);
 		await queryRunner.query(`DROP TABLE \`directories\``);

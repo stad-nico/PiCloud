@@ -1,7 +1,8 @@
 import { Directory } from 'src/db/entities/Directory';
+import { File } from 'src/db/entities/File';
 
 export type DirectoryContentDirectoryType = Pick<Directory, 'name' | 'created' | 'updated'> & { size: number };
-export type DirectoryContentFileType = any; // Pick<File, 'name' | 'mimeType' | 'size' | 'created' | 'updated'>;
+export type DirectoryContentFileType = Pick<File, 'name' | 'mimeType' | 'size' | 'created' | 'updated'>;
 
 export type DirectoryContentResponseType = {
 	files: DirectoryContentFileType[];
@@ -18,7 +19,7 @@ export class DirectoryContentResponse {
 		this.directories = directories;
 	}
 
-	public static from(files: DirectoryContentFileType[], directories: DirectoryContentDirectoryType[]) {
-		return new DirectoryContentResponse(files, directories);
+	public static from(content: { files: DirectoryContentFileType[]; directories: DirectoryContentDirectoryType[] }) {
+		return new DirectoryContentResponse(content.files, content.directories);
 	}
 }

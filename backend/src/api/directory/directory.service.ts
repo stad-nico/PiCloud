@@ -1,14 +1,18 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
 import { DirectoryRepository } from 'src/api/directory/directory.repository';
+import { DirectoryContentResponse } from 'src/api/directory/mapping/content/directory.content.response';
 import { DirectoryCreateDto } from 'src/api/directory/mapping/create/directory.create.dto';
 import { DirectoryCreateResponse } from 'src/api/directory/mapping/create/directory.create.response';
 import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete/directory.delete.dto';
 import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete/directory.delete.response';
+import { DirectoryDownloadDto } from 'src/api/directory/mapping/download/directory.download.dto';
 import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata/directory.metadata.dto';
 import { DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata/directory.metadata.response';
 import { ServerError } from 'src/util/ServerError';
 import { DataSource } from 'typeorm';
+import { DirectoryContentDto } from './mapping/content/directory.content.dto';
 
 @Injectable()
 export class DirectoryService {
@@ -16,9 +20,12 @@ export class DirectoryService {
 
 	private readonly repository: DirectoryRepository;
 
-	public constructor(dataSource: DataSource, repository: DirectoryRepository) {
+	private readonly configService: ConfigService;
+
+	public constructor(dataSource: DataSource, repository: DirectoryRepository, configService: ConfigService) {
 		this.dataSource = dataSource;
 		this.repository = repository;
+		this.configService = configService;
 	}
 
 	public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
@@ -66,7 +73,36 @@ export class DirectoryService {
 				throw new ServerError(`directory at ${directoryMetadataDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			return DirectoryMetadataResponse.from(metadata);
+			return DirectoryMetadataResponse.from({ path: directoryMetadataDto.path, ...metadata });
+		});
+	}
+
+	public async content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
+		return await this.dataSource.transaction(async (entityManager) => {
+			if (!(await this.repository.exists(entityManager, directoryContentDto.path))) {
+				throw new ServerError(`directory at ${directoryContentDto.path} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			const content = await this.repository.getContent(entityManager, directoryContentDto.path);
+
+			return DirectoryContentResponse.from(content);
+		});
+	}
+
+	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDeleteResponse> {
+		return this.dataSource.transaction(async (entityManager) => {
+			const directory = await this.repository.select(entityManager, directoryDownloadDto.path);
+
+			if (!directory) {
+				throw new ServerError(`directory at ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			// const files = await
+
+			// const archive = await FileUtils.createZIPArchive(this.configService, );
+
+			// return DirectoryDownloadResponse.from(directory.name + ".zip", "application/zip", archive);
+			return 0 as any;
 		});
 	}
 
