@@ -8,12 +8,9 @@ export class DirectoryRenameDto {
 
 	readonly destPath: string;
 
-	readonly overwrite: boolean = false;
-
-	private constructor(sourcePath: string, destPath: string, overwrite: boolean = false) {
+	private constructor(sourcePath: string, destPath: string) {
 		this.sourcePath = sourcePath;
 		this.destPath = destPath;
-		this.overwrite = overwrite;
 	}
 
 	public static from(directoryRenameParams: DirectoryRenameParams, directoryRenameBody: DirectoryRenameBody): DirectoryRenameDto {

@@ -8,8 +8,15 @@ import { DirectoryCreateResponse } from 'src/api/directory/mapping/create/direct
 import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete/directory.delete.dto';
 import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete/directory.delete.response';
 import { DirectoryDownloadDto } from 'src/api/directory/mapping/download/directory.download.dto';
+import { DirectoryDownloadResponse } from 'src/api/directory/mapping/download/directory.download.response';
 import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata/directory.metadata.dto';
 import { DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata/directory.metadata.response';
+import { DirectoryRenameDto } from 'src/api/directory/mapping/rename/directory.rename.dto';
+import { DirectoryRenameResponse } from 'src/api/directory/mapping/rename/directory.rename.response';
+import { DirectoryRestoreDto } from 'src/api/directory/mapping/restore/directory.restore.dto';
+import { DirectoryRestoreResponse } from 'src/api/directory/mapping/restore/directory.restore.response';
+import { Directory } from 'src/db/entities/Directory';
+import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 import { DataSource } from 'typeorm';
 import { DirectoryContentDto } from './mapping/content/directory.content.dto';
@@ -89,7 +96,7 @@ export class DirectoryService {
 		});
 	}
 
-	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDeleteResponse> {
+	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
 		return this.dataSource.transaction(async (entityManager) => {
 			const directory = await this.repository.select(entityManager, directoryDownloadDto.path);
 
@@ -97,83 +104,49 @@ export class DirectoryService {
 				throw new ServerError(`directory at ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			// const files = await
+			const files = await this.repository.getFilesRelative(entityManager, directoryDownloadDto.path);
 
-			// const archive = await FileUtils.createZIPArchive(this.configService, );
+			const archive = await FileUtils.createZIPArchive(this.configService, files);
 
-			// return DirectoryDownloadResponse.from(directory.name + ".zip", "application/zip", archive);
-			return 0 as any;
+			return DirectoryDownloadResponse.from(directory.name + '.zip', 'application/zip', archive);
 		});
 	}
 
-	// public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
-	// 	const r = await this.directoryRepository.selectOne(connection, { parent: null, path: 'X' }, ['uuid', 'parent']);
+	public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
+		return await this.dataSource.transaction(async (entityManager) => {
+			if (await this.repository.exists(entityManager, directoryRenameDto.destPath)) {
+				throw new ServerError(`directory at ${directoryRenameDto.destPath} already exists`, HttpStatus.CONFLICT);
+			}
 
-	// 	return await this.directoryRepository.transactional(async (connection) => {
-	// 		const directory = await this.directoryRepository.selectOne(connection, { path: directoryDownloadDto.path, isRecycled: false }, [
-	// 			'uuid',
-	// 			'path',
-	// 			'name',
-	// 		]);
+			if (!(await this.repository.exists(entityManager, directoryRenameDto.sourcePath))) {
+				throw new ServerError(`directory at ${directoryRenameDto.sourcePath} does not exists`, HttpStatus.NOT_FOUND);
+			}
 
-	// 		if (!directory) {
-	// 			throw new ServerError(`directory at ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
-	// 		}
+			const destParentPath = path.dirname(directoryRenameDto.destPath);
 
-	// 		let contents = await this.fileRepository.selectAllRecursive(connection, { parent: directory.uuid }, ['uuid', 'path']);
-	// 		contents = contents.map((x) => ({ uuid: x.uuid, path: x.path.replace(directory.path, '') }));
+			const destinationParent = await this.repository.select(entityManager, destParentPath);
 
-	// 		const archive = await FileUtils.createZIPArchive(this.configService, contents);
+			if (!destinationParent) {
+				throw new ServerError(`directory at ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
+			}
 
-	// 		return DirectoryDownloadResponse.from(directory.name + '.zip', 'application/zip', archive);
-	// 	});
-	// }
+			const destinationName = path.basename(directoryRenameDto.destPath);
 
-	// public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
-	// 	return await this.directoryRepository.transactional(async (connection) => {
-	// 		const sourceDirectory = await this.directoryRepository.selectOne(connection, { path: directoryRenameDto.sourcePath }, ['uuid']);
+			let updateOptions: Partial<Directory> = { name: destinationName };
 
-	// 		if (!sourceDirectory) {
-	// 			throw new ServerError(`directory at ${directoryRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
-	// 		}
+			if (path.dirname(directoryRenameDto.sourcePath) !== path.dirname(directoryRenameDto.destPath)) {
+				updateOptions = { ...updateOptions, parent: destinationParent.uuid };
+			}
 
-	// 		const destinationParentPath = path.dirname(directoryRenameDto.destPath);
-	// 		const destinationParent = await this.directoryRepository.selectOne(
-	// 			connection,
-	// 			{ path: destinationParentPath, isRecycled: false },
-	// 			['uuid']
-	// 		);
+			await this.repository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
 
-	// 		if (!destinationParent) {
-	// 			throw new ServerError(`directory at ${destinationParentPath} does not exist`, HttpStatus.NOT_FOUND);
-	// 		}
+			return DirectoryRenameResponse.from(directoryRenameDto);
+		});
+	}
 
-	// 		const destinationName = path.basename(directoryRenameDto.destPath);
-	// 		const destinationDirectory = await this.directoryRepository.selectOne(
-	// 			connection,
-	// 			{ parent: destinationParent.uuid, name: destinationName, isRecycled: false },
-	// 			['uuid']
-	// 		);
-
-	// 		if (destinationDirectory && !directoryRenameDto.overwrite) {
-	// 			throw new ServerError(`directory at ${directoryRenameDto.destPath} already exists`, HttpStatus.CONFLICT);
-	// 		}
-
-	// 		if (destinationDirectory && directoryRenameDto.overwrite) {
-	// 			await this.directoryRepository.hardDelete(connection, { uuid: destinationDirectory.uuid });
-	// 		}
-
-	// 		await this.directoryRepository.update(
-	// 			connection,
-	// 			{ uuid: sourceDirectory.uuid },
-	// 			{ name: path.basename(directoryRenameDto.destPath) }
-	// 		);
-
-	// 		if (path.dirname(directoryRenameDto.sourcePath) !== path.dirname(directoryRenameDto.destPath)) {
-	// 			await this.directoryRepository.update(connection, { uuid: sourceDirectory.uuid }, { parent: destinationParent.uuid });
-	// 		}
-
-	// 		return DirectoryRenameResponse.from(directoryRenameDto);
-	// 	});
-	// }
+	public async restore(directoryRestoreDto: DirectoryRestoreDto): Promise<DirectoryRestoreResponse> {
+		return await this.dataSource.transaction(async (entityManager) => {
+			return DirectoryRestoreResponse.from('');
+		});
+	}
 }

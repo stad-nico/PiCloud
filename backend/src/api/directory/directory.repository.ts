@@ -130,8 +130,23 @@ export class DirectoryRepository implements IDirectoryRepository {
 	}
 
 	public async getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<{ uuid: string; path: string }>> {
-		const files = await entityManager.createQueryBuilder().select();
+		const files: Array<{ uuid: string; path?: string }> = await entityManager
+			.createQueryBuilder()
+			.select(['uuid', 'GET_FILE_PATH(uuid) AS path'])
+			.from(File, 'files')
+			.innerJoin(Tree, 'tree', 'files.uuid = tree.child')
+			.where('tree.parent = GET_DIRECTORY_UUID(:path) AND files.isRecycled = 0')
+			.getMany();
 
-		return 0 as any;
+		return files.filter((file) => file.path !== undefined).map((file) => ({ uuid: file.uuid, path: file.path!.replace(path, '') }));
+	}
+
+	public async update(entityManager: EntityManager, path: string, partial: Partial<Directory>): Promise<void> {
+		await entityManager
+			.createQueryBuilder()
+			.update(Directory)
+			.set(partial)
+			.where(`uuid = GET_DIRECTORY_UUID(:path)`, { path: path })
+			.execute();
 	}
 }
