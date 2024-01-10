@@ -4,7 +4,7 @@ import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 
 import { ConfigService } from '@nestjs/config';
-import { StoragePath } from 'src/disk/disk.service';
+import { StoragePath } from 'src/disk/DiskService';
 import { PathUtils } from 'src/util/PathUtils';
 
 export class FileUtils {

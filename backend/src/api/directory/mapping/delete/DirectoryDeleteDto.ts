@@ -1,4 +1,4 @@
-import { DirectoryDeleteParams } from 'src/api/directory/mapping/delete/directory.delete.params';
+import { DirectoryDeleteParams } from 'src/api/directory/mapping/delete/DirectoryDeleteParams';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
 

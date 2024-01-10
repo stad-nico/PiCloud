@@ -1,25 +1,21 @@
+import * as path from 'path';
+import { DataSource } from 'typeorm';
+
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as path from 'path';
-import { DirectoryRepository, IDirectoryRepository } from 'src/api/directory/directory.repository';
-import { DirectoryContentResponse } from 'src/api/directory/mapping/content/directory.content.response';
-import { DirectoryCreateDto } from 'src/api/directory/mapping/create/directory.create.dto';
-import { DirectoryCreateResponse } from 'src/api/directory/mapping/create/directory.create.response';
-import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete/directory.delete.dto';
-import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete/directory.delete.response';
-import { DirectoryDownloadDto } from 'src/api/directory/mapping/download/directory.download.dto';
-import { DirectoryDownloadResponse } from 'src/api/directory/mapping/download/directory.download.response';
-import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata/directory.metadata.dto';
-import { DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata/directory.metadata.response';
-import { DirectoryRenameDto } from 'src/api/directory/mapping/rename/directory.rename.dto';
-import { DirectoryRenameResponse } from 'src/api/directory/mapping/rename/directory.rename.response';
-import { DirectoryRestoreDto } from 'src/api/directory/mapping/restore/directory.restore.dto';
-import { DirectoryRestoreResponse } from 'src/api/directory/mapping/restore/directory.restore.response';
+
+import { DirectoryRepository } from 'src/api/directory/DirectoryRepository';
+import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
+import { DirectoryContentDto, DirectoryContentResponse } from 'src/api/directory/mapping/content';
+import { DirectoryCreateDto, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
+import { DirectoryDeleteDto, DirectoryDeleteResponse } from 'src/api/directory/mapping/delete';
+import { DirectoryDownloadDto, DirectoryDownloadResponse } from 'src/api/directory/mapping/download';
+import { DirectoryMetadataDto, DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata';
+import { DirectoryRenameDto, DirectoryRenameResponse } from 'src/api/directory/mapping/rename';
+import { DirectoryRestoreDto, DirectoryRestoreResponse } from 'src/api/directory/mapping/restore';
 import { Directory } from 'src/db/entities/Directory';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
-import { DataSource } from 'typeorm';
-import { DirectoryContentDto } from './mapping/content/directory.content.dto';
 
 @Injectable()
 export class DirectoryService {

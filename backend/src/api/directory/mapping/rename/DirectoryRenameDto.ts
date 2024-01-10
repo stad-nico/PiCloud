@@ -1,5 +1,5 @@
-import { DirectoryRenameBody } from 'src/api/directory/mapping/rename/directory.rename.body';
-import { DirectoryRenameParams } from 'src/api/directory/mapping/rename/directory.rename.params';
+import { DirectoryRenameBody } from 'src/api/directory/mapping/rename/DirectoryRenameBody';
+import { DirectoryRenameParams } from 'src/api/directory/mapping/rename/DirectoryRenameParams';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
 

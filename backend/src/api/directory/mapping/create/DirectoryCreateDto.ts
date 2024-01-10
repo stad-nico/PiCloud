@@ -1,4 +1,4 @@
-import { DirectoryCreateParams } from 'src/api/directory/mapping/create/directory.create.params';
+import { DirectoryCreateParams } from 'src/api/directory/mapping/create/DirectoryCreateParams';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
 

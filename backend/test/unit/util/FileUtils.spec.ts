@@ -5,7 +5,7 @@ import { FileUtils } from 'src/util/FileUtils';
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { Environment } from 'src/env.config';
+import { Environment } from 'src/EnvConfig';
 
 jest.mock('fs/promises', () => ({
 	access: jest.fn(),

@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { Environment } from '../env.config';
+import { Environment } from '../EnvConfig';
 
 function env(env: Environment, p: ConfigService | NodeJS.ProcessEnv) {
 	if (p instanceof ConfigService) {

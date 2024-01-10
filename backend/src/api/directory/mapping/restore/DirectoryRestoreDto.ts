@@ -1,4 +1,4 @@
-import { DirectoryRestoreParams } from 'src/api/directory/mapping/restore/directory.restore.params';
+import { DirectoryRestoreParams } from 'src/api/directory/mapping/restore/DirectoryRestoreParams';
 import { ValidationError } from 'src/util/ValidationError';
 import { validate } from 'uuid';
 

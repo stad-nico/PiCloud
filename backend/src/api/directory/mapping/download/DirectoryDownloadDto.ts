@@ -1,6 +1,6 @@
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
-import { DirectoryDownloadParams } from './directory.download.params';
+import { DirectoryDownloadParams } from './DirectoryDownloadParams';
 
 export class DirectoryDownloadDto {
 	readonly path: string;

@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { DirectoryModule } from 'src/api/directory/directory.module';
-import { DiskModule } from 'src/disk/disk.module';
-import { validate } from 'src/env.config';
+import { DirectoryModule } from 'src/api/directory/DirectoryModule';
+import { DiskModule } from 'src/disk/DiskModule';
+import { validate } from 'src/EnvConfig';
 
-import { databaseConfig } from 'src/db/db.config';
+import { databaseConfig } from 'src/db/DbConfig';
 
 export const AppModuleConfig = {
 	imports: [

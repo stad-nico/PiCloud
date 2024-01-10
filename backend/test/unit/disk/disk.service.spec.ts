@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { DiskService } from 'src/disk/disk.service';
+import { DiskService } from 'src/disk/DiskService';
 
 describe('DiskService', () => {
 	let service: DiskService;

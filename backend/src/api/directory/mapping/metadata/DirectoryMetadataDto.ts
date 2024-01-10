@@ -1,4 +1,4 @@
-import { DirectoryMetadataParams } from './directory.metadata.params';
+import { DirectoryMetadataParams } from './DirectoryMetadataParams';
 
 export class DirectoryMetadataDto {
 	readonly path: string;

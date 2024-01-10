@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { EnvVariables, NodeEnv, validate } from 'src/env.config';
+import { EnvVariables, NodeEnv, validate } from 'src/EnvConfig';
 
 describe('env.config.ts', () => {
 	describe('validate', () => {

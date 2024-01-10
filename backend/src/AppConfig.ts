@@ -4,7 +4,7 @@ import { ValidationError } from 'class-validator';
 
 import { HttpExceptionFilter } from 'src/api/HttpExceptionFilter';
 import { TestValidationPipe } from 'src/api/TestValidationPipe';
-import { Environment, NodeEnv } from 'src/env.config';
+import { Environment, NodeEnv } from 'src/EnvConfig';
 import { Logger } from 'src/logging/Logger';
 
 export function configureApplication(application: INestApplication) {

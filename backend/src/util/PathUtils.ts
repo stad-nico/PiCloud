@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 
-import { StoragePath } from 'src/disk/disk.service';
-import { Environment } from 'src/env.config';
+import { StoragePath } from 'src/disk/DiskService';
+import { Environment } from 'src/EnvConfig';
 
 /**
  * Utility class for path operations

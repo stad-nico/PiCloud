@@ -1,4 +1,4 @@
-import { DirectoryContentParams } from 'src/api/directory/mapping/content/directory.content.params';
+import { DirectoryContentParams } from 'src/api/directory/mapping/content/DirectoryContentParams';
 
 export class DirectoryContentDto {
 	readonly path: string;

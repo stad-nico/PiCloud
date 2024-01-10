@@ -1,4 +1,4 @@
-import { DirectoryRenameDto } from 'src/api/directory/mapping/rename/directory.rename.dto';
+import { DirectoryRenameDto } from 'src/api/directory/mapping/rename/DirectoryRenameDto';
 
 export class DirectoryRenameResponse {
 	readonly path: string;

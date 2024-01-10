@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { statfs } from 'fs/promises';
 import * as path from 'path';
 
-import { Environment, NodeEnv } from 'src/env.config';
+import { Environment, NodeEnv } from 'src/EnvConfig';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 

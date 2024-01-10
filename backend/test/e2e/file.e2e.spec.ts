@@ -4,9 +4,9 @@ import { Test } from '@nestjs/testing';
 import { DataSource, QueryRunner } from 'typeorm';
 
 import { File } from 'src/api/file/entities/file.entity';
-import { configureApplication } from 'src/app.config';
-import { AppModuleConfig } from 'src/app.module';
-import { Environment } from 'src/env.config';
+import { configureApplication } from 'src/AppConfig';
+import { AppModuleConfig } from 'src/AppModule';
+import { Environment } from 'src/EnvConfig';
 import { FileUtils } from 'src/util/FileUtils';
 
 import * as request from 'supertest';
