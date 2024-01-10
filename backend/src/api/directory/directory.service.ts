@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
 import { DirectoryRepository, IDirectoryRepository } from 'src/api/directory/directory.repository';
@@ -29,12 +29,24 @@ export class DirectoryService {
 
 	private readonly configService: ConfigService;
 
-	public constructor(dataSource: DataSource, repository: DirectoryRepository, configService: ConfigService) {
+	public constructor(
+		@Inject(IDirectoryRepository) repository: DirectoryRepository,
+		dataSource: DataSource,
+		configService: ConfigService
+	) {
 		this.dataSource = dataSource;
 		this.repository = repository;
 		this.configService = configService;
 	}
 
+	/**
+	 * Create a directory or fail if it already exists or destination parent does not exist.
+	 * @async
+	 *
+	 * @param {DirectoryCreateDto} directoryCreateDto the dto for creating a new directory
+	 *
+	 * @returns {Promise<DirectoryCreateResponse>} the response
+	 */
 	public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
 			if (await this.repository.exists(entityManager, directoryCreateDto.path)) {
@@ -58,6 +70,14 @@ export class DirectoryService {
 		});
 	}
 
+	/**
+	 * Soft delete a directory or fail if it does not exist.
+	 * @async
+	 *
+	 * @param {DirectoryDeleteDto} directoryDeleteDto the dto for soft deleting a directory
+	 *
+	 * @returns {Promise<DirectoryDeleteResponse>} the response
+	 */
 	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
 			const directory = await this.repository.selectByPath(entityManager, directoryDeleteDto.path, false);
@@ -72,6 +92,14 @@ export class DirectoryService {
 		});
 	}
 
+	/**
+	 * Get the metadata of a directory.
+	 * @async
+	 *
+	 * @param {DirectoryMetadataDto} directoryMetadataDto the dto for getting the metadata of a directory
+	 *
+	 * @returns {Promise<DirectoryMetadataResponse>} the response
+	 */
 	public async metadata(directoryMetadataDto: DirectoryMetadataDto): Promise<DirectoryMetadataResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
 			const metadata = await this.repository.getMetadata(entityManager, directoryMetadataDto.path);
@@ -84,6 +112,14 @@ export class DirectoryService {
 		});
 	}
 
+	/**
+	 * Get the first level subdirectories and files of a directory.
+	 * @async
+	 *
+	 * @param {DirectoryContentDto} directoryContentDto the dto for getting the contents of a directory
+	 *
+	 * @returns {Promise<DirectoryContentResponse>} the response
+	 */
 	public async content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
 			if (!(await this.repository.exists(entityManager, directoryContentDto.path))) {
@@ -96,6 +132,14 @@ export class DirectoryService {
 		});
 	}
 
+	/**
+	 * Download a directory.
+	 * @async
+	 *
+	 * @param {DirectoryDownloadDto} directoryDownloadDto the dto for downloading a directory
+	 *
+	 * @returns {Promise<DirectoryDownloadResponse>} the response
+	 */
 	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
 		return this.dataSource.transaction(async (entityManager) => {
 			const directory = await this.repository.selectByPath(entityManager, directoryDownloadDto.path);
@@ -112,6 +156,14 @@ export class DirectoryService {
 		});
 	}
 
+	/**
+	 * Rename or move a directory.
+	 * @async
+	 *
+	 * @param {DirectoryRenameDto} directoryRenameDto the dto for renaming a directory
+	 *
+	 * @returns {Promise<DirectoryRenameResponse>} the response
+	 */
 	public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
 			if (await this.repository.exists(entityManager, directoryRenameDto.destPath)) {
@@ -144,6 +196,14 @@ export class DirectoryService {
 		});
 	}
 
+	/**
+	 * Restore a deleted directory.
+	 * @async
+	 *
+	 * @param {DirectoryRestoreDto} directoryRestoreDto the dto for restoring a directory
+	 *
+	 * @returns {Promise<DirectoryRestoreResponse>} the response
+	 */
 	public async restore(directoryRestoreDto: DirectoryRestoreDto): Promise<DirectoryRestoreResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
 			const directoryToRestore = await this.repository.selectByUuid(entityManager, directoryRestoreDto.uuid, true);

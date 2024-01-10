@@ -31,9 +31,6 @@ export class EnvVariables {
 
 	@IsString()
 	DB_PASSWORD!: string;
-
-	@IsNumber()
-	DB_CONNECTION_RETRIES!: number;
 }
 
 export enum Environment {
@@ -45,7 +42,6 @@ export enum Environment {
 	DBName = 'DB_NAME',
 	DBPassword = 'DB_PASSWORD',
 	DBUsername = 'DB_USERNAME',
-	DBConnectionRetries = 'DB_CONNECTION_RETRIES',
 }
 
 export function validate(config: Record<string, unknown>) {
