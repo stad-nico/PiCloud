@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
-import { DirectoryRepository } from 'src/api/directory/directory.repository';
+import { DirectoryRepository, IDirectoryRepository } from 'src/api/directory/directory.repository';
 import { DirectoryContentResponse } from 'src/api/directory/mapping/content/directory.content.response';
 import { DirectoryCreateDto } from 'src/api/directory/mapping/create/directory.create.dto';
 import { DirectoryCreateResponse } from 'src/api/directory/mapping/create/directory.create.response';
@@ -25,7 +25,7 @@ import { DirectoryContentDto } from './mapping/content/directory.content.dto';
 export class DirectoryService {
 	private readonly dataSource: DataSource;
 
-	private readonly repository: DirectoryRepository;
+	private readonly repository: IDirectoryRepository;
 
 	private readonly configService: ConfigService;
 
@@ -44,7 +44,7 @@ export class DirectoryService {
 			const parentPath = path.dirname(directoryCreateDto.path);
 			const hasRootAsParent = path.relative('.', parentPath) === '';
 
-			const parent = await this.repository.select(entityManager, parentPath, false);
+			const parent = await this.repository.selectByPath(entityManager, parentPath, false);
 
 			if (!parent && !hasRootAsParent) {
 				throw new ServerError(`directory at ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
@@ -60,7 +60,7 @@ export class DirectoryService {
 
 	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
-			const directory = await this.repository.select(entityManager, directoryDeleteDto.path, false);
+			const directory = await this.repository.selectByPath(entityManager, directoryDeleteDto.path, false);
 
 			if (!directory) {
 				throw new ServerError(`directory at ${directoryDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -98,7 +98,7 @@ export class DirectoryService {
 
 	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
 		return this.dataSource.transaction(async (entityManager) => {
-			const directory = await this.repository.select(entityManager, directoryDownloadDto.path);
+			const directory = await this.repository.selectByPath(entityManager, directoryDownloadDto.path);
 
 			if (!directory) {
 				throw new ServerError(`directory at ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -124,7 +124,7 @@ export class DirectoryService {
 
 			const destParentPath = path.dirname(directoryRenameDto.destPath);
 
-			const destinationParent = await this.repository.select(entityManager, destParentPath);
+			const destinationParent = await this.repository.selectByPath(entityManager, destParentPath);
 
 			if (!destinationParent) {
 				throw new ServerError(`directory at ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
@@ -146,7 +146,19 @@ export class DirectoryService {
 
 	public async restore(directoryRestoreDto: DirectoryRestoreDto): Promise<DirectoryRestoreResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
-			return DirectoryRestoreResponse.from('');
+			const directoryToRestore = await this.repository.selectByUuid(entityManager, directoryRestoreDto.uuid, true);
+
+			if (!directoryToRestore) {
+				throw new ServerError(`directory with uuid ${directoryRestoreDto.uuid} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			if (await this.repository.exists(entityManager, directoryToRestore.path, false)) {
+				throw new ServerError(`directory at ${directoryToRestore.path} already exists`, HttpStatus.CONFLICT);
+			}
+
+			await this.repository.restore(entityManager, directoryRestoreDto.uuid);
+
+			return DirectoryRestoreResponse.from(directoryToRestore.path);
 		});
 	}
 }

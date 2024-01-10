@@ -16,16 +16,21 @@ type DirectoryGetContentDBResult = {
 };
 
 export interface IDirectoryRepository {
-	select(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<Pick<Directory, 'uuid'> | null>;
-	exists(entityManager: EntityManager, path: string): Promise<boolean>;
-	insert(entityManager: EntityManager, name: string, parent: string | null, isRecycled: boolean): Promise<void>;
+	selectByPath(entityManager: EntityManager, path: string, isRecycled?: boolean): Promise<{ uuid: string; name: string } | null>;
+	selectByUuid(entityManager: EntityManager, uuid: string, isRecycled?: boolean): Promise<{ name: string; path: string } | null>;
+	exists(entityManager: EntityManager, path: string, isRecycled?: boolean): Promise<boolean>;
+	insert(entityManager: EntityManager, name: string, parent?: string | null, isRecycled?: boolean): Promise<void>;
 	softDelete(entityManager: EntityManager, root: string): Promise<void>;
 	getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult>;
+	getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult>;
+	getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<{ uuid: string; path: string }>>;
+	update(entityManager: EntityManager, path: string, partial: Partial<Directory>): Promise<void>;
+	restore(entityManager: EntityManager, root: string): Promise<void>;
 }
 
 @Injectable()
 export class DirectoryRepository implements IDirectoryRepository {
-	public async select(
+	public async selectByPath(
 		entityManager: EntityManager,
 		path: string,
 		isRecycled: boolean = false
@@ -34,17 +39,38 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.createQueryBuilder()
 			.select(['name', 'uuid'])
 			.from(Directory, 'directories')
-			.where('isRecycled = :isRecycled', { isRecycled: isRecycled ? '1' : '0' })
+			.where('isRecycled = :isRecycled', { isRecycled: isRecycled })
 			.andWhere('uuid = GET_DIRECTORY_UUID(:path)', { path: path })
 			.getOne();
 	}
 
-	public async exists(entityManager: EntityManager, path: string): Promise<boolean> {
+	public async selectByUuid(
+		entityManager: EntityManager,
+		uuid: string,
+		isRecycled: boolean = false
+	): Promise<{ name: string; path: string } | null> {
+		const result: { name: string; path?: string } | null = await entityManager
+			.createQueryBuilder()
+			.select(['name', 'GET_DIRECTORY_PATH(uuid)'])
+			.from(Directory, 'directories')
+			.where('isRecycled = :isRecycled', { isRecycled: isRecycled })
+			.andWhere('uuid = :uuid', { uuid: uuid })
+			.getOne();
+
+		if (!result?.path) {
+			return null;
+		}
+
+		return result as { name: string; path: string };
+	}
+
+	public async exists(entityManager: EntityManager, path: string, isRecycled: boolean = false): Promise<boolean> {
 		return await entityManager
 			.createQueryBuilder()
 			.select()
 			.from(Directory, 'directories')
 			.where('uuid = GET_DIRECTORY_UUID(:path)', { path: path })
+			.andWhere('isRecycled = :isRecycled', { isRecycled: isRecycled })
 			.getExists();
 	}
 
@@ -147,6 +173,23 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.update(Directory)
 			.set(partial)
 			.where(`uuid = GET_DIRECTORY_UUID(:path)`, { path: path })
+			.execute();
+	}
+
+	public async restore(entityManager: EntityManager, root: string): Promise<void> {
+		const descendants = entityManager
+			.createQueryBuilder()
+			.select('child')
+			.from(Tree, 'tree')
+			.innerJoin(Directory, 'directories', 'directories.uuid = tree.child')
+			.where('tree.parent = :root', { root: root });
+
+		await entityManager
+			.createQueryBuilder()
+			.update(Directory)
+			.set({ isRecycled: false })
+			.where(`uuid IN (${descendants.getQuery()})`)
+			.setParameters(descendants.getParameters())
 			.execute();
 	}
 }
