@@ -2,7 +2,7 @@ import { HttpStatus, StreamableFile } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { FileController } from 'src/api/file/file.controller';
-import { FileService } from 'src/api/file/file.service';
+import { FileService } from 'src/api/file/FileService';
 import { ServerError } from 'src/util/ServerError';
 import { mockedFilesService } from 'test/mocks/mockedFilesService.spec';
 

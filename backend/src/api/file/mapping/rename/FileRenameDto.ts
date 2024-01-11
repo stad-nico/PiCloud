@@ -1,4 +1,6 @@
 import { FileRenameBody, FileRenameParams } from 'src/api/file/mapping/rename';
+import { PathUtils } from 'src/util/PathUtils';
+import { ValidationError } from 'src/util/ValidationError';
 
 /**
  * Used for mapping the http rename request parameters to a dto object for transferring to the `FileService`
@@ -28,6 +30,18 @@ export class FileRenameDto {
 	 * @returns {FileRenameDto} A new `FileRenameDto` instance
 	 */
 	public static from(fileRenameParams: FileRenameParams, fileRenameBody: FileRenameBody): FileRenameDto {
-		return new FileRenameDto(fileRenameParams.path, fileRenameBody.newPath);
+		const normalizedSourcePath = PathUtils.normalize(fileRenameParams.path);
+
+		if (!PathUtils.isValidFilePath(normalizedSourcePath)) {
+			throw new ValidationError(`path ${fileRenameParams.path} is not a valid file path`);
+		}
+
+		const normalizedDestPath = PathUtils.normalize(fileRenameBody.newPath);
+
+		if (!PathUtils.isValidFilePath(normalizedDestPath)) {
+			throw new ValidationError(`path ${fileRenameBody.newPath} is not a valid file path`);
+		}
+
+		return new FileRenameDto(normalizedDestPath, normalizedSourcePath);
 	}
 }

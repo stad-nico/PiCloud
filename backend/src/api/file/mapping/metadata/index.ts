@@ -1,5 +1,5 @@
-import { FileMetadataDto } from './file.metadata.dto';
-import { FileMetadataParams } from './file.metadata.params';
-import { FileMetadataResponse } from './file.metadata.response';
+import { FileMetadataDto } from './FileMetadataDto';
+import { FileMetadataParams } from './FileMetadataParams';
+import { FileMetadataResponse } from './FileMetadataResponse';
 
 export { FileMetadataDto, FileMetadataParams, FileMetadataResponse };

@@ -1,6 +1,5 @@
-import { FileRestoreDto } from './file.restore.dto';
-import { FileRestoreParams } from './file.restore.params';
-import { FileRestoreQueryParams } from './file.restore.query';
-import { FileRestoreResponse } from './file.restore.response';
+import { FileRestoreDto } from './FileRestoreDto';
+import { FileRestoreParams } from './FileRestoreParams';
+import { FileRestoreResponse } from './FileRestoreResponse';
 
-export { FileRestoreDto, FileRestoreParams, FileRestoreQueryParams, FileRestoreResponse };
+export { FileRestoreDto, FileRestoreParams, FileRestoreResponse };

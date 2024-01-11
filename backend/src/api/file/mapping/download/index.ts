@@ -1,5 +1,5 @@
-import { FileDownloadDto } from './file.download.dto';
-import { FileDownloadParams } from './file.download.params';
-import { FileDownloadResponse } from './file.download.response';
+import { FileDownloadDto } from './FileDownloadDto';
+import { FileDownloadParams } from './FileDownloadParams';
+import { FileDownloadResponse } from './FileDownloadResponse';
 
 export { FileDownloadDto, FileDownloadParams, FileDownloadResponse };

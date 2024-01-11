@@ -170,21 +170,24 @@ export class DirectoryService {
 				throw new ServerError(`directory at ${directoryRenameDto.sourcePath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
-			const destParentPath = path.dirname(directoryRenameDto.destPath);
+			const destinationName = path.basename(directoryRenameDto.destPath);
 
+			let updateOptions: Partial<Directory> = { name: destinationName };
+
+			if (path.dirname(directoryRenameDto.sourcePath) === path.dirname(directoryRenameDto.destPath)) {
+				await this.repository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
+
+				return DirectoryRenameResponse.from(directoryRenameDto);
+			}
+
+			const destParentPath = path.dirname(directoryRenameDto.destPath);
 			const destinationParent = await this.repository.selectByPath(entityManager, destParentPath);
 
 			if (!destinationParent) {
 				throw new ServerError(`directory at ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
-			const destinationName = path.basename(directoryRenameDto.destPath);
-
-			let updateOptions: Partial<Directory> = { name: destinationName };
-
-			if (path.dirname(directoryRenameDto.sourcePath) !== path.dirname(directoryRenameDto.destPath)) {
-				updateOptions = { ...updateOptions, parent: destinationParent.uuid };
-			}
+			updateOptions = { ...updateOptions, parent: destinationParent.uuid };
 
 			await this.repository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
 

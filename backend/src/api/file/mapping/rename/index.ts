@@ -1,7 +1,6 @@
-import { FileRenameBody } from './file.rename.body';
-import { FileRenameDto } from './file.rename.dto';
-import { FileRenameParams } from './file.rename.params';
-import { FileRenameQueryParams } from './file.rename.query';
-import { FileRenameResponse } from './file.rename.response';
+import { FileRenameBody } from './FileRenameBody';
+import { FileRenameDto } from './FileRenameDto';
+import { FileRenameParams } from './FileRenameParams';
+import { FileRenameResponse } from './FileRenameResponse';
 
-export { FileRenameBody, FileRenameDto, FileRenameParams, FileRenameQueryParams, FileRenameResponse };
+export { FileRenameBody, FileRenameDto, FileRenameParams, FileRenameResponse };

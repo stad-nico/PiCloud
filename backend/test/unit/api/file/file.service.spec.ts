@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
 
-import { FileService } from 'src/api/file/file.service';
+import { FileService } from 'src/api/file/FileService';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 import { mockedDataSource } from 'test/mocks/mockedDataSource.spec';

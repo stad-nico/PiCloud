@@ -114,4 +114,8 @@ export class PathUtils {
 	public static isValidDirectoryPath(path: string): boolean {
 		return PathUtils.ValidDirectoryPathRegExp.test(path);
 	}
+
+	public static isValidFilePath(path: string): boolean {
+		return true;
+	}
 }

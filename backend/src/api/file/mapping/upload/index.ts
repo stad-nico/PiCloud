@@ -1,6 +1,5 @@
-import { FileUploadDto } from './file.upload.dto';
-import { FileUploadParams } from './file.upload.params';
-import { FileUploadQueryParams } from './file.upload.query';
-import { FileUploadResponse } from './file.upload.response';
+import { FileUploadDto } from './FileUploadDto';
+import { FileUploadParams } from './FileUploadParams';
+import { FileUploadResponse } from './FileUploadResponse';
 
-export { FileUploadDto, FileUploadParams, FileUploadQueryParams, FileUploadResponse };
+export { FileUploadDto, FileUploadParams, FileUploadResponse };

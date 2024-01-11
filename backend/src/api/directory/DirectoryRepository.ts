@@ -112,7 +112,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.where('uuid = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
 			.getRawOne();
 
-		return result || null;
+		return result ?? null;
 	}
 
 	public async getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult> {

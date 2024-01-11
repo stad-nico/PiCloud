@@ -11,7 +11,7 @@ export class DirectoryRestoreDto {
 
 	public static from(directorRestoreParams: DirectoryRestoreParams): DirectoryRestoreDto {
 		if (!validate(directorRestoreParams.uuid)) {
-			throw new ValidationError('');
+			throw new ValidationError(`${directorRestoreParams.uuid} is not a valid uuid`);
 		}
 
 		return new DirectoryRestoreDto(directorRestoreParams.uuid);

@@ -1,5 +1,5 @@
-import { FileDeleteDto } from './file.delete.dto';
-import { FileDeleteParams } from './file.delete.params';
-import { FileDeleteResponse } from './file.delete.response';
+import { FileDeleteDto } from './FileDeleteDto';
+import { FileDeleteParams } from './FileDeleteParams';
+import { FileDeleteResponse } from './FileDeleteResponse';
 
 export { FileDeleteDto, FileDeleteParams, FileDeleteResponse };
