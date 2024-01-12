@@ -52,13 +52,16 @@ export class FileRepository {
 		mimeType: string,
 		parent: string | null = null
 	): Promise<Pick<File, 'uuid'>> {
-		await entityManager
+		const result = await entityManager
 			.createQueryBuilder()
 			.insert()
 			.into(File)
 			.values([{ name: name, mimeType: mimeType, parent: parent }])
 			.returning('uuid')
 			.execute();
+
+		console.log(result);
+		return result.generatedMaps[0] as any;
 	}
 
 	public async softDelete(entityManager: EntityManager, uuid: string): Promise<void> {

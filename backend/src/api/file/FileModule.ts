@@ -25,4 +25,4 @@ import { File } from 'src/db/entities/File';
 		},
 	],
 })
-export class DirectoryModule {}
+export class FileModule {}

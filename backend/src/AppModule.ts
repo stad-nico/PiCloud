@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { DirectoryModule } from 'src/api/directory/DirectoryModule';
-import { DiskModule } from 'src/disk/DiskModule';
 import { validate } from 'src/EnvConfig';
-
+import { DirectoryModule } from 'src/api/directory/DirectoryModule';
+import { FileModule } from 'src/api/file/FileModule';
 import { databaseConfig } from 'src/db/DbConfig';
+import { DiskModule } from 'src/disk/DiskModule';
 
 export const AppModuleConfig = {
 	imports: [
@@ -24,6 +24,7 @@ export const AppModuleConfig = {
 
 		DiskModule.forRootAsync(),
 
+		FileModule,
 		DirectoryModule,
 	],
 };
