@@ -26,6 +26,26 @@ export class FileRepository {
 			.getOne();
 	}
 
+	public async selectByUuid(
+		entityManager: EntityManager,
+		uuid: string,
+		isRecycled: boolean = false
+	): Promise<(Pick<File, 'name'> & { path: string }) | null> {
+		const result: (Pick<File, 'name'> & { path?: string }) | null = await entityManager
+			.createQueryBuilder()
+			.select(['name', 'GET_FILE_PATH(uuid)'])
+			.from(File, 'files')
+			.where('uuid = :uuid', { uuid: uuid })
+			.andWhere('isRecycled = :isRecycled', { isRecycled: isRecycled })
+			.getOne();
+
+		if (!result?.path) {
+			return null;
+		}
+
+		return result as { name: string; path: string };
+	}
+
 	public async insertReturningUuid(
 		entityManager: EntityManager,
 		name: string,
@@ -62,6 +82,20 @@ export class FileRepository {
 			.update(File)
 			.set(partial)
 			.where(`uuid = GET_DIRECTORY_UUID(:path)`, { path: path })
+			.execute();
+	}
+
+	public async restore(entityManager: EntityManager, uuid: string): Promise<void> {
+		await entityManager.createQueryBuilder().update(File).set({ isRecycled: false }).where('uuid = :uuid', { uuid: uuid }).execute();
+	}
+
+	public async hardDelete(entityManager: EntityManager, path: string, isRecycled: boolean = false): Promise<void> {
+		await entityManager
+			.createQueryBuilder()
+			.delete()
+			.from(File, 'files')
+			.where('uuid = GET_FILE_UUID(:path)', { path: path })
+			.andWhere('isRecycled = :isRecycled', { isRecycled: isRecycled })
 			.execute();
 	}
 }

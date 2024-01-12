@@ -1,5 +1,3 @@
-import { File } from 'src/db/entities/File';
-
 export class FileRestoreResponse {
 	readonly path: string;
 
@@ -7,7 +5,7 @@ export class FileRestoreResponse {
 		this.path = path;
 	}
 
-	public static from(file: File): FileRestoreResponse {
-		return new FileRestoreResponse('fullPath insert here too');
+	public static from(path: string): FileRestoreResponse {
+		return new FileRestoreResponse(path);
 	}
 }

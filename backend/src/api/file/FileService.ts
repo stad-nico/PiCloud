@@ -1,7 +1,10 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { createReadStream } from 'fs';
 import * as path from 'path';
+import { DataSource } from 'typeorm';
+
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
 import { DirectoryRepository } from 'src/api/directory/DirectoryRepository';
 import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete';
 import { FileRepository } from 'src/api/file/FileRepository';
@@ -9,6 +12,8 @@ import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/mapping/download';
 import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/mapping/metadata';
 import { FileRenameDto, FileRenameResponse } from 'src/api/file/mapping/rename';
+import { FileReplaceDto } from 'src/api/file/mapping/replace/FileReplaceDto';
+import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceResponse';
 import { FileRestoreDto, FileRestoreResponse } from 'src/api/file/mapping/restore';
 import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
 import { Directory } from 'src/db/entities/Directory';
@@ -16,7 +21,6 @@ import { StoragePath } from 'src/disk/DiskService';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 import { ServerError } from 'src/util/ServerError';
-import { DataSource } from 'typeorm';
 
 @Injectable()
 export class FileService {
@@ -38,6 +42,34 @@ export class FileService {
 		this.dataSource = dataSource;
 		this.configService = configService;
 		this.directoryRepository = directoryRepository;
+	}
+
+	public async replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse> {
+		return await this.dataSource.transaction(async (entityManager) => {
+			const parentPath = path.dirname(fileReplaceDto.path);
+			const parentDirectory = await this.directoryRepository.selectByPath(entityManager, parentPath, false);
+
+			if (!parentDirectory) {
+				throw new ServerError(`directory at ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			if (await this.repository.exists(entityManager, fileReplaceDto.path, false)) {
+				await this.repository.hardDelete(entityManager, fileReplaceDto.path, false);
+			}
+
+			const fileName = path.basename(fileReplaceDto.path);
+			const result = await this.repository.insertReturningUuid(
+				entityManager,
+				fileName,
+				fileReplaceDto.mimeType,
+				parentDirectory.uuid
+			);
+
+			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.uuid), StoragePath.Data);
+			await FileUtils.writeFile(resolvedPath, fileReplaceDto.buffer);
+
+			return FileUploadResponse.from(fileReplaceDto.path);
+		});
 	}
 
 	public async upload(fileUploadDto: FileUploadDto): Promise<FileUploadResponse> {
@@ -99,10 +131,6 @@ export class FileService {
 
 			const diskPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(fileToDownload.uuid), StoragePath.Data);
 
-			if (!(await PathUtils.pathExists(diskPath))) {
-				throw new ServerError(`file at ${fileDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
-			}
-
 			return FileDownloadResponse.from(fileToDownload.name, fileToDownload.mimeType, createReadStream(diskPath));
 		});
 	}
@@ -142,41 +170,17 @@ export class FileService {
 		});
 	}
 
-	public async restore(fileRestoreDto: FileRestoreDto): Promise<FileRestoreResponse> {}
+	public async restore(fileRestoreDto: FileRestoreDto): Promise<FileRestoreResponse> {
+		return await this.dataSource.transaction(async (entityManager) => {
+			const file = await this.repository.selectByUuid(entityManager, fileRestoreDto.uuid, true);
+
+			if (!file) {
+				throw new ServerError(`file ${fileRestoreDto.uuid} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			await this.repository.restore(entityManager, fileRestoreDto.uuid);
+
+			return FileRestoreResponse.from(file.path);
+		});
+	}
 }
-
-// 	public async restore(fileRestoreDto: FileRestoreDto, overwrite: boolean = false): Promise<FileRestoreResponse> {
-// 		return await this.fileRepository.transactional(async (connection) => {
-// 			const fileToRestore = await this.fileRepository.getPathByUuidAndRecycled(connection, fileRestoreDto.uuid);
-
-// 			if (!fileToRestore) {
-// 				throw new ServerError(`uuid ${fileRestoreDto.uuid} does not exist`, HttpStatus.NOT_FOUND);
-// 			}
-
-// 			const existingFile = await this.fileRepository.getUuidByPathAndNotRecycled(connection, fileToRestore.path);
-
-// 			if (!overwrite && existingFile) {
-// 				throw new ServerError(`file at ${fileToRestore.path} already exists`, HttpStatus.CONFLICT);
-// 			}
-
-// 			if (overwrite && existingFile) {
-// 				await this.fileRepository.hardDeleteByUuid(connection, existingFile.uuid);
-// 			}
-
-// 			await this.fileRepository.restoreByUuid(connection, fileRestoreDto.uuid);
-
-// 			const dirPath = PathUtils.uuidToDirPath(fileRestoreDto.uuid);
-// 			const sourcePath = PathUtils.join(this.configService, dirPath, StoragePath.Bin);
-// 			const destinationPath = PathUtils.join(this.configService, dirPath, StoragePath.Data);
-// 			await FileUtils.copyFile(sourcePath, destinationPath);
-
-// 			try {
-// 				await fsPromises.rm(sourcePath);
-// 			} catch (e) {
-// 				this.logger.warn(`Failed to delete file ${fileRestoreDto.uuid} (${fileToRestore.path}) from recycle location: ${e}`);
-// 			}
-
-// 			return FileRestoreResponse.from(fileToRestore as any);
-// 		});
-// 	}
-// }
