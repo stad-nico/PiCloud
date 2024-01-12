@@ -1,26 +1,28 @@
-// import { Module } from '@nestjs/common';
-// import { ConfigService } from '@nestjs/config';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
-// import { FileRepository, IFileRepository } from 'src/api/file/repositories/FileRepository';
-// import { IDatabaseService } from 'src/db/DatabaseService';
-// import { MariaDBModule } from 'src/db/mariadb.module';
-// import { MariaDBService } from 'src/db/mariadb.service';
-// import { FileController } from './file.controller';
-// import { FileService } from './file.service';
+import { DirectoryRepository } from 'src/api/directory/DirectoryRepository';
+import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
+import { FileController } from 'src/api/file/FileController';
+import { FileRepository } from 'src/api/file/FileRepository';
+import { FileService } from 'src/api/file/FileService';
+import { IFileRepository } from 'src/api/file/IFileRepository';
+import { File } from 'src/db/entities/File';
 
-// @Module({
-// 	imports: [MariaDBModule],
-// 	controllers: [FileController],
-// 	providers: [
-// 		FileService,
-// 		ConfigService,
-// 		{
-// 			provide: IFileRepository,
-// 			inject: [MariaDBService],
-// 			useFactory: (databaseService: IDatabaseService) => {
-// 				return new FileRepository(databaseService);
-// 			},
-// 		},
-// 	],
-// })
-// export class FileModule {}
+@Module({
+	imports: [ConfigModule, TypeOrmModule.forFeature([File])],
+	controllers: [FileController],
+	providers: [
+		FileService,
+		{
+			provide: IDirectoryRepository,
+			useClass: DirectoryRepository,
+		},
+		{
+			provide: IFileRepository,
+			useClass: FileRepository,
+		},
+	],
+})
+export class DirectoryModule {}

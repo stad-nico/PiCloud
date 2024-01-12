@@ -1,19 +1,19 @@
-import { ReadStream } from 'fs';
+import { Readable } from 'stream';
 
 export class FileDownloadResponse {
 	readonly name: string;
 
-	readonly readableStream: ReadStream;
-
 	readonly mimeType: string;
 
-	private constructor(name: string, mimeType: string, readableStream: ReadStream) {
+	readonly readable: Readable;
+
+	private constructor(name: string, mimeType: string, readable: Readable) {
 		this.name = name;
 		this.mimeType = mimeType;
-		this.readableStream = readableStream;
+		this.readable = readable;
 	}
 
-	public static from(name: string, mimeType: string, readableStream: ReadStream): FileDownloadResponse {
-		return new FileDownloadResponse(name, mimeType, readableStream);
+	public static from(name: string, mimeType: string, readable: Readable): FileDownloadResponse {
+		return new FileDownloadResponse(name, mimeType, readable);
 	}
 }

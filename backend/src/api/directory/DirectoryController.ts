@@ -53,6 +53,25 @@ export class DirectoryController {
 		}
 	}
 
+	@Get(':path(*)/metadata')
+	public async metadata(@Param() directoryMetadataParams: DirectoryMetadataParams): Promise<DirectoryMetadataResponse> {
+		this.logger.log(`[Get] ${directoryMetadataParams.path}/metadata`);
+
+		try {
+			const directoryMetadataDto = DirectoryMetadataDto.from(directoryMetadataParams);
+
+			return await this.directoryService.metadata(directoryMetadataDto);
+		} catch (e) {
+			if (e instanceof ServerError) {
+				this.logger.error(e.message);
+				throw e.toHttpException();
+			} else {
+				this.logger.error(e);
+				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
+			}
+		}
+	}
+
 	@Get(':path(*)/download')
 	public async download(
 		@Param() directoryDownloadParams: DirectoryDownloadParams,
@@ -71,25 +90,6 @@ export class DirectoryController {
 			});
 
 			return new StreamableFile(result.readable);
-		} catch (e) {
-			if (e instanceof ServerError) {
-				this.logger.error(e.message);
-				throw e.toHttpException();
-			} else {
-				this.logger.error(e);
-				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
-			}
-		}
-	}
-
-	@Get(':path(*)/metadata')
-	public async metadata(@Param() directoryMetadataParams: DirectoryMetadataParams): Promise<DirectoryMetadataResponse> {
-		this.logger.log(`[Get] ${directoryMetadataParams.path}/metadata`);
-
-		try {
-			const directoryMetadataDto = DirectoryMetadataDto.from(directoryMetadataParams);
-
-			return await this.directoryService.metadata(directoryMetadataDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
