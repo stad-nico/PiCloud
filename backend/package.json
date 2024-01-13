@@ -7,8 +7,7 @@
 	"license": "UNLICENSED",
 	"scripts": {
 		"typeorm": "ts-node-dev ./node_modules/typeorm/cli.js",
-		"migrations:generate": "npm run build && npm run typeorm migration:generate -- -d src/db/db.config.ts",
-		"migrations:run": "npm run build && npm run typeorm migration:run -- -d src/db/db.config.ts",
+		"migrations:run": "SET NODE_ENV=dev && npm run build && npm run typeorm migration:run -- -d src/DbConfig.ts",
 		"build": "nest build",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
 		"start": "SET NODE_ENV=dev && nest start",
@@ -37,6 +36,7 @@
 		"archiver": "^6.0.1",
 		"class-transformer": "^0.5.1",
 		"class-validator": "^0.14.0",
+		"dotenv": "^16.3.1",
 		"mysql2": "^3.6.5",
 		"reflect-metadata": "^0.1.13",
 		"typeorm": "^0.3.19",

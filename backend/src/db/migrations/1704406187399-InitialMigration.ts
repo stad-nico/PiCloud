@@ -34,8 +34,8 @@ const createTreeTable = `
 	    \`parent\` VARCHAR(255) NULL DEFAULT NULL,
 	    \`child\` VARCHAR(255) NOT NULL,
 	    \`depth\` INT NOT NULL DEFAULT '0',
-	    PRIMARY KEY (\`id\`) USING BTREE,
-	    UNIQUE INDEX \`IDX_d2b461f93e3ec1f02135ae7ee8\` (\`child\`, \`parent\`),
+	    PRIMARY KEY (\`id\`),
+	    UNIQUE INDEX \`IDX_d2b461f93e3ec1f02135ae7ee8\` (\`child\`, \`parent\`)
     ) ENGINE=InnoDB;`;
 
 const getUpmostDirnameFunc = `
@@ -213,6 +213,10 @@ export class InitialMigration1704406187399 implements MigrationInterface {
 	name = 'InitialMigration1704406187399';
 
 	public async up(queryRunner: QueryRunner): Promise<void> {
+		await queryRunner.query(createDirectoriesTable);
+		await queryRunner.query(createFilesTable);
+		await queryRunner.query(createTreeTable);
+
 		await queryRunner.query(filesAfterInsertTrigger);
 		await queryRunner.query(filesAfterUpdateTrigger);
 		await queryRunner.query(filesAfterDeleteTrigger);
@@ -227,10 +231,6 @@ export class InitialMigration1704406187399 implements MigrationInterface {
 		await queryRunner.query(getFilePathFunc);
 		await queryRunner.query(getFileUuidFunc);
 		await queryRunner.query(getDirectorySizeFunc);
-
-		await queryRunner.query(createDirectoriesTable);
-		await queryRunner.query(createFilesTable);
-		await queryRunner.query(createTreeTable);
 	}
 
 	public async down(queryRunner: QueryRunner): Promise<void> {

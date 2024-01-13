@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { databaseConfig } from 'src/DbConfig';
 import { validate } from 'src/EnvConfig';
 import { DirectoryModule } from 'src/api/directory/DirectoryModule';
 import { FileModule } from 'src/api/file/FileModule';
-import { databaseConfig } from 'src/db/DbConfig';
 import { DiskModule } from 'src/disk/DiskModule';
 
 export const AppModuleConfig = {

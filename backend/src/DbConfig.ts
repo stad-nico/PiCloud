@@ -1,23 +1,20 @@
 import { ConfigService } from '@nestjs/config';
+import * as dotenv from 'dotenv';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { Environment } from '../EnvConfig';
-
-function env(env: Environment, p: ConfigService | NodeJS.ProcessEnv) {
-	if (p instanceof ConfigService) {
-		return p.getOrThrow(env);
-	}
-	console.log(env, p[env]);
-	return p[env] || 'ddd';
-}
+import { EnvVariables, Environment, validate } from './EnvConfig';
 
 export function databaseConfig(p: ConfigService | NodeJS.ProcessEnv = process.env): DataSourceOptions {
+	const { parsed } = dotenv.config({ path: `../${(process.env.NODE_ENV ?? 'dev').trim()}.env` });
+
+	const env: EnvVariables = validate(parsed!);
+
 	return {
 		type: 'mariadb',
-		host: env(Environment.DBHost, p),
-		port: env(Environment.DBPort, p),
-		username: env(Environment.DBUsername, p),
-		password: env(Environment.DBPassword, p),
-		database: env(Environment.DBName, p),
+		host: env[Environment.DBHost],
+		port: env[Environment.DBPort],
+		username: env[Environment.DBUsername],
+		password: env[Environment.DBPassword],
+		database: env[Environment.DBName],
 		synchronize: true,
 		entities: ['dist/db/entities/*.js'],
 		migrations: ['dist/db/migrations/*.js'],
