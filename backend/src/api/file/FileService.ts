@@ -44,7 +44,7 @@ export class FileService {
 			const metadata = await this.fileRepository.getMetadata(entityManager, fileMetadataDto.path);
 
 			if (!metadata) {
-				throw new ServerError(`file at ${fileMetadataDto.path} does not exist`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`file ${fileMetadataDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			return FileMetadataResponse.from({ path: fileMetadataDto.path, ...metadata });
@@ -64,7 +64,7 @@ export class FileService {
 			const fileToDownload = await this.fileRepository.selectByPath(entityManager, fileDownloadDto.path);
 
 			if (!fileToDownload) {
-				throw new ServerError(`file at ${fileDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`file ${fileDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			const diskPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(fileToDownload.uuid), StoragePath.Data);
@@ -106,7 +106,7 @@ export class FileService {
 	public async upload(fileUploadDto: FileUploadDto): Promise<FileUploadResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
 			if (await this.fileRepository.exists(entityManager, fileUploadDto.path, false)) {
-				throw new ServerError(`file at ${fileUploadDto.path} already exists`, HttpStatus.CONFLICT);
+				throw new ServerError(`file ${fileUploadDto.path} already exists`, HttpStatus.CONFLICT);
 			}
 
 			const parentPath = path.dirname(fileUploadDto.path);
@@ -115,7 +115,7 @@ export class FileService {
 			const parent = await this.directoryRepository.selectByPath(entityManager, parentPath, false);
 
 			if (!parent && !hasRootAsParent) {
-				throw new ServerError(`directory at ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			const parentId = hasRootAsParent ? null : parent!.uuid;
@@ -144,7 +144,7 @@ export class FileService {
 			const parentDirectory = await this.directoryRepository.selectByPath(entityManager, parentPath, false);
 
 			if (!parentDirectory) {
-				throw new ServerError(`directory at ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			if (await this.fileRepository.exists(entityManager, fileReplaceDto.path, false)) {
@@ -177,11 +177,11 @@ export class FileService {
 	public async rename(fileRenameDto: FileRenameDto): Promise<FileRenameResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
 			if (await this.fileRepository.exists(entityManager, fileRenameDto.destinationPath, false)) {
-				throw new ServerError(`file at ${fileRenameDto.destinationPath} already exists`, HttpStatus.CONFLICT);
+				throw new ServerError(`file ${fileRenameDto.destinationPath} already exists`, HttpStatus.CONFLICT);
 			}
 
 			if (!(await this.fileRepository.exists(entityManager, fileRenameDto.sourcePath, false))) {
-				throw new ServerError(`file at ${fileRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`file ${fileRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			const destinationName = path.basename(fileRenameDto.destinationPath);
@@ -198,7 +198,7 @@ export class FileService {
 			const destinationParent = await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
 
 			if (!destinationParent) {
-				throw new ServerError(`directory at ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`directory ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
 			updateOptions = { ...updateOptions, parentId: destinationParent.uuid };
@@ -222,7 +222,7 @@ export class FileService {
 			const file = await this.fileRepository.selectByPath(entityManager, fileDeleteDto.path, false);
 
 			if (!file) {
-				throw new ServerError(`file at ${fileDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`file ${fileDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			await this.fileRepository.softDelete(entityManager, file.uuid);

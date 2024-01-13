@@ -17,13 +17,15 @@ export class FileRepository {
 		path: string,
 		isRecycled: boolean = false
 	): Promise<Pick<File, 'uuid' | 'name' | 'mimeType'> | null> {
-		return await entityManager
+		const result = await entityManager
 			.createQueryBuilder()
 			.select(['uuid', 'name', 'mimeType'])
 			.from(File, 'files')
 			.where('uuid = GET_FILE_UUID(:path)', { path: path })
 			.andWhere('isRecycled = :isRecycled', { isRecycled: isRecycled })
-			.getOne();
+			.getRawOne();
+
+		return result ?? null;
 	}
 
 	public async selectByUuid(
@@ -31,13 +33,15 @@ export class FileRepository {
 		uuid: string,
 		isRecycled: boolean = false
 	): Promise<(Pick<File, 'name'> & { path: string }) | null> {
-		const result: (Pick<File, 'name'> & { path?: string }) | null = await entityManager
+		const raw = await entityManager
 			.createQueryBuilder()
 			.select(['name', 'GET_FILE_PATH(uuid)'])
 			.from(File, 'files')
 			.where('uuid = :uuid', { uuid: uuid })
 			.andWhere('isRecycled = :isRecycled', { isRecycled: isRecycled })
-			.getOne();
+			.getRawOne();
+
+		const result: (Pick<File, 'name'> & { path?: string }) | null = raw ?? null;
 
 		if (!result?.path) {
 			return null;
@@ -72,8 +76,8 @@ export class FileRepository {
 			.createQueryBuilder()
 			.select(['uuid', 'name', 'mimeType', 'size', 'created', 'updated'])
 			.from(File, 'files')
-			.where('uuid = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
-			.getOne();
+			.where('uuid = GET_FILE_UUID(:path) AND isRecycled = 0', { path: path })
+			.getRawOne();
 
 		return result ?? null;
 	}

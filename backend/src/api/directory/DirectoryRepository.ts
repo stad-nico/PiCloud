@@ -55,13 +55,11 @@ export class DirectoryRepository implements IDirectoryRepository {
 	}
 
 	public async insert(entityManager: EntityManager, name: string, parentId: string | null = null) {
-		const r = entityManager
+		await entityManager
 			.createQueryBuilder()
 			.insert()
 			.into(Directory)
 			.values([{ name: name, parentId: parentId }]);
-		console.log(r.getQueryAndParameters());
-		console.log(await r.execute());
 	}
 
 	public async softDelete(entityManager: EntityManager, rootUuid: string): Promise<void> {
