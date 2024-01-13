@@ -10,10 +10,10 @@ export class FileDownloadDto {
 	}
 
 	public static from(fileDownloadParams: FileDownloadParams): FileDownloadDto {
-		const normalizedPath = PathUtils.normalize(fileDownloadParams.path);
+		const normalizedPath = PathUtils.normalizeFilePath(fileDownloadParams.path);
 
 		if (!PathUtils.isValidFilePath(normalizedPath)) {
-			throw new ValidationError(`path ${fileDownloadParams.path} is not a valid path`);
+			throw new ValidationError(`path ${fileDownloadParams.path} is not a valid file path`);
 		}
 
 		return new FileDownloadDto(normalizedPath);

@@ -10,7 +10,7 @@ export class DirectoryDownloadDto {
 	}
 
 	public static from(directoryDownloadParams: DirectoryDownloadParams) {
-		const normalizedPath = PathUtils.normalize(directoryDownloadParams.path);
+		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryDownloadParams.path);
 
 		if (!PathUtils.isValidDirectoryPath(normalizedPath)) {
 			throw new ValidationError(`path ${directoryDownloadParams.path} is not a valid directory path`);

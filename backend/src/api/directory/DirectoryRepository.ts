@@ -13,13 +13,15 @@ export class DirectoryRepository implements IDirectoryRepository {
 		path: string,
 		isRecycled: boolean = false
 	): Promise<Pick<Directory, 'uuid' | 'name'> | null> {
-		return await entityManager
+		const result = await entityManager
 			.createQueryBuilder()
 			.select(['name', 'uuid'])
 			.from(Directory, 'directories')
 			.where('isRecycled = :isRecycled', { isRecycled: isRecycled })
 			.andWhere('uuid = GET_DIRECTORY_UUID(:path)', { path: path })
-			.getOne();
+			.getRawOne();
+
+		return result ?? null;
 	}
 
 	public async selectByUuid(

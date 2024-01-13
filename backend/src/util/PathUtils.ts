@@ -10,22 +10,48 @@ import { Environment } from 'src/EnvConfig';
  * Utility class for path operations
  */
 export class PathUtils {
-	public static readonly ValidFileNameRegExp = `([-_.]?[a-zA-Z0-9])([-_. ]?[a-zA-Z0-9])*`;
+	public static readonly ValidChars = `[a-zA-Z-0-9\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]`;
+
+	public static readonly ValidDirectoryNameRegExp = `([-_.]?${PathUtils.ValidChars})([-_. ]?${PathUtils.ValidChars})*`;
+
+	public static readonly ValidFileNameRegExp = `([-_. ]?${PathUtils.ValidChars})*(\\\.${PathUtils.ValidChars}+)`;
 
 	public static readonly ValidDirectoryPathRegExp = new RegExp(
-		`^(${PathUtils.ValidFileNameRegExp}[\\/\\\\])*(${PathUtils.ValidFileNameRegExp}[\\/\\\\]?)$`,
+		`^(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\]?)$`,
+		'm'
+	);
+
+	public static readonly ValidFilePathRegExp = new RegExp(
+		`^(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidFileNameRegExp})$`,
 		'm'
 	);
 
 	/**
-	 * Normalize a path by replacing multiple slashes with a single forward slash.
+	 * Normalize a directory path by replacing multiple slashes with a single forward slash.
 	 * Leading slashes or dots (`../`, `./`, `/`) are removed, a single trailing slash is ensured.
 	 *
 	 * @param {string} pathToNormalize - the path to normalize
 	 * @returns {string} the normalized path
 	 */
-	public static normalize(pathToNormalize: string): string {
+	public static normalizeDirectoryPath(pathToNormalize: string): string {
 		let result = path.normalize(pathToNormalize + '/');
+
+		result = result.replaceAll(/\s+/g, ' ');
+		result = result.replaceAll(/[\/\\]+/g, '/');
+		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '');
+
+		return result;
+	}
+
+	/**
+	 * Normalize a file path by replacing multiple slashes with a single forward slash.
+	 * Leading slashes or dots (`../`, `./`, `/`) are removed.
+	 *
+	 * @param {string} pathToNormalize - the path to normalize
+	 * @returns {string} the normalized path
+	 */
+	public static normalizeFilePath(pathToNormalize: string): string {
+		let result = path.normalize(pathToNormalize);
 
 		result = result.replaceAll(/\s+/g, ' ');
 		result = result.replaceAll(/[\/\\]+/g, '/');
@@ -41,7 +67,7 @@ export class PathUtils {
 	 * @returns {string} the prepared path
 	 */
 	public static prepareForFS(pathToPrepare: string): string {
-		let result = PathUtils.normalize(pathToPrepare);
+		let result = PathUtils.normalizeFilePath(pathToPrepare);
 
 		result = result.replaceAll(/[\/\\]+/g, path.sep);
 

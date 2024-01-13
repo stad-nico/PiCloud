@@ -10,7 +10,7 @@ export class FileDeleteDto {
 	}
 
 	public static from(fileDeleteParams: FileDeleteParams): FileDeleteDto {
-		const normalizedPath = PathUtils.normalize(fileDeleteParams.path);
+		const normalizedPath = PathUtils.normalizeFilePath(fileDeleteParams.path);
 
 		if (!PathUtils.isValidFilePath(normalizedPath)) {
 			throw new ValidationError(`path ${fileDeleteParams.path} is not a valid file path`);

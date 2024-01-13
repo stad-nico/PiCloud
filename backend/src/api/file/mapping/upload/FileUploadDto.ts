@@ -1,4 +1,3 @@
-import { lookup } from 'mime-types';
 import { FileUploadParams } from 'src/api/file/mapping/upload/FileUploadParams';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
@@ -17,14 +16,10 @@ export class FileUploadDto {
 	}
 
 	public static from(fileUploadParams: FileUploadParams, file: Pick<Express.Multer.File, 'mimetype' | 'size' | 'buffer'>): FileUploadDto {
-		const normalizedPath = PathUtils.normalize(fileUploadParams.path);
+		const normalizedPath = PathUtils.normalizeFilePath(fileUploadParams.path);
 
 		if (!PathUtils.isValidFilePath(normalizedPath)) {
-			throw new ValidationError(`path ${fileUploadParams.path} is not a valid directory path`);
-		}
-
-		if (!lookup(file.mimetype)) {
-			throw new ValidationError(`${file.mimetype} is not a valid mime type`);
+			throw new ValidationError(`path ${fileUploadParams.path} is not a valid file path`);
 		}
 
 		return new FileUploadDto(normalizedPath, file.mimetype, file.buffer);

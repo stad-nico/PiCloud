@@ -10,7 +10,7 @@ export class DirectoryMetadataDto {
 	}
 
 	public static from(directoryMetadataParams: DirectoryMetadataParams): DirectoryMetadataDto {
-		const normalizedPath = PathUtils.normalize(directoryMetadataParams.path);
+		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryMetadataParams.path);
 
 		if (!PathUtils.isValidDirectoryPath(normalizedPath)) {
 			throw new ValidationError(`path ${directoryMetadataParams.path} is not a valid directory path`);

@@ -10,7 +10,7 @@ export class FileMetadataDto {
 	}
 
 	public static from(fileMetadataParams: FileMetadataParams): FileMetadataDto {
-		const normalizedPath = PathUtils.normalize(fileMetadataParams.path);
+		const normalizedPath = PathUtils.normalizeFilePath(fileMetadataParams.path);
 
 		if (!PathUtils.isValidFilePath(normalizedPath)) {
 			throw new ValidationError(`path ${fileMetadataParams.path} is not a valid file path`);

@@ -1,4 +1,3 @@
-import { lookup } from 'mime-types';
 import { FileReplaceParams } from 'src/api/file/mapping/replace/FileReplaceParams';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
@@ -20,14 +19,10 @@ export class FileReplaceDto {
 		fileUploadParams: FileReplaceParams,
 		file: Pick<Express.Multer.File, 'mimetype' | 'size' | 'buffer'>
 	): FileReplaceDto {
-		const normalizedPath = PathUtils.normalize(fileUploadParams.path);
+		const normalizedPath = PathUtils.normalizeFilePath(fileUploadParams.path);
 
 		if (!PathUtils.isValidFilePath(normalizedPath)) {
-			throw new ValidationError(`path ${fileUploadParams.path} is not a valid directory path`);
-		}
-
-		if (!lookup(file.mimetype)) {
-			throw new ValidationError(`${file.mimetype} is not a valid mime type`);
+			throw new ValidationError(`path ${fileUploadParams.path} is not a valid file path`);
 		}
 
 		return new FileReplaceDto(normalizedPath, file.mimetype, file.buffer);
