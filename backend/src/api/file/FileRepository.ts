@@ -50,18 +50,17 @@ export class FileRepository {
 		entityManager: EntityManager,
 		name: string,
 		mimeType: string,
-		parent: string | null = null
+		parentId: string | null = null
 	): Promise<Pick<File, 'uuid'>> {
 		const result = await entityManager
 			.createQueryBuilder()
 			.insert()
 			.into(File)
-			.values([{ name: name, mimeType: mimeType, parent: parent }])
+			.values([{ name: name, mimeType: mimeType, parentId: parentId }])
 			.returning('uuid')
 			.execute();
 
-		console.log(result);
-		return result.generatedMaps[0] as any;
+		return result.generatedMaps[0] as { uuid: string };
 	}
 
 	public async softDelete(entityManager: EntityManager, uuid: string): Promise<void> {

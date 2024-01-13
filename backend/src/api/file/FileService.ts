@@ -16,7 +16,7 @@ import { FileReplaceDto } from 'src/api/file/mapping/replace/FileReplaceDto';
 import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceResponse';
 import { FileRestoreDto, FileRestoreResponse } from 'src/api/file/mapping/restore';
 import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
-import { Directory } from 'src/db/entities/Directory';
+import { File } from 'src/db/entities/File';
 import { StoragePath } from 'src/disk/DiskService';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
@@ -105,24 +105,23 @@ export class FileService {
 	 */
 	public async upload(fileUploadDto: FileUploadDto): Promise<FileUploadResponse> {
 		return await this.dataSource.transaction(async (entityManager) => {
-			if ((await this.fileRepository.exists(entityManager, fileUploadDto.path), false)) {
+			if (await this.fileRepository.exists(entityManager, fileUploadDto.path, false)) {
 				throw new ServerError(`file at ${fileUploadDto.path} already exists`, HttpStatus.CONFLICT);
 			}
 
 			const parentPath = path.dirname(fileUploadDto.path);
-			const parentDirectory = await this.directoryRepository.selectByPath(entityManager, parentPath, false);
+			const hasRootAsParent = path.relative('.', parentPath) === '';
 
-			if (!parentDirectory) {
+			const parent = await this.directoryRepository.selectByPath(entityManager, parentPath, false);
+
+			if (!parent && !hasRootAsParent) {
 				throw new ServerError(`directory at ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
+			const parentId = hasRootAsParent ? null : parent!.uuid;
+
 			const fileName = path.basename(fileUploadDto.path);
-			const result = await this.fileRepository.insertReturningUuid(
-				entityManager,
-				fileName,
-				fileUploadDto.mimeType,
-				parentDirectory.uuid
-			);
+			const result = await this.fileRepository.insertReturningUuid(entityManager, fileName, fileUploadDto.mimeType, parentId);
 
 			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.uuid), StoragePath.Data);
 			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
@@ -187,7 +186,7 @@ export class FileService {
 
 			const destinationName = path.basename(fileRenameDto.destinationPath);
 
-			let updateOptions: Partial<Directory> = { name: destinationName };
+			let updateOptions: Partial<File> = { name: destinationName };
 
 			if (path.dirname(fileRenameDto.sourcePath) === path.dirname(fileRenameDto.destinationPath)) {
 				await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
@@ -202,7 +201,7 @@ export class FileService {
 				throw new ServerError(`directory at ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
-			updateOptions = { ...updateOptions, parent: destinationParent.uuid };
+			updateOptions = { ...updateOptions, parentId: destinationParent.uuid };
 
 			await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
 

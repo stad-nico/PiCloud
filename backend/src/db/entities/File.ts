@@ -13,11 +13,12 @@ export class File {
 	// @JoinColumn({ name: 'parent', referencedColumnName: 'uuid' })
 	// readonly parent!: Directory | null;
 
-	@ManyToOne(() => Directory, (directory) => directory.uuid, { onUpdate: 'RESTRICT', onDelete: 'RESTRICT', nullable: true })
-	@JoinColumn({ name: 'parent' })
-	private _parent!: never;
+	@ManyToOne(() => Directory, (directory) => directory.uuid, { onUpdate: 'RESTRICT', onDelete: 'RESTRICT', cascade: true })
+	@JoinColumn({ name: 'parentId' })
+	readonly parent!: Directory;
 
-	readonly parent!: string | null;
+	@Column({ type: 'varchar', nullable: true, default: null })
+	readonly parentId!: string | null;
 
 	@Column({ type: 'varchar', nullable: false, default: 'application/octet-stream' })
 	readonly mimeType!: string;

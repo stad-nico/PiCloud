@@ -181,7 +181,7 @@ export class DirectoryService {
 				throw new ServerError(`directory at ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
-			updateOptions = { ...updateOptions, parent: destinationParent.uuid };
+			updateOptions = { ...updateOptions, parentId: destinationParent.uuid };
 
 			await this.directoryRepository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
 

@@ -4,28 +4,28 @@ const createDirectoriesTable = `
     CREATE TABLE \`directories\` (
 	    \`uuid\` VARCHAR(255) NOT NULL DEFAULT uuid(),
 	    \`name\` VARCHAR(255) NOT NULL,
-	    \`parent\` VARCHAR(255) NULL DEFAULT NULL,
+	    \`parentId\` VARCHAR(255) NULL DEFAULT NULL,
     	\`isRecycled\` TINYINT(4) NULL DEFAULT "0",
 	    \`created\` DATETIME NOT NULL DEFAULT current_timestamp(),
 	    \`updated\` DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
 	    PRIMARY KEY (\`uuid\`),
-	    INDEX \`FK_b694a803692de09ba05a875fe29\` (\`parent\`),
-	    CONSTRAINT \`FK_b694a803692de09ba05a875fe29\` FOREIGN KEY (\`parent\`) REFERENCES \`directories\` (\`uuid\`) ON UPDATE RESTRICT ON DELETE RESTRICT
+	    INDEX \`FK_b694a803692de09ba05a875fe29\` (\`parentId\`),
+	    CONSTRAINT \`FK_b694a803692de09ba05a875fe29\` FOREIGN KEY (\`parentId\`) REFERENCES \`directories\` (\`uuid\`) ON UPDATE RESTRICT ON DELETE RESTRICT
     ) ENGINE=InnoDB;`;
 
 const createFilesTable = `
     CREATE TABLE \`files\` (
 	    \`uuid\` VARCHAR(255) NOT NULL DEFAULT uuid(),
 	    \`name\` VARCHAR(255) NOT NULL,
-	    \`parent\` VARCHAR(255) NULL DEFAULT NULL,
+	    \`parentId\` VARCHAR(255) NULL DEFAULT NULL,
 	    \`mimeType\` VARCHAR(255) NOT NULL DEFAULT 'application/octet-stream',
 	    \`size\` BIGINT NOT NULL DEFAULT '0',
 	    \`isRecycled\` TINYINT NOT NULL DEFAULT '0',
 	    \`created\` DATETIME NOT NULL DEFAULT current_timestamp(),
 	    \`updated\` DATETIME NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
 	    PRIMARY KEY (\`uuid\`),
-	    INDEX \`FK_ab1c78280af378a90675f0d2b29\` (\`parent\`),
-	    CONSTRAINT \`FK_ab1c78280af378a90675f0d2b29\` FOREIGN KEY (\`parent\`) REFERENCES \`directories\` (\`uuid\`) ON UPDATE RESTRICT ON DELETE RESTRICT
+	    INDEX \`FK_ab1c78280af378a90675f0d2b29\` (\`parentId\`),
+	    CONSTRAINT \`FK_ab1c78280af378a90675f0d2b29\` FOREIGN KEY (\`parentId\`) REFERENCES \`directories\` (\`uuid\`) ON UPDATE RESTRICT ON DELETE RESTRICT
     ) ENGINE=InnoDB;`;
 
 const createTreeTable = `
@@ -62,27 +62,27 @@ const getFileUuidFunc = `
 	CREATE OR REPLACE FUNCTION \`GET_FILE_UUID\`(\`path\` VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC
 	BEGIN
 		DECLARE nextPath VARCHAR(255) DEFAULT TRIM(LEADING "/" FROM path);
-		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath));
+		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath) AND directories.parentId IS NULL);
 		
 		SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
 	
 		WHILE LOCATE("/", nextPath) != 0 DO
-			SET nextUuid = (SELECT uuid FROM directories WHERE directories.parent = nextUuid AND directories.name = GET_UPMOST_DIRNAME(nextPath));
+			SET nextUuid = (SELECT uuid FROM directories WHERE directories.parentId = nextUuid AND directories.name = GET_UPMOST_DIRNAME(nextPath));
 			SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
 		END WHILE;
 	
-		RETURN (SELECT uuid FROM files WHERE files.name = nextPath AND files.parent = nextUuid);
+		RETURN (SELECT uuid FROM files WHERE files.name = nextPath AND files.parentId = nextUuid OR (nextUuid IS NULL AND files.parentId IS NULL));
 	END`;
 
 const getFilePathFunc = `
 	CREATE OR REPLACE FUNCTION \`GET_FILE_PATH\`(\`uuid\` VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC
 	BEGIN
 		DECLARE path VARCHAR(255) DEFAULT (SELECT name FROM files WHERE files.uuid = uuid);
-		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parent FROM files WHERE files.uuid = uuid); 
+		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parentId FROM files WHERE files.uuid = uuid); 
 
 		WHILE nextUuid IS NOT NULL DO
 			SET path = CONCAT((SELECT name FROM directories WHERE directories.uuid = nextUuid), "/", path);
-			SET nextUuid = (SELECT parent FROM directories WHERE directories.uuid = nextUuid);
+			SET nextUuid = (SELECT parentId FROM directories WHERE directories.uuid = nextUuid);
 	
 		END WHILE;
 	
@@ -93,12 +93,12 @@ const getDirectoryUuidFunc = `
 	CREATE OR REPLACE FUNCTION \`GET_DIRECTORY_UUID\`(\`path\` VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC
 	BEGIN
 		DECLARE nextPath VARCHAR(255) DEFAULT TRIM(LEADING "/" FROM path);
-		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath) AND directories.parent IS NULL);
+		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath) AND directories.parentId IS NULL);
 	
 		SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
 	
 		WHILE nextPath != "" DO
-			SET nextUuid = (SELECT uuid FROM directories WHERE directories.parent = nextUuid AND directories.name = GET_UPMOST_DIRNAME(nextPath));
+			SET nextUuid = (SELECT uuid FROM directories WHERE directories.parentId = nextUuid AND directories.name = GET_UPMOST_DIRNAME(nextPath));
 			SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
 		END WHILE;
 	
@@ -109,7 +109,7 @@ const getDirectoryPathFunc = `
 	CREATE OR REPLACE FUNCTION \`GET_DIRECTORY_PATH\`(\`uuid\` VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC
 	BEGIN
 		DECLARE path VARCHAR(255) DEFAULT (SELECT name FROM directories WHERE directories.uuid = uuid);
-		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parent FROM directories WHERE directories.uuid = uuid); 
+		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parentId FROM directories WHERE directories.uuid = uuid); 
 
 		IF uuid IS NULL THEN
 			RETURN "/";
@@ -117,7 +117,7 @@ const getDirectoryPathFunc = `
 
 		WHILE nextUuid IS NOT NULL DO
 			SET path = CONCAT((SELECT name FROM directories WHERE directories.uuid = nextUuid), "/", path);
-			SET nextUuid = (SELECT parent FROM directories WHERE directories.uuid = nextUuid);
+			SET nextUuid = (SELECT parentId FROM directories WHERE directories.uuid = nextUuid);
 	
 		END WHILE;
 
@@ -147,33 +147,33 @@ const directoriesAfterInsertTrigger = `
     	INSERT INTO tree (parent, child, depth) 
     	SELECT p.parent, c.child, p.depth + c.depth + 1
     	FROM tree p JOIN tree c
-    	WHERE p.child = NEW.parent AND c.parent = NEW.uuid;
+    	WHERE p.child = NEW.parentId AND c.parent = NEW.uuid;
 	END`;
 
 const directoriesAfterUpdateTrigger = `
 	CREATE OR REPLACE TRIGGER \`directories_AFTER_UPDATE\` AFTER UPDATE ON \`directories\` FOR EACH ROW BEGIN
 		IF OLD.uuid != NEW.uuid THEN
 			UPDATE tree 
-			SET parent = NEW.uuid 
-			WHERE parent = OLD.uuid; 
+			SET parentId = NEW.uuid 
+			WHERE parentId = OLD.uuid; 
 
         	UPDATE tree 
 			SET child = NEW.uuid 
 				WHERE child = OLD.uuid; 
     	END IF;
     
-    	IF OLD.parent != NEW.parent THEN
+    	IF OLD.parentId != NEW.parentId THEN
 			# remove all paths to subtree but not paths inside the subtree
 			DELETE FROM tree 
 			WHERE tree.child IN 
-				(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent = NEW.uuid)
+				(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parentId = NEW.uuid)
             AND tree.parent NOT IN
-				(SELECT child FROM (SELECT * FROM tree) AS b WHERE b.parent = NEW.uuid);
+				(SELECT child FROM (SELECT * FROM tree) AS b WHERE b.parentId = NEW.uuid);
                 
 			INSERT INTO tree (parent, child, depth)
 				SELECT supertree.parent, subtree.child, supertree.depth + subtree.depth + 1
 				FROM tree AS supertree JOIN tree AS subtree
-				WHERE subtree.parent = NEW.uuid AND supertree.child = NEW.parent;
+				WHERE subtree.parent = NEW.uuid AND supertree.child = NEW.parentId;
     	END IF;
 	END`;
 
@@ -181,7 +181,7 @@ const directoriesAfterDeleteTrigger = `
 	CREATE OR REPLACE TRIGGER \`directories_AFTER_DELETE\` AFTER DELETE ON \`directories\` FOR EACH ROW BEGIN
 		DELETE FROM tree
     	WHERE tree.child IN 
-			(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent = OLD.uuid);
+			(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parentId = OLD.uuid);
 	END`;
 
 const filesAfterInsertTrigger = `
@@ -189,7 +189,7 @@ const filesAfterInsertTrigger = `
 		INSERT INTO tree (parent, child, depth)
     	SELECT parent, NEW.uuid, depth + 1
       	FROM tree 
-      	WHERE child = NEW.parent;
+      	WHERE child = NEW.parentId;
 	END`;
 
 const filesAfterUpdateTrigger = `
@@ -198,8 +198,8 @@ const filesAfterUpdateTrigger = `
 			UPDATE tree SET child = NEW.uuid WHERE child = OLD.uuid;
     	END IF;
     
-    	IF OLD.parent != NEW.parent THEN
-			UPDATE tree SET parent = NEW.parent WHERE child = OLD.uuid AND parent = OLD.parent;
+    	IF OLD.parentId != NEW.parentId THEN
+			UPDATE tree SET parentId = NEW.parentId WHERE child = OLD.uuid AND parentId = OLD.parentId;
     	END IF;
 	END`;
 

@@ -15,7 +15,7 @@ export function databaseConfig(p: ConfigService | NodeJS.ProcessEnv = process.en
 		username: env[Environment.DBUsername],
 		password: env[Environment.DBPassword],
 		database: env[Environment.DBName],
-		synchronize: true,
+		synchronize: false,
 		entities: ['dist/db/entities/*.js'],
 		migrations: ['dist/db/migrations/*.js'],
 		migrationsTransactionMode: 'each',

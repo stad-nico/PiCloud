@@ -8,12 +8,12 @@ export class Directory {
 	@Column({ type: 'varchar', nullable: false })
 	readonly name!: string;
 
-	@ManyToOne(() => Directory, (directory) => directory.uuid, { onUpdate: 'RESTRICT', onDelete: 'RESTRICT' })
-	@JoinColumn({ name: 'parent' })
-	private _parent!: never;
+	@ManyToOne(() => Directory, (directory) => directory.uuid, { onUpdate: 'RESTRICT', onDelete: 'RESTRICT', cascade: true })
+	@JoinColumn({ name: 'parentId' })
+	readonly parent!: Directory;
 
 	@Column({ type: 'varchar', nullable: true, default: null })
-	readonly parent!: string | null;
+	readonly parentId!: string | null;
 
 	@Column({ type: 'tinyint', nullable: true, default: false })
 	readonly isRecycled!: boolean;

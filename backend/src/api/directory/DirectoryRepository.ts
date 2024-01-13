@@ -54,13 +54,14 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.getExists();
 	}
 
-	public async insert(entityManager: EntityManager, name: string, parent: string | null = null) {
-		await entityManager
+	public async insert(entityManager: EntityManager, name: string, parentId: string | null = null) {
+		const r = entityManager
 			.createQueryBuilder()
 			.insert()
 			.into(Directory)
-			.values([{ name: name, parent: parent }])
-			.execute();
+			.values([{ name: name, parentId: parentId }]);
+		console.log(r.getQueryAndParameters());
+		console.log(await r.execute());
 	}
 
 	public async softDelete(entityManager: EntityManager, rootUuid: string): Promise<void> {
@@ -122,14 +123,14 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.createQueryBuilder()
 			.select(['name', 'mimeType', 'size', 'created', 'updated'])
 			.from(File, 'files')
-			.where('parent = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
+			.where('parentId = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
 			.getRawMany();
 
 		const directories: Array<Pick<Directory, 'name' | 'created' | 'updated'> & { size: number }> = await entityManager
 			.createQueryBuilder()
 			.select(['name', 'GET_DIRECTORY_SIZE(uuid) AS size', 'created', 'updated'])
 			.from(Directory, 'directories')
-			.where('parent = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
+			.where('parentId = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
 			.getRawMany();
 
 		return { files: files, directories: directories };
