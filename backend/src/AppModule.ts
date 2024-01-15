@@ -1,8 +1,7 @@
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 
-import { databaseConfig } from 'src/DbConfig';
 import { validate } from 'src/EnvConfig';
 import { DirectoryModule } from 'src/api/directory/DirectoryModule';
 import { FileModule } from 'src/api/file/FileModule';
@@ -17,10 +16,7 @@ export const AppModuleConfig = {
 			validate: validate,
 		}),
 
-		TypeOrmModule.forRootAsync({
-			inject: [ConfigService],
-			useFactory: async (configService: ConfigService) => databaseConfig(configService),
-		}),
+		MikroOrmModule.forRoot(),
 
 		DiskModule.forRootAsync(),
 

@@ -1,5 +1,6 @@
+import { EntityManager } from '@mikro-orm/mariadb';
+
 import { File } from 'src/db/entities/File';
-import { EntityManager } from 'typeorm';
 
 export const IFileRepository = Symbol('IFileRepository');
 

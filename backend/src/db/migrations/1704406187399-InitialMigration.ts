@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+// import { MigrationInterface, QueryRunner } from 'typeorm';
 
 const createDirectoriesTable = `
     CREATE TABLE \`directories\` (
@@ -209,10 +209,10 @@ const filesAfterDeleteTrigger = `
     	WHERE child = OLD.uuid;
 	END`;
 
-export class InitialMigration1704406187399 implements MigrationInterface {
+export class InitialMigration1704406187399 /*implements MigrationInterface*/ {
 	name = 'InitialMigration1704406187399';
 
-	public async up(queryRunner: QueryRunner): Promise<void> {
+	public async up(queryRunner: any): Promise<void> {
 		await queryRunner.query(createDirectoriesTable);
 		await queryRunner.query(createFilesTable);
 		await queryRunner.query(createTreeTable);
@@ -233,7 +233,7 @@ export class InitialMigration1704406187399 implements MigrationInterface {
 		await queryRunner.query(getDirectorySizeFunc);
 	}
 
-	public async down(queryRunner: QueryRunner): Promise<void> {
+	public async down(queryRunner: any): Promise<void> {
 		await queryRunner.query(`DROP TRIGGER IF EXISTS \`files_AFTER_INSERT\``);
 		await queryRunner.query(`DROP TRIGGER IF EXISTS \`files_AFTER_DELETE\``);
 		await queryRunner.query(`DROP TRIGGER IF EXISTS \`files_AFTER_UPDATE\``);

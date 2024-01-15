@@ -1,18 +1,16 @@
-import { Column, Entity, Generated, Index, PrimaryColumn } from 'typeorm';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
-@Entity('tree')
-@Index(['child', 'parent'], { unique: true })
+@Entity({ tableName: 'tree' })
 export class Tree {
-	@PrimaryColumn({ type: 'int', nullable: false })
-	@Generated('increment')
+	@PrimaryKey({ type: 'int', nullable: false, autoincrement: true })
 	readonly id!: number;
 
-	@Column({ type: 'varchar', nullable: true, default: null })
+	@Property({ type: 'varchar', nullable: true, default: null })
 	readonly parent!: string | null;
 
-	@Column({ type: 'varchar', nullable: false })
+	@Property({ type: 'varchar', nullable: false })
 	readonly child!: string;
 
-	@Column({ type: 'int', nullable: false, default: 0 })
+	@Property({ type: 'int', nullable: false, default: 0 })
 	readonly depth!: number;
 }

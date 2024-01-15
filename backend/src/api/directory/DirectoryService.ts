@@ -1,10 +1,9 @@
 import * as path from 'path';
-import { DataSource } from 'typeorm';
 
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { DirectoryRepository } from 'src/api/directory/DirectoryRepository';
+import { EntityManager } from '@mikro-orm/mariadb';
 import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 import { DirectoryContentDto, DirectoryContentResponse } from 'src/api/directory/mapping/content';
 import { DirectoryCreateDto, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
@@ -20,9 +19,9 @@ import { ServerError } from 'src/util/ServerError';
 @Injectable()
 export class DirectoryService {
 	public constructor(
-		private readonly dataSource: DataSource,
+		private readonly entityManager: EntityManager,
 		private readonly configService: ConfigService,
-		@Inject(IDirectoryRepository) private readonly directoryRepository: DirectoryRepository
+		@Inject(IDirectoryRepository) private readonly directoryRepository: IDirectoryRepository
 	) {}
 
 	/**
@@ -34,7 +33,7 @@ export class DirectoryService {
 	 * @returns {Promise<DirectoryContentResponse>} the response
 	 */
 	public async content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			if (!(await this.directoryRepository.exists(entityManager, directoryContentDto.path))) {
 				throw new ServerError(`directory ${directoryContentDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
@@ -54,7 +53,7 @@ export class DirectoryService {
 	 * @returns {Promise<DirectoryMetadataResponse>} the response
 	 */
 	public async metadata(directoryMetadataDto: DirectoryMetadataDto): Promise<DirectoryMetadataResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			const metadata = await this.directoryRepository.getMetadata(entityManager, directoryMetadataDto.path);
 
 			if (!metadata) {
@@ -74,7 +73,7 @@ export class DirectoryService {
 	 * @returns {Promise<DirectoryDownloadResponse>} the response
 	 */
 	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
-		return this.dataSource.transaction(async (entityManager) => {
+		return this.entityManager.transactional(async (entityManager) => {
 			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDownloadDto.path);
 
 			if (!directory) {
@@ -98,7 +97,7 @@ export class DirectoryService {
 	 * @returns {Promise<DirectoryRestoreResponse>} the response
 	 */
 	public async restore(directoryRestoreDto: DirectoryRestoreDto): Promise<DirectoryRestoreResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			const directoryToRestore = await this.directoryRepository.selectByUuid(entityManager, directoryRestoreDto.uuid, true);
 
 			if (!directoryToRestore) {
@@ -124,7 +123,7 @@ export class DirectoryService {
 	 * @returns {Promise<DirectoryCreateResponse>} the response
 	 */
 	public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			if (await this.directoryRepository.exists(entityManager, directoryCreateDto.path)) {
 				throw new ServerError(`directory ${directoryCreateDto.path} already exists`, HttpStatus.CONFLICT);
 			}
@@ -155,7 +154,7 @@ export class DirectoryService {
 	 * @returns {Promise<DirectoryRenameResponse>} the response
 	 */
 	public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			if (await this.directoryRepository.exists(entityManager, directoryRenameDto.destPath)) {
 				throw new ServerError(`directory ${directoryRenameDto.destPath} already exists`, HttpStatus.CONFLICT);
 			}
@@ -181,7 +180,7 @@ export class DirectoryService {
 				throw new ServerError(`directory ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
-			updateOptions = { ...updateOptions, parentId: destinationParent.uuid };
+			updateOptions = { ...updateOptions /*parentId: destinationParent.uuid*/ };
 
 			await this.directoryRepository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
 
@@ -198,7 +197,7 @@ export class DirectoryService {
 	 * @returns {Promise<DirectoryDeleteResponse>} the response
 	 */
 	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDeleteDto.path, false);
 
 			if (!directory) {
