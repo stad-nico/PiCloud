@@ -1,4 +1,4 @@
-// import { MigrationInterface, QueryRunner } from 'typeorm';
+import { Migration } from '@mikro-orm/migrations';
 
 const createDirectoriesTable = `
     CREATE TABLE \`directories\` (
@@ -41,10 +41,10 @@ const createTreeTable = `
 const getUpmostDirnameFunc = `
 	CREATE OR REPLACE FUNCTION \`GET_UPMOST_DIRNAME\`(\`path\` VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC
 	BEGIN
-		IF path = "" THEN 
+		IF path = "" THEN
 			RETURN CAST(NULL AS VARCHAR(255));
 		END IF;
-	
+
 		IF LOCATE("/", PATH) = 0 THEN
 			RETURN path;
 		END IF;
@@ -63,14 +63,14 @@ const getFileUuidFunc = `
 	BEGIN
 		DECLARE nextPath VARCHAR(255) DEFAULT TRIM(LEADING "/" FROM path);
 		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath) AND directories.parentId IS NULL);
-		
+
 		SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
-	
+
 		WHILE LOCATE("/", nextPath) != 0 DO
 			SET nextUuid = (SELECT uuid FROM directories WHERE directories.parentId = nextUuid AND directories.name = GET_UPMOST_DIRNAME(nextPath));
 			SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
 		END WHILE;
-	
+
 		RETURN (SELECT uuid FROM files WHERE files.name = nextPath AND files.parentId = nextUuid OR (nextUuid IS NULL AND files.parentId IS NULL));
 	END`;
 
@@ -78,14 +78,14 @@ const getFilePathFunc = `
 	CREATE OR REPLACE FUNCTION \`GET_FILE_PATH\`(\`uuid\` VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC
 	BEGIN
 		DECLARE path VARCHAR(255) DEFAULT (SELECT name FROM files WHERE files.uuid = uuid);
-		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parentId FROM files WHERE files.uuid = uuid); 
+		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parentId FROM files WHERE files.uuid = uuid);
 
 		WHILE nextUuid IS NOT NULL DO
 			SET path = CONCAT((SELECT name FROM directories WHERE directories.uuid = nextUuid), "/", path);
 			SET nextUuid = (SELECT parentId FROM directories WHERE directories.uuid = nextUuid);
-	
+
 		END WHILE;
-	
+
 		RETURN path;
 	END`;
 
@@ -94,14 +94,14 @@ const getDirectoryUuidFunc = `
 	BEGIN
 		DECLARE nextPath VARCHAR(255) DEFAULT TRIM(LEADING "/" FROM path);
 		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT uuid FROM directories WHERE directories.name = GET_UPMOST_DIRNAME(nextPath) AND directories.parentId IS NULL);
-	
+
 		SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
-	
+
 		WHILE nextPath != "" DO
 			SET nextUuid = (SELECT uuid FROM directories WHERE directories.parentId = nextUuid AND directories.name = GET_UPMOST_DIRNAME(nextPath));
 			SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath);
 		END WHILE;
-	
+
 		RETURN nextUuid;
 	END`;
 
@@ -109,7 +109,7 @@ const getDirectoryPathFunc = `
 	CREATE OR REPLACE FUNCTION \`GET_DIRECTORY_PATH\`(\`uuid\` VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC
 	BEGIN
 		DECLARE path VARCHAR(255) DEFAULT (SELECT name FROM directories WHERE directories.uuid = uuid);
-		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parentId FROM directories WHERE directories.uuid = uuid); 
+		DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parentId FROM directories WHERE directories.uuid = uuid);
 
 		IF uuid IS NULL THEN
 			RETURN "/";
@@ -118,7 +118,7 @@ const getDirectoryPathFunc = `
 		WHILE nextUuid IS NOT NULL DO
 			SET path = CONCAT((SELECT name FROM directories WHERE directories.uuid = nextUuid), "/", path);
 			SET nextUuid = (SELECT parentId FROM directories WHERE directories.uuid = nextUuid);
-	
+
 		END WHILE;
 
 		RETURN path;
@@ -136,15 +136,15 @@ const getDirectorySizeFunc = `
 	END`;
 
 const directoriesAfterInsertTrigger = `
-	CREATE OR REPLACE TRIGGER \`directories_AFTER_INSERT\` AFTER INSERT ON \`directories\` 
+	CREATE OR REPLACE TRIGGER \`directories_AFTER_INSERT\` AFTER INSERT ON \`directories\`
 	FOR EACH ROW BEGIN
-		# create first flat entry (self, self, 0) 
+		# create first flat entry (self, self, 0)
 		INSERT INTO tree (parent, child, depth)
 		SELECT NEW.uuid, NEW.uuid, 0;
-    
+
     	# create hierarchical entries
     	# depends on flat entries - must be a seperate insert
-    	INSERT INTO tree (parent, child, depth) 
+    	INSERT INTO tree (parent, child, depth)
     	SELECT p.parent, c.child, p.depth + c.depth + 1
     	FROM tree p JOIN tree c
     	WHERE p.child = NEW.parentId AND c.parent = NEW.uuid;
@@ -153,23 +153,23 @@ const directoriesAfterInsertTrigger = `
 const directoriesAfterUpdateTrigger = `
 	CREATE OR REPLACE TRIGGER \`directories_AFTER_UPDATE\` AFTER UPDATE ON \`directories\` FOR EACH ROW BEGIN
 		IF OLD.uuid != NEW.uuid THEN
-			UPDATE tree 
-			SET parentId = NEW.uuid 
-			WHERE parentId = OLD.uuid; 
+			UPDATE tree
+			SET parentId = NEW.uuid
+			WHERE parentId = OLD.uuid;
 
-        	UPDATE tree 
-			SET child = NEW.uuid 
-				WHERE child = OLD.uuid; 
+        	UPDATE tree
+			SET child = NEW.uuid
+				WHERE child = OLD.uuid;
     	END IF;
-    
+
     	IF OLD.parentId != NEW.parentId THEN
 			# remove all paths to subtree but not paths inside the subtree
-			DELETE FROM tree 
-			WHERE tree.child IN 
+			DELETE FROM tree
+			WHERE tree.child IN
 				(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parentId = NEW.uuid)
             AND tree.parent NOT IN
 				(SELECT child FROM (SELECT * FROM tree) AS b WHERE b.parentId = NEW.uuid);
-                
+
 			INSERT INTO tree (parent, child, depth)
 				SELECT supertree.parent, subtree.child, supertree.depth + subtree.depth + 1
 				FROM tree AS supertree JOIN tree AS subtree
@@ -180,7 +180,7 @@ const directoriesAfterUpdateTrigger = `
 const directoriesAfterDeleteTrigger = `
 	CREATE OR REPLACE TRIGGER \`directories_AFTER_DELETE\` AFTER DELETE ON \`directories\` FOR EACH ROW BEGIN
 		DELETE FROM tree
-    	WHERE tree.child IN 
+    	WHERE tree.child IN
 			(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parentId = OLD.uuid);
 	END`;
 
@@ -188,7 +188,7 @@ const filesAfterInsertTrigger = `
 	CREATE OR REPLACE TRIGGER \`files_AFTER_INSERT\` AFTER INSERT ON \`files\` FOR EACH ROW BEGIN
 		INSERT INTO tree (parent, child, depth)
     	SELECT parent, NEW.uuid, depth + 1
-      	FROM tree 
+      	FROM tree
       	WHERE child = NEW.parentId;
 	END`;
 
@@ -197,7 +197,7 @@ const filesAfterUpdateTrigger = `
 		IF OLD.uuid != NEW.uuid THEN
 			UPDATE tree SET child = NEW.uuid WHERE child = OLD.uuid;
     	END IF;
-    
+
     	IF OLD.parentId != NEW.parentId THEN
 			UPDATE tree SET parentId = NEW.parentId WHERE child = OLD.uuid AND parentId = OLD.parentId;
     	END IF;
@@ -209,48 +209,46 @@ const filesAfterDeleteTrigger = `
     	WHERE child = OLD.uuid;
 	END`;
 
-export class InitialMigration1704406187399 /*implements MigrationInterface*/ {
-	name = 'InitialMigration1704406187399';
+export class InitialMigration20240116112307 extends Migration {
+	public async up(): Promise<void> {
+		this.addSql(createDirectoriesTable);
+		this.addSql(createFilesTable);
+		this.addSql(createTreeTable);
 
-	public async up(queryRunner: any): Promise<void> {
-		await queryRunner.query(createDirectoriesTable);
-		await queryRunner.query(createFilesTable);
-		await queryRunner.query(createTreeTable);
+		this.addSql(filesAfterInsertTrigger);
+		this.addSql(filesAfterUpdateTrigger);
+		this.addSql(filesAfterDeleteTrigger);
+		this.addSql(directoriesAfterInsertTrigger);
+		this.addSql(directoriesAfterUpdateTrigger);
+		this.addSql(directoriesAfterDeleteTrigger);
 
-		await queryRunner.query(filesAfterInsertTrigger);
-		await queryRunner.query(filesAfterUpdateTrigger);
-		await queryRunner.query(filesAfterDeleteTrigger);
-		await queryRunner.query(directoriesAfterInsertTrigger);
-		await queryRunner.query(directoriesAfterUpdateTrigger);
-		await queryRunner.query(directoriesAfterDeleteTrigger);
-
-		await queryRunner.query(getUpmostDirnameFunc);
-		await queryRunner.query(getPathAfterUpmostDirnameFunc);
-		await queryRunner.query(getDirectoryPathFunc);
-		await queryRunner.query(getDirectoryUuidFunc);
-		await queryRunner.query(getFilePathFunc);
-		await queryRunner.query(getFileUuidFunc);
-		await queryRunner.query(getDirectorySizeFunc);
+		this.addSql(getUpmostDirnameFunc);
+		this.addSql(getPathAfterUpmostDirnameFunc);
+		this.addSql(getDirectoryPathFunc);
+		this.addSql(getDirectoryUuidFunc);
+		this.addSql(getFilePathFunc);
+		this.addSql(getFileUuidFunc);
+		this.addSql(getDirectorySizeFunc);
 	}
 
-	public async down(queryRunner: any): Promise<void> {
-		await queryRunner.query(`DROP TRIGGER IF EXISTS \`files_AFTER_INSERT\``);
-		await queryRunner.query(`DROP TRIGGER IF EXISTS \`files_AFTER_DELETE\``);
-		await queryRunner.query(`DROP TRIGGER IF EXISTS \`files_AFTER_UPDATE\``);
-		await queryRunner.query(`DROP TRIGGER IF EXISTS \`directories_AFTER_INSERT\``);
-		await queryRunner.query(`DROP TRIGGER IF EXISTS \`directories_AFTER_UPDATE\``);
-		await queryRunner.query(`DROP TRIGGER IF EXISTS \`directories_AFTER_DELETE\``);
+	public async down(): Promise<void> {
+		this.addSql(`DROP TRIGGER IF EXISTS \`files_AFTER_INSERT\``);
+		this.addSql(`DROP TRIGGER IF EXISTS \`files_AFTER_DELETE\``);
+		this.addSql(`DROP TRIGGER IF EXISTS \`files_AFTER_UPDATE\``);
+		this.addSql(`DROP TRIGGER IF EXISTS \`directories_AFTER_INSERT\``);
+		this.addSql(`DROP TRIGGER IF EXISTS \`directories_AFTER_UPDATE\``);
+		this.addSql(`DROP TRIGGER IF EXISTS \`directories_AFTER_DELETE\``);
 
-		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_UPMOST_DIRNAME\``);
-		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_PATH_AFTER_UPMOST_DIRNAME\``);
-		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_DIRECTORY_PATH\``);
-		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_DIRECTORY_UUID\``);
-		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_FILE_PATH\``);
-		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_FILE_UUID\``);
-		await queryRunner.query(`DROP FUNCTION IF EXISTS \`GET_DIRECTORY_SIZE\``);
+		this.addSql(`DROP FUNCTION IF EXISTS \`GET_UPMOST_DIRNAME\``);
+		this.addSql(`DROP FUNCTION IF EXISTS \`GET_PATH_AFTER_UPMOST_DIRNAME\``);
+		this.addSql(`DROP FUNCTION IF EXISTS \`GET_DIRECTORY_PATH\``);
+		this.addSql(`DROP FUNCTION IF EXISTS \`GET_DIRECTORY_UUID\``);
+		this.addSql(`DROP FUNCTION IF EXISTS \`GET_FILE_PATH\``);
+		this.addSql(`DROP FUNCTION IF EXISTS \`GET_FILE_UUID\``);
+		this.addSql(`DROP FUNCTION IF EXISTS \`GET_DIRECTORY_SIZE\``);
 
-		await queryRunner.query(`DROP TABLE \`files\``);
-		await queryRunner.query(`DROP TABLE \`directories\``);
-		await queryRunner.query(`DROP TABLE \`tree\``);
+		this.addSql(`DROP TABLE \`files\``);
+		this.addSql(`DROP TABLE \`directories\``);
+		this.addSql(`DROP TABLE \`tree\``);
 	}
 }
