@@ -17,125 +17,116 @@ export type DirectoryGetContentDBResult = {
 export const IDirectoryRepository = Symbol('IDirectoryRepository');
 
 /**
- * Helper for executing directory operations on the db
+ * Interface for executing directory operations on the db.
+ * @interface
  */
 export interface IDirectoryRepository {
 	/**
-	 * Select `name` and `uuid` of a directory.
+	 * Selects name and id of a directory at the given path.
+	 * Returns null if no directory was found.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} path the path of the directory
-	 * @param {boolean} isRecycled whether to find deleted directory
-	 *
-	 * @returns {Promise<Pick<Directory, 'uuid' | 'name'> | null>} the `name` and `uuid` of the directory or `null` if not found
+	 * @param   {EntityManager} entityManager the entityManager
+	 * @param   {string}        path          the path of the directory
+	 * @param   {boolean}       isRecycled    whether the directory to find should be a recycled one
+	 * @returns {Promise<Pick<Directory, 'id' | 'name'> | null>} the name and id of the directory
 	 */
-	selectByPath(entityManager: EntityManager, path: string, isRecycled?: boolean): Promise<Pick<Directory, 'id' | 'name'> | null>;
+	selectByPath(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<Pick<Directory, 'id' | 'name'> | null>;
 
 	/**
-	 * Select `name` and `path` of a directory.
+	 * Selects name and path of a directory.
+	 * Returns null if no directory was found.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} uuid the uuid of the directory
-	 * @param {boolean} isRecycled whether to find deleted directory
-	 *
-	 * @returns {Promise<(Pick<Directory, 'name'> & { path: string }) | null>} the `name` and `path` of the directory or `null` if not found
+	 * @param   {EntityManager} entityManager the entityManager
+	 * @param   {string}        id            the id of the directory
+	 * @param   {boolean}       isRecycled    whether the directory to find should be a recycled one
+	 * @returns {Promise<(Pick<Directory, 'name'> & { path: string }) | null>} the name and path of the directory
 	 */
 	selectByUuid(
 		entityManager: EntityManager,
 		uuid: string,
-		isRecycled?: boolean
+		isRecycled: boolean
 	): Promise<(Pick<Directory, 'name'> & { path: string }) | null>;
 
 	/**
-	 * Check if directory with `path` exists.
+	 * Checks if a directory at the given path exists.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} path the path of the directory
-	 * @param {boolean} isRecycled whether to find deleted directory
-	 *
-	 * @returns {Promise<void>}
+	 * @param   {EntityManager}    entityManager the entityManager
+	 * @param   {string}           path          the path of the directory
+	 * @param   {boolean}          isRecycled    whether the directory to find should be a recycled one
+	 * @returns {Promise<boolean>}               whether a directory at the path exists
 	 */
-	exists(entityManager: EntityManager, path: string, isRecycled?: boolean): Promise<boolean>;
+	exists(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<boolean>;
 
 	/**
-	 * Insert a new directory with `name` and `parent` (optional).
+	 * Inserts a new directory into the db.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} name the name of the directory
-	 * @param {boolean} parent the parent
-	 *
-	 * @returns {Promise<void>}
+	 * @param   {EntityManager} entityManager the entityManager
+	 * @param   {string}        name          the name of the directory
+	 * @param   {string|null}   parent        the parent of the directory
 	 */
-	insert(entityManager: EntityManager, name: string, parent?: string | null): Promise<void>;
+	insert(entityManager: EntityManager, name: string, parent: string | null): Promise<void>;
 
 	/**
-	 * Soft delete a directory tree by the root uuid.
+	 * Soft deletes a directory tree by the root id
+	 * by setting isRecycled to true for all directories in that subtree.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} rootUuid the uuid of the tree root
-	 *
-	 * @returns {Promise<void>}
+	 * @param {EntityManager} entityManager the entityManager
+	 * @param {string}        rootUuid      the id of the tree root
 	 */
 	softDelete(entityManager: EntityManager, rootUuid: string): Promise<void>;
 
 	/**
-	 * Get metadata of a directory by path.
+	 * Selects the metadata of a directory by its path.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} path the path of the directory
-	 *
-	 * @returns {Promise<DirectoryGetMetadataDBResult>} the metadata result
+	 * @param   {EntityManager}                         entityManager the entityManager
+	 * @param   {string}                                path          the path of the directory
+	 * @returns {Promise<DirectoryGetMetadataDBResult>}               the metadata
 	 */
 	getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult>;
 
 	/**
-	 * Get first level subdirectories and files of a directory by path.
+	 * Select the first level subdirectories and files of a directory by its path.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} path the path of the directory
-	 *
-	 * @returns {Promise<DirectoryGetContentDBResult>} the first level result
+	 * @param   {EntityManager}                        entityManager the entityManager
+	 * @param   {string}                               path          the path of the directory
+	 * @returns {Promise<DirectoryGetContentDBResult>}               the result
 	 */
 	getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult>;
 
 	/**
-	 * Get the relative path and uuid of all files inside a directory by path regardless of the depth.
+	 * Select the relative path and id of all files inside a directory by its path.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} path the path of the directory
-	 *
+	 * @param   {EntityManager} entityManager the entityManager
+	 * @param   {string}        path the path of the directory
 	 * @returns {Promise<Array<Pick<File, 'uuid'> & { path: string }>>} the files
 	 */
 	getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<Pick<File, 'id'> & { path: string }>>;
 
 	/**
-	 * Update a directory by path.
+	 * Updates a directory.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} path the path of the directory to update
-	 * @param {Partial<Directory>} partial the partial directory to update
-	 *
-	 * @returns {Promise<Array<Pick<File, 'uuid'> & { path: string }>>} the files
+	 * @param {EntityManager}      entityManager the entityManager
+	 * @param {string}             path          the path of the directory to update
+	 * @param {Partial<Directory>} partial       the partial directory to update
 	 */
 	update(entityManager: EntityManager, path: string, partial: Partial<Directory>): Promise<void>;
 
 	/**
-	 * Restore a directory tree by the root uuid.
+	 * Restores a directory tree by the root id
+	 * by setting isRecycled to false for all directories in that subtree.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager connection to use
-	 * @param {string} rootUuid the uuid of tree root
-	 *
-	 * @returns {Promise<void>}
+	 * @param {EntityManager} entityManager the entityManager
+	 * @param {string}        rootId        the id of tree root
 	 */
-	restore(entityManager: EntityManager, rootUuid: string): Promise<void>;
+	restore(entityManager: EntityManager, rootId: string): Promise<void>;
 }

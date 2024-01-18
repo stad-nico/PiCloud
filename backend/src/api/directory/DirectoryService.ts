@@ -82,9 +82,9 @@ export class DirectoryService {
 
 			const files = await this.directoryRepository.getFilesRelative(entityManager, directoryDownloadDto.path);
 
-			const archive = await FileUtils.createZIPArchive(this.configService, files);
+			const readable = await FileUtils.createZIPArchive(this.configService, files);
 
-			return DirectoryDownloadResponse.from(directory.name + '.zip', 'application/zip', archive);
+			return DirectoryDownloadResponse.from(directory.name + '.zip', 'application/zip', readable);
 		});
 	}
 

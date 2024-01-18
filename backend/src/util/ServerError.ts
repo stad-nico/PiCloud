@@ -28,7 +28,7 @@ type ExceptionTypeMap = {
 	[HttpStatus.INTERNAL_SERVER_ERROR]: InternalServerErrorException;
 };
 
-const ExceptionClassMap: Record<keyof ExceptionTypeMap, { new (...args: any[]): HttpException }> = {
+const ExceptionClassMap: Record<keyof ExceptionTypeMap, new (...args: any[]) => HttpException> = {
 	[HttpStatus.NOT_FOUND]: NotFoundException,
 	[HttpStatus.BAD_REQUEST]: BadRequestException,
 	[HttpStatus.CONFLICT]: ConflictException,

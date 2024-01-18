@@ -22,22 +22,66 @@ import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 import { ServerError } from 'src/util/ServerError';
 
+/**
+ * Service for CRUD operations on file entities.
+ * @class
+ */
 @Injectable()
 export class FileService {
-	public constructor(
-		private readonly entityManager: EntityManager,
-		private readonly configService: ConfigService,
-		@Inject(IFileRepository) private readonly fileRepository: IFileRepository,
-		@Inject(IDirectoryRepository) private readonly directoryRepository: IDirectoryRepository
-	) {}
+	/**
+	 * The entity manager for executing transactions on repositories.
+	 * @type {EntityManager}
+	 */
+	private readonly entityManager: EntityManager;
 
 	/**
-	 * Get the metadata of a file.
+	 * The config service for using environment variables.
+	 * @type {ConfigService}
+	 */
+	private readonly configService: ConfigService;
+
+	/**
+	 * The repository for executing file operations on the db.
+	 * @type {IFileRepository}
+	 */
+	private readonly fileRepository: IFileRepository;
+
+	/**
+	 * The repository for executing directory operations on the db.
+	 * @type {IDirectoryRepository}
+	 */
+	private readonly directoryRepository: IDirectoryRepository;
+
+	/**
+	 * Creates a new FileService instance.
+	 * @constructor
+	 *
+	 * @param {EntityManager}        entityManager       the entityManager
+	 * @param {ConfigService}        configService       the configService
+	 * @param {IFileRepository}      fileRepository      the fileRepository
+	 * @param {IDirectoryRepository} directoryRepository the directoryRepository
+	 * @returns {FileService} the FileService instance
+	 */
+	public constructor(
+		entityManager: EntityManager,
+		configService: ConfigService,
+		@Inject(IFileRepository) fileRepository: IFileRepository,
+		@Inject(IDirectoryRepository) directoryRepository: IDirectoryRepository
+	) {
+		this.entityManager = entityManager;
+		this.configService = configService;
+		this.fileRepository = fileRepository;
+		this.directoryRepository = directoryRepository;
+	}
+
+	/**
+	 * Returns the metadata of a file.
 	 * @async
 	 *
-	 * @param {FileMetadataDto} fileMetadataDto the dto for getting the metadata of a file
+	 * @throws  {ServerError} file must exist
 	 *
-	 * @returns {Promise<FileMetadataResponse>} the response
+	 * @param   {FileMetadataDto}               fileMetadataDto the dto for getting the metadata of a file
+	 * @returns {Promise<FileMetadataResponse>}                 the metadata
 	 */
 	public async metadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
@@ -52,12 +96,13 @@ export class FileService {
 	}
 
 	/**
-	 * Download a file.
+	 * Returns a stream of the content of a file as well as mimeType and filename.
 	 * @async
 	 *
-	 * @param {FileDownloadDto} fileDownloadDto the dto for downloading a file
+	 * @throws  {ServerError} file must exist
 	 *
-	 * @returns {Promise<FileDownloadResponse>} the response
+	 * @param   {FileDownloadDto}               fileDownloadDto the dto for downloading a file
+	 * @returns {Promise<FileDownloadResponse>}                 the response
 	 */
 	public async download(fileDownloadDto: FileDownloadDto): Promise<FileDownloadResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
@@ -74,12 +119,14 @@ export class FileService {
 	}
 
 	/**
-	 * Restore a soft deleted directory.
+	 * Restore a soft deleted file by its id. Returns the path of the restored file.
+	 * Throws if file does not exist.
 	 * @async
 	 *
-	 * @param {FileRestoreDto} fileRestoreDto the dto for restoring a file
+	 * @throws  {ServerError} file must exist
 	 *
-	 * @returns {Promise<FileRestoreResponse>} the response
+	 * @param   {FileRestoreDto}               fileRestoreDto the dto for restoring a file
+	 * @returns {Promise<FileRestoreResponse>}                the path of the restored file
 	 */
 	public async restore(fileRestoreDto: FileRestoreDto): Promise<FileRestoreResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
@@ -96,12 +143,14 @@ export class FileService {
 	}
 
 	/**
-	 * Upload a file or fail if it already exists or destination parent does not exist.
+	 * Uploads a file. Fails if it already exists or destination parent does not exist.
 	 * @async
 	 *
-	 * @param {FileUploadDto} fileUploadDto the dto for uploading a new file
+	 * @throws  {ServerError} file must not already exist
+	 * @throws  {ServerError} parent directory must exist
 	 *
-	 * @returns {Promise<FileUploadResponse>} the response
+	 * @param   {FileUploadDto}               fileUploadDto the dto for uploading a new file
+	 * @returns {Promise<FileUploadResponse>}               the path of the uploaded file
 	 */
 	public async upload(fileUploadDto: FileUploadDto): Promise<FileUploadResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
@@ -131,12 +180,13 @@ export class FileService {
 	}
 
 	/**
-	 * Upload a file or replace if it already exists. Fails if the destination parent does not exist.
+	 * Uploads a file or replace if it already exists. Fails if the destination parent does not exist.
 	 * @async
 	 *
-	 * @param {FileReplaceDto} fileReplaceDto the dto for uploading or replacing a file
+	 * @throws  {ServerError} parent directory must exist
 	 *
-	 * @returns {Promise<FileReplaceResponse>} the response
+	 * @param   {FileReplaceDto}               fileReplaceDto the dto for uploading or replacing a file
+	 * @returns {Promise<FileReplaceResponse>}                the path of the created file
 	 */
 	public async replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
@@ -167,12 +217,15 @@ export class FileService {
 	}
 
 	/**
-	 * Rename or move a file.
+	 * Renames or moves a file. Fails if file does not exist or destination already exists or destination parent not exists.
 	 * @async
 	 *
-	 * @param {FileRenameDto} fileRenameDto the dto for renaming a file
+	 * @throws  {ServerError} file must exist
+	 * @throws  {ServerError} destination file must not already exist
+	 * @throws  {ServerError} destination parent directory must exist
 	 *
-	 * @returns {Promise<FileRenameResponse>} the response
+	 * @param   {FileRenameDto}               fileRenameDto the dto for renaming a file
+	 * @returns {Promise<FileRenameResponse>}               the path of the renamed file
 	 */
 	public async rename(fileRenameDto: FileRenameDto): Promise<FileRenameResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
@@ -201,7 +254,7 @@ export class FileService {
 				throw new ServerError(`directory ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
-			updateOptions = { ...updateOptions /*parentId: destinationParent.uuid*/ };
+			updateOptions = { ...updateOptions, parent: entityManager.getReference(File, destinationParent.id) };
 
 			await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
 
@@ -210,12 +263,13 @@ export class FileService {
 	}
 
 	/**
-	 * Soft delete a file or fail if it does not exist.
+	 * Soft deletes a file or fails if it does not exist.
 	 * @async
 	 *
-	 * @param {FileDeleteDto} fileDeleteDto the dto for soft deleting a file
+	 * @throws  {ServerError} file must exist
 	 *
-	 * @returns {Promise<FileDeleteResponse>} the response
+	 * @param   {FileDeleteDto}               fileDeleteDto the dto for soft deleting a file
+	 * @returns {Promise<FileDeleteResponse>}               the id of the deleted file
 	 */
 	public async delete(fileDeleteDto: FileDeleteDto): Promise<FileDeleteResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {

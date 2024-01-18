@@ -6,30 +6,30 @@ import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
 import { StoragePath } from 'src/disk/DiskService';
 import { PathUtils } from 'src/util/PathUtils';
+import { Readable } from 'stream';
 
+/**
+ * Utility class for manipulating the file system.
+ * @class
+ */
 export class FileUtils {
 	/**
-	 * Try to delete the directory recursively.
-	 * Throws error if fails.
+	 * Tries to delete the directory recursively.
+	 * Throws an error if it fails.
 	 *
-	 * @throw fs error
-	 *
-	 * @param path the absolute path
-	 * @param recursive whether subfolders should get deleted
+	 * @param {string}  path			 the absolute path
+	 * @param {boolean} [recursive=true] whether subfolders should get deleted
 	 */
 	public static async deleteDirectoryOrFail(path: string, recursive: boolean = true): Promise<void> {
 		return await fsPromises.rm(path, { recursive: recursive });
 	}
 
 	/**
-	 * Try to create the directory recursively if it does not already exists.
-	 * Throws error if fails.
+	 * Tries to create the directory recursively if it does not already exist.
+	 * Throws an error if it fails.
 	 *
-	 * @throws fs Error
-	 *
-	 * @param path the absolute path
-	 * @param recursive whether subfolders should be created
-	 * @returns void
+	 * @param {string}  path             the absolute path
+	 * @param {boolean} [recursive=true] whether subfolders should be created
 	 */
 	public static async createDirectoryIfNotPresent(path: string, recursive: boolean = true): Promise<void> {
 		if (await PathUtils.pathExists(path)) {
@@ -40,11 +40,11 @@ export class FileUtils {
 	}
 
 	/**
-	 * Writes a buffer to the disk
+	 * Writes a buffer to the disk.
 	 *
-	 * @param absolutePath the destination path
-	 * @param buffer the content
-	 * @param recursive
+	 * @param {string}  absolutePath     the destination path
+	 * @param {Buffer}  buffer           the content
+	 * @param {boolean} [recursive=true] whether destination path should be created if it does not exist
 	 */
 	public static async writeFile(absolutePath: string, buffer: Buffer, recursive: boolean = true): Promise<void> {
 		const normalizedPath = PathUtils.prepareForFS(absolutePath);
@@ -59,11 +59,11 @@ export class FileUtils {
 	}
 
 	/**
-	 * Copies a file
+	 * Copies a file.
 	 *
-	 * @param from the source path
-	 * @param to the destination path
-	 * @param recursive
+	 * @param {string}  from             the source path
+	 * @param {string}  to               the destination path
+	 * @param {boolean} [recursive=true] whether destination path should be created if it does not exist
 	 */
 	public static async copyFile(from: string, to: string, recursive: boolean = true): Promise<void> {
 		const fromNormalized = PathUtils.prepareForFS(from);
@@ -79,9 +79,9 @@ export class FileUtils {
 	}
 
 	/**
-	 * Empties a directory by removing all files and subfolder from it
+	 * Empties a directory by removing all files and subfolder from it.
 	 *
-	 * @param absolutePath the directory path
+	 * @param {string} absolutePath the directory path
 	 */
 	public static async emptyDirectory(absolutePath: string): Promise<void> {
 		const files = await fsPromises.readdir(absolutePath);
@@ -91,7 +91,14 @@ export class FileUtils {
 		}
 	}
 
-	public static async createZIPArchive(configService: ConfigService, files: { id: string; path: string }[]): Promise<Archiver> {
+	/**
+	 * Creates a stream of a ZIP-Archive.
+	 *
+	 * @param   {ConfigService}                       configService the config service
+	 * @param   {Array<{ id: string; path: string }>} files         the files
+	 * @returns {Readable}                                          readable stream
+	 */
+	public static async createZIPArchive(configService: ConfigService, files: Array<{ id: string; path: string }>): Promise<Readable> {
 		return new Promise<Archiver>((resolve, reject) => {
 			const archive = createArchiver('zip');
 
