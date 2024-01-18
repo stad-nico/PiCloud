@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import { EnvVariables, NodeEnv, validate } from 'src/EnvConfig';
+import { EnvVariables, NodeEnv, validate } from 'src/config/EnvConfig';
 
-describe('env.config.ts', () => {
+describe('EnvConfig.ts', () => {
 	describe('validate', () => {
 		const config: Record<string, unknown> = {
 			PORT: 3000,

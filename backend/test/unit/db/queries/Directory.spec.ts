@@ -1,3 +1,0 @@
-describe('directories', () => {
-	describe('getUuidByPathAndNotRecycled', () => {});
-});

@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { DataSource, QueryRunner } from 'typeorm';
 
-import { File } from 'src/api/file/entities/file.entity';
-import { configureApplication } from 'src/AppConfig';
 import { AppModuleConfig } from 'src/AppModule';
-import { Environment } from 'src/EnvConfig';
+import { File } from 'src/api/file/entities/file.entity';
+import { configureApplication } from 'src/config/AppConfig';
+import { Environment } from 'src/config/EnvConfig';
 import { FileUtils } from 'src/util/FileUtils';
 
 import * as fsPromises from 'fs/promises';

@@ -4,7 +4,7 @@ describe('NotifyingLoggerWithContext', () => {
 	it('should notify all loggers when debug is executed', () => {
 		const loggers = [{ debug: () => {} }];
 		const notifyingLoggerWithContext = new NotifyingLoggerWithContext('abc', loggers as any);
-		const debugSpy = jest.spyOn(loggers[0], 'debug');
+		const debugSpy = jest.spyOn(loggers[0]!, 'debug');
 
 		notifyingLoggerWithContext.debug('test');
 		expect(debugSpy).toHaveBeenCalledWith('test', 'abc');
@@ -16,7 +16,7 @@ describe('NotifyingLoggerWithContext', () => {
 	it('should notify all loggers when log is executed', () => {
 		const loggers = [{ log: () => {} }];
 		const notifyingLoggerWithContext = new NotifyingLoggerWithContext('abc', loggers as any);
-		const logSpy = jest.spyOn(loggers[0], 'log');
+		const logSpy = jest.spyOn(loggers[0]!, 'log');
 
 		notifyingLoggerWithContext.log('test');
 		expect(logSpy).toHaveBeenCalledWith('test', 'abc');
@@ -28,7 +28,7 @@ describe('NotifyingLoggerWithContext', () => {
 	it('should notify all loggers when warn is executed', () => {
 		const loggers = [{ warn: () => {} }];
 		const notifyingLoggerWithContext = new NotifyingLoggerWithContext('abc', loggers as any);
-		const warnSpy = jest.spyOn(loggers[0], 'warn');
+		const warnSpy = jest.spyOn(loggers[0]!, 'warn');
 
 		notifyingLoggerWithContext.warn('test');
 		expect(warnSpy).toHaveBeenCalledWith('test', 'abc');
@@ -40,7 +40,7 @@ describe('NotifyingLoggerWithContext', () => {
 	it('should notify all loggers when fatal is executed', () => {
 		const loggers = [{ fatal: () => {} }];
 		const notifyingLoggerWithContext = new NotifyingLoggerWithContext('abc', loggers as any);
-		const fatalSpy = jest.spyOn(loggers[0], 'fatal');
+		const fatalSpy = jest.spyOn(loggers[0]!, 'fatal');
 
 		notifyingLoggerWithContext.fatal('test');
 		expect(fatalSpy).toHaveBeenCalledWith('test', 'abc');
@@ -52,7 +52,7 @@ describe('NotifyingLoggerWithContext', () => {
 	it('should notify all loggers when error is executed', () => {
 		const loggers = [{ error: () => {} }];
 		const notifyingLoggerWithContext = new NotifyingLoggerWithContext('abc', loggers as any);
-		const errorSpy = jest.spyOn(loggers[0], 'error');
+		const errorSpy = jest.spyOn(loggers[0]!, 'error');
 
 		notifyingLoggerWithContext.error('test');
 		expect(errorSpy).toHaveBeenCalledWith('test', 'abc');

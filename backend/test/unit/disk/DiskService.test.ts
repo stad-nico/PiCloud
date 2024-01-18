@@ -24,6 +24,8 @@ describe('DiskService', () => {
 		service = module.get(DiskService);
 	});
 
+	describe('init', () => {});
+
 	describe('formatBytes', () => {
 		it('should return 0 Bytes', () => {
 			expect(service['formatBytes']('f' as any, 0)).toStrictEqual('0 Bytes');

@@ -2,9 +2,9 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { validate } from 'src/EnvConfig';
 import { DirectoryModule } from 'src/api/directory/DirectoryModule';
 import { FileModule } from 'src/api/file/FileModule';
+import { validate } from 'src/config/EnvConfig';
 import { DiskModule } from 'src/disk/DiskModule';
 
 export const AppModuleConfig = {

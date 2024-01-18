@@ -53,7 +53,7 @@ describe('PathUtils', () => {
 			await expect(await PathUtils.pathExists('t.txt')).toBe(false);
 		});
 
-		it('should return true because file does exists', async () => {
+		it('should return true because file exists', async () => {
 			(fs.access as jest.Mock).mockResolvedValue(undefined);
 
 			await expect(await PathUtils.pathExists('C:')).toBe(true);

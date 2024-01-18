@@ -1,7 +1,7 @@
 import { MariaDbDriver, defineConfig } from '@mikro-orm/mariadb';
 import { Migrator } from '@mikro-orm/migrations';
 import { config } from 'dotenv';
-import { Environment } from './src/EnvConfig';
+import { Environment } from './src/config/EnvConfig';
 
 config({ path: `../${(process.env.NODE_ENV ?? 'dev').trim()}.env` });
 

@@ -4,7 +4,7 @@ describe('NotifyingLogger', () => {
 	it('should notify all loggers when debug is executed', () => {
 		const loggers = [{ debug: (message: string, context: string) => {} }];
 		const notifyingLogger = new NotifyingLogger(loggers as any);
-		const debugSpy = jest.spyOn(loggers[0], 'debug');
+		const debugSpy = jest.spyOn(loggers[0]!, 'debug');
 
 		notifyingLogger.debug('test', 'context');
 
@@ -14,7 +14,7 @@ describe('NotifyingLogger', () => {
 	it('should notify all loggers when log is executed', () => {
 		const loggers = [{ log: (message: string, context: string) => {} }];
 		const notifyingLogger = new NotifyingLogger(loggers as any);
-		const logSpy = jest.spyOn(loggers[0], 'log');
+		const logSpy = jest.spyOn(loggers[0]!, 'log');
 
 		notifyingLogger.log('test', 'context');
 
@@ -24,7 +24,7 @@ describe('NotifyingLogger', () => {
 	it('should notify all loggers when warn is executed', () => {
 		const loggers = [{ warn: (message: string, context: string) => {} }];
 		const notifyingLogger = new NotifyingLogger(loggers as any);
-		const warnSpy = jest.spyOn(loggers[0], 'warn');
+		const warnSpy = jest.spyOn(loggers[0]!, 'warn');
 
 		notifyingLogger.warn('test', 'context');
 
@@ -34,7 +34,7 @@ describe('NotifyingLogger', () => {
 	it('should notify all loggers when error is executed', () => {
 		const loggers = [{ error: (message: string, context: string) => {} }];
 		const notifyingLogger = new NotifyingLogger(loggers as any);
-		const errorSpy = jest.spyOn(loggers[0], 'error');
+		const errorSpy = jest.spyOn(loggers[0]!, 'error');
 
 		notifyingLogger.error('test', 'context');
 
@@ -44,7 +44,7 @@ describe('NotifyingLogger', () => {
 	it('should notify all loggers when fatal is executed', () => {
 		const loggers = [{ fatal: (message: string, context: string) => {} }];
 		const notifyingLogger = new NotifyingLogger(loggers as any);
-		const fatalSpy = jest.spyOn(loggers[0], 'fatal');
+		const fatalSpy = jest.spyOn(loggers[0]!, 'fatal');
 
 		notifyingLogger.fatal('test', 'context');
 
