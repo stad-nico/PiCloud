@@ -10,8 +10,8 @@ export type DirectoryGetMetadataDBResult = Omit<Directory, 'parent' | 'isRecycle
 };
 
 export type DirectoryGetContentDBResult = {
-	files: Array<Pick<File, 'name' | 'mimeType' | 'size' | 'created' | 'updated'>>;
-	directories: Array<Pick<Directory, 'name' | 'created' | 'updated'> & { size: number }>;
+	files: Array<Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>>;
+	directories: Array<Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & { size: number }>;
 };
 
 export const IDirectoryRepository = Symbol('IDirectoryRepository');
@@ -30,7 +30,7 @@ export interface IDirectoryRepository {
 	 *
 	 * @returns {Promise<Pick<Directory, 'uuid' | 'name'> | null>} the `name` and `uuid` of the directory or `null` if not found
 	 */
-	selectByPath(entityManager: EntityManager, path: string, isRecycled?: boolean): Promise<Pick<Directory, 'uuid' | 'name'> | null>;
+	selectByPath(entityManager: EntityManager, path: string, isRecycled?: boolean): Promise<Pick<Directory, 'id' | 'name'> | null>;
 
 	/**
 	 * Select `name` and `path` of a directory.
@@ -114,7 +114,7 @@ export interface IDirectoryRepository {
 	 *
 	 * @returns {Promise<Array<Pick<File, 'uuid'> & { path: string }>>} the files
 	 */
-	getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<Pick<File, 'uuid'> & { path: string }>>;
+	getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<Pick<File, 'id'> & { path: string }>>;
 
 	/**
 	 * Update a directory by path.

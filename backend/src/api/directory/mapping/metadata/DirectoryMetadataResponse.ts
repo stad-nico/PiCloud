@@ -1,6 +1,6 @@
 import { Directory } from 'src/db/entities/Directory';
 
-export type DirectoryMetadataResponseType = Pick<Directory, 'uuid' | 'name' | 'created' | 'updated'> & {
+export type DirectoryMetadataResponseType = Pick<Directory, 'id' | 'name' | 'createdAt' | 'updatedAt'> & {
 	path: string;
 	size: number;
 	files: number;
@@ -8,7 +8,7 @@ export type DirectoryMetadataResponseType = Pick<Directory, 'uuid' | 'name' | 'c
 };
 
 export class DirectoryMetadataResponse {
-	readonly uuid: string;
+	readonly id: string;
 
 	readonly name: string;
 
@@ -20,40 +20,40 @@ export class DirectoryMetadataResponse {
 
 	readonly directories: number;
 
-	readonly created: string;
+	readonly createdAt: string;
 
-	readonly updated: string;
+	readonly updatedAt: string;
 
 	private constructor(
-		uuid: string,
+		id: string,
 		name: string,
 		path: string,
 		size: number,
 		files: number,
 		directories: number,
-		created: string,
-		updated: string
+		createdAt: string,
+		updatedAt: string
 	) {
-		this.uuid = uuid;
+		this.id = id;
 		this.name = name;
 		this.path = path;
 		this.size = size;
 		this.files = files;
 		this.directories = directories;
-		this.created = created;
-		this.updated = updated;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
 	}
 
 	public static from(obj: DirectoryMetadataResponseType): DirectoryMetadataResponse {
 		return new DirectoryMetadataResponse(
-			obj.uuid,
+			obj.id,
 			obj.name,
 			obj.path,
 			obj.size,
 			obj.files,
 			obj.directories,
-			obj.created + '',
-			obj.updated + ''
+			obj.createdAt + '',
+			obj.updatedAt + ''
 		);
 	}
 }

@@ -8,9 +8,10 @@
 		"allowSyntheticDefaultImports": true,
 		"target": "ES2021",
 		"sourceMap": true,
-		"outDir": "./dist",
-		"baseUrl": "./",
-		"incremental": true,
+		"outDir": "dist",
+		"rootDir": "src",
+		"baseUrl": ".",
+		"incremental": false,
 		"skipLibCheck": true,
 		"strictNullChecks": true,
 		"noImplicitAny": true,
@@ -20,8 +21,10 @@
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
 		"exactOptionalPropertyTypes": true,
+		"noEmit": false,
 		"paths": {
 			"src": ["src"]
 		}
-	}
+	},
+	"exclude": ["test"]
 }

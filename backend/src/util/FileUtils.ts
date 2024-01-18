@@ -91,7 +91,7 @@ export class FileUtils {
 		}
 	}
 
-	public static async createZIPArchive(configService: ConfigService, files: { uuid: string; path: string }[]): Promise<Archiver> {
+	public static async createZIPArchive(configService: ConfigService, files: { id: string; path: string }[]): Promise<Archiver> {
 		return new Promise<Archiver>((resolve, reject) => {
 			const archive = createArchiver('zip');
 
@@ -104,7 +104,7 @@ export class FileUtils {
 			archive.on('finish', successHandler);
 
 			for (const file of files) {
-				const dirPath = PathUtils.join(configService, PathUtils.uuidToDirPath(file.uuid), StoragePath.Data);
+				const dirPath = PathUtils.join(configService, PathUtils.uuidToDirPath(file.id), StoragePath.Data);
 				archive.append(createReadStream(dirPath), { name: file.path });
 			}
 

@@ -1,8 +1,8 @@
 import { Directory } from 'src/db/entities/Directory';
 import { File } from 'src/db/entities/File';
 
-export type DirectoryContentDirectoryType = Pick<Directory, 'name' | 'created' | 'updated'> & { size: number };
-export type DirectoryContentFileType = Pick<File, 'name' | 'mimeType' | 'size' | 'created' | 'updated'>;
+export type DirectoryContentDirectoryType = Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & { size: number };
+export type DirectoryContentFileType = Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>;
 
 export type DirectoryContentResponseType = {
 	files: DirectoryContentFileType[];

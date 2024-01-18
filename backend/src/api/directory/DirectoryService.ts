@@ -137,7 +137,7 @@ export class DirectoryService {
 				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const parentId = hasRootAsParent ? null : parent!.uuid;
+			const parentId = hasRootAsParent ? null : parent!.id;
 
 			await this.directoryRepository.insert(entityManager, path.basename(directoryCreateDto.path), parentId);
 
@@ -180,7 +180,7 @@ export class DirectoryService {
 				throw new ServerError(`directory ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
-			updateOptions = { ...updateOptions /*parentId: destinationParent.uuid*/ };
+			updateOptions = { ...updateOptions, parent: entityManager.getReference(Directory, destinationParent.id) };
 
 			await this.directoryRepository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
 
@@ -204,9 +204,9 @@ export class DirectoryService {
 				throw new ServerError(`directory ${directoryDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			await this.directoryRepository.softDelete(entityManager, directory.uuid);
+			await this.directoryRepository.softDelete(entityManager, directory.id);
 
-			return DirectoryDeleteResponse.from(directory.uuid);
+			return DirectoryDeleteResponse.from(directory.id);
 		});
 	}
 }

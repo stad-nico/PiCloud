@@ -1,4 +1,4 @@
-import { plainToInstance } from 'class-transformer';
+import { Type, plainToInstance } from 'class-transformer';
 import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
 
 export enum NodeEnv {
@@ -8,6 +8,7 @@ export enum NodeEnv {
 }
 
 export class EnvVariables {
+	@Type(() => Number)
 	@IsNumber()
 	PORT!: number;
 
@@ -20,6 +21,7 @@ export class EnvVariables {
 	@IsString()
 	DB_HOST!: string;
 
+	@Type(() => Number)
 	@IsNumber()
 	DB_PORT!: number;
 
@@ -45,7 +47,7 @@ export enum Environment {
 }
 
 export function validate(config: Record<string, unknown>) {
-	config['NODE_ENV'] = config['NODE_ENV'] ?? (process.env.NODE_ENV ?? NodeEnv.Develop).trim();
+	config['NODE_ENV'] = config['NODE_ENV'] ?? process.env.NODE_ENV ?? NodeEnv.Develop;
 
 	const validatedConfig = plainToInstance(EnvVariables, config, { enableImplicitConversion: true });
 	const errors = validateSync(validatedConfig, { skipMissingProperties: false });

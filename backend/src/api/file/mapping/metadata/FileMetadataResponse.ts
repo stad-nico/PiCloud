@@ -28,6 +28,6 @@ export class FileMetadataResponse {
 	}
 
 	public static from(obj: FileMetadataResponseType): FileMetadataResponse {
-		return new FileMetadataResponse(obj.uuid, obj.name, obj.path, obj.mimeType, obj.size, obj.created, obj.updated);
+		return new FileMetadataResponse(obj.id, obj.name, obj.path, obj.mimeType, obj.size, obj.createdAt, obj.updatedAt);
 	}
 }

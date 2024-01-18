@@ -67,7 +67,7 @@ export class FileService {
 				throw new ServerError(`file ${fileDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const diskPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(fileToDownload.uuid), StoragePath.Data);
+			const diskPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(fileToDownload.id), StoragePath.Data);
 
 			return FileDownloadResponse.from(fileToDownload.name, fileToDownload.mimeType, createReadStream(diskPath));
 		});
@@ -118,12 +118,12 @@ export class FileService {
 				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const parentId = hasRootAsParent ? null : parent!.uuid;
+			const parentId = hasRootAsParent ? null : parent!.id;
 
 			const fileName = path.basename(fileUploadDto.path);
 			const result = await this.fileRepository.insertReturningUuid(entityManager, fileName, fileUploadDto.mimeType, parentId);
 
-			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.uuid), StoragePath.Data);
+			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
 			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
 
 			return FileUploadResponse.from(fileUploadDto.path);
@@ -156,10 +156,10 @@ export class FileService {
 				entityManager,
 				fileName,
 				fileReplaceDto.mimeType,
-				parentDirectory.uuid
+				parentDirectory.id
 			);
 
-			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.uuid), StoragePath.Data);
+			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
 			await FileUtils.writeFile(resolvedPath, fileReplaceDto.buffer);
 
 			return FileUploadResponse.from(fileReplaceDto.path);
@@ -225,9 +225,9 @@ export class FileService {
 				throw new ServerError(`file ${fileDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			await this.fileRepository.softDelete(entityManager, file.uuid);
+			await this.fileRepository.softDelete(entityManager, file.id);
 
-			return DirectoryDeleteResponse.from(file.uuid);
+			return DirectoryDeleteResponse.from(file.id);
 		});
 	}
 }

@@ -7,15 +7,11 @@ export const IFileRepository = Symbol('IFileRepository');
 export interface IFileRepository {
 	exists(entityManager: EntityManager, path: string, isRecycled?: boolean): Promise<boolean>;
 
-	selectByPath(
-		entityManager: EntityManager,
-		path: string,
-		isRecycled?: boolean
-	): Promise<Pick<File, 'uuid' | 'name' | 'mimeType'> | null>;
+	selectByPath(entityManager: EntityManager, path: string, isRecycled?: boolean): Promise<Pick<File, 'id' | 'name' | 'mimeType'> | null>;
 
 	selectByUuid(entityManager: EntityManager, uuid: string, isRecycled?: boolean): Promise<(Pick<File, 'name'> & { path: string }) | null>;
 
-	insertReturningUuid(entityManager: EntityManager, name: string, mimeType: string, parent?: string | null): Promise<Pick<File, 'uuid'>>;
+	insertReturningUuid(entityManager: EntityManager, name: string, mimeType: string, parent?: string | null): Promise<Pick<File, 'id'>>;
 
 	softDelete(entityManager: EntityManager, uuid: string): Promise<void>;
 

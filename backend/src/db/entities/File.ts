@@ -22,8 +22,8 @@ export class File {
 	readonly isRecycled!: boolean;
 
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'CURRENT_TIMESTAMP()' })
-	readonly created!: Date;
+	readonly createdAt!: Date;
 
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'CURRENT_TIMESTAMP()', onUpdate: () => 'CURRENT_TIMESTAMP()' })
-	readonly updated!: Date;
+	readonly updatedAt!: Date;
 }
