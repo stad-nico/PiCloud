@@ -1,6 +1,6 @@
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { DirectoryRepository } from 'src/api/directory/DirectoryRepository';
 import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
@@ -11,7 +11,7 @@ import { IFileRepository } from 'src/api/file/IFileRepository';
 import { File } from 'src/db/entities/File';
 
 @Module({
-	imports: [ConfigModule, TypeOrmModule.forFeature([File])],
+	imports: [ConfigModule, MikroOrmModule.forFeature([File])],
 	controllers: [FileController],
 	providers: [
 		FileService,

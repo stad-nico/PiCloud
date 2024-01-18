@@ -19,6 +19,9 @@
 		"noFallthroughCasesInSwitch": true,
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
-		"exactOptionalPropertyTypes": true
+		"exactOptionalPropertyTypes": true,
+		"paths": {
+			"src": ["src"]
+		}
 	}
 }

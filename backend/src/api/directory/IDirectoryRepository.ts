@@ -1,4 +1,4 @@
-import { EntityManager } from 'typeorm';
+import { EntityManager } from '@mikro-orm/mariadb';
 
 import { Directory } from 'src/db/entities/Directory';
 import { File } from 'src/db/entities/File';

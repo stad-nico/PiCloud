@@ -1,10 +1,10 @@
 import { createReadStream } from 'fs';
 import * as path from 'path';
-import { DataSource } from 'typeorm';
 
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import { EntityManager } from '@mikro-orm/mariadb';
 import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete';
 import { IFileRepository } from 'src/api/file/IFileRepository';
@@ -25,7 +25,7 @@ import { ServerError } from 'src/util/ServerError';
 @Injectable()
 export class FileService {
 	public constructor(
-		private readonly dataSource: DataSource,
+		private readonly entityManager: EntityManager,
 		private readonly configService: ConfigService,
 		@Inject(IFileRepository) private readonly fileRepository: IFileRepository,
 		@Inject(IDirectoryRepository) private readonly directoryRepository: IDirectoryRepository
@@ -40,7 +40,7 @@ export class FileService {
 	 * @returns {Promise<FileMetadataResponse>} the response
 	 */
 	public async metadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			const metadata = await this.fileRepository.getMetadata(entityManager, fileMetadataDto.path);
 
 			if (!metadata) {
@@ -60,7 +60,7 @@ export class FileService {
 	 * @returns {Promise<FileDownloadResponse>} the response
 	 */
 	public async download(fileDownloadDto: FileDownloadDto): Promise<FileDownloadResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			const fileToDownload = await this.fileRepository.selectByPath(entityManager, fileDownloadDto.path);
 
 			if (!fileToDownload) {
@@ -82,7 +82,7 @@ export class FileService {
 	 * @returns {Promise<FileRestoreResponse>} the response
 	 */
 	public async restore(fileRestoreDto: FileRestoreDto): Promise<FileRestoreResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			const file = await this.fileRepository.selectByUuid(entityManager, fileRestoreDto.uuid, true);
 
 			if (!file) {
@@ -104,7 +104,7 @@ export class FileService {
 	 * @returns {Promise<FileUploadResponse>} the response
 	 */
 	public async upload(fileUploadDto: FileUploadDto): Promise<FileUploadResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			if (await this.fileRepository.exists(entityManager, fileUploadDto.path, false)) {
 				throw new ServerError(`file ${fileUploadDto.path} already exists`, HttpStatus.CONFLICT);
 			}
@@ -139,7 +139,7 @@ export class FileService {
 	 * @returns {Promise<FileReplaceResponse>} the response
 	 */
 	public async replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			const parentPath = path.dirname(fileReplaceDto.path);
 			const parentDirectory = await this.directoryRepository.selectByPath(entityManager, parentPath, false);
 
@@ -175,7 +175,7 @@ export class FileService {
 	 * @returns {Promise<FileRenameResponse>} the response
 	 */
 	public async rename(fileRenameDto: FileRenameDto): Promise<FileRenameResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			if (await this.fileRepository.exists(entityManager, fileRenameDto.destinationPath, false)) {
 				throw new ServerError(`file ${fileRenameDto.destinationPath} already exists`, HttpStatus.CONFLICT);
 			}
@@ -201,7 +201,7 @@ export class FileService {
 				throw new ServerError(`directory ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
-			updateOptions = { ...updateOptions, parentId: destinationParent.uuid };
+			updateOptions = { ...updateOptions /*parentId: destinationParent.uuid*/ };
 
 			await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
 
@@ -218,7 +218,7 @@ export class FileService {
 	 * @returns {Promise<FileDeleteResponse>} the response
 	 */
 	public async delete(fileDeleteDto: FileDeleteDto): Promise<FileDeleteResponse> {
-		return await this.dataSource.transaction(async (entityManager) => {
+		return await this.entityManager.transactional(async (entityManager) => {
 			const file = await this.fileRepository.selectByPath(entityManager, fileDeleteDto.path, false);
 
 			if (!file) {

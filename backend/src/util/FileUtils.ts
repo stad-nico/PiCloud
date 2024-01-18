@@ -9,16 +9,6 @@ import { PathUtils } from 'src/util/PathUtils';
 
 export class FileUtils {
 	/**
-	 * Normalizes a path for the current os by replacing / or \ with `path.sep`
-	 *
-	 * @param pathToNormalize the path to normalize
-	 * @returns the normalized path
-	 */
-	public static normalizePathForOS(pathToNormalize: string): string {
-		return pathToNormalize.replaceAll(/(\/|\\)/gi, path.sep);
-	}
-
-	/**
 	 * Try to delete the directory recursively.
 	 * Throws error if fails.
 	 *
@@ -57,7 +47,7 @@ export class FileUtils {
 	 * @param recursive
 	 */
 	public static async writeFile(absolutePath: string, buffer: Buffer, recursive: boolean = true): Promise<void> {
-		const normalizedPath = this.normalizePathForOS(absolutePath);
+		const normalizedPath = PathUtils.prepareForFS(absolutePath);
 
 		if (recursive) {
 			if (!(await PathUtils.pathExists(path.dirname(normalizedPath)))) {
@@ -76,8 +66,8 @@ export class FileUtils {
 	 * @param recursive
 	 */
 	public static async copyFile(from: string, to: string, recursive: boolean = true): Promise<void> {
-		const fromNormalized = this.normalizePathForOS(from);
-		const toNormalized = this.normalizePathForOS(to);
+		const fromNormalized = PathUtils.prepareForFS(from);
+		const toNormalized = PathUtils.prepareForFS(to);
 
 		if (recursive) {
 			if (!(await PathUtils.pathExists(path.dirname(toNormalized)))) {
