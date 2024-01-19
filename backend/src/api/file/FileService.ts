@@ -56,11 +56,11 @@ export class FileService {
 	 * Creates a new FileService instance.
 	 * @constructor
 	 *
-	 * @param {EntityManager}        entityManager       the entityManager
-	 * @param {ConfigService}        configService       the configService
-	 * @param {IFileRepository}      fileRepository      the fileRepository
-	 * @param {IDirectoryRepository} directoryRepository the directoryRepository
-	 * @returns {FileService} the FileService instance
+	 * @param   {EntityManager}        entityManager       the entityManager
+	 * @param   {ConfigService}        configService       the configService
+	 * @param   {IFileRepository}      fileRepository      the fileRepository
+	 * @param   {IDirectoryRepository} directoryRepository the directoryRepository
+	 * @returns {FileService}                              the FileService instance
 	 */
 	public constructor(
 		entityManager: EntityManager,
@@ -76,6 +76,7 @@ export class FileService {
 
 	/**
 	 * Returns the metadata of a file.
+	 * Throws if the file does not exists.
 	 * @async
 	 *
 	 * @throws  {ServerError} file must exist
@@ -97,6 +98,7 @@ export class FileService {
 
 	/**
 	 * Returns a stream of the content of a file as well as mimeType and filename.
+	 * Throws if the file does not exist.
 	 * @async
 	 *
 	 * @throws  {ServerError} file must exist
@@ -106,7 +108,7 @@ export class FileService {
 	 */
 	public async download(fileDownloadDto: FileDownloadDto): Promise<FileDownloadResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const fileToDownload = await this.fileRepository.selectByPath(entityManager, fileDownloadDto.path);
+			const fileToDownload = await this.fileRepository.selectByPath(entityManager, fileDownloadDto.path, false);
 
 			if (!fileToDownload) {
 				throw new ServerError(`file ${fileDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -119,8 +121,8 @@ export class FileService {
 	}
 
 	/**
-	 * Restore a soft deleted file by its id. Returns the path of the restored file.
-	 * Throws if file does not exist.
+	 * Restores a soft deleted file by its id. Returns the path of the restored file.
+	 * Throws if the file does not exist.
 	 * @async
 	 *
 	 * @throws  {ServerError} file must exist
@@ -143,7 +145,8 @@ export class FileService {
 	}
 
 	/**
-	 * Uploads a file. Fails if it already exists or destination parent does not exist.
+	 * Uploads a file.
+	 * Throws if it already exists or destination parent does not exist.
 	 * @async
 	 *
 	 * @throws  {ServerError} file must not already exist
@@ -180,7 +183,8 @@ export class FileService {
 	}
 
 	/**
-	 * Uploads a file or replace if it already exists. Fails if the destination parent does not exist.
+	 * Uploads a file or replace if it already exists.
+	 * Throws if the destination parent does not exist.
 	 * @async
 	 *
 	 * @throws  {ServerError} parent directory must exist
@@ -217,7 +221,8 @@ export class FileService {
 	}
 
 	/**
-	 * Renames or moves a file. Fails if file does not exist or destination already exists or destination parent not exists.
+	 * Renames or moves a file.
+	 * Throws if file does not exist, destination already exists or destination parent not exists.
 	 * @async
 	 *
 	 * @throws  {ServerError} file must exist
@@ -263,7 +268,8 @@ export class FileService {
 	}
 
 	/**
-	 * Soft deletes a file or fails if it does not exist.
+	 * Soft deletes a file by its path.
+	 * Throws if file at given path does not exist.
 	 * @async
 	 *
 	 * @throws  {ServerError} file must exist

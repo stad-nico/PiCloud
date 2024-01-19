@@ -30,12 +30,27 @@ import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceRes
 import { FileRestoreDto, FileRestoreParams, FileRestoreResponse } from 'src/api/file/mapping/restore';
 import { FileUploadDto, FileUploadParams, FileUploadResponse } from 'src/api/file/mapping/upload';
 
+/**
+ * Controller for handling http requests on `/file/`.
+ * @class
+ */
 @Controller('file')
 export class FileController {
 	private readonly logger = new Logger(FileController.name);
 
+	/**
+	 * The file service for handling the request processing and response generation.
+	 * @type {FileService}
+	 */
 	private readonly fileService: FileService;
 
+	/**
+	 * Creates a new FileController instance.
+	 * @constructor
+	 *
+	 * @param   {FileService}    fileService the fileService
+	 * @returns {FileController}             the FileController instance
+	 */
 	constructor(fileService: FileService) {
 		this.fileService = fileService;
 	}

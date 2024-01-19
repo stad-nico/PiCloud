@@ -16,25 +16,62 @@ import { Directory } from 'src/db/entities/Directory';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 
+/**
+ * Service for CRUD operations on directory entities.
+ * @class
+ */
 @Injectable()
 export class DirectoryService {
-	public constructor(
-		private readonly entityManager: EntityManager,
-		private readonly configService: ConfigService,
-		@Inject(IDirectoryRepository) private readonly directoryRepository: IDirectoryRepository
-	) {}
+	/**
+	 * The entity manager for executing transactions on repositories.
+	 * @type {EntityManager}
+	 */
+	private readonly entityManager: EntityManager;
 
 	/**
-	 * Get the first level subdirectories and files of a directory.
+	 * The config service for using environment variables.
+	 * @type {ConfigService}
+	 */
+	private readonly configService: ConfigService;
+
+	/**
+	 * The repository for executing directory operations on the db.
+	 * @type {IDirectoryRepository}
+	 */
+	private readonly directoryRepository: IDirectoryRepository;
+
+	/**
+	 * Creates a new DirectoryService instance.
+	 * @constructor
+	 *
+	 * @param   {EntityManager}        entityManager       the entityManager
+	 * @param   {ConfigService}        configService       the configService
+	 * @param   {IDirectoryRepository} directoryRepository the directoryRepository
+	 * @returns {DirectoryService}                         the DirectoryService instance
+	 */
+	public constructor(
+		entityManager: EntityManager,
+		configService: ConfigService,
+		@Inject(IDirectoryRepository) directoryRepository: IDirectoryRepository
+	) {
+		this.entityManager = entityManager;
+		this.configService = configService;
+		this.directoryRepository = directoryRepository;
+	}
+
+	/**
+	 * Returns the first level subdirectories and files of a directory.
+	 * Throws if directory does not exist.
 	 * @async
 	 *
-	 * @param {DirectoryContentDto} directoryContentDto the dto for getting the contents of a directory
+	 * @throws  {ServerError} directory must exist
 	 *
-	 * @returns {Promise<DirectoryContentResponse>} the response
+	 * @param   {DirectoryContentDto}               directoryContentDto the dto for getting the contents of a directory
+	 * @returns {Promise<DirectoryContentResponse>}                     the contents of the directory
 	 */
 	public async content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (!(await this.directoryRepository.exists(entityManager, directoryContentDto.path))) {
+			if (!(await this.directoryRepository.exists(entityManager, directoryContentDto.path, false))) {
 				throw new ServerError(`directory ${directoryContentDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
@@ -45,12 +82,14 @@ export class DirectoryService {
 	}
 
 	/**
-	 * Get the metadata of a directory.
+	 * Returns the metadata of a directory by its path.
+	 * Throws if directory at the given path does not exist.
 	 * @async
 	 *
-	 * @param {DirectoryMetadataDto} directoryMetadataDto the dto for getting the metadata of a directory
+	 * @throws  {ServerError} directory must exist
 	 *
-	 * @returns {Promise<DirectoryMetadataResponse>} the response
+	 * @param   {DirectoryMetadataDto}               directoryMetadataDto the dto for getting the metadata of a directory
+	 * @returns {Promise<DirectoryMetadataResponse>}                      the metadata of a directory
 	 */
 	public async metadata(directoryMetadataDto: DirectoryMetadataDto): Promise<DirectoryMetadataResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
@@ -65,16 +104,18 @@ export class DirectoryService {
 	}
 
 	/**
-	 * Download a directory as a ZIP-Archive.
+	 * Returns a stream of a ZIP-archive of the contents of a directory as well as mimeType and directory name.
+	 * Throws if the directory at the given path does not exist.
 	 * @async
 	 *
-	 * @param {DirectoryDownloadDto} directoryDownloadDto the dto for downloading a directory
+	 * @throws  {ServerError} directory must exist
 	 *
-	 * @returns {Promise<DirectoryDownloadResponse>} the response
+	 * @param   {DirectoryDownloadDto}               directoryDownloadDto the dto for downloading a directory
+	 * @returns {Promise<DirectoryDownloadResponse>}                      the stream, mimeType and directory name
 	 */
 	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
 		return this.entityManager.transactional(async (entityManager) => {
-			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDownloadDto.path);
+			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDownloadDto.path, false);
 
 			if (!directory) {
 				throw new ServerError(`directory ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -89,12 +130,15 @@ export class DirectoryService {
 	}
 
 	/**
-	 * Restore a soft deleted directory.
+	 * Restores a soft deleted directory by its id.
+	 * Throws if no directory with the given id exists or destination path already exists.
 	 * @async
 	 *
-	 * @param {DirectoryRestoreDto} directoryRestoreDto the dto for restoring a directory
+	 * @throws  {ServerError} directory must exist
+	 * @throws  {ServerError} destination must not already exist
 	 *
-	 * @returns {Promise<DirectoryRestoreResponse>} the response
+	 * @param   {DirectoryRestoreDto}               directoryRestoreDto the dto for restoring a directory
+	 * @returns {Promise<DirectoryRestoreResponse>}                     the path of the restored directory
 	 */
 	public async restore(directoryRestoreDto: DirectoryRestoreDto): Promise<DirectoryRestoreResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
@@ -115,16 +159,19 @@ export class DirectoryService {
 	}
 
 	/**
-	 * Create a directory or fail if it already exists or destination parent does not exist.
+	 * Creates a directory by its path.
+	 * Throws if a directory at that path already exists or destination parent does not exist.
 	 * @async
 	 *
-	 * @param {DirectoryCreateDto} directoryCreateDto the dto for creating a new directory
+	 * @throws  {ServerError} destination parent must exist
+	 * @throws  {ServerError} destination must not already exist
 	 *
-	 * @returns {Promise<DirectoryCreateResponse>} the response
+	 * @param   {DirectoryCreateDto}               directoryCreateDto the dto for creating a new directory
+	 * @returns {Promise<DirectoryCreateResponse>}                    the path of the created directory
 	 */
 	public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (await this.directoryRepository.exists(entityManager, directoryCreateDto.path)) {
+			if (await this.directoryRepository.exists(entityManager, directoryCreateDto.path, false)) {
 				throw new ServerError(`directory ${directoryCreateDto.path} already exists`, HttpStatus.CONFLICT);
 			}
 
@@ -146,20 +193,24 @@ export class DirectoryService {
 	}
 
 	/**
-	 * Rename or move a directory.
+	 * Renames or moves a directory.
+	 * Throws if directory does not exist, destination already exists or destination parent no exists.
 	 * @async
 	 *
-	 * @param {DirectoryRenameDto} directoryRenameDto the dto for renaming a directory
+	 * @throws  {ServerError} directory must exist
+	 * @throws  {ServerError} destination must not already exist
+	 * @throws  {ServerError} destination parent must exist
 	 *
-	 * @returns {Promise<DirectoryRenameResponse>} the response
+	 * @param   {DirectoryRenameDto}               directoryRenameDto the dto for renaming a directory
+	 * @returns {Promise<DirectoryRenameResponse>}                    the path of the renamed directory
 	 */
 	public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (await this.directoryRepository.exists(entityManager, directoryRenameDto.destPath)) {
+			if (await this.directoryRepository.exists(entityManager, directoryRenameDto.destPath, false)) {
 				throw new ServerError(`directory ${directoryRenameDto.destPath} already exists`, HttpStatus.CONFLICT);
 			}
 
-			if (!(await this.directoryRepository.exists(entityManager, directoryRenameDto.sourcePath))) {
+			if (!(await this.directoryRepository.exists(entityManager, directoryRenameDto.sourcePath, false))) {
 				throw new ServerError(`directory ${directoryRenameDto.sourcePath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
@@ -174,7 +225,7 @@ export class DirectoryService {
 			}
 
 			const destParentPath = path.dirname(directoryRenameDto.destPath);
-			const destinationParent = await this.directoryRepository.selectByPath(entityManager, destParentPath);
+			const destinationParent = await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
 
 			if (!destinationParent) {
 				throw new ServerError(`directory ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
@@ -189,12 +240,14 @@ export class DirectoryService {
 	}
 
 	/**
-	 * Soft delete a directory or fail if it does not exist.
+	 * Soft deletes a directory by its path.
+	 * Throws if directory at given path does not exist.
 	 * @async
 	 *
-	 * @param {DirectoryDeleteDto} directoryDeleteDto the dto for soft deleting a directory
+	 * @throws  {ServerError} directory must exist
 	 *
-	 * @returns {Promise<DirectoryDeleteResponse>} the response
+	 * @param   {DirectoryDeleteDto}               directoryDeleteDto the dto for soft deleting a directory
+	 * @returns {Promise<DirectoryDeleteResponse>}                    the id of the deleted directory
 	 */
 	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
