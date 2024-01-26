@@ -1,4 +1,5 @@
 import * as fs from 'fs/promises';
+import * as path from 'path';
 
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -10,6 +11,7 @@ jest.mock('fs/promises', () => ({
 	access: jest.fn(),
 	rm: jest.fn(),
 	mkdir: jest.fn(),
+	writeFile: jest.fn(),
 }));
 
 describe('FileUtils', () => {
@@ -33,18 +35,25 @@ describe('FileUtils', () => {
 		configService = module.get(ConfigService);
 	});
 
-	describe('deleteDirectoryOrFail', () => {
-		it('should throw error if fs.rm throws error', () => {
-			(fs.rm as jest.Mock).mockRejectedValue(new Error('test'));
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
 
-			expect(FileUtils.deleteDirectoryOrFail('')).rejects.toStrictEqual(new Error('test'));
+	describe('deleteDirectoryOrFail', () => {
+		it('should throw error if fs.rm throws error', async () => {
+			const error = new Error('test');
+			jest.spyOn(fs, 'rm').mockRejectedValue(error);
+
+			await expect(FileUtils.deleteDirectoryOrFail('')).rejects.toStrictEqual(error);
+
 			expect(fs.rm).toHaveBeenCalledWith('', { recursive: true });
 		});
 
-		it('should not throw error if fs.rm does not throw error', () => {
-			(fs.rm as jest.Mock).mockResolvedValue(undefined);
+		it('should not throw error if fs.rm does not throw error', async () => {
+			jest.spyOn(fs, 'rm').mockResolvedValue(undefined);
 
-			expect(FileUtils.deleteDirectoryOrFail('', false)).resolves.not.toThrow();
+			await expect(FileUtils.deleteDirectoryOrFail('', false)).resolves.not.toThrow();
+
 			expect(fs.rm).toHaveBeenCalledWith('', { recursive: false });
 		});
 	});
@@ -67,7 +76,19 @@ describe('FileUtils', () => {
 		});
 	});
 
-	describe('writeFile', () => {});
+	describe('writeFile', () => {
+		it('should recursively create the destination path and succeed writing the file', async () => {
+			const destinationPath = 'test/path/to/file.txt';
+			const buffer = Buffer.from('');
+
+			jest.spyOn(PathUtils, 'pathExists').mockResolvedValue(false);
+
+			await expect(FileUtils.writeFile(destinationPath, buffer)).resolves.not.toThrow();
+
+			expect(fs.mkdir).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(destinationPath)), { recursive: true });
+			expect(fs.writeFile).toHaveBeenCalledWith(PathUtils.prepareForFS(destinationPath), buffer);
+		});
+	});
 
 	describe('copyFile', () => {});
 

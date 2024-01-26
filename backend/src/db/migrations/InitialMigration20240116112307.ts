@@ -4,15 +4,15 @@ const directoriesAfterInsertTrigger = `
 	CREATE OR REPLACE TRIGGER \`directories_AFTER_INSERT\` AFTER INSERT ON \`directories\`
 	FOR EACH ROW BEGIN
 		# create first flat entry (self, self, 0)
-		INSERT INTO tree (parent, child, depth)
+		INSERT INTO tree (parent_id, child_id, depth)
 		SELECT NEW.id, NEW.id, 0;
 
     	# create hierarchical entries
     	# depends on flat entries - must be a seperate insert
-    	INSERT INTO tree (parent, child, depth)
-    	SELECT p.parent, c.child, p.depth + c.depth + 1
+    	INSERT INTO tree (parent_id, child_id, depth)
+    	SELECT p.parent_id, c.child_id, p.depth + c.depth + 1
     	FROM tree p JOIN tree c
-    	WHERE p.child = NEW.parent_id AND c.parent = NEW.id;
+    	WHERE p.child_id = NEW.parent_id AND c.parent_id = NEW.id;
 	END`;
 
 const directoriesAfterUpdateTrigger = `
@@ -23,77 +23,85 @@ const directoriesAfterUpdateTrigger = `
 			WHERE parent_id = OLD.id;
 
         	UPDATE tree
-			SET child = NEW.id
-				WHERE child = OLD.id;
+			SET child_id = NEW.id
+				WHERE child_id = OLD.id;
     	END IF;
 
     	IF OLD.parent_id != NEW.parent_id THEN
 			# remove all paths to subtree but not paths inside the subtree
 			DELETE FROM tree
-			WHERE tree.child IN
-				(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent_id = NEW.id)
-            AND tree.parent NOT IN
-				(SELECT child FROM (SELECT * FROM tree) AS b WHERE b.parent_id = NEW.id);
+			WHERE tree.child_id IN
+				(SELECT child_id FROM (SELECT * FROM tree) AS a WHERE a.parent_id = NEW.id)
+            AND tree.parent_id NOT IN
+				(SELECT child_id FROM (SELECT * FROM tree) AS b WHERE b.parent_id = NEW.id);
 
-			INSERT INTO tree (parent, child, depth)
-				SELECT supertree.parent, subtree.child, supertree.depth + subtree.depth + 1
+			INSERT INTO tree (parent_id, child_id, depth)
+				SELECT supertree.parent_id, subtree.child_id, supertree.depth + subtree.depth + 1
 				FROM tree AS supertree JOIN tree AS subtree
-				WHERE subtree.parent = NEW.id AND supertree.child = NEW.parent_id;
+				WHERE subtree.parent_id = NEW.id AND supertree.child_id = NEW.parent_id;
     	END IF;
 	END`;
 
 const directoriesAfterDeleteTrigger = `
 	CREATE OR REPLACE TRIGGER \`directories_AFTER_DELETE\` AFTER DELETE ON \`directories\` FOR EACH ROW BEGIN
 		DELETE FROM tree
-    	WHERE tree.child IN
-			(SELECT child FROM (SELECT * FROM tree) AS a WHERE a.parent_id = OLD.id);
+    	WHERE tree.child_id IN
+			(SELECT child_id FROM (SELECT * FROM tree) AS a WHERE a.parent_id = OLD.id);
 	END`;
 
 const filesAfterInsertTrigger = `
 	CREATE OR REPLACE TRIGGER \`files_AFTER_INSERT\` AFTER INSERT ON \`files\` FOR EACH ROW BEGIN
-		INSERT INTO tree (parent, child, depth)
-    	SELECT parent, NEW.id, depth + 1
+		INSERT INTO tree (parent_id, child_id, depth)
+    	SELECT parent_id, NEW.id, depth + 1
       	FROM tree
-      	WHERE child = NEW.parent_id;
+      	WHERE child_id = NEW.parent_id;
 	END`;
 
 const filesAfterUpdateTrigger = `
 	CREATE OR REPLACE TRIGGER \`files_AFTER_UPDATE\` AFTER UPDATE ON \`files\` FOR EACH ROW BEGIN
 		IF OLD.id != NEW.id THEN
-			UPDATE tree SET child = NEW.id WHERE child = OLD.id;
+			UPDATE tree SET child_id = NEW.id WHERE child_id = OLD.id;
     	END IF;
 
     	IF OLD.parent_id != NEW.parent_id THEN
-			UPDATE tree SET parent_id = NEW.parent_id WHERE child = OLD.id AND parent_id = OLD.parent_id;
+			UPDATE tree SET parent_id = NEW.parent_id WHERE child_id = OLD.id AND parent_id = OLD.parent_id;
     	END IF;
 	END`;
 
 const filesAfterDeleteTrigger = `
 	CREATE OR REPLACE TRIGGER \`files_AFTER_DELETE\` AFTER DELETE ON \`files\` FOR EACH ROW BEGIN
 		DELETE FROM tree
-    	WHERE child = OLD.id;
+    	WHERE child_id = OLD.id;
 	END`;
 
 export class Migration20240116112307 extends Migration {
 	async up(): Promise<void> {
 		// prettier-ignore
-		this.addSql('create table `directories` (`id` varchar(36) not null default UUID(), `name` varchar(255) not null, `parent_id` varchar(36) null, `is_recycled` tinyint null default false, `created_at` datetime not null default current_timestamp(), `updated_at` datetime not null default current_timestamp() on update current_timestamp(), primary key (`id`)) default character set utf8mb4 engine = InnoDB;');
+		this.addSql('create table `directories` (`id` varchar(36) not null default UUID(), `name` varchar(255) not null, `parent_id` varchar(36) null default null, `is_recycled` tinyint(1) not null default false, `created_at` datetime not null default current_timestamp(), `updated_at` datetime not null default current_timestamp() on update current_timestamp(), primary key (`id`)) default character set utf8mb4 engine = InnoDB;');
 		// prettier-ignore
 		this.addSql('alter table `directories` add index `directories_parent_id_index`(`parent_id`);');
 		// prettier-ignore
 		this.addSql('alter table `directories` add constraint `directories_parent_id_foreign` foreign key (`parent_id`) references `directories` (`id`) on update no action on delete no action;');
 
 		// prettier-ignore
-		this.addSql("create table `files` (`id` varchar(36) not null default UUID(), `name` varchar(255) not null, `parent_id` varchar(36) null, `mime_type` varchar(255) not null default 'application/octet-stream', `size` bigint not null default 0, `is_recycled` tinyint(1) not null default false, `created` datetime not null default CURRENT_TIMESTAMP(), `updated` datetime not null default CURRENT_TIMESTAMP(), primary key (`id`)) default character set utf8mb4 engine = InnoDB;");
+		this.addSql("create table `files` (`id` varchar(36) not null default UUID(), `name` varchar(255) not null, `parent_id` varchar(36) null default null, `mime_type` varchar(255) not null default 'application/octet-stream', `size` bigint not null default 0, `is_recycled` tinyint(1) not null default false, `created_at` datetime not null default current_timestamp(), `updated_at` datetime not null default current_timestamp() on update current_timestamp(), primary key (`id`)) default character set utf8mb4 engine = InnoDB;");
 		// prettier-ignore
 		this.addSql('alter table `files` add index `files_parent_id_index`(`parent_id`);');
 		// prettier-ignore
 		this.addSql('alter table `files` add constraint `files_parent_id_foreign` foreign key (`parent_id`) references `directories` (`id`) on update no action on delete no action;');
 
 		// prettier-ignore
-		this.addSql('create table `tree` (`id` int unsigned not null auto_increment primary key, `parent_id` varchar(255) null default null, `child_id` varchar(255) not null, `depth` int not null default 0) default character set utf8mb4 engine = InnoDB;');
+		this.addSql('create table `tree` (`id` int unsigned not null auto_increment primary key, `parent_id` varchar(36) null default null, `child_id` varchar(36) not null, `depth` int not null default 0) default character set utf8mb4 engine = InnoDB;');
+		// prettier-ignore
+		this.addSql('alter table `tree` add index `tree_parent_id_index`(`parent_id`);');
+		// prettier-ignore
+		this.addSql('alter table `tree` add index `tree_child_id_index`(`child_id`);');
 		// prettier-ignore
 		this.addSql('alter table `tree` add unique `tree_parent_id_child_id_unique`(`parent_id`, `child_id`);');
+		// prettier-ignore
+		this.addSql('alter table `tree` add constraint `tree_parent_id_foreign` foreign key (`parent_id`) references `directories` (`id`) on update no action on delete no action;');
+		// prettier-ignore
+		this.addSql('alter table `tree` add constraint `tree_child_id_foreign` foreign key (`child_id`) references `directories` (`id`) on update no action on delete no action;');
 
 		// prettier-ignore
 		this.addSql('create or replace function `GET_UPMOST_DIRNAME`(`path` varchar(255)) returns varchar(255) deterministic begin if path = "" then return cast(null as varchar(255)); end if; if locate("/", path) = 0 then return path; end if; return substr(path, 1, locate("/", path) - 1); end');
@@ -108,7 +116,7 @@ export class Migration20240116112307 extends Migration {
 		// prettier-ignore
 		this.addSql('CREATE OR REPLACE FUNCTION GET_DIRECTORY_PATH(id VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC BEGIN DECLARE path VARCHAR(255) DEFAULT (SELECT name FROM directories WHERE directories.id = id); DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parent_id FROM directories WHERE directories.id = id); IF id IS NULL THEN RETURN "/"; END IF; WHILE nextUuid IS NOT NULL DO SET path = CONCAT((SELECT name FROM directories WHERE directories.id = nextUuid), "/", path); SET nextUuid = (SELECT parent_id FROM directories WHERE directories.id = nextUuid); END WHILE; RETURN path; END')
 		// prettier-ignore
-		this.addSql('CREATE OR REPLACE FUNCTION GET_DIRECTORY_SIZE(id VARCHAR(255)) RETURNS bigint(20) DETERMINISTIC BEGIN RETURN (SELECT COALESCE(SUM(size),0) AS size FROM tree INNER JOIN files ON tree.child = files.id WHERE tree.parent = id AND files.isRecycled = 0); END');
+		this.addSql('CREATE OR REPLACE FUNCTION GET_DIRECTORY_SIZE(id VARCHAR(255)) RETURNS bigint(20) DETERMINISTIC BEGIN RETURN (SELECT COALESCE(SUM(size),0) AS size FROM tree INNER JOIN files ON tree.child_id = files.id WHERE tree.parent_id = id AND files.is_recycled = false); END');
 
 		this.addSql(filesAfterDeleteTrigger);
 		this.addSql(filesAfterInsertTrigger);
@@ -119,31 +127,20 @@ export class Migration20240116112307 extends Migration {
 	}
 
 	async down(): Promise<void> {
-		// prettier-ignore
 		this.addSql('alter table `directories` drop foreign key `directories_parent_id_foreign`;');
-		// prettier-ignore
 		this.addSql('alter table `files` drop foreign key `files_parent_id_foreign`;');
-
-		// prettier-ignore
+		this.addSql('alter table `tree` drop foreign key `tree_parent_id_foreign`;');
+		this.addSql('alter table `tree` drop foreign key `tree_child_id_foreign`;');
 		this.addSql('drop table if exists `directories`;');
-		// prettier-ignore
 		this.addSql('drop table if exists `files`;');
-		// prettier-ignore
 		this.addSql('drop table if exists `tree`;');
 
-		// prettier-ignore
-		this.addSql("drop function if exists `GET_UPMOST_DIRNAME`")
-		// prettier-ignore
+		this.addSql('drop function if exists `GET_UPMOST_DIRNAME`');
 		this.addSql('drop function if exists `GET_PATH_AFTER_UPMOST_DIRNAME`');
-		// prettier-ignore
 		this.addSql('drop function if exists `GET_FILE_UUID`');
-		// prettier-ignore
 		this.addSql('drop function if exists `GET_FILE_PATH`');
-		// prettier-ignore
 		this.addSql('drop function if exists `GET_DIRECTORY_UUID`');
-		// prettier-ignore
 		this.addSql('drop function if exists `GET_DIRECTORY_PATH`');
-		// prettier-ignore
 		this.addSql('drop function if exists `GET_DIRECTORY_SIZE`');
 
 		this.addSql('drop trigger if exists `files_AFTER_INSERT`');

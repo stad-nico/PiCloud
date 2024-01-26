@@ -3,17 +3,17 @@ import { ValidationError } from 'src/util/ValidationError';
 import { validate } from 'uuid';
 
 export class DirectoryRestoreDto {
-	readonly uuid: string;
+	readonly id: string;
 
-	private constructor(uuid: string) {
-		this.uuid = uuid;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
 	public static from(directorRestoreParams: DirectoryRestoreParams): DirectoryRestoreDto {
-		if (!validate(directorRestoreParams.uuid)) {
-			throw new ValidationError(`${directorRestoreParams.uuid} is not a valid uuid`);
+		if (!validate(directorRestoreParams.id)) {
+			throw new ValidationError(`${directorRestoreParams.id} is not a valid uuid`);
 		}
 
-		return new DirectoryRestoreDto(directorRestoreParams.uuid);
+		return new DirectoryRestoreDto(directorRestoreParams.id);
 	}
 }

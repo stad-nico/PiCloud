@@ -142,17 +142,17 @@ export class DirectoryService {
 	 */
 	public async restore(directoryRestoreDto: DirectoryRestoreDto): Promise<DirectoryRestoreResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const directoryToRestore = await this.directoryRepository.selectByUuid(entityManager, directoryRestoreDto.uuid, true);
+			const directoryToRestore = await this.directoryRepository.selectByUuid(entityManager, directoryRestoreDto.id, true);
 
 			if (!directoryToRestore) {
-				throw new ServerError(`directory with uuid ${directoryRestoreDto.uuid} does not exist`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`directory with id ${directoryRestoreDto.id} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			if (await this.directoryRepository.exists(entityManager, directoryToRestore.path, false)) {
 				throw new ServerError(`directory ${directoryToRestore.path} already exists`, HttpStatus.CONFLICT);
 			}
 
-			await this.directoryRepository.restore(entityManager, directoryRestoreDto.uuid);
+			await this.directoryRepository.restore(entityManager, directoryRestoreDto.id);
 
 			return DirectoryRestoreResponse.from(directoryToRestore.path);
 		});

@@ -7,7 +7,7 @@ export class DirectoryDeleteParams {
 	@Matches(PathUtils.ValidDirectoryPathRegExp, { message: 'path must be a valid directory path' })
 	readonly path: string;
 
-	private constructor(path: string) {
+	constructor(path: string) {
 		this.path = path;
 	}
 }

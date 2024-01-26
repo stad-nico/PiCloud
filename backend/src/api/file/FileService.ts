@@ -16,6 +16,7 @@ import { FileReplaceDto } from 'src/api/file/mapping/replace/FileReplaceDto';
 import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceResponse';
 import { FileRestoreDto, FileRestoreResponse } from 'src/api/file/mapping/restore';
 import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
+import { Directory } from 'src/db/entities/Directory';
 import { File } from 'src/db/entities/File';
 import { StoragePath } from 'src/disk/DiskService';
 import { FileUtils } from 'src/util/FileUtils';
@@ -259,7 +260,7 @@ export class FileService {
 				throw new ServerError(`directory ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
 			}
 
-			updateOptions = { ...updateOptions, parent: entityManager.getReference(File, destinationParent.id) };
+			updateOptions = { ...updateOptions, parent: entityManager.getReference(Directory, destinationParent.id) };
 
 			await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
 

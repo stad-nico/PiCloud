@@ -14,22 +14,43 @@ export enum StoragePath {
 	Temp = 'temp',
 }
 
+/**
+ * Service for initializing the storage location of the application.
+ * @class
+ */
 @Injectable()
 export class DiskService {
 	private readonly logger = new Logger(DiskService.name);
 
+	/**
+	 * The config service for using environment variables.
+	 * @type {ConfigService}
+	 */
 	private readonly configService: ConfigService;
 
+	/**
+	 * The complete, absolute path to the storage location loaded from env.
+	 * @type {string}
+	 */
 	private readonly storageLocationPath: string;
 
+	/**
+	 * Whether the storage location will be removed on application shutdown.
+	 * @type {boolean}
+	 */
 	private shouldCleanupOnShutdown: boolean;
 
+	/**
+	 * Creates a new DiskService instance.
+	 * @constructor
+	 *
+	 * @param   {ConfigService} configService the configService
+	 * @returns {DiskService}                 the DiskService instance
+	 */
 	public constructor(configService: ConfigService) {
 		this.configService = configService;
-		this.storageLocationPath = this.configService.getOrThrow(Environment.StoragePath);
-
-		const nodeEnv: NodeEnv = configService.get(Environment.NodeENV, NodeEnv.Develop);
-		this.shouldCleanupOnShutdown = nodeEnv !== NodeEnv.Production;
+		this.storageLocationPath = configService.getOrThrow(Environment.StoragePath);
+		this.shouldCleanupOnShutdown = configService.getOrThrow(Environment.NodeENV) !== NodeEnv.Production;
 	}
 
 	public async beforeApplicationShutdown(): Promise<void> {

@@ -4,9 +4,7 @@ import { DirectoryService } from 'src/api/directory/DirectoryService';
 import { DirectoryContentDto } from 'src/api/directory/mapping/content/DirectoryContentDto';
 import { DirectoryContentParams } from 'src/api/directory/mapping/content/DirectoryContentParams';
 import { DirectoryContentResponse } from 'src/api/directory/mapping/content/DirectoryContentResponse';
-import { DirectoryCreateDto } from 'src/api/directory/mapping/create/DirectoryCreateDto';
-import { DirectoryCreateParams } from 'src/api/directory/mapping/create/DirectoryCreateParams';
-import { DirectoryCreateResponse } from 'src/api/directory/mapping/create/DirectoryCreateResponse';
+import { DirectoryCreateDto, DirectoryCreateParams, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
 import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete/DirectoryDeleteDto';
 import { DirectoryDeleteParams } from 'src/api/directory/mapping/delete/DirectoryDeleteParams';
 import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete/DirectoryDeleteResponse';
@@ -101,9 +99,9 @@ export class DirectoryController {
 		}
 	}
 
-	@Post(':path(*)/restore')
+	@Post(':id/restore')
 	public async restore(@Param() directoryRestoreParams: DirectoryRestoreParams): Promise<DirectoryRestoreResponse> {
-		this.logger.log(`[Post] ${directoryRestoreParams.uuid}`);
+		this.logger.log(`[Post] ${directoryRestoreParams.id}`);
 
 		try {
 			const directoryRestoreDto = DirectoryRestoreDto.from(directoryRestoreParams);

@@ -48,10 +48,11 @@ export class FileUtils {
 	 */
 	public static async writeFile(absolutePath: string, buffer: Buffer, recursive: boolean = true): Promise<void> {
 		const normalizedPath = PathUtils.prepareForFS(absolutePath);
+		const parentPath = PathUtils.prepareForFS(path.dirname(normalizedPath));
 
 		if (recursive) {
-			if (!(await PathUtils.pathExists(path.dirname(normalizedPath)))) {
-				await fsPromises.mkdir(path.dirname(normalizedPath), { recursive: true });
+			if (!(await PathUtils.pathExists(parentPath))) {
+				await fsPromises.mkdir(parentPath, { recursive: true });
 			}
 		}
 
@@ -79,7 +80,7 @@ export class FileUtils {
 	}
 
 	/**
-	 * Empties a directory by removing all files and subfolder from it.
+	 * Empties a directory by removing all files and subfolders from it.
 	 *
 	 * @param {string} absolutePath the directory path
 	 */
@@ -93,6 +94,7 @@ export class FileUtils {
 
 	/**
 	 * Creates a stream of a ZIP-Archive.
+	 * Each file is loaded from the fs by its id and stored in the archive under its path.
 	 *
 	 * @param   {ConfigService}                       configService the config service
 	 * @param   {Array<{ id: string; path: string }>} files         the files

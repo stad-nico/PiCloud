@@ -4,9 +4,9 @@ export class DirectoryRestoreParams {
 	@IsNotEmpty()
 	@IsString()
 	@IsUUID()
-	readonly uuid: string;
+	readonly id: string;
 
-	constructor(uuid: string) {
-		this.uuid = uuid;
+	constructor(id: string) {
+		this.id = id;
 	}
 }
