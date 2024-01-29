@@ -1,26 +1,52 @@
-import { EntityManager, raw } from '@mikro-orm/mariadb';
+import { EntityManager } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
 
 import { DirectoryGetContentDBResult, DirectoryGetMetadataDBResult, IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 import { Directory } from 'src/db/entities/Directory';
 import { File } from 'src/db/entities/File';
-import { Tree } from 'src/db/entities/Tree';
+
+type Additional = {
+	path: string;
+	count: number;
+	size: number;
+	directories: number;
+	files: number;
+};
 
 @Injectable()
 export class DirectoryRepository implements IDirectoryRepository {
+	private validate<T extends Array<keyof (Directory & Additional)>>(
+		entities: Array<Partial<Directory & Additional>>,
+		requiredKeys: T
+	): Array<Pick<Directory & Additional, T[number]>> {
+		const output = [];
+
+		for (const entity of entities) {
+			for (const requiredKey of requiredKeys) {
+				if (!(requiredKey in entity)) {
+					continue;
+				}
+			}
+
+			output.push(entity as Pick<Directory & Additional, T[number]>);
+		}
+
+		return output;
+	}
+
 	public async selectByPath(
 		entityManager: EntityManager,
 		path: string,
 		isRecycled: boolean = false
 	): Promise<Pick<Directory, 'id' | 'name'> | null> {
-		const result = await entityManager
-			.createQueryBuilder(Directory, 'directories')
-			.select(['name', 'id'])
-			.where('is_recycled = ?', [isRecycled])
-			.andWhere('id = GET_DIRECTORY_UUID(?)', [path])
-			.getSingleResult();
+		const result = await entityManager.getKnex().raw<[{ id: string; name: string }[]]>(
+			`SELECT name, id 
+			FROM directories 
+			WHERE is_recycled = :isRecycled AND id = GET_DIRECTORY_UUID(:path)`,
+			{ isRecycled: isRecycled, path: path }
+		);
 
-		return result;
+		return this.validate(result[0] ?? [], ['id', 'name'])[0] ?? null;
 	}
 
 	public async selectByUuid(
@@ -28,121 +54,137 @@ export class DirectoryRepository implements IDirectoryRepository {
 		id: string,
 		isRecycled: boolean = false
 	): Promise<(Pick<Directory, 'name'> & { path: string }) | null> {
-		const result: (Pick<Directory, 'name'> & { path?: string }) | null = await entityManager
-			.createQueryBuilder(Directory, 'directories')
-			.select(['name', raw('GET_DIRECTORY_PATH(id) as path')])
-			.where('is_recycled = ?', [isRecycled])
-			.andWhere('id = ?', [id])
-			.execute('get');
+		const result = await entityManager.getKnex().raw<[{ name: string; path: string }[]]>(
+			`SELECT name, GET_DIRECTORY_PATH(id) as path
+			FROM directories
+			WHERE is_recycled = :isRecycled AND id = :id`,
+			{ isRecycled: isRecycled, id: id }
+		);
 
-		if (!result?.path) {
-			return null;
-		}
-
-		return result as Pick<Directory, 'name'> & { path: string };
+		return this.validate(result[0] ?? [], ['name', 'path'])[0] ?? null;
 	}
 
 	public async exists(entityManager: EntityManager, path: string, isRecycled: boolean = false): Promise<boolean> {
-		const count = await entityManager
-			.createQueryBuilder(Directory, 'directories')
-			.select('*')
-			.where('id = GET_DIRECTORY_UUID(?)', [path])
-			.andWhere('is_recycled = ?', [isRecycled])
-			.limit(1)
-			.getCount();
+		const result = await entityManager.getKnex().raw<[{ count: number }[]]>(
+			`SELECT COUNT(*) as count
+			FROM directories
+			WHERE is_recycled = :isRecycled AND id = GET_DIRECTORY_UUID(:path)
+			LIMIT 1`,
+			{ isRecycled: isRecycled, path: path }
+		);
+
+		const count = this.validate(result[0] ?? [], ['count'])[0]?.count ?? 0;
 
 		return count > 0;
 	}
 
 	public async insert(entityManager: EntityManager, name: string, parentId: string | null = null) {
-		await entityManager.createQueryBuilder(Directory).insert({
-			name: name,
-			parent: parentId,
-		});
+		await entityManager.getKnex().raw(
+			`INSERT INTO directories (name, parent_id)
+			VALUES (:name, :parentId)`,
+			{ name: name, parentId: parentId }
+		);
 	}
 
 	public async softDelete(entityManager: EntityManager, rootId: string): Promise<void> {
-		const descendants = entityManager
-			.createQueryBuilder(Tree, 'tree')
-			.select('child')
-			.innerJoin('tree.child', 'directories')
-			.where('tree.parent_id = ?', [rootId]);
-
-		await entityManager
-			.createQueryBuilder(Directory, 'directories')
-			.update({ isRecycled: true })
-			.where({ id: { $in: descendants.getKnexQuery() } });
+		await entityManager.getKnex().raw(
+			`UPDATE directories
+			SET is_recycled = true
+			WHERE id IN (
+				SELECT child_id
+				FROM tree
+				INNER JOIN directories ON tree.child_id = directories.id
+				WHERE tree.parent_id = :rootId
+			);
+			
+			UPDATE files
+			SET is_recycled = true
+			WHERE parent_id IN (
+				SELECT child_id
+				FROM tree
+				INNER JOIN directories ON tree.child_id = directories.id
+				WHERE tree.parent_id = :rootId
+			);`,
+			{ rootId: rootId }
+		);
 	}
 
-	public async getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult> {
-		// 		const files = entityManager
-		// 			.createQueryBuilder()
-		// 			.select('COUNT(*)', 'filesAmt')
-		// 			.from(Tree, 'tree')
-		// 			.innerJoin(File, 'files', 'files.uuid = tree.child')
-		// 			.where('tree.parent = GET_DIRECTORY_UUID(:path) AND files.isRecycled = 0', { path: path });
+	public async getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null> {
+		const result = await entityManager.execute(
+			// .getKnex()
+			// .raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'files' | 'directories' | 'createdAt' | 'updatedAt'>[]]>(
+			`WITH f_amt AS (
+					SELECT COUNT(*) as f_amt
+					FROM tree
+					INNER JOIN files ON tree.child_id = files.id
+					WHERE files.is_recycled = false AND tree.parent_id = GET_DIRECTORY_UUID(?)
+				),
+				d_amt AS (
+					SELECT COUNT(*) - 1 as d_amt
+					FROM tree
+					INNER JOIN directories ON tree.child_id = directories.id
+					WHERE directories.is_recycled = false AND tree.parent_id = GET_DIRECTORY_UUID(?)
+				)
+				SELECT id, name, GET_DIRECTORY_SIZE(GET_DIRECTORY_PATH(id)) AS size, 
+			    	   f_amt as files, d_amt as directories, created_at, updated_at
+				FROM directories
+				INNER JOIN f_amt
+				INNER JOIN d_amt
+				WHERE is_recycled = false AND id = GET_DIRECTORY_UUID(?)`,
+			// { path: path }
+			[path, path, path]
+		);
+		console.log(result);
+		// const mapped = result[0]!.map((x) => entityManager.map(Directory, x));
+		const mapped = result.map((x) => entityManager.map(Directory, x));
+		console.log(mapped);
 
-		// 		const directories = entityManager
-		// 			.createQueryBuilder()
-		// 			.select('COUNT(*) - 1', 'directoriesAmt')
-		// 			.from(Tree, 'tree')
-		// 			.innerJoin(Directory, 'directories', 'directories.uuid = tree.child')
-		// 			.where('tree.parent = GET_DIRECTORY_UUID(:path) AND directories.isRecycled = 0', { path: path });
-
-		// 		const result = await entityManager
-		// 			.createQueryBuilder()
-		// 			.select([
-		// 				'uuid',
-		// 				'name',
-		// 				'GET_DIRECTORY_SIZE(GET_DIRECTORY_PATH(uuid)) AS size',
-		// 				'filesAmt AS files',
-		// 				'directoriesAmt AS directories',
-		// 				'created',
-		// 				'updated',
-		// 			])
-		// 			.addCommonTableExpression(files, 'filesAmt')
-		// 			.addCommonTableExpression(directories, 'directoriesAmt')
-		// 			.from(Directory, 'directories')
-		// 			.innerJoin('filesAmt', 'filesAmt')
-		// 			.innerJoin('directoriesAmt', 'directoriesAmt')
-		// 			.where('uuid = GET_DIRECTORY_UUID(:path) AND isRecycled = 0', { path: path })
-		// 			.getRawOne();
-
-		return undefined as any;
+		return this.validate(mapped, ['id', 'name', 'size', 'files', 'directories', 'createdAt', 'updatedAt'])[0] ?? null;
 	}
 
-	public async getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult> {
-		const files: Array<Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>> = await entityManager
-			.createQueryBuilder(File, 'files')
-			.select(['name', 'mimeType', 'size', 'createdAt', 'updatedAt'])
-			.where('parent_id = GET_DIRECTORY_UUID(?)', [path])
-			.andWhere('is_recycled = false')
-			.getResultList();
+	public async getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult | null> {
+		const files = await entityManager.getKnex().raw<[Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
+			`SELECT id, name, mime_type, size, created_at, updated_at
+			FROM files
+			WHERE is_recycled = false AND parent_id = GET_DIRECTORY_UUID(:path)`,
+			{ path: path }
+		);
 
-		const directoriesRaw: Array<Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & { size?: number }> = await entityManager
-			.createQueryBuilder(Directory, 'directories')
-			.select(['name', raw('GET_DIRECTORY_SIZE(id) AS size'), 'createdAt', 'updatedAt'])
-			.where('parent_id = GET_DIRECTORY_UUID(?)', [path])
-			.andWhere('is_recycled = false')
-			.execute('all');
+		const mappedFiles = files[0]!.map((file) => entityManager.map(File, file));
 
-		const directories = directoriesRaw.filter((dir) => 'size' in dir) as Array<
-			Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & { size: number }
-		>;
+		const directories = await entityManager
+			.getKnex()
+			.raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
+				`SELECT id, name, GET_DIRECTORY_SIZE(id) AS size, created_at, updated_at
+			FROM directories
+			WHERE is_recycled = false AND parent_id = GET_DIRECTORY_UUID(:path)`,
+				{ path: path }
+			);
 
-		return { files: files, directories: directories };
+		const mappedDirectories = this.validate(
+			directories[0]!.map((x) => entityManager.map(Directory, x)),
+			['id', 'name', 'size', 'createdAt', 'updatedAt']
+		);
+
+		return { files: mappedFiles, directories: mappedDirectories };
 	}
 
 	public async getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<Pick<File, 'id'> & { path: string }>> {
-		// const files: Array<{ uuid: string; path?: string }> = await entityManager
-		// 	.createQueryBuilder(File, "files")
-		// 	.select(['id', raw('GET_FILE_PATH(id) AS path')])
-		// 	.innerJoin('files.id', "tree")
-		// 	.where('tree.parent = GET_DIRECTORY_UUID(:path) AND files.isRecycled = 0')
-		// 	.getMany();
+		const result = await entityManager.getKnex().raw<[{ id: string; path: string }[]]>(
+			`SELECT id, GET_FILE_PATH(id) AS path
+			FROM files
+			WHERE is_recycled = false AND parent_id IN (
+				SELECT child_id
+				FROM tree
+				INNER JOIN directories ON tree.child_id = directories.id
+				WHERE tree.parent_id = GET_DIRECTORY_UUID(:path)
+			)`,
+			{ path: path }
+		);
 
-		// return files.filter((file) => file.path !== undefined).map((file) => ({ uuid: file.uuid, path: file.path!.replace(path, '') }));
-		return [];
+		const files = this.validate(result[0] ?? [], ['id', 'path']);
+
+		return files.map((file) => ({ id: file.id, path: file.path.replace(path, '') }));
 	}
 
 	public async update(entityManager: EntityManager, path: string, partial: Partial<Directory>): Promise<void> {
@@ -150,15 +192,25 @@ export class DirectoryRepository implements IDirectoryRepository {
 	}
 
 	public async restore(entityManager: EntityManager, rootId: string): Promise<void> {
-		const descendants = entityManager
-			.createQueryBuilder(Tree, 'tree')
-			.select('child')
-			.innerJoin('tree.child', 'directories')
-			.where('tree.parent_id = ?', [rootId]);
-
-		await entityManager
-			.createQueryBuilder(Directory, 'directories')
-			.update({ isRecycled: false })
-			.where({ id: { $in: descendants.getKnexQuery() } });
+		await entityManager.getKnex().raw(
+			`UPDATE directories
+			SET is_recycled = false
+			WHERE id IN (
+				SELECT child_id
+				FROM tree
+				INNER JOIN directories ON tree.child_id = directories.id
+				WHERE tree.parent_id = :rootId
+			);
+			
+			UPDATE files
+			SET is_recycled = false
+			WHERE parent_id IN (
+				SELECT child_id
+				FROM tree
+				INNER JOIN directories ON tree.child_id = directories.id
+				WHERE tree.parent_id = :rootId
+			);`,
+			{ rootId: rootId }
+		);
 	}
 }

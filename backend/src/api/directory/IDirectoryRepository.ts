@@ -84,21 +84,21 @@ export interface IDirectoryRepository {
 	 * Selects the metadata of a directory by its path.
 	 * @async
 	 *
-	 * @param   {EntityManager}                         entityManager the entityManager
-	 * @param   {string}                                path          the path of the directory
-	 * @returns {Promise<DirectoryGetMetadataDBResult>}               the metadata
+	 * @param   {EntityManager}                                entityManager the entityManager
+	 * @param   {string}                                       path          the path of the directory
+	 * @returns {Promise<DirectoryGetMetadataDBResult | null>}               the metadata
 	 */
-	getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult>;
+	getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null>;
 
 	/**
 	 * Selects the first level subdirectories and files of a directory by its path.
 	 * @async
 	 *
-	 * @param   {EntityManager}                        entityManager the entityManager
-	 * @param   {string}                               path          the path of the directory
-	 * @returns {Promise<DirectoryGetContentDBResult>}               the result
+	 * @param   {EntityManager}                               entityManager the entityManager
+	 * @param   {string}                                      path          the path of the directory
+	 * @returns {Promise<DirectoryGetContentDBResult | null>}               the result
 	 */
-	getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult>;
+	getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult | null>;
 
 	/**
 	 * Selects the relative path and id of all files inside a directory by its path.

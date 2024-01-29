@@ -118,9 +118,9 @@ export class Migration20240116112307 extends Migration {
 		// prettier-ignore
 		this.addSql('CREATE OR REPLACE FUNCTION GET_DIRECTORY_SIZE(id VARCHAR(255)) RETURNS bigint(20) DETERMINISTIC BEGIN RETURN (SELECT COALESCE(SUM(size),0) AS size FROM tree INNER JOIN files ON tree.child_id = files.id WHERE tree.parent_id = id AND files.is_recycled = false); END');
 
-		this.addSql(filesAfterDeleteTrigger);
-		this.addSql(filesAfterInsertTrigger);
-		this.addSql(filesAfterUpdateTrigger);
+		// this.addSql(filesAfterDeleteTrigger);
+		// this.addSql(filesAfterInsertTrigger);
+		// this.addSql(filesAfterUpdateTrigger);
 		this.addSql(directoriesAfterDeleteTrigger);
 		this.addSql(directoriesAfterInsertTrigger);
 		this.addSql(directoriesAfterUpdateTrigger);
@@ -143,9 +143,9 @@ export class Migration20240116112307 extends Migration {
 		this.addSql('drop function if exists `GET_DIRECTORY_PATH`');
 		this.addSql('drop function if exists `GET_DIRECTORY_SIZE`');
 
-		this.addSql('drop trigger if exists `files_AFTER_INSERT`');
-		this.addSql('drop trigger if exists `files_AFTER_DELETE`');
-		this.addSql('drop trigger if exists `files_AFTER_UPDATE`');
+		// this.addSql('drop trigger if exists `files_AFTER_INSERT`');
+		// this.addSql('drop trigger if exists `files_AFTER_DELETE`');
+		// this.addSql('drop trigger if exists `files_AFTER_UPDATE`');
 		this.addSql('drop trigger if exists `directories_AFTER_INSERT`');
 		this.addSql('drop trigger if exists `directories_AFTER_UPDATE`');
 		this.addSql('drop trigger if exists `directories_AFTER_DELETE`');

@@ -15,6 +15,7 @@ export default defineConfig({
 	user: process.env[Environment.DBUsername]!,
 	password: process.env[Environment.DBPassword]!,
 	port: +process.env[Environment.DBPort]!,
+	forceUtcTimezone: true,
 	strict: true,
 	baseDir: process.cwd(),
 	migrations: {

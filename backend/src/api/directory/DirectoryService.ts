@@ -71,11 +71,11 @@ export class DirectoryService {
 	 */
 	public async content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (!(await this.directoryRepository.exists(entityManager, directoryContentDto.path, false))) {
+			const content = await this.directoryRepository.getContent(entityManager, directoryContentDto.path);
+
+			if (!content) {
 				throw new ServerError(`directory ${directoryContentDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
-
-			const content = await this.directoryRepository.getContent(entityManager, directoryContentDto.path);
 
 			return DirectoryContentResponse.from(content);
 		});

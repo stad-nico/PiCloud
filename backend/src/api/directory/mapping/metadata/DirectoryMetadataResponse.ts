@@ -52,8 +52,8 @@ export class DirectoryMetadataResponse {
 			obj.size,
 			obj.files,
 			obj.directories,
-			obj.createdAt + '',
-			obj.updatedAt + ''
+			obj.createdAt.toISOString(),
+			obj.updatedAt.toISOString()
 		);
 	}
 }
