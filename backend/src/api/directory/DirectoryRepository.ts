@@ -110,34 +110,37 @@ export class DirectoryRepository implements IDirectoryRepository {
 	}
 
 	public async getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null> {
-		const result = await entityManager.execute(
-			// .getKnex()
-			// .raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'files' | 'directories' | 'createdAt' | 'updatedAt'>[]]>(
-			`WITH f_amt AS (
+		const result = await entityManager
+			.getKnex()
+			.raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'files' | 'directories' | 'createdAt' | 'updatedAt'>[]]>(
+				`WITH f_amt AS (
 					SELECT COUNT(*) as f_amt
-					FROM tree
-					INNER JOIN files ON tree.child_id = files.id
-					WHERE files.is_recycled = false AND tree.parent_id = GET_DIRECTORY_UUID(?)
+					FROM files
+					WHERE files.is_recycled = false AND files.parent_id IN (
+						SELECT child_id
+						FROM tree
+						WHERE tree.parent_id = GET_DIRECTORY_UUID(:path)
+					)
 				),
 				d_amt AS (
 					SELECT COUNT(*) - 1 as d_amt
-					FROM tree
-					INNER JOIN directories ON tree.child_id = directories.id
-					WHERE directories.is_recycled = false AND tree.parent_id = GET_DIRECTORY_UUID(?)
+					FROM directories
+					WHERE directories.is_recycled = false AND directories.parent_id IN (
+						SELECT child_id
+						FROM tree
+						WHERE tree.parent_id = GET_DIRECTORY_UUID(:path)
+					)
 				)
 				SELECT id, name, GET_DIRECTORY_SIZE(GET_DIRECTORY_PATH(id)) AS size, 
 			    	   f_amt as files, d_amt as directories, created_at, updated_at
 				FROM directories
 				INNER JOIN f_amt
 				INNER JOIN d_amt
-				WHERE is_recycled = false AND id = GET_DIRECTORY_UUID(?)`,
-			// { path: path }
-			[path, path, path]
-		);
-		console.log(result);
-		// const mapped = result[0]!.map((x) => entityManager.map(Directory, x));
-		const mapped = result.map((x) => entityManager.map(Directory, x));
-		console.log(mapped);
+				WHERE is_recycled = false AND id = GET_DIRECTORY_UUID(:path)`,
+				{ path: path }
+			);
+
+		const mapped = (result[0] ?? []).map((x) => entityManager.map(Directory, x));
 
 		return this.validate(mapped, ['id', 'name', 'size', 'files', 'directories', 'createdAt', 'updatedAt'])[0] ?? null;
 	}
@@ -150,19 +153,19 @@ export class DirectoryRepository implements IDirectoryRepository {
 			{ path: path }
 		);
 
-		const mappedFiles = files[0]!.map((file) => entityManager.map(File, file));
+		const mappedFiles = (files[0] ?? []).map((file) => entityManager.map(File, file));
 
 		const directories = await entityManager
 			.getKnex()
 			.raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
 				`SELECT id, name, GET_DIRECTORY_SIZE(id) AS size, created_at, updated_at
-			FROM directories
-			WHERE is_recycled = false AND parent_id = GET_DIRECTORY_UUID(:path)`,
+				FROM directories
+				WHERE is_recycled = false AND parent_id = GET_DIRECTORY_UUID(:path)`,
 				{ path: path }
 			);
 
 		const mappedDirectories = this.validate(
-			directories[0]!.map((x) => entityManager.map(Directory, x)),
+			(directories[0] ?? []).map((x) => entityManager.map(Directory, x)),
 			['id', 'name', 'size', 'createdAt', 'updatedAt']
 		);
 

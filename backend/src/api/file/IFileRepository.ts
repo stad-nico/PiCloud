@@ -74,7 +74,10 @@ export interface IFileRepository {
 	 * @param   {string}             path          the path of the file to soft delete
 	 * @returns {Promise<File|null>}               the file
 	 */
-	getMetadata(entityManager: EntityManager, path: string): Promise<File | null>;
+	getMetadata(
+		entityManager: EntityManager,
+		path: string
+	): Promise<Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> | null>;
 
 	/**
 	 * Updates a file.

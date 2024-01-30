@@ -1,108 +1,138 @@
-export class FileRepository {}
-// import { EntityManager } from '@mikro-orm/mariadb';
-// import { File } from 'src/db/entities/File';
+import { EntityManager } from '@mikro-orm/mariadb';
+import { File } from 'src/db/entities/File';
 
-// export class FileRepository {
-// 	public async exists(entityManager: EntityManager, path: string, isRecycled: boolean = false): Promise<boolean> {
-// 		return await entityManager
-// 			.createQueryBuilder()
-// 			.select()
-// 			.from(File, 'files')
-// 			.where('uuid = GET_FILE_UUID(:path)', { path: path })
-// 			.andWhere('isRecycled = :isRecycled', { isRecycled: isRecycled })
-// 			.getExists();
-// 	}
+type Additional = {
+	count: number;
+	path: string;
+};
 
-// 	public async selectByPath(
-// 		entityManager: EntityManager,
-// 		path: string,
-// 		isRecycled: boolean = false
-// 	): Promise<Pick<File, 'uuid' | 'name' | 'mimeType'> | null> {
-// 		const result = await entityManager
-// 			.createQueryBuilder()
-// 			.select(['uuid', 'name', 'mimeType'])
-// 			.from(File, 'files')
-// 			.where('uuid = GET_FILE_UUID(:path)', { path: path })
-// 			.andWhere('isRecycled = :isRecycled', { isRecycled: isRecycled })
-// 			.getRawOne();
+export class FileRepository {
+	private validate<T extends Array<keyof (File & Additional)>>(
+		entities: Array<Partial<File & Additional>>,
+		requiredKeys: T
+	): Array<Pick<File & Additional, T[number]>> {
+		const output = [];
 
-// 		return result ?? null;
-// 	}
+		for (const entity of entities) {
+			for (const requiredKey of requiredKeys) {
+				if (!(requiredKey in entity)) {
+					continue;
+				}
+			}
 
-// 	public async selectByUuid(
-// 		entityManager: EntityManager,
-// 		uuid: string,
-// 		isRecycled: boolean = false
-// 	): Promise<(Pick<File, 'name'> & { path: string }) | null> {
-// 		const raw = await entityManager
-// 			.createQueryBuilder()
-// 			.select(['name', 'GET_FILE_PATH(uuid)'])
-// 			.from(File, 'files')
-// 			.where('uuid = :uuid', { uuid: uuid })
-// 			.andWhere('isRecycled = :isRecycled', { isRecycled: isRecycled })
-// 			.getRawOne();
+			output.push(entity as Pick<File & Additional, T[number]>);
+		}
 
-// 		const result: (Pick<File, 'name'> & { path?: string }) | null = raw ?? null;
+		return output;
+	}
 
-// 		if (!result?.path) {
-// 			return null;
-// 		}
+	public async exists(entityManager: EntityManager, path: string, isRecycled: boolean = false): Promise<boolean> {
+		const result = await entityManager.getKnex().raw<[{ count: number }[]]>(
+			`SELECT COUNT(*) as count
+			FROM directories
+			WHERE is_recycled = :isRecycled AND id = GET_FILE_UUID(:path)
+			LIMIT 1`,
+			{ isRecycled: isRecycled, path: path }
+		);
 
-// 		return result as { name: string; path: string };
-// 	}
+		const count = this.validate(result[0] ?? [], ['count'])[0]?.count ?? 0;
 
-// 	public async insertReturningUuid(
-// 		entityManager: EntityManager,
-// 		name: string,
-// 		mimeType: string,
-// 		parentId: string | null = null
-// 	): Promise<Pick<File, 'uuid'>> {
-// 		const result = await entityManager
-// 			.createQueryBuilder()
-// 			.insert()
-// 			.into(File)
-// 			.values([{ name: name, mimeType: mimeType, parentId: parentId }])
-// 			.returning('uuid')
-// 			.execute();
+		return count > 0;
+	}
 
-// 		return result.generatedMaps[0] as { uuid: string };
-// 	}
+	public async selectByPath(
+		entityManager: EntityManager,
+		path: string,
+		isRecycled: boolean = false
+	): Promise<Pick<File, 'id' | 'name' | 'mimeType'> | null> {
+		const result = await entityManager.getKnex().raw<[{ id: string; name: string }[]]>(
+			`SELECT name, id, mime_type 
+			FROM files 
+			WHERE is_recycled = :isRecycled AND id = GET_DIRECTORY_UUID(:path)`,
+			{ isRecycled: isRecycled, path: path }
+		);
 
-// 	public async softDelete(entityManager: EntityManager, uuid: string): Promise<void> {
-// 		await entityManager.createQueryBuilder().update(File).set({ isRecycled: true }).where('uuid = :uuid', { uuid: uuid }).execute();
-// 	}
+		const mapped = result[0]!.map((x) => entityManager.map(File, x));
 
-// 	public async getMetadata(entityManager: EntityManager, path: string): Promise<File | null> {
-// 		const result = await entityManager
-// 			.createQueryBuilder()
-// 			.select(['uuid', 'name', 'mimeType', 'size', 'created', 'updated'])
-// 			.from(File, 'files')
-// 			.where('uuid = GET_FILE_UUID(:path) AND isRecycled = 0', { path: path })
-// 			.getRawOne();
+		return this.validate(mapped, ['id', 'name', 'mimeType'])[0] ?? null;
+	}
 
-// 		return result ?? null;
-// 	}
+	public async selectByUuid(
+		entityManager: EntityManager,
+		id: string,
+		isRecycled: boolean = false
+	): Promise<(Pick<File, 'name'> & { path: string }) | null> {
+		const result = await entityManager.getKnex().raw<[{ name: string; path: string }[]]>(
+			`SELECT name, GET_DIRECTORY_PATH(id) as path
+			FROM files
+			WHERE is_recycled = :isRecycled AND id = :id`,
+			{ isRecycled: isRecycled, id: id }
+		);
 
-// 	public async update(entityManager: EntityManager, path: string, partial: Partial<File>): Promise<void> {
-// 		await entityManager
-// 			.createQueryBuilder()
-// 			.update(File)
-// 			.set(partial)
-// 			.where(`uuid = GET_DIRECTORY_UUID(:path)`, { path: path })
-// 			.execute();
-// 	}
+		const mapped = result[0]!.map((x) => entityManager.map(File, x));
 
-// 	public async restore(entityManager: EntityManager, uuid: string): Promise<void> {
-// 		await entityManager.createQueryBuilder().update(File).set({ isRecycled: false }).where('uuid = :uuid', { uuid: uuid }).execute();
-// 	}
+		return this.validate(mapped, ['name', 'path'])[0] ?? null;
+	}
 
-// 	public async hardDelete(entityManager: EntityManager, path: string, isRecycled: boolean = false): Promise<void> {
-// 		await entityManager
-// 			.createQueryBuilder()
-// 			.delete()
-// 			.from(File, 'files')
-// 			.where('uuid = GET_FILE_UUID(:path)', { path: path })
-// 			.andWhere('isRecycled = :isRecycled', { isRecycled: isRecycled })
-// 			.execute();
-// 	}
-// }
+	public async insertReturningUuid(
+		entityManager: EntityManager,
+		name: string,
+		mimeType: string,
+		parentId: string | null = null
+	): Promise<Pick<File, 'id'>> {
+		const result = await entityManager.getKnex().raw<[Pick<File, 'id'>[]]>(
+			`INSERT INTO files (name, mime_type, parent_id)
+            VALUES (:name, :mimeType, :parentId)
+            RETURNING id`,
+			{ name: name, mimeType: mimeType, parentId: parentId }
+		);
+
+		return this.validate(result[0] ?? [], ['id'])[0]!;
+	}
+
+	public async softDelete(entityManager: EntityManager, id: string): Promise<void> {
+		await entityManager.getKnex().raw(
+			`UPDATE files
+            SET is_recycled = true
+            WHERE id = :id`,
+			{ id: id }
+		);
+	}
+
+	public async getMetadata(
+		entityManager: EntityManager,
+		path: string
+	): Promise<Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> | null> {
+		const result = await entityManager.getKnex().raw<[Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
+			`SELECT id, name, mime_type, size, created_at, updated_at
+            FROM files
+            WHERE is_recycled = false AND id = GET_FILE_UUID(:path)`,
+			{ path: path }
+		);
+
+		const mapped = (result[0] ?? []).map((x) => entityManager.map(File, x));
+
+		return this.validate(mapped, ['id', 'name', 'mimeType', 'size', 'createdAt', 'updatedAt'])[0] ?? null;
+	}
+
+	public async update(entityManager: EntityManager, path: string, partial: Partial<File>): Promise<void> {
+		await entityManager.createQueryBuilder(File, 'files').update(partial).where(`id = GET_DIRECTORY_UUID(:path)`, [path]).execute();
+	}
+
+	public async restore(entityManager: EntityManager, id: string): Promise<void> {
+		await entityManager.getKnex().raw(
+			`UPDATE files
+            SET is_recycled = false
+            WHERE id = :id`,
+			{ id: id }
+		);
+	}
+
+	public async hardDelete(entityManager: EntityManager, path: string, isRecycled: boolean = false): Promise<void> {
+		await entityManager.getKnex().raw(
+			`DELETE FROM files
+            WHERE is_recycled = :isRecycled AND id = GET_FILE_UUID(:path)`,
+			{ isRecycled: isRecycled, path: path }
+		);
+	}
+}

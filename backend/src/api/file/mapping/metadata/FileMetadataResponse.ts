@@ -1,6 +1,6 @@
 import { File } from 'src/db/entities/File';
 
-type FileMetadataResponseType = Omit<File, 'parent' | 'isRecycled'> & { path: string };
+type FileMetadataResponseType = Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> & { path: string };
 
 export class FileMetadataResponse {
 	readonly uuid: string;
