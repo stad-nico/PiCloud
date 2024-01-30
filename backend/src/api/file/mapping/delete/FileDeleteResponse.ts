@@ -1,11 +1,11 @@
 export class FileDeleteResponse {
-	readonly uuid: string;
+	readonly id: string;
 
-	private constructor(uuid: string) {
-		this.uuid = uuid;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
-	public static from(uuid: string): FileDeleteResponse {
-		return new FileDeleteResponse(uuid);
+	public static from(id: string): FileDeleteResponse {
+		return new FileDeleteResponse(id);
 	}
 }

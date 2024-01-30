@@ -1,3 +1,5 @@
+import { PathUtils } from 'src/util/PathUtils';
+
 export class FileRenameResponse {
 	readonly path: string;
 
@@ -6,6 +8,6 @@ export class FileRenameResponse {
 	}
 
 	public static from(path: string): FileRenameResponse {
-		return new FileRenameResponse(path);
+		return new FileRenameResponse(PathUtils.normalizeFilePath(path));
 	}
 }

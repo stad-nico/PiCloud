@@ -1,9 +1,10 @@
 import { File } from 'src/db/entities/File';
+import { PathUtils } from 'src/util/PathUtils';
 
 type FileMetadataResponseType = Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> & { path: string };
 
 export class FileMetadataResponse {
-	readonly uuid: string;
+	readonly id: string;
 
 	readonly name: string;
 
@@ -17,8 +18,8 @@ export class FileMetadataResponse {
 
 	readonly updated: Date;
 
-	private constructor(uuid: string, name: string, path: string, mimeType: string, size: number, created: Date, updated: Date) {
-		this.uuid = uuid;
+	private constructor(id: string, name: string, path: string, mimeType: string, size: number, created: Date, updated: Date) {
+		this.id = id;
 		this.name = name;
 		this.path = path;
 		this.mimeType = mimeType;
@@ -28,6 +29,14 @@ export class FileMetadataResponse {
 	}
 
 	public static from(obj: FileMetadataResponseType): FileMetadataResponse {
-		return new FileMetadataResponse(obj.id, obj.name, obj.path, obj.mimeType, obj.size, obj.createdAt, obj.updatedAt);
+		return new FileMetadataResponse(
+			obj.id,
+			obj.name,
+			PathUtils.normalizeFilePath(obj.path),
+			obj.mimeType,
+			obj.size,
+			obj.createdAt,
+			obj.updatedAt
+		);
 	}
 }

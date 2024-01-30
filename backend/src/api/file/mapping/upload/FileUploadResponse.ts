@@ -1,3 +1,5 @@
+import { PathUtils } from 'src/util/PathUtils';
+
 export class FileUploadResponse {
 	readonly path: string;
 
@@ -6,6 +8,6 @@ export class FileUploadResponse {
 	}
 
 	public static from(path: string): FileUploadResponse {
-		return new FileUploadResponse(path);
+		return new FileUploadResponse(PathUtils.normalizeFilePath(path));
 	}
 }

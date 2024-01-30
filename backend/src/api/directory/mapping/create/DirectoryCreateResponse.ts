@@ -1,3 +1,5 @@
+import { PathUtils } from 'src/util/PathUtils';
+
 export class DirectoryCreateResponse {
 	readonly path: string;
 
@@ -6,6 +8,6 @@ export class DirectoryCreateResponse {
 	}
 
 	public static from(path: string): DirectoryCreateResponse {
-		return new DirectoryCreateResponse(path);
+		return new DirectoryCreateResponse(PathUtils.normalizeDirectoryPath(path));
 	}
 }

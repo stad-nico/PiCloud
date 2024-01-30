@@ -1,11 +1,11 @@
 export class DirectoryDeleteResponse {
-	readonly uuid: string;
+	readonly id: string;
 
-	private constructor(uuid: string) {
-		this.uuid = uuid;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
-	public static from(uuid: string) {
-		return new DirectoryDeleteResponse(uuid);
+	public static from(id: string) {
+		return new DirectoryDeleteResponse(id);
 	}
 }

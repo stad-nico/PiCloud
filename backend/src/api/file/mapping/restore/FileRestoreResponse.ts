@@ -1,3 +1,5 @@
+import { PathUtils } from 'src/util/PathUtils';
+
 export class FileRestoreResponse {
 	readonly path: string;
 
@@ -6,6 +8,6 @@ export class FileRestoreResponse {
 	}
 
 	public static from(path: string): FileRestoreResponse {
-		return new FileRestoreResponse(path);
+		return new FileRestoreResponse(PathUtils.normalizeFilePath(path));
 	}
 }
