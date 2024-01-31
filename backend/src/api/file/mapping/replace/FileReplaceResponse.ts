@@ -1,3 +1,5 @@
+import { PathUtils } from 'src/util/PathUtils';
+
 export class FileReplaceResponse {
 	readonly path: string;
 
@@ -6,6 +8,6 @@ export class FileReplaceResponse {
 	}
 
 	public static from(path: string): FileReplaceResponse {
-		return new FileReplaceResponse(path);
+		return new FileReplaceResponse(PathUtils.normalizeFilePath(path));
 	}
 }

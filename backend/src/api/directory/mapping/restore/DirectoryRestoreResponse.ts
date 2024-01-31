@@ -1,4 +1,7 @@
+import { PathUtils } from 'src/util/PathUtils';
+
 /**
+import { PathUtils } from 'src/util/PathUtils';
  * Class representing the json http response.
  * @class
  */
@@ -28,6 +31,6 @@ export class DirectoryRestoreResponse {
 	 * @returns {DirectoryRestoreResponse}      the DirectoryRestoreResponse instance
 	 */
 	public static from(path: string) {
-		return new DirectoryRestoreResponse(path);
+		return new DirectoryRestoreResponse(PathUtils.normalizeDirectoryPath(path));
 	}
 }
