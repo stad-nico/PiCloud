@@ -25,7 +25,7 @@ export class DirectoryContentDto {
 	}
 
 	/**
-	 * Creates a new DirectoryContentDto instance from http params.
+	 * Creates a new DirectoryContentDto instance from the http params.
 	 * Throws if the given params are not valid.
 	 * @public @static
 	 *
