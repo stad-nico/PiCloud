@@ -1,9 +1,9 @@
 import * as path from 'path';
 
+import { EntityManager } from '@mikro-orm/mariadb';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { EntityManager } from '@mikro-orm/mariadb';
 import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 import { DirectoryContentDto, DirectoryContentResponse } from 'src/api/directory/mapping/content';
 import { DirectoryCreateDto, DirectoryCreateResponse } from 'src/api/directory/mapping/create';

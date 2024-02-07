@@ -1,13 +1,14 @@
 import { createReadStream } from 'fs';
 import * as path from 'path';
 
+import { EntityManager } from '@mikro-orm/mariadb';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { EntityManager } from '@mikro-orm/mariadb';
 import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete';
 import { IFileRepository } from 'src/api/file/IFileRepository';
+import { IFileService } from 'src/api/file/IFileService';
 import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/mapping/download';
 import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/mapping/metadata';
@@ -28,7 +29,7 @@ import { ServerError } from 'src/util/ServerError';
  * @class
  */
 @Injectable()
-export class FileService {
+export class FileService implements IFileService {
 	/**
 	 * The entity manager for executing transactions on repositories.
 	 * @type {EntityManager}
@@ -133,13 +134,13 @@ export class FileService {
 	 */
 	public async restore(fileRestoreDto: FileRestoreDto): Promise<FileRestoreResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const file = await this.fileRepository.selectByUuid(entityManager, fileRestoreDto.uuid, true);
+			const file = await this.fileRepository.selectByUuid(entityManager, fileRestoreDto.id, true);
 
 			if (!file) {
-				throw new ServerError(`file ${fileRestoreDto.uuid} does not exist`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`file ${fileRestoreDto.id} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			await this.fileRepository.restore(entityManager, fileRestoreDto.uuid);
+			await this.fileRepository.restore(entityManager, fileRestoreDto.id);
 
 			return FileRestoreResponse.from(file.path);
 		});
@@ -177,7 +178,7 @@ export class FileService {
 			const result = await this.fileRepository.insertReturningUuid(entityManager, fileName, fileUploadDto.mimeType, parentId);
 
 			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
-			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
+			await FileUtils.writeFile(resolvedPath, fileUploadDto.stream);
 
 			return FileUploadResponse.from(fileUploadDto.path);
 		});
@@ -215,7 +216,7 @@ export class FileService {
 			);
 
 			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
-			await FileUtils.writeFile(resolvedPath, fileReplaceDto.buffer);
+			await FileUtils.writeFile(resolvedPath, fileReplaceDto.stream);
 
 			return FileUploadResponse.from(fileReplaceDto.path);
 		});

@@ -4,6 +4,7 @@ import {
 	Delete,
 	Get,
 	HttpStatus,
+	Inject,
 	Logger,
 	Param,
 	Patch,
@@ -18,8 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 
 import { FileService } from 'src/api/file/FileService';
-import { ServerError } from 'src/util/ServerError';
-
+import { IFileService } from 'src/api/file/IFileService';
 import { FileDeleteDto, FileDeleteParams, FileDeleteResponse } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadParams } from 'src/api/file/mapping/download';
 import { FileMetadataDto, FileMetadataParams, FileMetadataResponse } from 'src/api/file/mapping/metadata';
@@ -29,6 +29,7 @@ import { FileReplaceParams } from 'src/api/file/mapping/replace/FileReplaceParam
 import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceResponse';
 import { FileRestoreDto, FileRestoreParams, FileRestoreResponse } from 'src/api/file/mapping/restore';
 import { FileUploadDto, FileUploadParams, FileUploadResponse } from 'src/api/file/mapping/upload';
+import { ServerError } from 'src/util/ServerError';
 
 /**
  * Controller for handling http requests on `/file/`.
@@ -42,16 +43,16 @@ export class FileController {
 	 * The file service for handling the request processing and response generation.
 	 * @type {FileService}
 	 */
-	private readonly fileService: FileService;
+	private readonly fileService: IFileService;
 
 	/**
 	 * Creates a new FileController instance.
-	 * @constructor
+	 * @public @constructor
 	 *
-	 * @param   {FileService}    fileService the fileService
+	 * @param   {IFileService}    fileService the fileService
 	 * @returns {FileController}             the FileController instance
 	 */
-	constructor(fileService: FileService) {
+	public constructor(@Inject(IFileService) fileService: IFileService) {
 		this.fileService = fileService;
 	}
 
@@ -145,7 +146,7 @@ export class FileController {
 
 			const fileReplaceDto = FileReplaceDto.from(params, file);
 
-			return await this.fileService.upload(fileReplaceDto);
+			return await this.fileService.replace(fileReplaceDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);

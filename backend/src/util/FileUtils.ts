@@ -40,13 +40,13 @@ export class FileUtils {
 	}
 
 	/**
-	 * Writes a buffer to the disk.
+	 * Writes a file to the disk.
 	 *
-	 * @param {string}  absolutePath     the destination path
-	 * @param {Buffer}  buffer           the content
-	 * @param {boolean} [recursive=true] whether destination path should be created if it does not exist
+	 * @param {string}   absolutePath     the destination path
+	 * @param {Readable} stream           the file stream
+	 * @param {boolean}  [recursive=true] whether destination path should be created if it does not exist
 	 */
-	public static async writeFile(absolutePath: string, buffer: Buffer, recursive: boolean = true): Promise<void> {
+	public static async writeFile(absolutePath: string, stream: Readable, recursive: boolean = true): Promise<void> {
 		const normalizedPath = PathUtils.prepareForFS(absolutePath);
 		const parentPath = PathUtils.prepareForFS(path.dirname(normalizedPath));
 
@@ -56,7 +56,7 @@ export class FileUtils {
 			}
 		}
 
-		await fsPromises.writeFile(normalizedPath, buffer);
+		await fsPromises.writeFile(normalizedPath, stream);
 	}
 
 	/**
