@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, HttpStatus, Logger, Param, Patch, Post, Res, StreamableFile } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Inject, Logger, Param, Patch, Post, Res, StreamableFile } from '@nestjs/common';
 import { Response } from 'express';
-import { DirectoryService } from 'src/api/directory/DirectoryService';
+import { IDirectoryService } from 'src/api/directory/IDirectoryService';
 import { DirectoryContentDto } from 'src/api/directory/mapping/content/DirectoryContentDto';
 import { DirectoryContentParams } from 'src/api/directory/mapping/content/DirectoryContentParams';
 import { DirectoryContentResponse } from 'src/api/directory/mapping/content/DirectoryContentResponse';
@@ -26,9 +26,9 @@ import { ServerError } from 'src/util/ServerError';
 export class DirectoryController {
 	private readonly logger = new Logger(DirectoryController.name);
 
-	private readonly directoryService: DirectoryService;
+	private readonly directoryService: IDirectoryService;
 
-	constructor(directoryService: DirectoryService) {
+	public constructor(@Inject(IDirectoryService) directoryService: IDirectoryService) {
 		this.directoryService = directoryService;
 	}
 

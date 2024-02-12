@@ -37,7 +37,7 @@ export class DirectoryMetadataDto {
 	public static from(directoryMetadataParams: DirectoryMetadataParams): DirectoryMetadataDto {
 		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryMetadataParams.path);
 
-		if (!PathUtils.isValidDirectoryPath(normalizedPath)) {
+		if (!PathUtils.isDirectoryPathValid(normalizedPath)) {
 			throw new ValidationError(`path ${directoryMetadataParams.path} is not a valid directory path`);
 		}
 

@@ -48,13 +48,13 @@ export class DirectoryRenameDto {
 	public static from(directoryRenameParams: DirectoryRenameParams, directoryRenameBody: DirectoryRenameBody): DirectoryRenameDto {
 		const sourcePath = PathUtils.normalizeDirectoryPath(directoryRenameParams.path);
 
-		if (!PathUtils.isValidDirectoryPath(sourcePath)) {
+		if (!PathUtils.isDirectoryPathValid(sourcePath)) {
 			throw new ValidationError(`path ${sourcePath} is not a valid directory path`);
 		}
 
 		const destPath = PathUtils.normalizeDirectoryPath(directoryRenameBody.newPath);
 
-		if (!PathUtils.isValidDirectoryPath(destPath)) {
+		if (!PathUtils.isDirectoryPathValid(destPath)) {
 			throw new ValidationError(`path ${destPath} is not a valid directory path`);
 		}
 

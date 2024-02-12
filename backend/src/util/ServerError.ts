@@ -10,7 +10,7 @@ import {
 export class ServerError<T extends keyof ExceptionTypeMap> extends Error {
 	private readonly status: T;
 
-	constructor(message: string, status: T) {
+	public constructor(message: string, status: T) {
 		super(message);
 
 		this.status = status;

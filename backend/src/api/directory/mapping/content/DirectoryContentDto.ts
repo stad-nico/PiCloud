@@ -37,7 +37,7 @@ export class DirectoryContentDto {
 	public static from(directoryContentParams: DirectoryContentParams) {
 		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryContentParams.path);
 
-		if (!PathUtils.isValidDirectoryPath(normalizedPath)) {
+		if (!PathUtils.isDirectoryPathValid(normalizedPath)) {
 			throw new ValidationError(`path ${directoryContentParams.path} is not a valid directory path`);
 		}
 

@@ -6,7 +6,7 @@ export class FileRenameParams {
 	})
 	readonly path: string;
 
-	constructor(path: string) {
+	public constructor(path: string) {
 		this.path = path;
 	}
 }

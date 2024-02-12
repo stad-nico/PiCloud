@@ -5,7 +5,7 @@ export class NotifyingLoggerWithContext implements ILogger {
 
 	private readonly context: string | undefined;
 
-	constructor(context: string | undefined, loggersToNotify: ILogger[]) {
+	public constructor(context: string | undefined, loggersToNotify: ILogger[]) {
 		this.context = context;
 		this.loggersToNotify = loggersToNotify;
 	}

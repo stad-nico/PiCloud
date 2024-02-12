@@ -37,7 +37,7 @@ export class DirectoryDeleteDto {
 	public static from(directoryDeleteParams: DirectoryDeleteParams) {
 		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryDeleteParams.path);
 
-		if (!PathUtils.isValidDirectoryPath(normalizedPath)) {
+		if (!PathUtils.isDirectoryPathValid(normalizedPath)) {
 			throw new ValidationError(`path ${directoryDeleteParams.path} is not a valid directory path`);
 		}
 

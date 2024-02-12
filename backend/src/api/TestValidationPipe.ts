@@ -3,7 +3,7 @@ import { ArgumentMetadata, PipeTransform, ValidationPipe, ValidationPipeOptions 
 export class TestValidationPipe extends ValidationPipe implements PipeTransform {
 	private static disabled: boolean = false;
 
-	constructor(options?: ValidationPipeOptions | undefined) {
+	public constructor(options?: ValidationPipeOptions | undefined) {
 		super(options);
 	}
 

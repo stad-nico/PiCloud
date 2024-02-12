@@ -6,7 +6,7 @@ export class FileRestoreParams {
 	@IsUUID()
 	readonly id: string;
 
-	constructor(id: string) {
+	public constructor(id: string) {
 		this.id = id;
 	}
 }

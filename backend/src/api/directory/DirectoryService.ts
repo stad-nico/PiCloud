@@ -5,6 +5,7 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
+import { IDirectoryService } from 'src/api/directory/IDirectoryService';
 import { DirectoryContentDto, DirectoryContentResponse } from 'src/api/directory/mapping/content';
 import { DirectoryCreateDto, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
 import { DirectoryDeleteDto, DirectoryDeleteResponse } from 'src/api/directory/mapping/delete';
@@ -21,7 +22,7 @@ import { ServerError } from 'src/util/ServerError';
  * @class
  */
 @Injectable()
-export class DirectoryService {
+export class DirectoryService implements IDirectoryService {
 	/**
 	 * The entity manager for executing transactions on repositories.
 	 * @type {EntityManager}

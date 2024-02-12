@@ -132,7 +132,7 @@ export class PathUtils {
 	 * @param   {string}  path the path to check
 	 * @returns {boolean}      whether the path is valid
 	 */
-	public static isValidDirectoryPath(path: string): boolean {
+	public static isDirectoryPathValid(path: string): boolean {
 		return PathUtils.ValidDirectoryPathRegExp.test(path);
 	}
 
@@ -142,7 +142,7 @@ export class PathUtils {
 	 * @param   {string}  path the path to check
 	 * @returns {boolean}      whether the path is valid
 	 */
-	public static isValidFilePath(path: string): boolean {
+	public static isFilePathValid(path: string): boolean {
 		return PathUtils.ValidFilePathRegExp.test(path);
 	}
 }

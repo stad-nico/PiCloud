@@ -1,4 +1,5 @@
 import { FileReplaceParams } from 'src/api/file/mapping/replace/FileReplaceParams';
+import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
 import { Readable } from 'stream';
@@ -17,9 +18,13 @@ export class FileReplaceDto {
 	}
 
 	public static from(fileUploadParams: FileReplaceParams, file: Express.Multer.File): FileReplaceDto {
+		if (!FileUtils.isFileValid(file)) {
+			throw new ValidationError(`the given file is not a valid file`);
+		}
+
 		const normalizedPath = PathUtils.normalizeFilePath(fileUploadParams.path);
 
-		if (!PathUtils.isValidFilePath(normalizedPath)) {
+		if (!PathUtils.isFilePathValid(normalizedPath)) {
 			throw new ValidationError(`path ${fileUploadParams.path} is not a valid file path`);
 		}
 

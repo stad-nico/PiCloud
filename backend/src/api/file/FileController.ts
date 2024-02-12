@@ -50,7 +50,7 @@ export class FileController {
 	 * @public @constructor
 	 *
 	 * @param   {IFileService}    fileService the fileService
-	 * @returns {FileController}             the FileController instance
+	 * @returns {FileController}              the FileController instance
 	 */
 	public constructor(@Inject(IFileService) fileService: IFileService) {
 		this.fileService = fileService;
@@ -118,10 +118,6 @@ export class FileController {
 	@UseInterceptors(FileInterceptor('file'))
 	public async upload(@Param() params: FileUploadParams, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponse> {
 		try {
-			if (!file) {
-				throw new ServerError('file must not be empty', HttpStatus.BAD_REQUEST);
-			}
-
 			const fileUploadDto = FileUploadDto.from(params, file);
 
 			return await this.fileService.upload(fileUploadDto);
@@ -140,10 +136,6 @@ export class FileController {
 	@UseInterceptors(FileInterceptor('file'))
 	public async replace(@Param() params: FileReplaceParams, @UploadedFile() file: Express.Multer.File): Promise<FileReplaceResponse> {
 		try {
-			if (!file) {
-				throw new ServerError('file must not be empty', HttpStatus.BAD_REQUEST);
-			}
-
 			const fileReplaceDto = FileReplaceDto.from(params, file);
 
 			return await this.fileService.replace(fileReplaceDto);

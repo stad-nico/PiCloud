@@ -1,4 +1,5 @@
 import { FileUploadParams } from 'src/api/file/mapping/upload/FileUploadParams';
+import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
 import { Readable } from 'stream';
@@ -16,10 +17,14 @@ export class FileUploadDto {
 		this.stream = stream;
 	}
 
-	public static from(fileUploadParams: FileUploadParams, file: Pick<Express.Multer.File, 'mimetype' | 'size' | 'stream'>): FileUploadDto {
+	public static from(fileUploadParams: FileUploadParams, file: Express.Multer.File): FileUploadDto {
+		if (!FileUtils.isFileValid(file)) {
+			throw new ValidationError(`the given file is not a valid file`);
+		}
+
 		const normalizedPath = PathUtils.normalizeFilePath(fileUploadParams.path);
 
-		if (!PathUtils.isValidFilePath(normalizedPath)) {
+		if (!PathUtils.isFilePathValid(normalizedPath)) {
 			throw new ValidationError(`path ${fileUploadParams.path} is not a valid file path`);
 		}
 

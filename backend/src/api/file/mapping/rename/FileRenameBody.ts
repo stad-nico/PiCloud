@@ -6,7 +6,7 @@ export class FileRenameBody {
 	})
 	readonly newPath: string;
 
-	constructor(newPath: string) {
+	public constructor(newPath: string) {
 		this.newPath = newPath;
 	}
 }

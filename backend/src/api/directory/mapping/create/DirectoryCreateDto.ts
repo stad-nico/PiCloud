@@ -37,7 +37,7 @@ export class DirectoryCreateDto {
 	public static from(directoryCreateParams: DirectoryCreateParams) {
 		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryCreateParams.path);
 
-		if (!PathUtils.isValidDirectoryPath(normalizedPath)) {
+		if (!PathUtils.isDirectoryPathValid(normalizedPath)) {
 			throw new ValidationError(`path ${directoryCreateParams.path} is not a valid directory path`);
 		}
 
