@@ -1,8 +1,10 @@
+import * as path from 'path';
+import { Readable } from 'stream';
+
 import { FileReplaceParams } from 'src/api/file/mapping/replace/FileReplaceParams';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
-import { Readable } from 'stream';
 
 export class FileReplaceDto {
 	readonly path: string;
@@ -26,6 +28,10 @@ export class FileReplaceDto {
 
 		if (!PathUtils.isFilePathValid(normalizedPath)) {
 			throw new ValidationError(`path ${fileUploadParams.path} is not a valid file path`);
+		}
+
+		if (path.basename(normalizedPath).length > PathUtils.MaxFileNameLength) {
+			throw new ValidationError(`file name ${path.basename(fileUploadParams.path)} exceeds the file name limit of 128 chars`);
 		}
 
 		return new FileReplaceDto(normalizedPath, file.mimetype, file.stream);

@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 import { DirectoryRenameBody } from 'src/api/directory/mapping/rename/DirectoryRenameBody';
 import { DirectoryRenameParams } from 'src/api/directory/mapping/rename/DirectoryRenameParams';
 import { PathUtils } from 'src/util/PathUtils';
@@ -56,6 +58,12 @@ export class DirectoryRenameDto {
 
 		if (!PathUtils.isDirectoryPathValid(destPath)) {
 			throw new ValidationError(`path ${destPath} is not a valid directory path`);
+		}
+
+		if (path.basename(destPath).length > PathUtils.MaxDirectoryNameLength) {
+			throw new ValidationError(
+				`destination directory name ${path.basename(directoryRenameBody.newPath)} exceeds the file name limit of 128 chars`
+			);
 		}
 
 		return new DirectoryRenameDto(directoryRenameParams.path, directoryRenameBody.newPath);

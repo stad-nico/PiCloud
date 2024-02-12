@@ -11,6 +11,10 @@ import { StoragePath } from 'src/disk/DiskService';
  * @class
  */
 export class PathUtils {
+	public static readonly MaxFileNameLength = 128;
+
+	public static readonly MaxDirectoryNameLength = 128;
+
 	public static readonly ValidChars = `[a-zA-Z-0-9\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]`;
 
 	public static readonly ValidDirectoryNameRegExp = `([-_.]?${PathUtils.ValidChars})([-_. ]?${PathUtils.ValidChars})*`;

@@ -1,8 +1,10 @@
+import * as path from 'path';
+import { Readable } from 'stream';
+
 import { FileUploadParams } from 'src/api/file/mapping/upload/FileUploadParams';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
-import { Readable } from 'stream';
 
 export class FileUploadDto {
 	readonly path: string;
@@ -26,6 +28,10 @@ export class FileUploadDto {
 
 		if (!PathUtils.isFilePathValid(normalizedPath)) {
 			throw new ValidationError(`path ${fileUploadParams.path} is not a valid file path`);
+		}
+
+		if (path.basename(normalizedPath).length > PathUtils.MaxFileNameLength) {
+			throw new ValidationError(`file name ${path.basename(fileUploadParams.path)} exceeds the file name limit of 128 chars`);
 		}
 
 		return new FileUploadDto(normalizedPath, file.mimetype, file.stream);

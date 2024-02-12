@@ -1,3 +1,4 @@
+import path from 'path';
 import { DirectoryCreateParams } from 'src/api/directory/mapping/create/DirectoryCreateParams';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
@@ -34,11 +35,17 @@ export class DirectoryCreateDto {
 	 * @param   {DirectoryCreateParams} directoryCreateParams the http params
 	 * @returns {DirectoryCreateDto}                          the DirectoryCreateDto instance
 	 */
-	public static from(directoryCreateParams: DirectoryCreateParams) {
+	public static from(directoryCreateParams: DirectoryCreateParams): DirectoryCreateDto {
 		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryCreateParams.path);
 
 		if (!PathUtils.isDirectoryPathValid(normalizedPath)) {
 			throw new ValidationError(`path ${directoryCreateParams.path} is not a valid directory path`);
+		}
+
+		if (path.basename(normalizedPath).length > PathUtils.MaxFileNameLength) {
+			throw new ValidationError(
+				`directory name ${path.basename(directoryCreateParams.path)} exceeds the file name limit of 128 chars`
+			);
 		}
 
 		return new DirectoryCreateDto(normalizedPath);
