@@ -49,19 +49,15 @@ export class DirectoryRepository implements IDirectoryRepository {
 		return this.validate(result[0] ?? [], ['id', 'name'])[0] ?? null;
 	}
 
-	public async selectByUuid(
-		entityManager: EntityManager,
-		id: string,
-		isRecycled: boolean = false
-	): Promise<(Pick<Directory, 'name'> & { path: string }) | null> {
-		const result = await entityManager.getKnex().raw<[{ name: string; path: string }[]]>(
-			`SELECT name, GET_DIRECTORY_PATH(id) as path
+	public async selectByUuid(entityManager: EntityManager, id: string, isRecycled: boolean = false): Promise<{ path: string } | null> {
+		const result = await entityManager.getKnex().raw<[{ path: string }[]]>(
+			`SELECT GET_DIRECTORY_PATH(id) as path
 			FROM directories
 			WHERE is_recycled = :isRecycled AND id = :id`,
 			{ isRecycled: isRecycled, id: id }
 		);
 
-		return this.validate(result[0] ?? [], ['name', 'path'])[0] ?? null;
+		return this.validate(result[0] ?? [], ['path'])[0] ?? null;
 	}
 
 	public async exists(entityManager: EntityManager, path: string, isRecycled: boolean = false): Promise<boolean> {

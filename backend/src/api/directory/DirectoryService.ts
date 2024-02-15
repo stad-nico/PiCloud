@@ -212,7 +212,7 @@ export class DirectoryService implements IDirectoryService {
 			}
 
 			if (!(await this.directoryRepository.exists(entityManager, directoryRenameDto.sourcePath, false))) {
-				throw new ServerError(`directory ${directoryRenameDto.sourcePath} does not exists`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`directory ${directoryRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			const destinationName = path.basename(directoryRenameDto.destPath);
@@ -229,7 +229,7 @@ export class DirectoryService implements IDirectoryService {
 			const destinationParent = await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
 
 			if (!destinationParent) {
-				throw new ServerError(`directory ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
+				throw new ServerError(`directory ${destParentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			updateOptions = { ...updateOptions, parent: entityManager.getReference(Directory, destinationParent.id) };

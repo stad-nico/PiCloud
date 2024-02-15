@@ -15,7 +15,6 @@ import { Readable } from 'stream';
 export class FileUtils {
 	public static isFileValid(file: Express.Multer.File): boolean {
 		//! TODO: implement actual validation
-		return 0;
 		return Boolean(file);
 	}
 
