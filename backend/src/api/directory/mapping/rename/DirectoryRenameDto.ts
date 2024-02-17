@@ -20,19 +20,19 @@ export class DirectoryRenameDto {
 	 * The path to rename the directory to.
 	 * @type {string}
 	 */
-	readonly destPath: string;
+	readonly destinationPath: string;
 
 	/**
 	 * Creates a new DirectoryRenameDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}             sourcePath the path of the directory to rename
-	 * @param   {string}             destPath   the path to rename the directory to
-	 * @returns {DirectoryRenameDto}            the DirectoryRenameDto instance
+	 * @param   {string}             sourcePath      the path of the directory to rename
+	 * @param   {string}             destinationPath the path to rename the directory to
+	 * @returns {DirectoryRenameDto}                 the DirectoryRenameDto instance
 	 */
-	private constructor(sourcePath: string, destPath: string) {
+	private constructor(sourcePath: string, destinationPath: string) {
 		this.sourcePath = sourcePath;
-		this.destPath = destPath;
+		this.destinationPath = destinationPath;
 	}
 
 	/**

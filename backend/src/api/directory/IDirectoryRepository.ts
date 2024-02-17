@@ -43,7 +43,7 @@ export interface IDirectoryRepository {
 	 * @param   {boolean}       isRecycled                                     whether the directory to find should be a recycled one
 	 * @returns {Promise<(Pick<Directory, 'name'> & { path: string }) | null>} the name and path of the directory
 	 */
-	selectByUuid(entityManager: EntityManager, uuid: string, isRecycled: boolean): Promise<{ path: string } | null>;
+	selectById(entityManager: EntityManager, uuid: string, isRecycled: boolean): Promise<{ path: string } | null>;
 
 	/**
 	 * Checks if a directory at the given path exists.

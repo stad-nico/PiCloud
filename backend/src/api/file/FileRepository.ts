@@ -1,4 +1,5 @@
 import { EntityManager } from '@mikro-orm/mariadb';
+import { IFileRepository } from 'src/api/file/IFileRepository';
 import { File } from 'src/db/entities/File';
 
 type Additional = {
@@ -6,7 +7,7 @@ type Additional = {
 	path: string;
 };
 
-export class FileRepository {
+export class FileRepository implements IFileRepository {
 	private validate<T extends Array<keyof (File & Additional)>>(
 		entities: Array<Partial<File & Additional>>,
 		requiredKeys: T
@@ -57,13 +58,9 @@ export class FileRepository {
 		return this.validate(mapped, ['id', 'name', 'mimeType'])[0] ?? null;
 	}
 
-	public async selectByUuid(
-		entityManager: EntityManager,
-		id: string,
-		isRecycled: boolean = false
-	): Promise<(Pick<File, 'name'> & { path: string }) | null> {
-		const result = await entityManager.getKnex().raw<[{ name: string; path: string }[]]>(
-			`SELECT name, GET_DIRECTORY_PATH(id) as path
+	public async selectById(entityManager: EntityManager, id: string, isRecycled: boolean = false): Promise<{ path: string } | null> {
+		const result = await entityManager.getKnex().raw<[{ path: string }[]]>(
+			`SELECT GET_DIRECTORY_PATH(id) as path
 			FROM files
 			WHERE is_recycled = :isRecycled AND id = :id`,
 			{ isRecycled: isRecycled, id: id }
@@ -71,10 +68,10 @@ export class FileRepository {
 
 		const mapped = result[0]!.map((x) => entityManager.map(File, x));
 
-		return this.validate(mapped, ['name', 'path'])[0] ?? null;
+		return this.validate(mapped, ['path'])[0] ?? null;
 	}
 
-	public async insertReturningUuid(
+	public async insertReturningId(
 		entityManager: EntityManager,
 		name: string,
 		mimeType: string,

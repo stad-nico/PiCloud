@@ -42,7 +42,7 @@ export interface IFileRepository {
 	 * @param   {boolean}       isRecycled    if the file to look for should be a recycled one
 	 * @returns {Promise<(Pick<File, 'name'> & { path: string }) | null>} the id, name and mimeType
 	 */
-	selectByUuid(entityManager: EntityManager, id: string, isRecycled: boolean): Promise<(Pick<File, 'name'> & { path: string }) | null>;
+	selectById(entityManager: EntityManager, id: string, isRecycled: boolean): Promise<{ path: string } | null>;
 
 	/**
 	 * Inserts a new file entity into the db and returns the id of the file.
@@ -54,7 +54,7 @@ export interface IFileRepository {
 	 * @param   {string|null}           parent        the parent
 	 * @returns {Promise<{id: string}>}               the id
 	 */
-	insertReturningUuid(entityManager: EntityManager, name: string, mimeType: string, parent: string | null): Promise<Pick<File, 'id'>>;
+	insertReturningId(entityManager: EntityManager, name: string, mimeType: string, parent: string | null): Promise<Pick<File, 'id'>>;
 
 	/**
 	 * Soft deletes a file by setting isRecycled to true.

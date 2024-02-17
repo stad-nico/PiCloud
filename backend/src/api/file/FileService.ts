@@ -6,7 +6,6 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
-import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete';
 import { IFileRepository } from 'src/api/file/IFileRepository';
 import { IFileService } from 'src/api/file/IFileService';
 import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/mapping/delete';
@@ -134,15 +133,19 @@ export class FileService implements IFileService {
 	 */
 	public async restore(fileRestoreDto: FileRestoreDto): Promise<FileRestoreResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const file = await this.fileRepository.selectByUuid(entityManager, fileRestoreDto.id, true);
+			const fileToRestore = await this.fileRepository.selectById(entityManager, fileRestoreDto.id, true);
 
-			if (!file) {
-				throw new ServerError(`file ${fileRestoreDto.id} does not exist`, HttpStatus.NOT_FOUND);
+			if (!fileToRestore) {
+				throw new ServerError(`file with id ${fileRestoreDto.id} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			if (await this.fileRepository.exists(entityManager, fileToRestore.path, false)) {
+				throw new ServerError(`file ${fileToRestore.path} already exists`, HttpStatus.CONFLICT);
 			}
 
 			await this.fileRepository.restore(entityManager, fileRestoreDto.id);
 
-			return FileRestoreResponse.from(file.path);
+			return FileRestoreResponse.from(fileToRestore.path);
 		});
 	}
 
@@ -175,7 +178,7 @@ export class FileService implements IFileService {
 			const parentId = hasRootAsParent ? null : parent!.id;
 
 			const fileName = path.basename(fileUploadDto.path);
-			const result = await this.fileRepository.insertReturningUuid(entityManager, fileName, fileUploadDto.mimeType, parentId);
+			const result = await this.fileRepository.insertReturningId(entityManager, fileName, fileUploadDto.mimeType, parentId);
 
 			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
 			await FileUtils.writeFile(resolvedPath, fileUploadDto.stream);
@@ -208,7 +211,7 @@ export class FileService implements IFileService {
 			}
 
 			const fileName = path.basename(fileReplaceDto.path);
-			const result = await this.fileRepository.insertReturningUuid(
+			const result = await this.fileRepository.insertReturningId(
 				entityManager,
 				fileName,
 				fileReplaceDto.mimeType,
@@ -218,7 +221,7 @@ export class FileService implements IFileService {
 			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
 			await FileUtils.writeFile(resolvedPath, fileReplaceDto.stream);
 
-			return FileUploadResponse.from(fileReplaceDto.path);
+			return FileReplaceResponse.from(fileReplaceDto.path);
 		});
 	}
 
@@ -244,24 +247,32 @@ export class FileService implements IFileService {
 				throw new ServerError(`file ${fileRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const destinationName = path.basename(fileRenameDto.destinationPath);
-
-			let updateOptions: Partial<File> = { name: destinationName };
+			const willFileNameChange = path.basename(fileRenameDto.destinationPath) !== path.basename(fileRenameDto.sourcePath);
+			let updateOptions: Partial<File> = willFileNameChange ? { name: path.basename(fileRenameDto.destinationPath) } : {};
 
 			if (path.dirname(fileRenameDto.sourcePath) === path.dirname(fileRenameDto.destinationPath)) {
-				await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
+				if (willFileNameChange) {
+					await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
+				}
 
 				return FileRenameResponse.from(fileRenameDto.destinationPath);
 			}
 
 			const destParentPath = path.dirname(fileRenameDto.destinationPath);
-			const destinationParent = await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
+			const hasRootAsParent = path.relative('.', destParentPath) === '';
 
-			if (!destinationParent) {
-				throw new ServerError(`directory ${destParentPath} does not exists`, HttpStatus.NOT_FOUND);
+			const destinationParent = hasRootAsParent
+				? null
+				: await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
+
+			if (!destinationParent && !hasRootAsParent) {
+				throw new ServerError(`directory ${destParentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			updateOptions = { ...updateOptions, parent: entityManager.getReference(Directory, destinationParent.id) };
+			updateOptions = {
+				...updateOptions,
+				parent: hasRootAsParent ? null : entityManager.getReference(Directory, destinationParent!.id),
+			};
 
 			await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
 
@@ -289,7 +300,7 @@ export class FileService implements IFileService {
 
 			await this.fileRepository.softDelete(entityManager, file.id);
 
-			return DirectoryDeleteResponse.from(file.id);
+			return FileDeleteResponse.from(file.id);
 		});
 	}
 }

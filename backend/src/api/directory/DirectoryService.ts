@@ -143,7 +143,7 @@ export class DirectoryService implements IDirectoryService {
 	 */
 	public async restore(directoryRestoreDto: DirectoryRestoreDto): Promise<DirectoryRestoreResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const directoryToRestore = await this.directoryRepository.selectByUuid(entityManager, directoryRestoreDto.id, true);
+			const directoryToRestore = await this.directoryRepository.selectById(entityManager, directoryRestoreDto.id, true);
 
 			if (!directoryToRestore) {
 				throw new ServerError(`directory with id ${directoryRestoreDto.id} does not exist`, HttpStatus.NOT_FOUND);
@@ -207,36 +207,47 @@ export class DirectoryService implements IDirectoryService {
 	 */
 	public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (await this.directoryRepository.exists(entityManager, directoryRenameDto.destPath, false)) {
-				throw new ServerError(`directory ${directoryRenameDto.destPath} already exists`, HttpStatus.CONFLICT);
+			if (await this.directoryRepository.exists(entityManager, directoryRenameDto.destinationPath, false)) {
+				throw new ServerError(`directory ${directoryRenameDto.destinationPath} already exists`, HttpStatus.CONFLICT);
 			}
 
 			if (!(await this.directoryRepository.exists(entityManager, directoryRenameDto.sourcePath, false))) {
 				throw new ServerError(`directory ${directoryRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const destinationName = path.basename(directoryRenameDto.destPath);
+			const willDirectoryNameChange =
+				path.basename(directoryRenameDto.destinationPath) !== path.basename(directoryRenameDto.sourcePath);
+			let updateOptions: Partial<Directory> = willDirectoryNameChange
+				? { name: path.basename(directoryRenameDto.destinationPath) }
+				: {};
 
-			let updateOptions: Partial<Directory> = { name: destinationName };
+			if (path.dirname(directoryRenameDto.sourcePath) === path.dirname(directoryRenameDto.destinationPath)) {
+				if (willDirectoryNameChange) {
+					await this.directoryRepository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
+				}
 
-			if (path.dirname(directoryRenameDto.sourcePath) === path.dirname(directoryRenameDto.destPath)) {
-				await this.directoryRepository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
-
-				return DirectoryRenameResponse.from(directoryRenameDto);
+				return DirectoryRenameResponse.from(directoryRenameDto.destinationPath);
 			}
 
-			const destParentPath = path.dirname(directoryRenameDto.destPath);
-			const destinationParent = await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
+			const destParentPath = path.dirname(directoryRenameDto.destinationPath);
+			const hasRootAsParent = path.relative('.', destParentPath) === '';
 
-			if (!destinationParent) {
+			const destinationParent = hasRootAsParent
+				? null
+				: await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
+
+			if (!destinationParent && !hasRootAsParent) {
 				throw new ServerError(`directory ${destParentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			updateOptions = { ...updateOptions, parent: entityManager.getReference(Directory, destinationParent.id) };
+			updateOptions = {
+				...updateOptions,
+				parent: hasRootAsParent ? null : entityManager.getReference(Directory, destinationParent!.id),
+			};
 
 			await this.directoryRepository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
 
-			return DirectoryRenameResponse.from(directoryRenameDto);
+			return DirectoryRenameResponse.from(directoryRenameDto.destinationPath);
 		});
 	}
 

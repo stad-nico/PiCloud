@@ -1,4 +1,3 @@
-import { DirectoryRenameDto } from 'src/api/directory/mapping/rename/DirectoryRenameDto';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**
@@ -24,13 +23,13 @@ export class DirectoryRenameResponse {
 	}
 
 	/**
-	 * Creates a new DirectoryRenameResponse instance from the dto.
+	 * Creates a new DirectoryRenameResponse instance from the new path.
 	 * @public @static
 	 *
-	 * @param   {DirectoryRenameDto}      directoryRenameDto the DirectoryRenameDto
-	 * @returns {DirectoryRenameResponse}                    the DirectoryRenameResponse instance
+	 * @param   {string}                  destinationPath the new path
+	 * @returns {DirectoryRenameResponse}                 the DirectoryRenameResponse instance
 	 */
-	public static from(directoryRenameDto: DirectoryRenameDto) {
-		return new DirectoryRenameResponse(PathUtils.normalizeDirectoryPath(directoryRenameDto.destPath));
+	public static from(destinationPath: string) {
+		return new DirectoryRenameResponse(PathUtils.normalizeDirectoryPath(destinationPath));
 	}
 }

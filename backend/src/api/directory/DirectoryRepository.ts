@@ -49,7 +49,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 		return this.validate(result[0] ?? [], ['id', 'name'])[0] ?? null;
 	}
 
-	public async selectByUuid(entityManager: EntityManager, id: string, isRecycled: boolean = false): Promise<{ path: string } | null> {
+	public async selectById(entityManager: EntityManager, id: string, isRecycled: boolean = false): Promise<{ path: string } | null> {
 		const result = await entityManager.getKnex().raw<[{ path: string }[]]>(
 			`SELECT GET_DIRECTORY_PATH(id) as path
 			FROM directories
