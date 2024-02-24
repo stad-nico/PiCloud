@@ -21,14 +21,18 @@ export class DirectoryRepository implements IDirectoryRepository {
 	): Array<Pick<Directory & Additional, T[number]>> {
 		const output = [];
 
-		for (const entity of entities) {
+		entityLoop: for (const entity of entities) {
+			let object: { [key: string]: any } = {};
+
 			for (const requiredKey of requiredKeys) {
 				if (!(requiredKey in entity)) {
-					continue;
+					continue entityLoop;
 				}
+
+				object[requiredKey as string] = entity[requiredKey];
 			}
 
-			output.push(entity as Pick<Directory & Additional, T[number]>);
+			output.push(object as Pick<Directory & Additional, T[number]>);
 		}
 
 		return output;

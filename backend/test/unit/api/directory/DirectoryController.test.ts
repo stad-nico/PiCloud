@@ -1,5 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { DirectoryController } from 'src/api/directory/DirectoryController';
 import { IDirectoryService } from 'src/api/directory/IDirectoryService';
 import { DirectoryContentDto } from 'src/api/directory/mapping/content';
@@ -9,7 +10,6 @@ import { DirectoryDownloadDto } from 'src/api/directory/mapping/download';
 import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata';
 import { DirectoryRenameDto } from 'src/api/directory/mapping/rename';
 import { DirectoryRestoreDto } from 'src/api/directory/mapping/restore';
-
 import { ServerError } from 'src/util/ServerError';
 import { ValidationError } from 'src/util/ValidationError';
 
@@ -39,6 +39,7 @@ describe('DirectoryController', () => {
 		}).compile();
 
 		module.useLogger(false);
+
 		controller = module.get(DirectoryController);
 		service = module.get(IDirectoryService);
 	});
