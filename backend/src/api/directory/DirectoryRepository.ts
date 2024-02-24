@@ -19,6 +19,10 @@ export class DirectoryRepository implements IDirectoryRepository {
 		entities: Array<Partial<Directory & Additional>>,
 		requiredKeys: T
 	): Array<Pick<Directory & Additional, T[number]>> {
+		if (requiredKeys.length === 0) {
+			return entities as Array<Pick<Directory & Additional, T[number]>>;
+		}
+
 		const output = [];
 
 		entityLoop: for (const entity of entities) {
