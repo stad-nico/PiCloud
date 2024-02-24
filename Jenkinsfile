@@ -8,7 +8,7 @@ pipeline {
     }
 
     stages {
-        stage("Backend<br>Install") {
+        stage("Backend Install") {
             steps {
                 dir("backend") {
                     sh "npm install"
@@ -16,7 +16,7 @@ pipeline {
             }
         }
 
-        stage("Backend<br>Unit Tests") {
+        stage("Backend Unit Tests") {
             steps {
                 dir("backend") {
                     sh "npm run test:unit"
@@ -24,7 +24,7 @@ pipeline {
             }
         }
 
-        stage("Backend<br>Integration Tests") {
+        stage("Backend Integration Tests") {
             steps {
                 dir("backend") {
                     sh "npm run test:integration"
@@ -32,7 +32,7 @@ pipeline {
             }
         }
 
-        stage("Backend<br>End2End Tests") {
+        stage("Backend e2e Tests") {
             steps {
                 dir("backend") {
                     sh "npm run test:e2e"
