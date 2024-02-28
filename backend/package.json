@@ -7,6 +7,7 @@
 	"license": "UNLICENSED",
 	"scripts": {
 		"mikro-orm:dev": "SET NODE_ENV=dev&& npx mikro-orm",
+		"mikro-orm:test": "SET NODE_ENV=test&& npx mikro-orm",
 		"mikro-orm:prod": "SET NODE_ENV=prod&& npx mikro-orm",
 		"build": "nest build",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

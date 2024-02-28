@@ -1,13 +1,21 @@
+import { EntityManager, Transaction } from '@mikro-orm/mariadb';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DirectoryRepository } from 'src/api/directory/DirectoryRepository';
 import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 
+import config from 'src/config/MikroORMConfig';
+
 describe('DirectoryRepository', () => {
 	let repository: DirectoryRepository;
-	// let entityManager: EntityManager;
+	let globalEntityManager: EntityManager;
+	let globalTransactionContext: Transaction;
+
+	let currentTransactionContext: Transaction = null;
 
 	beforeAll(async () => {
 		const module: TestingModule = await Test.createTestingModule({
+			imports: [MikroOrmModule.forRoot({ ...config })],
 			providers: [
 				{
 					provide: IDirectoryRepository,
@@ -18,8 +26,24 @@ describe('DirectoryRepository', () => {
 
 		module.useLogger(false);
 
-		// entityManager = module.get(EntityManager);
+		globalEntityManager = module.get(EntityManager);
 		repository = module.get(IDirectoryRepository);
+
+		await globalEntityManager.begin();
+		globalTransactionContext = globalEntityManager.getTransactionContext();
+	});
+
+	afterAll(async () => {
+		await globalEntityManager.getConnection().commit(globalTransactionContext);
+	});
+
+	beforeEach(async () => {
+		await globalEntityManager.begin({ ctx: globalTransactionContext });
+		currentTransactionContext = globalEntityManager.getTransactionContext();
+	});
+
+	afterEach(async () => {
+		await globalEntityManager.getConnection().rollback(currentTransactionContext);
 	});
 
 	describe('validate', () => {
