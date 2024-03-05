@@ -34,16 +34,16 @@ export interface IDirectoryRepository {
 	selectByPath(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<Pick<Directory, 'id' | 'name'> | null>;
 
 	/**
-	 * Selects name and path of a directory.
+	 * Selects isRecycled and path of a directory.
 	 * Returns null if no directory was found.
 	 * @async
 	 *
 	 * @param   {EntityManager} entityManager                                  the entityManager
 	 * @param   {string}        id                                             the id of the directory
 	 * @param   {boolean}       isRecycled                                     whether the directory to find should be a recycled one
-	 * @returns {Promise<(Pick<Directory, 'name'> & { path: string }) | null>} the name and path of the directory
+	 * @returns {Promise<{ path: string, isRecycled: boolean } | null>}        the path and recycled status of the directory
 	 */
-	selectById(entityManager: EntityManager, uuid: string, isRecycled: boolean): Promise<{ path: string } | null>;
+	selectById(entityManager: EntityManager, uuid: string, isRecycled: boolean): Promise<{ path: string; isRecycled: boolean } | null>;
 
 	/**
 	 * Checks if a directory at the given path exists.
