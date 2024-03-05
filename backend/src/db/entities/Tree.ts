@@ -1,7 +1,9 @@
 import { Entity, ManyToOne, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 import { Directory } from 'src/db/entities/Directory';
 
-@Entity({ tableName: 'tree' })
+export const TREE_TABLE_NAME = 'tree';
+
+@Entity({ tableName: TREE_TABLE_NAME })
 @Unique({ properties: ['parent', 'child'] })
 export class Tree {
 	@PrimaryKey({ type: 'int', nullable: false, autoincrement: true })

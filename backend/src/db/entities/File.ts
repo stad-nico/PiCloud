@@ -1,7 +1,9 @@
 import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property } from '@mikro-orm/core';
 import { Directory } from 'src/db/entities/Directory';
 
-@Entity({ tableName: 'files' })
+export const FILES_TABLE_NAME = 'files';
+
+@Entity({ tableName: FILES_TABLE_NAME })
 export class File {
 	[OptionalProps]?: 'id' | 'parent' | 'mimeType' | 'size' | 'isRecycled' | 'createdAt' | 'updatedAt';
 

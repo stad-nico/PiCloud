@@ -1,6 +1,8 @@
 import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property } from '@mikro-orm/core';
 
-@Entity({ tableName: 'directories' })
+export const DIRECTORY_TABLE_NAME = 'directories';
+
+@Entity({ tableName: DIRECTORY_TABLE_NAME })
 export class Directory {
 	[OptionalProps]?: 'id' | 'parent' | 'isRecycled' | 'createdAt' | 'updatedAt';
 
