@@ -149,6 +149,10 @@ export class DirectoryService implements IDirectoryService {
 				throw new ServerError(`directory with id ${directoryRestoreDto.id} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
+			if (!directoryToRestore.isRecycled) {
+				return DirectoryRestoreResponse.from(directoryToRestore.path);
+			}
+
 			if (await this.directoryRepository.exists(entityManager, directoryToRestore.path, false)) {
 				throw new ServerError(`directory ${directoryToRestore.path} already exists`, HttpStatus.CONFLICT);
 			}
@@ -217,6 +221,7 @@ export class DirectoryService implements IDirectoryService {
 
 			const willDirectoryNameChange =
 				path.basename(directoryRenameDto.destinationPath) !== path.basename(directoryRenameDto.sourcePath);
+
 			let updateOptions: Partial<Directory> = willDirectoryNameChange
 				? { name: path.basename(directoryRenameDto.destinationPath) }
 				: {};
