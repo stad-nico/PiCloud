@@ -94,7 +94,7 @@ export interface IDirectoryRepository {
 	 * @param   {string}                                      path          the path of the directory
 	 * @returns {Promise<DirectoryGetContentDBResult | null>}               the result
 	 */
-	getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult | null>;
+	getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult>;
 
 	/**
 	 * Selects the relative path and id of all files inside a directory by its path.

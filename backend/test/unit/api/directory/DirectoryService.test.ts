@@ -69,7 +69,7 @@ describe('DirectoryService', () => {
 
 	describe('content', () => {
 		it('should throw 404 NOT FOUND if directory does not exist', async () => {
-			jest.spyOn(repository, 'getContent').mockResolvedValueOnce(null);
+			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
 
 			const dto = { path: 'test/path' };
 			const expectedError = new ServerError(`directory ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -84,6 +84,7 @@ describe('DirectoryService', () => {
 			};
 			const dto = { path: 'test/path' };
 
+			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
 			jest.spyOn(repository, 'getContent').mockResolvedValueOnce(dbResult);
 
 			await expect(service.content(dto)).resolves.toStrictEqual(DirectoryContentResponse.from(dbResult));
@@ -157,7 +158,7 @@ describe('DirectoryService', () => {
 		});
 
 		it('should throw 409 CONFLICT if a directory at that path already exists', async () => {
-			const dbDirectoryResult = { path: 'test/path' };
+			const dbDirectoryResult = { path: 'test/path', isRecycled: true };
 			const expectedError = new ServerError(`directory ${dbDirectoryResult.path} already exists`, HttpStatus.CONFLICT);
 			const dto = { id: 'uuid' };
 
@@ -168,8 +169,18 @@ describe('DirectoryService', () => {
 			expect(repository.restore).not.toHaveBeenCalled();
 		});
 
-		it('should resolve with correct response', async () => {
-			const dbDirectoryResult = { path: 'test/path' };
+		it('should resolve with correct response if the directory was not recycled', async () => {
+			const dbDirectoryResult = { path: 'test/path', isRecycled: false };
+			const dto = { id: 'uuid' };
+
+			jest.spyOn(repository, 'selectById').mockResolvedValueOnce(dbDirectoryResult);
+
+			await expect(service.restore(dto)).resolves.toStrictEqual(DirectoryRestoreResponse.from(dbDirectoryResult.path));
+			expect(repository.restore).not.toHaveBeenCalled();
+		});
+
+		it('should resolve with correct response if the directory was recycled', async () => {
+			const dbDirectoryResult = { path: 'test/path', isRecycled: true };
 			const dto = { id: 'uuid' };
 
 			jest.spyOn(repository, 'selectById').mockResolvedValueOnce(dbDirectoryResult);

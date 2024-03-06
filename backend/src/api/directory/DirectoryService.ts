@@ -72,11 +72,11 @@ export class DirectoryService implements IDirectoryService {
 	 */
 	public async content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const content = await this.directoryRepository.getContent(entityManager, directoryContentDto.path);
-
-			if (!content) {
+			if (!(await this.directoryRepository.exists(entityManager, directoryContentDto.path, false))) {
 				throw new ServerError(`directory ${directoryContentDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
+
+			const content = await this.directoryRepository.getContent(entityManager, directoryContentDto.path);
 
 			return DirectoryContentResponse.from(content);
 		});

@@ -1,4 +1,4 @@
-import { MariaDbDriver, defineConfig } from '@mikro-orm/mariadb';
+import { EntityCaseNamingStrategy, MariaDbDriver, defineConfig } from '@mikro-orm/mariadb';
 import { Migrator } from '@mikro-orm/migrations';
 import { config } from 'dotenv';
 import { Environment } from './EnvConfig';
@@ -16,7 +16,9 @@ export default defineConfig({
 	password: process.env[Environment.DBPassword]!,
 	port: +process.env[Environment.DBPort]!,
 	forceUtcTimezone: true,
+	namingStrategy: EntityCaseNamingStrategy,
 	strict: true,
+	multipleStatements: true,
 	baseDir: process.cwd(),
 	migrations: {
 		tableName: 'migrations',

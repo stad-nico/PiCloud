@@ -21,6 +21,7 @@
 		"strict": true,
 		"noUncheckedIndexedAccess": true,
 		"exactOptionalPropertyTypes": true,
+		"esModuleInterop": true,
 		"noEmit": false,
 		"paths": {
 			"src": ["src"]
