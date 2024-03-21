@@ -26,6 +26,8 @@ jest.mock('src/util/FileUtils', () => ({
 	},
 }));
 
+jest.mock('fs');
+
 describe('FileService', () => {
 	let service: IFileService;
 	let fileRepository: IFileRepository;
@@ -131,9 +133,7 @@ describe('FileService', () => {
 			jest.spyOn(fs, 'createReadStream').mockReturnValueOnce(readStream as any);
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce('fgf');
 
-			await expect(service.download(dto)).resolves.toStrictEqual(
-				FileDownloadResponse.from(dbSelect.name, dbSelect.mimeType, readStream as any)
-			);
+			await expect(service.download(dto)).resolves.toStrictEqual(FileDownloadResponse.from(dbSelect.name, dbSelect.mimeType, readStream as any));
 		});
 	});
 
