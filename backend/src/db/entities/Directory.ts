@@ -12,7 +12,7 @@ export class Directory {
 	@Property({ type: 'varchar', nullable: false })
 	readonly name!: string;
 
-	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'no action' })
+	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'no action', name: 'parentId' })
 	readonly parent!: Directory | null;
 
 	@Property({ type: 'boolean', nullable: false, default: false })

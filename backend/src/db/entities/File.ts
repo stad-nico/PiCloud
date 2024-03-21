@@ -13,7 +13,7 @@ export class File {
 	@Property({ type: 'varchar', nullable: false })
 	readonly name!: string;
 
-	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'no action' })
+	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'no action', name: 'parentId' })
 	readonly parent!: Directory | null;
 
 	@Property({ type: 'varchar', nullable: false, default: 'application/octet-stream' })
