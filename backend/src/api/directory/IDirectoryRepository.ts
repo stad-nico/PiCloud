@@ -68,7 +68,7 @@ export interface IDirectoryRepository {
 
 	/**
 	 * Soft deletes a directory tree by the root id
-	 * by setting isRecycled to true for all directories in that subtree.
+	 * by setting isRecycled to true for all directories and files in that subtree.
 	 * @async
 	 *
 	 * @param {EntityManager} entityManager the entityManager
@@ -77,7 +77,7 @@ export interface IDirectoryRepository {
 	softDelete(entityManager: EntityManager, rootUuid: string): Promise<void>;
 
 	/**
-	 * Selects the metadata of a directory by its path.
+	 * Selects the metadata of a non recycled directory by its path.
 	 * @async
 	 *
 	 * @param   {EntityManager}                                entityManager the entityManager
@@ -87,7 +87,7 @@ export interface IDirectoryRepository {
 	getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null>;
 
 	/**
-	 * Selects the first level subdirectories and files of a directory by its path.
+	 * Selects the first level non deleted subdirectories and files of a non deleted directory by its path.
 	 * @async
 	 *
 	 * @param   {EntityManager}                               entityManager the entityManager
@@ -97,11 +97,12 @@ export interface IDirectoryRepository {
 	getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult>;
 
 	/**
-	 * Selects the relative path and id of all files inside a directory by its path.
+	 * Selects the path and id of all non deleted files inside a non deleted directory by the path of the root directory.
+	 * All file paths are relative to the path of the root directory.
 	 * @async
 	 *
 	 * @param   {EntityManager} entityManager the entityManager
-	 * @param   {string}        path          the path of the directory
+	 * @param   {string}        path          the path of the root directory
 	 * @returns {Promise<Array<Pick<File, 'uuid'> & { path: string }>>} the files
 	 */
 	getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<Pick<File, 'id'> & { path: string }>>;
@@ -110,15 +111,15 @@ export interface IDirectoryRepository {
 	 * Updates a directory.
 	 * @async
 	 *
-	 * @param {EntityManager}      entityManager the entityManager
-	 * @param {string}             path          the path of the directory to update
-	 * @param {Partial<Directory>} partial       the partial directory to update
+	 * @param {EntityManager}                               entityManager the entityManager
+	 * @param {string}                                      path          the path of the directory to update
+	 * @param {{ name?: string; parentId?: string | null }} partial       the partial directory to update
 	 */
-	update(entityManager: EntityManager, path: string, partial: Partial<Directory>): Promise<void>;
+	update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string | null }): Promise<void>;
 
 	/**
 	 * Restores a directory tree by the root id
-	 * by setting isRecycled to false for all directories in that subtree.
+	 * by setting isRecycled to false for all directories and files in that subtree.
 	 * @async
 	 *
 	 * @param {EntityManager} entityManager the entityManager

@@ -13,7 +13,6 @@ import { DirectoryDownloadDto, DirectoryDownloadResponse } from 'src/api/directo
 import { DirectoryMetadataDto, DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata';
 import { DirectoryRenameDto, DirectoryRenameResponse } from 'src/api/directory/mapping/rename';
 import { DirectoryRestoreDto, DirectoryRestoreResponse } from 'src/api/directory/mapping/restore';
-import { Directory } from 'src/db/entities/Directory';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 
@@ -50,11 +49,7 @@ export class DirectoryService implements IDirectoryService {
 	 * @param   {IDirectoryRepository} directoryRepository the directoryRepository
 	 * @returns {DirectoryService}                         the DirectoryService instance
 	 */
-	public constructor(
-		entityManager: EntityManager,
-		configService: ConfigService,
-		@Inject(IDirectoryRepository) directoryRepository: IDirectoryRepository
-	) {
+	public constructor(entityManager: EntityManager, configService: ConfigService, @Inject(IDirectoryRepository) directoryRepository: IDirectoryRepository) {
 		this.entityManager = entityManager;
 		this.configService = configService;
 		this.directoryRepository = directoryRepository;
@@ -219,10 +214,9 @@ export class DirectoryService implements IDirectoryService {
 				throw new ServerError(`directory ${directoryRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const willDirectoryNameChange =
-				path.basename(directoryRenameDto.destinationPath) !== path.basename(directoryRenameDto.sourcePath);
+			const willDirectoryNameChange = path.basename(directoryRenameDto.destinationPath) !== path.basename(directoryRenameDto.sourcePath);
 
-			let updateOptions: Partial<Directory> = willDirectoryNameChange
+			let updateOptions: { name?: string; parentId?: string | null } = willDirectoryNameChange
 				? { name: path.basename(directoryRenameDto.destinationPath) }
 				: {};
 
@@ -237,9 +231,7 @@ export class DirectoryService implements IDirectoryService {
 			const destParentPath = path.dirname(directoryRenameDto.destinationPath);
 			const hasRootAsParent = path.relative('.', destParentPath) === '';
 
-			const destinationParent = hasRootAsParent
-				? null
-				: await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
+			const destinationParent = hasRootAsParent ? null : await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
 
 			if (!destinationParent && !hasRootAsParent) {
 				throw new ServerError(`directory ${destParentPath} does not exist`, HttpStatus.NOT_FOUND);
@@ -247,7 +239,7 @@ export class DirectoryService implements IDirectoryService {
 
 			updateOptions = {
 				...updateOptions,
-				parent: hasRootAsParent ? null : entityManager.getReference(Directory, destinationParent!.id),
+				parentId: destinationParent ? destinationParent.id : null,
 			};
 
 			await this.directoryRepository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
