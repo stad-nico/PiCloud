@@ -140,9 +140,7 @@ describe('DirectoryService', () => {
 			jest.spyOn(repository, 'getFilesRelative').mockResolvedValueOnce(dbFilesResponse);
 			jest.spyOn(FileUtils, 'createZIPArchive').mockResolvedValueOnce(zipArchive as any);
 
-			await expect(service.download(dto)).resolves.toStrictEqual(
-				DirectoryDownloadResponse.from('dirName.zip', 'application/zip', zipArchive as any)
-			);
+			await expect(service.download(dto)).resolves.toStrictEqual(DirectoryDownloadResponse.from('dirName.zip', 'application/zip', zipArchive as any));
 		});
 	});
 
@@ -289,17 +287,16 @@ describe('DirectoryService', () => {
 			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { name: 'path2.txt' });
 		});
 
-		it('should only update the parent of the directory if the name is the same and resolve with the correct response', async () => {
+		it('should only update the parentId of the directory if the name is the same and resolve with the correct response', async () => {
 			const dto = { sourcePath: 'source/path.txt', destinationPath: 'destination/path.txt' };
-			const parent = { id: 'uuid', name: 'destination' };
+			const parent = { id: 'parentId', name: 'destination' };
 
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
 			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(parent);
-			jest.spyOn(entityManager, 'getReference').mockReturnValueOnce(parent);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(DirectoryRenameResponse.from(dto.destinationPath));
-			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parent: parent });
+			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parentId: parent.id });
 		});
 
 		it('should only update the parent of the directory with null if the name is the same and the destination parent is the root directory and resolve with the correct response', async () => {
@@ -308,10 +305,9 @@ describe('DirectoryService', () => {
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
 			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(null);
-			jest.spyOn(entityManager, 'getReference').mockReturnValueOnce(null as any);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(DirectoryRenameResponse.from(dto.destinationPath));
-			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parent: null });
+			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parentId: null });
 		});
 
 		it('should update name and parent of the directory and resolve with the correct response', async () => {
@@ -321,10 +317,9 @@ describe('DirectoryService', () => {
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
 			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(parent);
-			jest.spyOn(entityManager, 'getReference').mockReturnValueOnce(parent);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(DirectoryRenameResponse.from(dto.destinationPath));
-			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { name: 'path2.txt', parent: parent });
+			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { name: 'path2.txt', parentId: parent.id });
 		});
 	});
 

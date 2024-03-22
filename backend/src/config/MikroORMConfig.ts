@@ -3,7 +3,7 @@ import { Migrator } from '@mikro-orm/migrations';
 import { config } from 'dotenv';
 import { Environment } from './EnvConfig';
 
-config({ path: `../${(process.env.NODE_ENV ?? 'dev').trim()}.env` });
+config({ path: `../${process.env.NODE_ENV}.env` });
 
 export default defineConfig({
 	driver: MariaDbDriver,

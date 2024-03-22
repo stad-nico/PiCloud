@@ -169,7 +169,7 @@ export class FileService implements IFileService {
 			const parentPath = path.dirname(fileUploadDto.path);
 			const hasRootAsParent = path.relative('.', parentPath) === '';
 
-			const parent = await this.directoryRepository.selectByPath(entityManager, parentPath, false);
+			const parent = await this.directoryRepository.selectByPath(entityManager, parentPath);
 
 			if (!parent && !hasRootAsParent) {
 				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
@@ -200,7 +200,7 @@ export class FileService implements IFileService {
 	public async replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
 			const parentPath = path.dirname(fileReplaceDto.path);
-			const parentDirectory = await this.directoryRepository.selectByPath(entityManager, parentPath, false);
+			const parentDirectory = await this.directoryRepository.selectByPath(entityManager, parentPath);
 
 			if (!parentDirectory) {
 				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
@@ -211,12 +211,7 @@ export class FileService implements IFileService {
 			}
 
 			const fileName = path.basename(fileReplaceDto.path);
-			const result = await this.fileRepository.insertReturningId(
-				entityManager,
-				fileName,
-				fileReplaceDto.mimeType,
-				parentDirectory.id
-			);
+			const result = await this.fileRepository.insertReturningId(entityManager, fileName, fileReplaceDto.mimeType, parentDirectory.id);
 
 			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
 			await FileUtils.writeFile(resolvedPath, fileReplaceDto.stream);
@@ -261,9 +256,7 @@ export class FileService implements IFileService {
 			const destParentPath = path.dirname(fileRenameDto.destinationPath);
 			const hasRootAsParent = path.relative('.', destParentPath) === '';
 
-			const destinationParent = hasRootAsParent
-				? null
-				: await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
+			const destinationParent = hasRootAsParent ? null : await this.directoryRepository.selectByPath(entityManager, destParentPath);
 
 			if (!destinationParent && !hasRootAsParent) {
 				throw new ServerError(`directory ${destParentPath} does not exist`, HttpStatus.NOT_FOUND);
