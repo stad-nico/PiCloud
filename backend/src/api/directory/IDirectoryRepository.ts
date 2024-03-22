@@ -22,16 +22,15 @@ export const IDirectoryRepository = Symbol('IDirectoryRepository');
  */
 export interface IDirectoryRepository {
 	/**
-	 * Selects name and id of a directory at the given path.
+	 * Selects name and id of the first non recycled directory with the given path.
 	 * Returns null if no directory was found.
 	 * @async
 	 *
 	 * @param   {EntityManager} entityManager                    the entityManager
 	 * @param   {string}        path                             the path of the directory
-	 * @param   {boolean}       isRecycled                       whether the directory to find should be a recycled one
 	 * @returns {Promise<Pick<Directory, 'id' | 'name'> | null>} the name and id of the directory
 	 */
-	selectByPath(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<Pick<Directory, 'id' | 'name'> | null>;
+	selectByPath(entityManager: EntityManager, path: string): Promise<Pick<Directory, 'id' | 'name'> | null>;
 
 	/**
 	 * Selects isRecycled and path of a directory.
@@ -46,15 +45,14 @@ export interface IDirectoryRepository {
 	selectById(entityManager: EntityManager, uuid: string, isRecycled: boolean): Promise<{ path: string; isRecycled: boolean } | null>;
 
 	/**
-	 * Checks if a directory at the given path exists.
+	 * Checks if a non recycled directory at the given path exists.
 	 * @async
 	 *
 	 * @param   {EntityManager}    entityManager the entityManager
 	 * @param   {string}           path          the path of the directory
-	 * @param   {boolean}          isRecycled    whether the directory to find should be a recycled one
 	 * @returns {Promise<boolean>}               whether a directory at the path exists
 	 */
-	exists(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<boolean>;
+	exists(entityManager: EntityManager, path: string): Promise<boolean>;
 
 	/**
 	 * Inserts a new directory into the db.

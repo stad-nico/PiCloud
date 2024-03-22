@@ -51,11 +51,272 @@ describe('DirectoryRepository', () => {
 		await entityManager.getConnection().rollback(currentTransactionContext);
 	});
 
-	describe('GET_DIRECTORY_PATH', () => {});
+	describe('GET_DIRECTORY_PATH', () => {
+		it('should return "/" if id is NULL', async () => {
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ path: string }>]>(`SELECT GET_DIRECTORY_PATH(NULL) as path`)
+				.transacting(entityManager.getTransactionContext()!);
 
-	describe('GET_DIRECTORY_SIZE', () => {});
+			expect(result![0]?.path).toStrictEqual('/');
+		});
 
-	describe('GET_DIRECTORY_UUID', () => {});
+		it('should return NULL if id does not exist', async () => {
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ path: string }>]>(`SELECT GET_DIRECTORY_PATH("test") as path`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.path).toBeNull();
+		});
+
+		it('should return correct path for non recycled first level directory', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId)
+					 VALUES ('rootId', 'root',  null)`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ path: string }>]>(`SELECT GET_DIRECTORY_PATH("rootId") as path`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.path).toStrictEqual('/root/');
+		});
+
+		it('should return correct path for recycled first level directory', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId, isRecycled)
+					 VALUES ('rootId', 'root',  null, true)`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ path: string }>]>(`SELECT GET_DIRECTORY_PATH("rootId") as path`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.path).toStrictEqual('/root/');
+		});
+
+		it('should return correct path for nested non recycled directory', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId)
+					 VALUES ('parentId', 'parent',  null),
+					        ('child1Id', 'child1', 'parentId'),
+							('child2Id', 'child2', 'child1Id')`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ path: string }>]>(`SELECT GET_DIRECTORY_PATH("child2Id") as path`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.path).toStrictEqual('/parent/child1/child2/');
+		});
+
+		it('should return correct path for nested recycled directory', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId, isRecycled)
+					 VALUES ('parentId', 'parent',  null,      true),
+					        ('child1Id', 'child1', 'parentId', true),
+							('child2Id', 'child2', 'child1Id', true)`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ path: string }>]>(`SELECT GET_DIRECTORY_PATH("child2Id") as path`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.path).toStrictEqual('/parent/child1/child2/');
+		});
+	});
+
+	describe('GET_DIRECTORY_SIZE', () => {
+		it('should return zero if directory does not exist', async () => {
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ size: number }>]>(`SELECT GET_DIRECTORY_SIZE("test") as size`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.size).toStrictEqual(0);
+		});
+
+		it('should return zero if passed null as id', async () => {
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ size: number }>]>(`SELECT GET_DIRECTORY_SIZE(NULL) as size`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.size).toStrictEqual(0);
+		});
+
+		it('should return zero if directory has no non recycled files or subdirectories with non recycled files', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId, isRecycled)
+					  VALUES ('parentId', 'parent', null,       false),
+					         ('child1Id', 'child1', 'parentId', false),
+							 ('child2Id', 'child2', 'parentId', true),
+							 ('child3Id', 'child3', 'child1Id', false),
+							 ('child4Id', 'child4', 'child1Id', true)`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ size: number }>]>(`SELECT GET_DIRECTORY_SIZE('parentId') as size`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.size).toStrictEqual(0);
+		});
+
+		it('should return correct size excluding recycled files', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId, isRecycled)
+					 VALUES ('parentId', 'parent',  null,      false),
+					        ('child1Id', 'child1', 'parentId', false),
+					        ('child2Id', 'child2', 'parentId', true),
+							('child3Id', 'child3', 'child1Id', false),
+							('child4Id', 'child4', 'child1Id', true);
+					  
+					INSERT INTO ${FILES_TABLE_NAME} (name, parentId, isRecycled, size)
+					VALUES ('file01', "parentId", false, 12),
+						   ('file02', "parentId", true, 19),
+						   ('file11', "child1Id", false, 16),
+						   ('file12', "child1Id", true, 14),
+						   ('file22', "child2Id", true, 13),
+						   ('file31', "child3Id", false, 19),
+						   ('file32', "child3Id", true, 22),
+						   ('file42', "child4Id", true, 9);`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ size: number }>]>(`SELECT GET_DIRECTORY_SIZE('parentId') as size`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.size).toStrictEqual(47);
+		});
+	});
+
+	describe('GET_DIRECTORY_UUID', () => {
+		it('should return NULL if path is NULL', async () => {
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID(NULL) as id`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.id).toBeNull();
+		});
+
+		it('should return NULL if path is "/"', async () => {
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID('/') as id`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.id).toBeNull();
+		});
+
+		it('should return NULL if path does not exist', async () => {
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID('test') as id`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.id).toBeNull();
+		});
+
+		it('should return correct id for non recycled first level directory', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId) 
+				      VALUES ('test1Id', 'test', NULL), 
+					         ('test2Id', 'test', NULL)`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID('test') as id`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.id).toStrictEqual('test1Id');
+		});
+
+		it('should return correct id for recycled first level directory', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId, isRecycled) 
+				      VALUES ('test1Id', 'test', NULL, true), 
+					         ('test2Id', 'test', NULL, true)`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID("test") as id`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.id).toStrictEqual('test1Id');
+		});
+
+		it('should return correct id for non recycled nested directory', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId) 
+				      VALUES ('parentId', 'parent',  NULL), 
+					         ('child1Id', 'child1', 'parentId'),
+							 ('child2Id', 'child2', 'child1Id')`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID('/parent/child1/child2') as id`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.id).toStrictEqual('child2Id');
+		});
+
+		it('should return correct id for recycled nested directory', async () => {
+			await entityManager
+				.getKnex()
+				.raw(
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId, isRecycled) 
+				      VALUES ('parentId', 'parent',  NULL,     true), 
+					         ('child1Id', 'child1', 'parentId', true),
+							 ('child2Id', 'child2', 'child1Id', true)`
+				)
+				.transacting(entityManager.getTransactionContext()!);
+
+			const [result] = await entityManager
+				.getKnex()
+				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID('/parent/child1/child2') as id`)
+				.transacting(entityManager.getTransactionContext()!);
+
+			expect(result![0]?.id).toStrictEqual('child2Id');
+		});
+	});
 
 	describe('selectByPath', () => {
 		it('should return correct name and id if the directory exists and it is not recycled and we are not searching for a recycled one', async () => {
@@ -64,19 +325,7 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId, isRecycled) VALUES ('testId', 'test', null, false)`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.selectByPath(entityManager, 'test', false)).resolves.toStrictEqual({
-				name: 'test',
-				id: 'testId',
-			});
-		});
-
-		it('should return correct name and id if the directory exists and it is recycled and we are searching for a recycled one', async () => {
-			await entityManager
-				.getKnex()
-				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId, isRecycled) VALUES ('testId', 'test', null, true)`)
-				.transacting(entityManager.getTransactionContext()!);
-
-			await expect(repository.selectByPath(entityManager, 'test', true)).resolves.toStrictEqual({
+			await expect(repository.selectByPath(entityManager, 'test')).resolves.toStrictEqual({
 				name: 'test',
 				id: 'testId',
 			});
@@ -88,27 +337,13 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId, isRecycled) VALUES ('test', null, true)`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.selectByPath(entityManager, 'test', false)).resolves.toBeNull();
-		});
-
-		it('should return null if the directory exists but it is not recycled and we are searching for a recycled one', async () => {
-			await entityManager
-				.getKnex()
-				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId, isRecycled) VALUES ('test', null, false)`)
-				.transacting(entityManager.getTransactionContext()!);
-
-			await expect(repository.selectByPath(entityManager, 'test', true)).resolves.toBeFalsy();
+			await expect(repository.selectByPath(entityManager, 'test')).resolves.toBeNull();
 		});
 
 		it('should return null if no directory with that path exists at all', async () => {
-			await expect(repository.selectByPath(entityManager, 'test', false)).resolves.toBeNull();
-			await expect(repository.selectByPath(entityManager, 'test', true)).resolves.toBeNull();
-			await expect(repository.selectByPath(entityManager, 'test/abc', false)).resolves.toBeNull();
-			await expect(repository.selectByPath(entityManager, 'test/abc', true)).resolves.toBeNull();
-			await expect(repository.selectByPath(entityManager, 'null', false)).resolves.toBeNull();
-			await expect(repository.selectByPath(entityManager, 'null', true)).resolves.toBeNull();
-			await expect(repository.selectByPath(entityManager, '', false)).resolves.toBeNull();
-			await expect(repository.selectByPath(entityManager, '', true)).resolves.toBeNull();
+			await expect(repository.selectByPath(entityManager, null as any)).resolves.toBeNull();
+			await expect(repository.selectByPath(entityManager, '')).resolves.toBeNull();
+			await expect(repository.selectByPath(entityManager, 'test')).resolves.toBeNull();
 		});
 	});
 
@@ -156,16 +391,7 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId, isRecycled) VALUES ('test', null, false)`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.exists(entityManager, 'test', false)).resolves.toBeTruthy();
-		});
-
-		it('should return true if the directory exists and it is recycled and we are searching for a recycled one', async () => {
-			await entityManager
-				.getKnex()
-				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId, isRecycled) VALUES ('test', null, true)`)
-				.transacting(entityManager.getTransactionContext()!);
-
-			await expect(repository.exists(entityManager, 'test', true)).resolves.toBeTruthy();
+			await expect(repository.exists(entityManager, 'test')).resolves.toBeTruthy();
 		});
 
 		it('should return false if the directory exists but it is recycled and we are not searching for a recycled one', async () => {
@@ -174,27 +400,13 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId, isRecycled) VALUES ('test', null, true)`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.exists(entityManager, 'test', false)).resolves.toBeFalsy();
-		});
-
-		it('should return false if the directory exists but it is not recycled and we are searching for a recycled one', async () => {
-			await entityManager
-				.getKnex()
-				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId, isRecycled) VALUES ('test', null, false)`)
-				.transacting(entityManager.getTransactionContext()!);
-
-			await expect(repository.exists(entityManager, 'test', true)).resolves.toBeFalsy();
+			await expect(repository.exists(entityManager, 'test')).resolves.toBeFalsy();
 		});
 
 		it('should return false if no directory with that path exists at all', async () => {
-			await expect(repository.exists(entityManager, '', true)).resolves.toBeFalsy();
-			await expect(repository.exists(entityManager, '', false)).resolves.toBeFalsy();
-			await expect(repository.exists(entityManager, 'test', true)).resolves.toBeFalsy();
-			await expect(repository.exists(entityManager, 'test', false)).resolves.toBeFalsy();
-			await expect(repository.exists(entityManager, 'null', true)).resolves.toBeFalsy();
-			await expect(repository.exists(entityManager, 'null', false)).resolves.toBeFalsy();
-			await expect(repository.exists(entityManager, 'test/id', true)).resolves.toBeFalsy();
-			await expect(repository.exists(entityManager, 'test/id', false)).resolves.toBeFalsy();
+			await expect(repository.exists(entityManager, null as any)).resolves.toBeFalsy();
+			await expect(repository.exists(entityManager, '')).resolves.toBeFalsy();
+			await expect(repository.exists(entityManager, 'test')).resolves.toBeFalsy();
 		});
 	});
 
@@ -364,7 +576,7 @@ describe('DirectoryRepository', () => {
 			});
 		});
 
-		it('should return metadata with correct size, files and directories', async () => {
+		it('should return metadata with correct size, files and directories excluding recycled ones', async () => {
 			await entityManager
 				.getKnex()
 				.raw(

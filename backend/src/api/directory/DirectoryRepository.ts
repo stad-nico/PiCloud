@@ -18,13 +18,13 @@ type Additional = {
 
 @Injectable()
 export class DirectoryRepository implements IDirectoryRepository {
-	public async selectByPath(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<Pick<Directory, 'id' | 'name'> | null> {
+	public async selectByPath(entityManager: EntityManager, path: string): Promise<Pick<Directory, 'id' | 'name'> | null> {
 		const result = await entityManager
 			.getKnex()
 			.raw<[Pick<Directory, 'id' | 'name'>[]]>(
 				// prettier-ignore
-				`SELECT name, id FROM ${DIRECTORY_TABLE_NAME} WHERE isRecycled = :isRecycled AND id = GET_DIRECTORY_UUID(:path)`,
-				{ isRecycled: isRecycled, path: PathUtils.normalizeDirectoryPath(path) }
+				`SELECT name, id FROM ${DIRECTORY_TABLE_NAME} WHERE isRecycled = false AND id = GET_DIRECTORY_UUID(:path)`,
+				{ path: PathUtils.normalizeDirectoryPath(path) }
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
@@ -53,13 +53,13 @@ export class DirectoryRepository implements IDirectoryRepository {
 		};
 	}
 
-	public async exists(entityManager: EntityManager, path: string, isRecycled: boolean): Promise<boolean> {
+	public async exists(entityManager: EntityManager, path: string): Promise<boolean> {
 		const result = await entityManager
 			.getKnex()
 			.raw<[Pick<Additional, 'count'>[]]>(
 				// prettier-ignore
-				`SELECT COUNT(*) as count FROM ${DIRECTORY_TABLE_NAME} WHERE isRecycled = :isRecycled AND id = GET_DIRECTORY_UUID(:path) LIMIT 1`,
-				{ isRecycled: isRecycled, path: PathUtils.normalizeDirectoryPath(path) }
+				`SELECT COUNT(*) as count FROM ${DIRECTORY_TABLE_NAME} WHERE isRecycled = false AND id = GET_DIRECTORY_UUID(:path) LIMIT 1`,
+				{ path: PathUtils.normalizeDirectoryPath(path) }
 			)
 			.transacting(entityManager.getTransactionContext()!);
 

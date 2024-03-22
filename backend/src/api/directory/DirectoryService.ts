@@ -67,7 +67,7 @@ export class DirectoryService implements IDirectoryService {
 	 */
 	public async content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (!(await this.directoryRepository.exists(entityManager, directoryContentDto.path, false))) {
+			if (!(await this.directoryRepository.exists(entityManager, directoryContentDto.path))) {
 				throw new ServerError(`directory ${directoryContentDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
@@ -111,7 +111,7 @@ export class DirectoryService implements IDirectoryService {
 	 */
 	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
 		return this.entityManager.transactional(async (entityManager) => {
-			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDownloadDto.path, false);
+			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDownloadDto.path);
 
 			if (!directory) {
 				throw new ServerError(`directory ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -148,7 +148,7 @@ export class DirectoryService implements IDirectoryService {
 				return DirectoryRestoreResponse.from(directoryToRestore.path);
 			}
 
-			if (await this.directoryRepository.exists(entityManager, directoryToRestore.path, false)) {
+			if (await this.directoryRepository.exists(entityManager, directoryToRestore.path)) {
 				throw new ServerError(`directory ${directoryToRestore.path} already exists`, HttpStatus.CONFLICT);
 			}
 
@@ -171,14 +171,14 @@ export class DirectoryService implements IDirectoryService {
 	 */
 	public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (await this.directoryRepository.exists(entityManager, directoryCreateDto.path, false)) {
+			if (await this.directoryRepository.exists(entityManager, directoryCreateDto.path)) {
 				throw new ServerError(`directory ${directoryCreateDto.path} already exists`, HttpStatus.CONFLICT);
 			}
 
 			const parentPath = path.dirname(directoryCreateDto.path);
 			const hasRootAsParent = path.relative('.', parentPath) === '';
 
-			const parent = await this.directoryRepository.selectByPath(entityManager, parentPath, false);
+			const parent = await this.directoryRepository.selectByPath(entityManager, parentPath);
 
 			if (!parent && !hasRootAsParent) {
 				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
@@ -206,11 +206,11 @@ export class DirectoryService implements IDirectoryService {
 	 */
 	public async rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (await this.directoryRepository.exists(entityManager, directoryRenameDto.destinationPath, false)) {
+			if (await this.directoryRepository.exists(entityManager, directoryRenameDto.destinationPath)) {
 				throw new ServerError(`directory ${directoryRenameDto.destinationPath} already exists`, HttpStatus.CONFLICT);
 			}
 
-			if (!(await this.directoryRepository.exists(entityManager, directoryRenameDto.sourcePath, false))) {
+			if (!(await this.directoryRepository.exists(entityManager, directoryRenameDto.sourcePath))) {
 				throw new ServerError(`directory ${directoryRenameDto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
@@ -231,7 +231,7 @@ export class DirectoryService implements IDirectoryService {
 			const destParentPath = path.dirname(directoryRenameDto.destinationPath);
 			const hasRootAsParent = path.relative('.', destParentPath) === '';
 
-			const destinationParent = hasRootAsParent ? null : await this.directoryRepository.selectByPath(entityManager, destParentPath, false);
+			const destinationParent = hasRootAsParent ? null : await this.directoryRepository.selectByPath(entityManager, destParentPath);
 
 			if (!destinationParent && !hasRootAsParent) {
 				throw new ServerError(`directory ${destParentPath} does not exist`, HttpStatus.NOT_FOUND);
@@ -260,7 +260,7 @@ export class DirectoryService implements IDirectoryService {
 	 */
 	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDeleteDto.path, false);
+			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDeleteDto.path);
 
 			if (!directory) {
 				throw new ServerError(`directory ${directoryDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
