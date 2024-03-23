@@ -1,10 +1,11 @@
-import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 
 export const DIRECTORY_TABLE_NAME = 'directories';
 
 @Entity({ tableName: DIRECTORY_TABLE_NAME })
+@Unique({ properties: ['parent', 'name'] })
 export class Directory {
-	[OptionalProps]?: 'id' | 'parent' | 'isRecycled' | 'createdAt' | 'updatedAt';
+	[OptionalProps]?: 'id' | 'parent' | 'createdAt' | 'updatedAt';
 
 	@PrimaryKey({ type: 'uuid', nullable: false, defaultRaw: 'UUID()', unique: true })
 	readonly id!: string;
@@ -14,9 +15,6 @@ export class Directory {
 
 	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'no action', name: 'parentId' })
 	readonly parent!: Directory | null;
-
-	@Property({ type: 'boolean', nullable: false, default: false })
-	readonly isRecycled!: boolean;
 
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()' })
 	readonly createdAt!: Date;

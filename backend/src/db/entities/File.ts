@@ -1,11 +1,12 @@
-import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 import { Directory } from 'src/db/entities/Directory';
 
 export const FILES_TABLE_NAME = 'files';
 
 @Entity({ tableName: FILES_TABLE_NAME })
+@Unique({ properties: ['parent', 'name'] })
 export class File {
-	[OptionalProps]?: 'id' | 'parent' | 'mimeType' | 'size' | 'isRecycled' | 'createdAt' | 'updatedAt';
+	[OptionalProps]?: 'id' | 'parent' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt';
 
 	@PrimaryKey({ type: 'uuid', nullable: false, defaultRaw: 'UUID()', unique: true })
 	readonly id!: string;
@@ -21,9 +22,6 @@ export class File {
 
 	@Property({ type: 'bigint', nullable: false, default: 0 })
 	readonly size!: number;
-
-	@Property({ type: 'boolean', nullable: false, default: false })
-	readonly isRecycled!: boolean;
 
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()' })
 	readonly createdAt!: Date;

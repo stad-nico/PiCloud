@@ -18,54 +18,6 @@ type Additional = {
 
 @Injectable()
 export class DirectoryRepository implements IDirectoryRepository {
-	public async selectByPath(entityManager: EntityManager, path: string): Promise<Pick<Directory, 'id' | 'name'> | null> {
-		const result = await entityManager
-			.getKnex()
-			.raw<[Pick<Directory, 'id' | 'name'>[]]>(
-				// prettier-ignore
-				`SELECT name, id FROM ${DIRECTORY_TABLE_NAME} WHERE isRecycled = false AND id = GET_DIRECTORY_UUID(:path)`,
-				{ path: PathUtils.normalizeDirectoryPath(path) }
-			)
-			.transacting(entityManager.getTransactionContext()!);
-
-		return result[0]![0] ?? null;
-	}
-
-	public async selectById(entityManager: EntityManager, id: string): Promise<{ path: string; isRecycled: boolean } | null> {
-		const result = await entityManager
-			.getKnex()
-			.raw<[Pick<Directory & Additional, 'path' | 'isRecycled'>[]]>(
-				// prettier-ignore
-				`SELECT isRecycled, GET_DIRECTORY_PATH(id) as path FROM ${DIRECTORY_TABLE_NAME} WHERE id = :id`,
-				{ id: id }
-			)
-			.transacting(entityManager.getTransactionContext()!);
-
-		const directory = result[0]![0];
-
-		if (!directory) {
-			return null;
-		}
-
-		return {
-			path: PathUtils.normalizeDirectoryPath(directory.path),
-			isRecycled: Boolean(directory.isRecycled),
-		};
-	}
-
-	public async exists(entityManager: EntityManager, path: string): Promise<boolean> {
-		const result = await entityManager
-			.getKnex()
-			.raw<[Pick<Additional, 'count'>[]]>(
-				// prettier-ignore
-				`SELECT COUNT(*) as count FROM ${DIRECTORY_TABLE_NAME} WHERE isRecycled = false AND id = GET_DIRECTORY_UUID(:path) LIMIT 1`,
-				{ path: PathUtils.normalizeDirectoryPath(path) }
-			)
-			.transacting(entityManager.getTransactionContext()!);
-
-		return result[0]![0]!.count > 0;
-	}
-
 	public async insert(entityManager: EntityManager, name: string, parentId: string | null) {
 		await entityManager
 			.getKnex()
@@ -73,30 +25,30 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.transacting(entityManager.getTransactionContext()!);
 	}
 
-	public async softDelete(entityManager: EntityManager, rootId: string): Promise<void> {
-		await entityManager
+	public async exists(entityManager: EntityManager, path: string): Promise<boolean> {
+		const result = await entityManager
 			.getKnex()
-			.raw(
-				`UPDATE ${DIRECTORY_TABLE_NAME} 
-				SET isRecycled = true 
-				WHERE id IN (
-					SELECT childId 
-					FROM ${TREE_TABLE_NAME} 
-					INNER JOIN ${DIRECTORY_TABLE_NAME} ON ${TREE_TABLE_NAME}.childId = ${DIRECTORY_TABLE_NAME}.id 
-					WHERE ${TREE_TABLE_NAME}.parentId = :rootId
-				);
-
-				UPDATE ${FILES_TABLE_NAME} 
-				SET isRecycled = true 
-				WHERE parentId IN (
-					SELECT childId 
-					FROM ${TREE_TABLE_NAME} 
-					INNER JOIN ${DIRECTORY_TABLE_NAME} ON ${TREE_TABLE_NAME}.childId = ${DIRECTORY_TABLE_NAME}.id 
-					WHERE ${TREE_TABLE_NAME}.parentId = :rootId
-				);`,
-				{ rootId: rootId }
+			.raw<[Pick<Additional, 'count'>[]]>(
+				// prettier-ignore
+				`SELECT COUNT(*) as count FROM ${DIRECTORY_TABLE_NAME} WHERE id = GET_DIRECTORY_UUID(:path) LIMIT 1`,
+				{ path: PathUtils.normalizeDirectoryPath(path) }
 			)
 			.transacting(entityManager.getTransactionContext()!);
+
+		return result[0]![0]!.count > 0;
+	}
+
+	public async select(entityManager: EntityManager, path: string): Promise<Pick<Directory, 'id' | 'name'> | null> {
+		const result = await entityManager
+			.getKnex()
+			.raw<[Pick<Directory, 'id' | 'name'>[]]>(
+				// prettier-ignore
+				`SELECT name, id FROM ${DIRECTORY_TABLE_NAME} WHERE id = GET_DIRECTORY_UUID(:path)`,
+				{ path: PathUtils.normalizeDirectoryPath(path) }
+			)
+			.transacting(entityManager.getTransactionContext()!);
+
+		return result[0]![0] ?? null;
 	}
 
 	public async getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null> {
@@ -106,7 +58,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 				`WITH filesAmt AS (
 				 	 SELECT COUNT(*) as filesAmt
 				     FROM ${FILES_TABLE_NAME}
-					 WHERE isRecycled = false AND parentId IN (
+					 WHERE parentId IN (
 						 SELECT childId
 						 FROM ${TREE_TABLE_NAME}
 						 WHERE parentId = GET_DIRECTORY_UUID(:path)
@@ -115,7 +67,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 				  directoriesAmt AS (
 					 SELECT COUNT(*) - 1 as directoriesAmt
 					 FROM ${DIRECTORY_TABLE_NAME}
-					 WHERE isRecycled = false AND id IN (
+					 WHERE id IN (
 						 SELECT childId
 						 FROM ${TREE_TABLE_NAME}
 						 WHERE parentId = GET_DIRECTORY_UUID(:path)
@@ -126,7 +78,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 				 FROM ${DIRECTORY_TABLE_NAME}
 				 INNER JOIN filesAmt
 				 INNER JOIN directoriesAmt
-				 WHERE isRecycled = false AND id = GET_DIRECTORY_UUID(:path)
+				 WHERE id = GET_DIRECTORY_UUID(:path)
 				`,
 				{ path: PathUtils.normalizeDirectoryPath(path) }
 			)
@@ -150,7 +102,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.getKnex()
 			.raw<[Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
 				// prettier-ignore
-				`SELECT id, name, mimeType, size, createdAt, updatedAt FROM ${FILES_TABLE_NAME} WHERE isRecycled = false AND parentId = GET_DIRECTORY_UUID(:path)`,
+				`SELECT id, name, mimeType, size, createdAt, updatedAt FROM ${FILES_TABLE_NAME} WHERE parentId = GET_DIRECTORY_UUID(:path)`,
 				{ path: PathUtils.normalizeDirectoryPath(path) }
 			)
 			.transacting(entityManager.getTransactionContext()!);
@@ -166,7 +118,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
 				`SELECT id, name, GET_DIRECTORY_SIZE(id) AS size, createdAt, updatedAt
 				 FROM ${DIRECTORY_TABLE_NAME}
-				 WHERE isRecycled = false AND parentId = GET_DIRECTORY_UUID(:path)
+				 WHERE parentId = GET_DIRECTORY_UUID(:path)
 				`,
 				{ path: PathUtils.normalizeDirectoryPath(path) }
 			)
@@ -190,7 +142,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.raw<[{ id: string; path: string }[]]>(
 				`SELECT id, GET_FILE_PATH(id) AS path
 				 FROM ${FILES_TABLE_NAME}
-				 WHERE isRecycled = false AND parentId IN (
+				 WHERE parentId IN (
 					 SELECT childId
 					 FROM ${TREE_TABLE_NAME}
 					 INNER JOIN ${DIRECTORY_TABLE_NAME} ON ${TREE_TABLE_NAME}.childId = ${DIRECTORY_TABLE_NAME}.id
@@ -222,30 +174,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 			.transacting(entityManager.getTransactionContext()!);
 	}
 
-	public async restore(entityManager: EntityManager, rootId: string): Promise<void> {
-		await entityManager
-			.getKnex()
-			.raw(
-				`UPDATE ${DIRECTORY_TABLE_NAME}
-				 SET isRecycled = false
-				 WHERE id IN (
-					 SELECT childId
-					 FROM ${TREE_TABLE_NAME}
-					 INNER JOIN ${DIRECTORY_TABLE_NAME} ON ${TREE_TABLE_NAME}.childId = ${DIRECTORY_TABLE_NAME}.id
-					 WHERE ${TREE_TABLE_NAME}.parentId = :rootId
-				 );
-			
-				 UPDATE ${FILES_TABLE_NAME}
-				 SET isRecycled = false
-				 WHERE parentId IN (
-					 SELECT childId
-					 FROM ${TREE_TABLE_NAME}
-					 INNER JOIN ${DIRECTORY_TABLE_NAME} ON ${TREE_TABLE_NAME}.childId = ${DIRECTORY_TABLE_NAME}.id
-					 WHERE ${TREE_TABLE_NAME}.parentId = :rootId
-				 );
-				`,
-				{ rootId: rootId }
-			)
-			.transacting(entityManager.getTransactionContext()!);
+	public async delete(entityManager: EntityManager, rootId: string): Promise<void> {
+		await entityManager.getKnex().raw(``, { rootId: rootId }).transacting(entityManager.getTransactionContext()!);
 	}
 }

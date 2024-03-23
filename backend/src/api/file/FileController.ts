@@ -20,14 +20,13 @@ import { Response } from 'express';
 
 import { FileService } from 'src/api/file/FileService';
 import { IFileService } from 'src/api/file/IFileService';
-import { FileDeleteDto, FileDeleteParams, FileDeleteResponse } from 'src/api/file/mapping/delete';
+import { FileDeleteDto, FileDeleteParams } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadParams } from 'src/api/file/mapping/download';
 import { FileMetadataDto, FileMetadataParams, FileMetadataResponse } from 'src/api/file/mapping/metadata';
 import { FileRenameBody, FileRenameDto, FileRenameParams, FileRenameResponse } from 'src/api/file/mapping/rename';
 import { FileReplaceDto } from 'src/api/file/mapping/replace/FileReplaceDto';
 import { FileReplaceParams } from 'src/api/file/mapping/replace/FileReplaceParams';
 import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceResponse';
-import { FileRestoreDto, FileRestoreParams, FileRestoreResponse } from 'src/api/file/mapping/restore';
 import { FileUploadDto, FileUploadParams, FileUploadResponse } from 'src/api/file/mapping/upload';
 import { ServerError } from 'src/util/ServerError';
 
@@ -54,6 +53,42 @@ export class FileController {
 	 */
 	public constructor(@Inject(IFileService) fileService: IFileService) {
 		this.fileService = fileService;
+	}
+
+	@Post(':path(*)')
+	@UseInterceptors(FileInterceptor('file'))
+	public async upload(@Param() params: FileUploadParams, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponse> {
+		try {
+			const fileUploadDto = FileUploadDto.from(params, file);
+
+			return await this.fileService.upload(fileUploadDto);
+		} catch (e) {
+			if (e instanceof ServerError) {
+				this.logger.error(e.message);
+				throw e.toHttpException();
+			} else {
+				this.logger.error(e);
+				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
+			}
+		}
+	}
+
+	@Put(':path(*)')
+	@UseInterceptors(FileInterceptor('file'))
+	public async replace(@Param() params: FileReplaceParams, @UploadedFile() file: Express.Multer.File): Promise<FileReplaceResponse> {
+		try {
+			const fileReplaceDto = FileReplaceDto.from(params, file);
+
+			return await this.fileService.replace(fileReplaceDto);
+		} catch (e) {
+			if (e instanceof ServerError) {
+				this.logger.error(e.message);
+				throw e.toHttpException();
+			} else {
+				this.logger.error(e);
+				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
+			}
+		}
 	}
 
 	@Get(':path(*)/metadata')
@@ -97,59 +132,6 @@ export class FileController {
 		}
 	}
 
-	@Post(':id/restore')
-	public async restore(@Param() params: FileRestoreParams): Promise<FileRestoreResponse> {
-		try {
-			const fileRestoreDto = FileRestoreDto.from(params);
-
-			return await this.fileService.restore(fileRestoreDto);
-		} catch (e) {
-			if (e instanceof ServerError) {
-				this.logger.error(e.message);
-				throw e.toHttpException();
-			} else {
-				this.logger.error(e);
-				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
-			}
-		}
-	}
-
-	@Post(':path(*)')
-	@UseInterceptors(FileInterceptor('file'))
-	public async upload(@Param() params: FileUploadParams, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponse> {
-		try {
-			const fileUploadDto = FileUploadDto.from(params, file);
-
-			return await this.fileService.upload(fileUploadDto);
-		} catch (e) {
-			if (e instanceof ServerError) {
-				this.logger.error(e.message);
-				throw e.toHttpException();
-			} else {
-				this.logger.error(e);
-				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
-			}
-		}
-	}
-
-	@Put(':path(*)')
-	@UseInterceptors(FileInterceptor('file'))
-	public async replace(@Param() params: FileReplaceParams, @UploadedFile() file: Express.Multer.File): Promise<FileReplaceResponse> {
-		try {
-			const fileReplaceDto = FileReplaceDto.from(params, file);
-
-			return await this.fileService.replace(fileReplaceDto);
-		} catch (e) {
-			if (e instanceof ServerError) {
-				this.logger.error(e.message);
-				throw e.toHttpException();
-			} else {
-				this.logger.error(e);
-				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
-			}
-		}
-	}
-
 	@Patch(':path(*)')
 	public async rename(@Param() params: FileRenameParams, @Body() body: FileRenameBody): Promise<FileRenameResponse> {
 		try {
@@ -168,11 +150,11 @@ export class FileController {
 	}
 
 	@Delete(':path(*)')
-	public async delete(@Param() params: FileDeleteParams): Promise<FileDeleteResponse> {
+	public async delete(@Param() params: FileDeleteParams): Promise<void> {
 		try {
 			const fileDeleteDto = FileDeleteDto.from(params);
 
-			return await this.fileService.delete(fileDeleteDto);
+			await this.fileService.delete(fileDeleteDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);

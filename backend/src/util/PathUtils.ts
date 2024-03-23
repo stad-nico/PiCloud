@@ -26,14 +26,11 @@ export class PathUtils {
 		'm'
 	);
 
-	public static readonly ValidFilePathRegExp = new RegExp(
-		`^(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidFileNameRegExp})$`,
-		'm'
-	);
+	public static readonly ValidFilePathRegExp = new RegExp(`^(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidFileNameRegExp})$`, 'm');
 
 	/**
 	 * Normalizes a directory path by replacing multiple slashes with a single forward slash.
-	 * Leading slashes or dots (`../`, `./`, `/`) are removed, a single trailing slash is ensured.
+	 * Leading slashes or dots (`../`, `./`, `/`) are replaced by a single leading slash, a single trailing slash is ensured.
 	 *
 	 * @param   {string} pathToNormalize the path to normalize
 	 * @returns {string}                 the normalized path
@@ -43,14 +40,15 @@ export class PathUtils {
 
 		result = result.replaceAll(/\s+/g, ' ');
 		result = result.replaceAll(/[\/\\]+/g, '/');
-		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '');
+		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '/');
 
 		return result;
 	}
 
 	/**
 	 * Normalizes a file path by replacing multiple slashes with a single forward slash.
-	 * Leading slashes or dots (`../`, `./`, `/`) are removed.
+	 * Leading slashes or dots (`../`, `./`, `/`) are replaced by a single leading slash.
+	 * Trailing slashes are removed.
 	 *
 	 * @param   {string} pathToNormalize the path to normalize
 	 * @returns {string}                 the normalized path
@@ -60,7 +58,8 @@ export class PathUtils {
 
 		result = result.replaceAll(/\s+/g, ' ');
 		result = result.replaceAll(/[\/\\]+/g, '/');
-		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '');
+		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '/');
+		result = result.replaceAll(/\/$/g, '');
 
 		return result;
 	}

@@ -1,15 +1,26 @@
 import { DirectoryContentDto, DirectoryContentResponse } from 'src/api/directory/mapping/content';
 import { DirectoryCreateDto, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
-import { DirectoryDeleteDto, DirectoryDeleteResponse } from 'src/api/directory/mapping/delete';
+import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete';
 import { DirectoryDownloadDto, DirectoryDownloadResponse } from 'src/api/directory/mapping/download';
 import { DirectoryMetadataDto, DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata';
 import { DirectoryRenameDto, DirectoryRenameResponse } from 'src/api/directory/mapping/rename';
-import { DirectoryRestoreDto, DirectoryRestoreResponse } from 'src/api/directory/mapping/restore';
-import { ServerError } from 'src/util/ServerError';
 
 export const IDirectoryService = Symbol('IDirectoryService');
 
 export interface IDirectoryService {
+	/**
+	 * Creates a directory by its path.
+	 * Throws if a directory at that path already exists or destination parent does not exist.
+	 * @async
+	 *
+	 * @throws  {ServerError} destination parent must exist
+	 * @throws  {ServerError} destination must not already exist
+	 *
+	 * @param   {DirectoryCreateDto}               directoryCreateDto the dto for creating a new directory
+	 * @returns {Promise<DirectoryCreateResponse>}                    the path of the created directory
+	 */
+	create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse>;
+
 	/**
 	 * Returns the first level subdirectories and files of a directory.
 	 * Throws if directory does not exist.
@@ -47,32 +58,6 @@ export interface IDirectoryService {
 	download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse>;
 
 	/**
-	 * Restores a soft deleted directory by its id.
-	 * Throws if no directory with the given id exists or destination path already exists.
-	 * @async
-	 *
-	 * @throws  {ServerError} directory must exist
-	 * @throws  {ServerError} destination must not already exist
-	 *
-	 * @param   {DirectoryRestoreDto}               directoryRestoreDto the dto for restoring a directory
-	 * @returns {Promise<DirectoryRestoreResponse>}                     the path of the restored directory
-	 */
-	restore(directoryRestoreDto: DirectoryRestoreDto): Promise<DirectoryRestoreResponse>;
-
-	/**
-	 * Creates a directory by its path.
-	 * Throws if a directory at that path already exists or destination parent does not exist.
-	 * @async
-	 *
-	 * @throws  {ServerError} destination parent must exist
-	 * @throws  {ServerError} destination must not already exist
-	 *
-	 * @param   {DirectoryCreateDto}               directoryCreateDto the dto for creating a new directory
-	 * @returns {Promise<DirectoryCreateResponse>}                    the path of the created directory
-	 */
-	create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse>;
-
-	/**
 	 * Renames or moves a directory.
 	 * Throws if directory does not exist, destination already exists or destination parent no exists.
 	 * @async
@@ -87,14 +72,13 @@ export interface IDirectoryService {
 	rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse>;
 
 	/**
-	 * Soft deletes a directory by its path.
+	 * Deletes a directory by its path.
 	 * Throws if directory at given path does not exist.
 	 * @async
 	 *
-	 * @throws  {ServerError} directory must exist
+	 * @throws {ServerError} directory must exist
 	 *
-	 * @param   {DirectoryDeleteDto}               directoryDeleteDto the dto for soft deleting a directory
-	 * @returns {Promise<DirectoryDeleteResponse>}                    the id of the deleted directory
+	 * @param {DirectoryDeleteDto} directoryDeleteDto the dto for deleting the directory
 	 */
-	delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse>;
+	delete(directoryDeleteDto: DirectoryDeleteDto): Promise<void>;
 }

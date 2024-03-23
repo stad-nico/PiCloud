@@ -9,7 +9,6 @@ import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete';
 import { DirectoryDownloadDto } from 'src/api/directory/mapping/download';
 import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata';
 import { DirectoryRenameDto } from 'src/api/directory/mapping/rename';
-import { DirectoryRestoreDto } from 'src/api/directory/mapping/restore';
 import { ServerError } from 'src/util/ServerError';
 import { ValidationError } from 'src/util/ValidationError';
 
@@ -22,7 +21,6 @@ describe('DirectoryController', () => {
 			content: jest.fn(),
 			metadata: jest.fn(),
 			download: jest.fn(),
-			restore: jest.fn(),
 			create: jest.fn(),
 			rename: jest.fn(),
 			delete: jest.fn(),
@@ -46,6 +44,46 @@ describe('DirectoryController', () => {
 
 	beforeEach(() => {
 		jest.resetAllMocks();
+	});
+
+	describe('create', () => {
+		it("should resolve with the response of the service if the file and the params are valid and the server doesn't throw", async () => {
+			const response = 'response';
+
+			jest.spyOn(service, 'create').mockResolvedValueOnce(response as any);
+			jest.spyOn(DirectoryCreateDto, 'from').mockReturnValueOnce(0 as any);
+
+			await expect(controller.create(0 as any)).resolves.toStrictEqual(response);
+		});
+
+		it('should rethrow the ValidationError if params are invalid', async () => {
+			const error = new ValidationError('nop');
+
+			jest.spyOn(service, 'create').mockResolvedValueOnce(0 as any);
+			jest.spyOn(DirectoryCreateDto, 'from').mockImplementationOnce(() => {
+				throw error;
+			});
+
+			await expect(controller.create(0 as any)).rejects.toStrictEqual(error.toHttpException());
+		});
+
+		it('should rethrow the ServerError if the service throws a ServerError', async () => {
+			const error = new ServerError('service error', HttpStatus.BAD_REQUEST);
+
+			jest.spyOn(service, 'create').mockRejectedValueOnce(error);
+			jest.spyOn(DirectoryCreateDto, 'from').mockReturnValueOnce(0 as any);
+
+			await expect(controller.create(0 as any)).rejects.toStrictEqual(error.toHttpException());
+		});
+
+		it('should throw an InternalServerError if the service throws a native error', async () => {
+			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+
+			jest.spyOn(service, 'create').mockRejectedValueOnce(new Error('service error'));
+			jest.spyOn(DirectoryCreateDto, 'from').mockReturnValueOnce(0 as any);
+
+			await expect(controller.create(0 as any)).rejects.toStrictEqual(error.toHttpException());
+		});
 	});
 
 	describe('content', () => {
@@ -173,86 +211,6 @@ describe('DirectoryController', () => {
 		});
 	});
 
-	describe('restore', () => {
-		it("should resolve with the response of the service if the params are valid and the service doesn't throw", async () => {
-			const response = 'response';
-
-			jest.spyOn(service, 'restore').mockResolvedValueOnce(response as any);
-			jest.spyOn(DirectoryRestoreDto, 'from').mockReturnValueOnce(0 as any);
-
-			await expect(controller.restore(0 as any)).resolves.toStrictEqual(response);
-		});
-
-		it('should rethrow the ValidationError if params are invalid', async () => {
-			const error = new ValidationError('nop');
-
-			jest.spyOn(service, 'restore').mockResolvedValueOnce(0 as any);
-			jest.spyOn(DirectoryRestoreDto, 'from').mockImplementationOnce(() => {
-				throw error;
-			});
-
-			await expect(controller.restore(0 as any)).rejects.toStrictEqual(error.toHttpException());
-		});
-
-		it('should rethrow the ServerError if the service throws a ServerError', async () => {
-			const error = new ServerError('service error', HttpStatus.BAD_REQUEST);
-
-			jest.spyOn(service, 'restore').mockRejectedValueOnce(error);
-			jest.spyOn(DirectoryRestoreDto, 'from').mockReturnValueOnce(0 as any);
-
-			await expect(controller.restore(0 as any)).rejects.toStrictEqual(error.toHttpException());
-		});
-
-		it('should throw an InternalServerError if the service throws a native error', async () => {
-			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
-
-			jest.spyOn(service, 'restore').mockRejectedValueOnce(new Error('service error'));
-			jest.spyOn(DirectoryRestoreDto, 'from').mockReturnValueOnce(0 as any);
-
-			await expect(controller.restore(0 as any)).rejects.toStrictEqual(error.toHttpException());
-		});
-	});
-
-	describe('create', () => {
-		it("should resolve with the response of the service if the file and the params are valid and the server doesn't throw", async () => {
-			const response = 'response';
-
-			jest.spyOn(service, 'create').mockResolvedValueOnce(response as any);
-			jest.spyOn(DirectoryCreateDto, 'from').mockReturnValueOnce(0 as any);
-
-			await expect(controller.create(0 as any)).resolves.toStrictEqual(response);
-		});
-
-		it('should rethrow the ValidationError if params are invalid', async () => {
-			const error = new ValidationError('nop');
-
-			jest.spyOn(service, 'create').mockResolvedValueOnce(0 as any);
-			jest.spyOn(DirectoryCreateDto, 'from').mockImplementationOnce(() => {
-				throw error;
-			});
-
-			await expect(controller.create(0 as any)).rejects.toStrictEqual(error.toHttpException());
-		});
-
-		it('should rethrow the ServerError if the service throws a ServerError', async () => {
-			const error = new ServerError('service error', HttpStatus.BAD_REQUEST);
-
-			jest.spyOn(service, 'create').mockRejectedValueOnce(error);
-			jest.spyOn(DirectoryCreateDto, 'from').mockReturnValueOnce(0 as any);
-
-			await expect(controller.create(0 as any)).rejects.toStrictEqual(error.toHttpException());
-		});
-
-		it('should throw an InternalServerError if the service throws a native error', async () => {
-			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
-
-			jest.spyOn(service, 'create').mockRejectedValueOnce(new Error('service error'));
-			jest.spyOn(DirectoryCreateDto, 'from').mockReturnValueOnce(0 as any);
-
-			await expect(controller.create(0 as any)).rejects.toStrictEqual(error.toHttpException());
-		});
-	});
-
 	describe('rename', () => {
 		it("should resolve with the response of the service if the params are valid and the service doesn't throw", async () => {
 			const response = 'response';
@@ -294,13 +252,13 @@ describe('DirectoryController', () => {
 	});
 
 	describe('delete', () => {
-		it("should resolve with the response of the service if the params are valid and the service doesn't throw", async () => {
+		it("should resolve if the params are valid and the service doesn't throw", async () => {
 			const response = 'response';
 
 			jest.spyOn(service, 'delete').mockResolvedValueOnce(response as any);
 			jest.spyOn(DirectoryDeleteDto, 'from').mockReturnValueOnce(0 as any);
 
-			await expect(controller.delete(0 as any)).resolves.toStrictEqual(response);
+			await expect(controller.delete(0 as any)).resolves.not.toThrow();
 		});
 
 		it('should rethrow the ValidationError if params are invalid', async () => {

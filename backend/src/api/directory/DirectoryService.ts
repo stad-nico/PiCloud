@@ -8,11 +8,10 @@ import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 import { IDirectoryService } from 'src/api/directory/IDirectoryService';
 import { DirectoryContentDto, DirectoryContentResponse } from 'src/api/directory/mapping/content';
 import { DirectoryCreateDto, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
-import { DirectoryDeleteDto, DirectoryDeleteResponse } from 'src/api/directory/mapping/delete';
+import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete';
 import { DirectoryDownloadDto, DirectoryDownloadResponse } from 'src/api/directory/mapping/download';
 import { DirectoryMetadataDto, DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata';
 import { DirectoryRenameDto, DirectoryRenameResponse } from 'src/api/directory/mapping/rename';
-import { DirectoryRestoreDto, DirectoryRestoreResponse } from 'src/api/directory/mapping/restore';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 
@@ -53,6 +52,40 @@ export class DirectoryService implements IDirectoryService {
 		this.entityManager = entityManager;
 		this.configService = configService;
 		this.directoryRepository = directoryRepository;
+	}
+
+	/**
+	 * Creates a directory by its path.
+	 * Throws if a directory at that path already exists or destination parent does not exist.
+	 * @async
+	 *
+	 * @throws  {ServerError} destination parent must exist
+	 * @throws  {ServerError} destination must not already exist
+	 *
+	 * @param   {DirectoryCreateDto}               directoryCreateDto the dto for creating a new directory
+	 * @returns {Promise<DirectoryCreateResponse>}                    the path of the created directory
+	 */
+	public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
+		return await this.entityManager.transactional(async (entityManager) => {
+			if (await this.directoryRepository.exists(entityManager, directoryCreateDto.path)) {
+				throw new ServerError(`directory ${directoryCreateDto.path} already exists`, HttpStatus.CONFLICT);
+			}
+
+			const parentPath = path.dirname(directoryCreateDto.path);
+			const hasRootAsParent = path.relative('.', parentPath) === '';
+
+			const parent = await this.directoryRepository.select(entityManager, parentPath);
+
+			if (!parent && !hasRootAsParent) {
+				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
+			}
+
+			const parentId = hasRootAsParent ? null : parent!.id;
+
+			await this.directoryRepository.insert(entityManager, path.basename(directoryCreateDto.path), parentId);
+
+			return DirectoryCreateResponse.from(directoryCreateDto.path);
+		});
 	}
 
 	/**
@@ -111,7 +144,7 @@ export class DirectoryService implements IDirectoryService {
 	 */
 	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
 		return this.entityManager.transactional(async (entityManager) => {
-			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDownloadDto.path);
+			const directory = await this.directoryRepository.select(entityManager, directoryDownloadDto.path);
 
 			if (!directory) {
 				throw new ServerError(`directory ${directoryDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -122,73 +155,6 @@ export class DirectoryService implements IDirectoryService {
 			const readable = await FileUtils.createZIPArchive(this.configService, files);
 
 			return DirectoryDownloadResponse.from(directory.name + '.zip', 'application/zip', readable);
-		});
-	}
-
-	/**
-	 * Restores a soft deleted directory by its id.
-	 * Throws if no directory with the given id exists or destination path already exists.
-	 * @async
-	 *
-	 * @throws  {ServerError} directory must exist
-	 * @throws  {ServerError} destination must not already exist
-	 *
-	 * @param   {DirectoryRestoreDto}               directoryRestoreDto the dto for restoring a directory
-	 * @returns {Promise<DirectoryRestoreResponse>}                     the path of the restored directory
-	 */
-	public async restore(directoryRestoreDto: DirectoryRestoreDto): Promise<DirectoryRestoreResponse> {
-		return await this.entityManager.transactional(async (entityManager) => {
-			const directoryToRestore = await this.directoryRepository.selectById(entityManager, directoryRestoreDto.id, true);
-
-			if (!directoryToRestore) {
-				throw new ServerError(`directory with id ${directoryRestoreDto.id} does not exist`, HttpStatus.NOT_FOUND);
-			}
-
-			if (!directoryToRestore.isRecycled) {
-				return DirectoryRestoreResponse.from(directoryToRestore.path);
-			}
-
-			if (await this.directoryRepository.exists(entityManager, directoryToRestore.path)) {
-				throw new ServerError(`directory ${directoryToRestore.path} already exists`, HttpStatus.CONFLICT);
-			}
-
-			await this.directoryRepository.restore(entityManager, directoryRestoreDto.id);
-
-			return DirectoryRestoreResponse.from(directoryToRestore.path);
-		});
-	}
-
-	/**
-	 * Creates a directory by its path.
-	 * Throws if a directory at that path already exists or destination parent does not exist.
-	 * @async
-	 *
-	 * @throws  {ServerError} destination parent must exist
-	 * @throws  {ServerError} destination must not already exist
-	 *
-	 * @param   {DirectoryCreateDto}               directoryCreateDto the dto for creating a new directory
-	 * @returns {Promise<DirectoryCreateResponse>}                    the path of the created directory
-	 */
-	public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
-		return await this.entityManager.transactional(async (entityManager) => {
-			if (await this.directoryRepository.exists(entityManager, directoryCreateDto.path)) {
-				throw new ServerError(`directory ${directoryCreateDto.path} already exists`, HttpStatus.CONFLICT);
-			}
-
-			const parentPath = path.dirname(directoryCreateDto.path);
-			const hasRootAsParent = path.relative('.', parentPath) === '';
-
-			const parent = await this.directoryRepository.selectByPath(entityManager, parentPath);
-
-			if (!parent && !hasRootAsParent) {
-				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
-			}
-
-			const parentId = hasRootAsParent ? null : parent!.id;
-
-			await this.directoryRepository.insert(entityManager, path.basename(directoryCreateDto.path), parentId);
-
-			return DirectoryCreateResponse.from(directoryCreateDto.path);
 		});
 	}
 
@@ -231,7 +197,7 @@ export class DirectoryService implements IDirectoryService {
 			const destParentPath = path.dirname(directoryRenameDto.destinationPath);
 			const hasRootAsParent = path.relative('.', destParentPath) === '';
 
-			const destinationParent = hasRootAsParent ? null : await this.directoryRepository.selectByPath(entityManager, destParentPath);
+			const destinationParent = hasRootAsParent ? null : await this.directoryRepository.select(entityManager, destParentPath);
 
 			if (!destinationParent && !hasRootAsParent) {
 				throw new ServerError(`directory ${destParentPath} does not exist`, HttpStatus.NOT_FOUND);
@@ -249,26 +215,23 @@ export class DirectoryService implements IDirectoryService {
 	}
 
 	/**
-	 * Soft deletes a directory by its path.
+	 * Deletes a directory by its path.
 	 * Throws if directory at given path does not exist.
 	 * @async
 	 *
-	 * @throws  {ServerError} directory must exist
+	 * @throws {ServerError} directory must exist
 	 *
-	 * @param   {DirectoryDeleteDto}               directoryDeleteDto the dto for soft deleting a directory
-	 * @returns {Promise<DirectoryDeleteResponse>}                    the id of the deleted directory
+	 * @param {DirectoryDeleteDto} directoryDeleteDto the dto for deleting the directory
 	 */
-	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<DirectoryDeleteResponse> {
+	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<void> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const directory = await this.directoryRepository.selectByPath(entityManager, directoryDeleteDto.path);
+			const directory = await this.directoryRepository.select(entityManager, directoryDeleteDto.path);
 
 			if (!directory) {
 				throw new ServerError(`directory ${directoryDeleteDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			await this.directoryRepository.softDelete(entityManager, directory.id);
-
-			return DirectoryDeleteResponse.from(directory.id);
+			await this.directoryRepository.delete(entityManager, directory.id);
 		});
 	}
 }

@@ -1,51 +1,14 @@
-import { FileDeleteDto, FileDeleteResponse } from 'src/api/file/mapping/delete';
+import { FileDeleteDto } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/mapping/download';
 import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/mapping/metadata';
 import { FileRenameDto, FileRenameResponse } from 'src/api/file/mapping/rename';
 import { FileReplaceDto } from 'src/api/file/mapping/replace/FileReplaceDto';
 import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceResponse';
-import { FileRestoreDto, FileRestoreResponse } from 'src/api/file/mapping/restore';
 import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
 
 export const IFileService = Symbol('IFileService');
 
 export interface IFileService {
-	/**
-	 * Returns the metadata of a file.
-	 * Throws if the file does not exists.
-	 * @async
-	 *
-	 * @throws  {ServerError} file must exist
-	 *
-	 * @param   {FileMetadataDto}               fileMetadataDto the dto for getting the metadata of a file
-	 * @returns {Promise<FileMetadataResponse>}                 the metadata
-	 */
-	metadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse>;
-
-	/**
-	 * Returns a stream of the content of a file as well as mimeType and filename.
-	 * Throws if the file does not exist.
-	 * @async
-	 *
-	 * @throws  {ServerError} file must exist
-	 *
-	 * @param   {FileDownloadDto}               fileDownloadDto the dto for downloading a file
-	 * @returns {Promise<FileDownloadResponse>}                 the response
-	 */
-	download(fileDownloadDto: FileDownloadDto): Promise<FileDownloadResponse>;
-
-	/**
-	 * Restores a soft deleted file by its id. Returns the path of the restored file.
-	 * Throws if the file does not exist.
-	 * @async
-	 *
-	 * @throws  {ServerError} file must exist
-	 *
-	 * @param   {FileRestoreDto}               fileRestoreDto the dto for restoring a file
-	 * @returns {Promise<FileRestoreResponse>}                the path of the restored file
-	 */
-	restore(fileRestoreDto: FileRestoreDto): Promise<FileRestoreResponse>;
-
 	/**
 	 * Uploads a file.
 	 * Throws if it already exists or destination parent does not exist.
@@ -72,6 +35,30 @@ export interface IFileService {
 	replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse>;
 
 	/**
+	 * Returns the metadata of a file.
+	 * Throws if the file does not exists.
+	 * @async
+	 *
+	 * @throws  {ServerError} file must exist
+	 *
+	 * @param   {FileMetadataDto}               fileMetadataDto the dto for getting the metadata of a file
+	 * @returns {Promise<FileMetadataResponse>}                 the metadata
+	 */
+	metadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse>;
+
+	/**
+	 * Returns a stream of the content of a file as well as mimeType and filename.
+	 * Throws if the file does not exist.
+	 * @async
+	 *
+	 * @throws  {ServerError} file must exist
+	 *
+	 * @param   {FileDownloadDto}               fileDownloadDto the dto for downloading a file
+	 * @returns {Promise<FileDownloadResponse>}                 the response
+	 */
+	download(fileDownloadDto: FileDownloadDto): Promise<FileDownloadResponse>;
+
+	/**
 	 * Renames or moves a file.
 	 * Throws if file does not exist, destination already exists or destination parent not exists.
 	 * @async
@@ -86,14 +73,13 @@ export interface IFileService {
 	rename(fileRenameDto: FileRenameDto): Promise<FileRenameResponse>;
 
 	/**
-	 * Soft deletes a file by its path.
+	 * Deletes a file by its path.
 	 * Throws if file at given path does not exist.
 	 * @async
 	 *
 	 * @throws  {ServerError} file must exist
 	 *
-	 * @param   {FileDeleteDto}               fileDeleteDto the dto for soft deleting a file
-	 * @returns {Promise<FileDeleteResponse>}               the id of the deleted file
+	 * @param   {FileDeleteDto}               fileDeleteDto the dto for soft deleting the file
 	 */
-	delete(fileDeleteDto: FileDeleteDto): Promise<FileDeleteResponse>;
+	delete(fileDeleteDto: FileDeleteDto): Promise<void>;
 }

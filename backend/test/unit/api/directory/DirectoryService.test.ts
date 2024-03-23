@@ -7,11 +7,9 @@ import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 import { IDirectoryService } from 'src/api/directory/IDirectoryService';
 import { DirectoryContentResponse } from 'src/api/directory/mapping/content';
 import { DirectoryCreateResponse } from 'src/api/directory/mapping/create';
-import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete';
 import { DirectoryDownloadResponse } from 'src/api/directory/mapping/download';
 import { DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata';
 import { DirectoryRenameResponse } from 'src/api/directory/mapping/rename';
-import { DirectoryRestoreResponse } from 'src/api/directory/mapping/restore';
 import { FileUtils } from 'src/util/FileUtils';
 import { ServerError } from 'src/util/ServerError';
 
@@ -43,10 +41,9 @@ describe('DirectoryService', () => {
 						getMetadata: jest.fn(),
 						selectByPath: jest.fn(),
 						getFilesRelative: jest.fn(),
-						selectById: jest.fn(),
+						select: jest.fn(),
 						exists: jest.fn(),
-						restore: jest.fn(),
-						softDelete: jest.fn(),
+						delete: jest.fn(),
 						insert: jest.fn(),
 						update: jest.fn(),
 					},
@@ -65,6 +62,50 @@ describe('DirectoryService', () => {
 
 	beforeEach(() => {
 		jest.resetAllMocks();
+	});
+
+	describe('create', () => {
+		it('should throw 404 NOT FOUND if the parent directory does not exist and the parent directory is not the root directory', async () => {
+			const dto = { path: 'test/path' };
+			const expectedError = new ServerError(`directory test does not exist`, HttpStatus.NOT_FOUND);
+
+			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(null);
+
+			await expect(service.create(dto)).rejects.toStrictEqual(expectedError);
+			expect(repository.insert).not.toHaveBeenCalled();
+		});
+
+		it('should throw 409 CONFLICT if directory at that path already exists', async () => {
+			const dto = { path: 'test/path' };
+			const expectedError = new ServerError(`directory ${dto.path} already exists`, HttpStatus.CONFLICT);
+
+			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
+
+			await expect(service.create(dto)).rejects.toStrictEqual(expectedError);
+			expect(repository.insert).not.toHaveBeenCalled();
+		});
+
+		it('should insert with the parent id from the db response and resolve with the correct response', async () => {
+			const dto = { path: 'test/path' };
+			const parent = { id: 'parentId', name: 'name' };
+
+			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(parent);
+
+			await expect(service.create(dto)).resolves.toStrictEqual(DirectoryCreateResponse.from(dto.path));
+			expect(repository.insert).toHaveBeenCalledWith(entityManager, 'path', parent.id);
+		});
+
+		it('should insert with null as parent id and resolve with the correct response', async () => {
+			const dto = { path: 'newDirectory' };
+
+			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(null);
+
+			await expect(service.create(dto)).resolves.toStrictEqual(DirectoryCreateResponse.from(dto.path));
+			expect(repository.insert).toHaveBeenCalledWith(entityManager, 'newDirectory', null);
+		});
 	});
 
 	describe('content', () => {
@@ -121,7 +162,7 @@ describe('DirectoryService', () => {
 
 	describe('download', () => {
 		it('should throw 404 NOT FOUND if directory does not exist', async () => {
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(null);
 
 			const dto = { path: 'test/path' };
 			const expectedError = new ServerError(`directory ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -136,100 +177,11 @@ describe('DirectoryService', () => {
 			const zipArchive = 'zipArchive';
 			const dto = { path: 'test/path' };
 
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(dbDirectoryResponse);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(dbDirectoryResponse);
 			jest.spyOn(repository, 'getFilesRelative').mockResolvedValueOnce(dbFilesResponse);
 			jest.spyOn(FileUtils, 'createZIPArchive').mockResolvedValueOnce(zipArchive as any);
 
 			await expect(service.download(dto)).resolves.toStrictEqual(DirectoryDownloadResponse.from('dirName.zip', 'application/zip', zipArchive as any));
-		});
-	});
-
-	describe('restore', () => {
-		it('should throw 404 NOT FOUND if directory does not exist', async () => {
-			jest.spyOn(repository, 'selectById').mockResolvedValueOnce(null);
-
-			const dto = { id: 'uuid' };
-			const expectedError = new ServerError(`directory with id ${dto.id} does not exist`, HttpStatus.NOT_FOUND);
-
-			await expect(service.restore(dto)).rejects.toStrictEqual(expectedError);
-			expect(repository.restore).not.toHaveBeenCalled();
-		});
-
-		it('should throw 409 CONFLICT if a directory at that path already exists', async () => {
-			const dbDirectoryResult = { path: 'test/path', isRecycled: true };
-			const expectedError = new ServerError(`directory ${dbDirectoryResult.path} already exists`, HttpStatus.CONFLICT);
-			const dto = { id: 'uuid' };
-
-			jest.spyOn(repository, 'selectById').mockResolvedValueOnce(dbDirectoryResult);
-			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
-
-			await expect(service.restore(dto)).rejects.toStrictEqual(expectedError);
-			expect(repository.restore).not.toHaveBeenCalled();
-		});
-
-		it('should resolve with correct response if the directory was not recycled', async () => {
-			const dbDirectoryResult = { path: 'test/path', isRecycled: false };
-			const dto = { id: 'uuid' };
-
-			jest.spyOn(repository, 'selectById').mockResolvedValueOnce(dbDirectoryResult);
-
-			await expect(service.restore(dto)).resolves.toStrictEqual(DirectoryRestoreResponse.from(dbDirectoryResult.path));
-			expect(repository.restore).not.toHaveBeenCalled();
-		});
-
-		it('should resolve with correct response if the directory was recycled', async () => {
-			const dbDirectoryResult = { path: 'test/path', isRecycled: true };
-			const dto = { id: 'uuid' };
-
-			jest.spyOn(repository, 'selectById').mockResolvedValueOnce(dbDirectoryResult);
-			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
-
-			await expect(service.restore(dto)).resolves.toStrictEqual(DirectoryRestoreResponse.from(dbDirectoryResult.path));
-			expect(repository.restore).toHaveBeenCalledWith(entityManager, dto.id);
-		});
-	});
-
-	describe('create', () => {
-		it('should throw 404 NOT FOUND if the parent directory does not exist and the parent directory is not the root directory', async () => {
-			const dto = { path: 'test/path' };
-			const expectedError = new ServerError(`directory test does not exist`, HttpStatus.NOT_FOUND);
-
-			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(null);
-
-			await expect(service.create(dto)).rejects.toStrictEqual(expectedError);
-			expect(repository.insert).not.toHaveBeenCalled();
-		});
-
-		it('should throw 409 CONFLICT if directory at that path already exists', async () => {
-			const dto = { path: 'test/path' };
-			const expectedError = new ServerError(`directory ${dto.path} already exists`, HttpStatus.CONFLICT);
-
-			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
-
-			await expect(service.create(dto)).rejects.toStrictEqual(expectedError);
-			expect(repository.insert).not.toHaveBeenCalled();
-		});
-
-		it('should insert with the parent id from the db response and resolve with the correct response', async () => {
-			const dto = { path: 'test/path' };
-			const parent = { id: 'parentId', name: 'name' };
-
-			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(parent);
-
-			await expect(service.create(dto)).resolves.toStrictEqual(DirectoryCreateResponse.from(dto.path));
-			expect(repository.insert).toHaveBeenCalledWith(entityManager, 'path', parent.id);
-		});
-
-		it('should insert with null as parent id and resolve with the correct response', async () => {
-			const dto = { path: 'newDirectory' };
-
-			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(null);
-
-			await expect(service.create(dto)).resolves.toStrictEqual(DirectoryCreateResponse.from(dto.path));
-			expect(repository.insert).toHaveBeenCalledWith(entityManager, 'newDirectory', null);
 		});
 	});
 
@@ -251,7 +203,7 @@ describe('DirectoryService', () => {
 
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(null);
 
 			await expect(service.rename(dto)).rejects.toStrictEqual(expectedError);
 			expect(repository.update).not.toHaveBeenCalled();
@@ -293,7 +245,7 @@ describe('DirectoryService', () => {
 
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(parent);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(parent);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(DirectoryRenameResponse.from(dto.destinationPath));
 			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parentId: parent.id });
@@ -304,7 +256,7 @@ describe('DirectoryService', () => {
 
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(null);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(DirectoryRenameResponse.from(dto.destinationPath));
 			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parentId: null });
@@ -316,7 +268,7 @@ describe('DirectoryService', () => {
 
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(repository, 'exists').mockResolvedValueOnce(true);
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(parent);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(parent);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(DirectoryRenameResponse.from(dto.destinationPath));
 			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { name: 'path2.txt', parentId: parent.id });
@@ -325,23 +277,23 @@ describe('DirectoryService', () => {
 
 	describe('delete', () => {
 		it('should throw 404 NOT FOUND if directory does not exist', async () => {
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(null);
 
 			const dto = { path: 'test/path' };
 			const expectedError = new ServerError(`directory ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
 
 			await expect(service.delete(dto)).rejects.toStrictEqual(expectedError);
-			expect(repository.softDelete).not.toHaveBeenCalled();
+			expect(repository.delete).not.toHaveBeenCalled();
 		});
 
 		it('should resolve with the correct response', async () => {
 			const dbResult = { name: 'name', id: 'uuid' };
 			const dto = { path: 'test/path' };
 
-			jest.spyOn(repository, 'selectByPath').mockResolvedValueOnce(dbResult);
+			jest.spyOn(repository, 'select').mockResolvedValueOnce(dbResult);
 
-			await expect(service.delete(dto)).resolves.toStrictEqual(DirectoryDeleteResponse.from(dbResult.id));
-			expect(repository.softDelete).toHaveBeenCalledWith(entityManager, dbResult.id);
+			await expect(service.delete(dto)).resolves.not.toThrow();
+			expect(repository.delete).toHaveBeenCalledWith(entityManager, dbResult.id);
 		});
 	});
 });

@@ -7,7 +7,6 @@ import { DirectoryContentResponse } from 'src/api/directory/mapping/content/Dire
 import { DirectoryCreateDto, DirectoryCreateParams, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
 import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete/DirectoryDeleteDto';
 import { DirectoryDeleteParams } from 'src/api/directory/mapping/delete/DirectoryDeleteParams';
-import { DirectoryDeleteResponse } from 'src/api/directory/mapping/delete/DirectoryDeleteResponse';
 import { DirectoryDownloadDto } from 'src/api/directory/mapping/download/DirectoryDownloadDto';
 import { DirectoryDownloadParams } from 'src/api/directory/mapping/download/DirectoryDownloadParams';
 import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata/DirectoryMetadataDto';
@@ -17,9 +16,6 @@ import { DirectoryRenameBody } from 'src/api/directory/mapping/rename/DirectoryR
 import { DirectoryRenameDto } from 'src/api/directory/mapping/rename/DirectoryRenameDto';
 import { DirectoryRenameParams } from 'src/api/directory/mapping/rename/DirectoryRenameParams';
 import { DirectoryRenameResponse } from 'src/api/directory/mapping/rename/DirectoryRenameResponse';
-import { DirectoryRestoreDto } from 'src/api/directory/mapping/restore/DirectoryRestoreDto';
-import { DirectoryRestoreParams } from 'src/api/directory/mapping/restore/DirectoryRestoreParams';
-import { DirectoryRestoreResponse } from 'src/api/directory/mapping/restore/DirectoryRestoreResponse';
 import { ServerError } from 'src/util/ServerError';
 
 @Controller('directory')
@@ -30,6 +26,25 @@ export class DirectoryController {
 
 	public constructor(@Inject(IDirectoryService) directoryService: IDirectoryService) {
 		this.directoryService = directoryService;
+	}
+
+	@Post(':path(*)')
+	public async create(@Param() directoryCreateParams: DirectoryCreateParams): Promise<DirectoryCreateResponse> {
+		this.logger.log(`[Post] ${directoryCreateParams.path}`);
+
+		try {
+			const directoryCreateDto = DirectoryCreateDto.from(directoryCreateParams);
+
+			return await this.directoryService.create(directoryCreateDto);
+		} catch (e) {
+			if (e instanceof ServerError) {
+				this.logger.error(e.message);
+				throw e.toHttpException();
+			} else {
+				this.logger.error(e);
+				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
+			}
+		}
 	}
 
 	@Get(':path(*)/content')
@@ -71,10 +86,7 @@ export class DirectoryController {
 	}
 
 	@Get(':path(*)/download')
-	public async download(
-		@Param() directoryDownloadParams: DirectoryDownloadParams,
-		@Res({ passthrough: true }) res: Response
-	): Promise<StreamableFile> {
+	public async download(@Param() directoryDownloadParams: DirectoryDownloadParams, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
 		this.logger.log(`[Get] ${directoryDownloadParams.path}/download`);
 
 		try {
@@ -88,44 +100,6 @@ export class DirectoryController {
 			});
 
 			return new StreamableFile(result.readable);
-		} catch (e) {
-			if (e instanceof ServerError) {
-				this.logger.error(e.message);
-				throw e.toHttpException();
-			} else {
-				this.logger.error(e);
-				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
-			}
-		}
-	}
-
-	@Post(':id/restore')
-	public async restore(@Param() directoryRestoreParams: DirectoryRestoreParams): Promise<DirectoryRestoreResponse> {
-		this.logger.log(`[Post] ${directoryRestoreParams.id}`);
-
-		try {
-			const directoryRestoreDto = DirectoryRestoreDto.from(directoryRestoreParams);
-
-			return await this.directoryService.restore(directoryRestoreDto);
-		} catch (e) {
-			if (e instanceof ServerError) {
-				this.logger.error(e.message);
-				throw e.toHttpException();
-			} else {
-				this.logger.error(e);
-				throw new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR).toHttpException();
-			}
-		}
-	}
-
-	@Post(':path(*)')
-	public async create(@Param() directoryCreateParams: DirectoryCreateParams): Promise<DirectoryCreateResponse> {
-		this.logger.log(`[Post] ${directoryCreateParams.path}`);
-
-		try {
-			const directoryCreateDto = DirectoryCreateDto.from(directoryCreateParams);
-
-			return await this.directoryService.create(directoryCreateDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
@@ -160,12 +134,12 @@ export class DirectoryController {
 	}
 
 	@Delete(':path(*)')
-	public async delete(@Param() directoryDeleteParams: DirectoryDeleteParams): Promise<DirectoryDeleteResponse> {
+	public async delete(@Param() directoryDeleteParams: DirectoryDeleteParams): Promise<void> {
 		this.logger.log(`[Delete] ${directoryDeleteParams.path}`);
 		try {
 			const directoryDeleteDto = DirectoryDeleteDto.from(directoryDeleteParams);
 
-			return await this.directoryService.delete(directoryDeleteDto);
+			await this.directoryService.delete(directoryDeleteDto);
 		} catch (e) {
 			if (e instanceof ServerError) {
 				this.logger.error(e.message);
