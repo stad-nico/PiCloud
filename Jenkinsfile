@@ -11,7 +11,7 @@ pipeline {
         stage("Backend Install") {
             steps {
                 dir("backend") {
-                    sh "npm install"
+                    sh "npm ci"
                 }
             }
         }
