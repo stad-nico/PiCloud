@@ -7,6 +7,10 @@ pipeline {
         HOME = '.'
     }
 
+    tools {
+        nodejs "NodeJS"
+    }
+
     stages {
         stage("Backend Install") {
             steps {
