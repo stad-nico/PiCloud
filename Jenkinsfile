@@ -3,10 +3,6 @@ pipeline {
         label "linux"
     }
 
-    environment {
-        HOME = '.'
-    }
-
     tools {
         nodejs "NodeJS"
     }
