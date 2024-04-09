@@ -1,10 +1,10 @@
 pipeline {
-    triggers {
-        githubPush()
-    }
-
     agent {
         label "linux"
+    }
+
+    environment {
+        HOME = '.'
     }
 
     stages {
