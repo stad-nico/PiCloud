@@ -1,5 +1,6 @@
 import { EntityCaseNamingStrategy, MariaDbDriver, defineConfig } from '@mikro-orm/mariadb';
 import { Migrator } from '@mikro-orm/migrations';
+import { SeedManager } from '@mikro-orm/seeder';
 import { config } from 'dotenv';
 import { Environment } from './EnvConfig';
 
@@ -9,7 +10,7 @@ export default defineConfig({
 	driver: MariaDbDriver,
 	entities: ['dist/db/entities'],
 	entitiesTs: ['src/db/entities'],
-	extensions: [Migrator],
+	extensions: [Migrator, SeedManager],
 	host: process.env[Environment.DBHost]!,
 	dbName: process.env[Environment.DBName]!,
 	user: process.env[Environment.DBUsername]!,
@@ -27,5 +28,11 @@ export default defineConfig({
 		transactional: true,
 		snapshot: false,
 		emit: 'ts',
+	},
+	seeder: {
+		path: 'dist/db/seeding',
+		pathTs: 'src/db/seeding',
+		emit: 'ts',
+		defaultSeeder: 'DirectoryRootSeeder',
 	},
 });

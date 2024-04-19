@@ -11,12 +11,15 @@ export class FileReplaceDto {
 
 	readonly mimeType: string;
 
+	readonly size: number;
+
 	readonly stream: Readable;
 
-	private constructor(path: string, mimeType: string, stream: Readable) {
+	private constructor(path: string, mimeType: string, size: number, stream: Readable) {
 		this.path = path;
 		this.mimeType = mimeType;
 		this.stream = stream;
+		this.size = size;
 	}
 
 	public static from(fileUploadParams: FileReplaceParams, file: Express.Multer.File): FileReplaceDto {
@@ -34,6 +37,6 @@ export class FileReplaceDto {
 			throw new ValidationError(`file name ${path.basename(fileUploadParams.path)} exceeds the file name limit of 128 chars`);
 		}
 
-		return new FileReplaceDto(normalizedPath, file.mimetype, file.stream);
+		return new FileReplaceDto(normalizedPath, file.mimetype, file.size, file.stream);
 	}
 }

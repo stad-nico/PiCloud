@@ -104,7 +104,7 @@ describe('DirectoryService', () => {
 			jest.spyOn(repository, 'select').mockResolvedValueOnce(null);
 
 			await expect(service.create(dto)).resolves.toStrictEqual(DirectoryCreateResponse.from(dto.path));
-			expect(repository.insert).toHaveBeenCalledWith(entityManager, 'newDirectory', null);
+			expect(repository.insert).toHaveBeenCalledWith(entityManager, 'newDirectory', 'root');
 		});
 	});
 
@@ -259,7 +259,7 @@ describe('DirectoryService', () => {
 			jest.spyOn(repository, 'select').mockResolvedValueOnce(null);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(DirectoryRenameResponse.from(dto.destinationPath));
-			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parentId: null });
+			expect(repository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parentId: 'root' });
 		});
 
 		it('should update name and parent of the directory and resolve with the correct response', async () => {

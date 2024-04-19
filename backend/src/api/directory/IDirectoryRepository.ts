@@ -30,9 +30,9 @@ export interface IDirectoryRepository {
 	 *
 	 * @param   {EntityManager} entityManager the entityManager
 	 * @param   {string}        name          the name of the directory
-	 * @param   {string|null}   parent        the parent of the directory
+	 * @param   {string}        parent        the parent of the directory
 	 */
-	insert(entityManager: EntityManager, name: string, parent: string | null): Promise<void>;
+	insert(entityManager: EntityManager, name: string, parent: string): Promise<void>;
 
 	/**
 	 * Checks if a non recycled directory at the given path exists.
@@ -92,9 +92,9 @@ export interface IDirectoryRepository {
 	 *
 	 * @param {EntityManager}                               entityManager the entityManager
 	 * @param {string}                                      path          the path of the directory to update
-	 * @param {{ name?: string; parentId?: string | null }} partial       the partial directory to update
+	 * @param {{ name?: string; parentId?: string }} partial       the partial directory to update
 	 */
-	update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string | null }): Promise<void>;
+	update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string }): Promise<void>;
 
 	/**
 	 * Deletes a directory tree by the root id.

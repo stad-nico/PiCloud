@@ -18,7 +18,7 @@ type Additional = {
 
 @Injectable()
 export class DirectoryRepository implements IDirectoryRepository {
-	public async insert(entityManager: EntityManager, name: string, parentId: string | null) {
+	public async insert(entityManager: EntityManager, name: string, parentId: string) {
 		await entityManager
 			.getKnex()
 			.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId) VALUES (:name, :parentId)`, { name: name, parentId: parentId })
@@ -26,7 +26,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 	}
 
 	public async exists(entityManager: EntityManager, path: string): Promise<boolean> {
-		const result = await entityManager
+		const [rows] = await entityManager
 			.getKnex()
 			.raw<[Pick<Additional, 'count'>[]]>(
 				// prettier-ignore
@@ -35,11 +35,11 @@ export class DirectoryRepository implements IDirectoryRepository {
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		return result[0]![0]!.count > 0;
+		return rows![0]!.count > 0;
 	}
 
 	public async select(entityManager: EntityManager, path: string): Promise<Pick<Directory, 'id' | 'name'> | null> {
-		const result = await entityManager
+		const [rows] = await entityManager
 			.getKnex()
 			.raw<[Pick<Directory, 'id' | 'name'>[]]>(
 				// prettier-ignore
@@ -48,11 +48,11 @@ export class DirectoryRepository implements IDirectoryRepository {
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		return result[0]![0] ?? null;
+		return rows![0] ?? null;
 	}
 
 	public async getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null> {
-		const result = await entityManager
+		const [rows] = await entityManager
 			.getKnex()
 			.raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'files' | 'directories' | 'createdAt' | 'updatedAt'>[]]>(
 				`WITH filesAmt AS (
@@ -84,7 +84,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const metadata = result[0]![0];
+		const metadata = rows![0];
 
 		if (!metadata) {
 			return null;
@@ -92,13 +92,13 @@ export class DirectoryRepository implements IDirectoryRepository {
 
 		return {
 			...metadata,
-			createdAt: new Date(Date.parse(metadata?.createdAt as unknown as string)),
-			updatedAt: new Date(Date.parse(metadata?.updatedAt as unknown as string)),
+			createdAt: new Date(Date.parse(metadata.createdAt as unknown as string)),
+			updatedAt: new Date(Date.parse(metadata.updatedAt as unknown as string)),
 		};
 	}
 
 	public async getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult> {
-		const files = await entityManager
+		const [files] = await entityManager
 			.getKnex()
 			.raw<[Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
 				// prettier-ignore
@@ -107,13 +107,13 @@ export class DirectoryRepository implements IDirectoryRepository {
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const mappedFiles = files[0]!.map((file) => ({
+		const mappedFiles = files!.map((file) => ({
 			...file,
 			createdAt: new Date(Date.parse(file.createdAt as unknown as string)),
 			updatedAt: new Date(Date.parse(file.updatedAt as unknown as string)),
 		}));
 
-		const directories = await entityManager
+		const [directories] = await entityManager
 			.getKnex()
 			.raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
 				`SELECT id, name, GET_DIRECTORY_SIZE(id) AS size, createdAt, updatedAt
@@ -124,7 +124,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const mappedDirectories = directories[0]!.map((directory) => ({
+		const mappedDirectories = directories!.map((directory) => ({
 			...directory,
 			createdAt: new Date(Date.parse(directory.createdAt as unknown as string)),
 			updatedAt: new Date(Date.parse(directory.updatedAt as unknown as string)),
@@ -137,9 +137,9 @@ export class DirectoryRepository implements IDirectoryRepository {
 	}
 
 	public async getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<Pick<File, 'id'> & { path: string }>> {
-		const result = await entityManager
+		const [files] = await entityManager
 			.getKnex()
-			.raw<[{ id: string; path: string }[]]>(
+			.raw<[Pick<File & Additional, 'id' | 'path'>[]]>(
 				`SELECT id, GET_FILE_PATH(id) AS path
 				 FROM ${FILES_TABLE_NAME}
 				 WHERE parentId IN (
@@ -153,7 +153,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const mapped = result[0]!.map((file) => ({
+		const mapped = files!.map((file) => ({
 			...file,
 			path: PathUtils.normalizeFilePath(file.path.replace(path, '')),
 		}));
@@ -161,7 +161,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 		return mapped;
 	}
 
-	public async update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string | null }): Promise<void> {
+	public async update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string }): Promise<void> {
 		if (Object.keys(partial).length === 0) {
 			return;
 		}
@@ -175,6 +175,9 @@ export class DirectoryRepository implements IDirectoryRepository {
 	}
 
 	public async delete(entityManager: EntityManager, rootId: string): Promise<void> {
-		await entityManager.getKnex().raw(``, { rootId: rootId }).transacting(entityManager.getTransactionContext()!);
+		await entityManager
+			.getKnex()
+			.raw(`DELETE FROM ${DIRECTORY_TABLE_NAME} WHERE id = :rootId`, { rootId: rootId })
+			.transacting(entityManager.getTransactionContext()!);
 	}
 }

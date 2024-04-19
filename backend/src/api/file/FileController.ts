@@ -1,3 +1,5 @@
+import { Response } from 'express';
+
 import {
 	Body,
 	Controller,
@@ -16,9 +18,7 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
 
-import { FileService } from 'src/api/file/FileService';
 import { IFileService } from 'src/api/file/IFileService';
 import { FileDeleteDto, FileDeleteParams } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadParams } from 'src/api/file/mapping/download';

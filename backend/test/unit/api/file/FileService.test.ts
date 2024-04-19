@@ -9,12 +9,10 @@ import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 import { FileService } from 'src/api/file/FileService';
 import { IFileRepository } from 'src/api/file/IFileRepository';
 import { IFileService } from 'src/api/file/IFileService';
-import { FileDeleteResponse } from 'src/api/file/mapping/delete';
 import { FileDownloadResponse } from 'src/api/file/mapping/download';
 import { FileMetadataResponse } from 'src/api/file/mapping/metadata';
 import { FileRenameResponse } from 'src/api/file/mapping/rename';
 import { FileReplaceResponse } from 'src/api/file/mapping/replace';
-import { FileRestoreResponse } from 'src/api/file/mapping/restore';
 import { FileUploadResponse } from 'src/api/file/mapping/upload';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
@@ -53,20 +51,18 @@ describe('FileService', () => {
 				{
 					provide: IDirectoryRepository,
 					useValue: {
-						selectByPath: jest.fn(),
+						select: jest.fn(),
 					},
 				},
 				{
 					provide: IFileRepository,
 					useValue: {
 						getMetadata: jest.fn(),
-						selectByPath: jest.fn(),
-						selectById: jest.fn(),
+						select: jest.fn(),
 						exists: jest.fn(),
-						restore: jest.fn(),
 						insertReturningId: jest.fn(),
-						softDelete: jest.fn(),
-						hardDelete: jest.fn(),
+						deleteById: jest.fn(),
+						deleteByPath: jest.fn(),
 						update: jest.fn(),
 					},
 				},
@@ -116,7 +112,7 @@ describe('FileService', () => {
 
 	describe('download', () => {
 		it('should throw 404 NOT FOUND if file does not exist', async () => {
-			jest.spyOn(fileRepository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(fileRepository, 'select').mockResolvedValueOnce(null);
 
 			const dto = { path: 'test/path.txt' };
 			const expectedError = new ServerError(`file ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
@@ -129,44 +125,11 @@ describe('FileService', () => {
 			const dbSelect = { id: 'uuid', name: 'path.txt', mimeType: 'text/plain' };
 			const readStream = 'test';
 
-			jest.spyOn(fileRepository, 'selectByPath').mockResolvedValueOnce(dbSelect);
+			jest.spyOn(fileRepository, 'select').mockResolvedValueOnce(dbSelect);
 			jest.spyOn(fs, 'createReadStream').mockReturnValueOnce(readStream as any);
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce('fgf');
 
 			await expect(service.download(dto)).resolves.toStrictEqual(FileDownloadResponse.from(dbSelect.name, dbSelect.mimeType, readStream as any));
-		});
-	});
-
-	describe('restore', () => {
-		it('should throw 404 NOT FOUND if file does not exist', async () => {
-			jest.spyOn(fileRepository, 'selectById').mockResolvedValueOnce(null);
-
-			const dto = { id: 'uuid' };
-			const expectedError = new ServerError(`file with id ${dto.id} does not exist`, HttpStatus.NOT_FOUND);
-
-			await expect(service.restore(dto)).rejects.toStrictEqual(expectedError);
-		});
-
-		it('should throw 409 CONFLICT if a file at that path already exists', async () => {
-			const dbFileResult = { path: 'test/path' };
-			const expectedError = new ServerError(`file ${dbFileResult.path} already exists`, HttpStatus.CONFLICT);
-			const dto = { id: 'uuid' };
-
-			jest.spyOn(fileRepository, 'selectById').mockResolvedValueOnce(dbFileResult);
-			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(true);
-
-			await expect(service.restore(dto)).rejects.toStrictEqual(expectedError);
-		});
-
-		it('should resolve with correct response', async () => {
-			const dbFileResult = { path: 'test/path' };
-			const dto = { id: 'uuid' };
-
-			jest.spyOn(fileRepository, 'selectById').mockResolvedValueOnce(dbFileResult);
-			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
-
-			await expect(service.restore(dto)).resolves.toStrictEqual(FileRestoreResponse.from(dbFileResult.path));
-			expect(fileRepository.restore).toHaveBeenCalledWith(entityManager, dto.id);
 		});
 	});
 
@@ -176,7 +139,7 @@ describe('FileService', () => {
 			const expectedError = new ServerError(`directory test does not exist`, HttpStatus.NOT_FOUND);
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
-			jest.spyOn(directoryRepository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(null);
 
 			await expect(service.upload(dto as any)).rejects.toStrictEqual(expectedError);
 		});
@@ -196,7 +159,7 @@ describe('FileService', () => {
 			const filePath = 'filePath';
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
-			jest.spyOn(directoryRepository, 'selectByPath').mockResolvedValueOnce(parent);
+			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(parent);
 			jest.spyOn(fileRepository, 'insertReturningId').mockResolvedValueOnce({ id: 'uuid' });
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce(filePath);
 
@@ -210,7 +173,7 @@ describe('FileService', () => {
 			const filePath = 'filePath';
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
-			jest.spyOn(directoryRepository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(null);
 			jest.spyOn(fileRepository, 'insertReturningId').mockResolvedValueOnce({ id: 'uuid' });
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce(filePath);
 
@@ -225,10 +188,10 @@ describe('FileService', () => {
 			const dto = { path: 'test/file.txt' };
 			const expectedError = new ServerError(`directory test does not exist`, HttpStatus.NOT_FOUND);
 
-			jest.spyOn(directoryRepository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(null);
 
 			await expect(service.replace(dto as any)).rejects.toStrictEqual(expectedError);
-			expect(fileRepository.hardDelete).not.toHaveBeenCalled();
+			expect(fileRepository.deleteByPath).not.toHaveBeenCalled();
 			expect(fileRepository.insertReturningId).not.toHaveBeenCalled();
 		});
 
@@ -237,14 +200,14 @@ describe('FileService', () => {
 			const parent = { id: 'uuid' };
 			const filePath = 'filePath';
 
-			jest.spyOn(directoryRepository, 'selectByPath').mockResolvedValueOnce(parent as any);
+			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(parent as any);
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(fileRepository, 'insertReturningId').mockResolvedValueOnce({ id: 'uuid' });
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce(filePath);
 
 			await expect(service.replace(dto as any)).resolves.toStrictEqual(FileReplaceResponse.from(dto.path));
 			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.stream);
-			expect(fileRepository.hardDelete).not.toHaveBeenCalled();
+			expect(fileRepository.deleteByPath).not.toHaveBeenCalled();
 		});
 
 		it('should delete old file from db, insert and write new file and resolve with correct response', async () => {
@@ -252,14 +215,14 @@ describe('FileService', () => {
 			const parent = { id: 'uuid' };
 			const filePath = 'filePath';
 
-			jest.spyOn(directoryRepository, 'selectByPath').mockResolvedValueOnce(parent as any);
+			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(parent as any);
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(true);
 			jest.spyOn(fileRepository, 'insertReturningId').mockResolvedValueOnce({ id: 'uuid' });
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce(filePath);
 
 			await expect(service.replace(dto as any)).resolves.toStrictEqual(FileReplaceResponse.from(dto.path));
 			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.stream);
-			expect(fileRepository.hardDelete).toHaveBeenCalledWith(entityManager, dto.path, false);
+			expect(fileRepository.deleteByPath).toHaveBeenCalledWith(entityManager, dto.path);
 		});
 	});
 
@@ -281,7 +244,7 @@ describe('FileService', () => {
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(true);
-			jest.spyOn(fileRepository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(fileRepository, 'select').mockResolvedValueOnce(null);
 
 			await expect(service.rename(dto)).rejects.toStrictEqual(expectedError);
 			expect(fileRepository.update).not.toHaveBeenCalled();
@@ -323,7 +286,7 @@ describe('FileService', () => {
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(true);
-			jest.spyOn(directoryRepository, 'selectByPath').mockResolvedValueOnce(parent);
+			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(parent);
 			jest.spyOn(entityManager, 'getReference').mockReturnValueOnce(parent);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(FileRenameResponse.from(dto.destinationPath));
@@ -335,7 +298,7 @@ describe('FileService', () => {
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(true);
-			jest.spyOn(directoryRepository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(null);
 			jest.spyOn(entityManager, 'getReference').mockReturnValueOnce(null as any);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(FileRenameResponse.from(dto.destinationPath));
@@ -348,7 +311,7 @@ describe('FileService', () => {
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(true);
-			jest.spyOn(directoryRepository, 'selectByPath').mockResolvedValueOnce(parent);
+			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(parent);
 			jest.spyOn(entityManager, 'getReference').mockReturnValueOnce(parent);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(FileRenameResponse.from(dto.destinationPath));
@@ -361,20 +324,20 @@ describe('FileService', () => {
 			const dto = { path: 'test/file.txt' };
 			const expectedError = new ServerError(`file ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
 
-			jest.spyOn(fileRepository, 'selectByPath').mockResolvedValueOnce(null);
+			jest.spyOn(fileRepository, 'select').mockResolvedValueOnce(null);
 
 			await expect(service.delete(dto)).rejects.toStrictEqual(expectedError);
-			expect(fileRepository.softDelete).not.toHaveBeenCalled();
+			expect(fileRepository.deleteById).not.toHaveBeenCalled();
 		});
 
 		it('should resolve with correct response', async () => {
 			const dto = { path: 'test/file.txt' };
 			const dbFile = { id: 'uuid', name: 'file.txt', mimeType: 'text/plain' };
 
-			jest.spyOn(fileRepository, 'selectByPath').mockResolvedValueOnce(dbFile);
+			jest.spyOn(fileRepository, 'select').mockResolvedValueOnce(dbFile);
 
-			await expect(service.delete(dto)).resolves.toStrictEqual(FileDeleteResponse.from(dbFile.id));
-			expect(fileRepository.softDelete).toHaveBeenCalledWith(entityManager, dbFile.id);
+			await expect(service.delete(dto)).resolves.not.toThrow();
+			expect(fileRepository.deleteById).toHaveBeenCalledWith(entityManager, dbFile.id);
 		});
 	});
 });

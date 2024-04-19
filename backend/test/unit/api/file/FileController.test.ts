@@ -8,7 +8,6 @@ import { FileDownloadDto } from 'src/api/file/mapping/download';
 import { FileMetadataDto } from 'src/api/file/mapping/metadata';
 import { FileRenameDto } from 'src/api/file/mapping/rename';
 import { FileReplaceDto } from 'src/api/file/mapping/replace';
-import { FileRestoreDto } from 'src/api/file/mapping/restore';
 import { FileUploadDto } from 'src/api/file/mapping/upload';
 import { ServerError } from 'src/util/ServerError';
 import { ValidationError } from 'src/util/ValidationError';
@@ -23,7 +22,6 @@ describe('FileController', () => {
 			download: jest.fn(),
 			delete: jest.fn(),
 			upload: jest.fn(),
-			restore: jest.fn(),
 			rename: jest.fn(),
 			replace: jest.fn(),
 		};
@@ -87,46 +85,6 @@ describe('FileController', () => {
 		});
 	});
 
-	describe('restore', () => {
-		it("should resolve with the response of the service if the params are valid and the service doesn't throw", async () => {
-			const response = 'response';
-
-			jest.spyOn(service, 'restore').mockResolvedValueOnce(response as any);
-			jest.spyOn(FileRestoreDto, 'from').mockReturnValueOnce(0 as any);
-
-			await expect(controller.restore(0 as any)).resolves.toStrictEqual(response);
-		});
-
-		it('should rethrow the ValidationError if params are invalid', async () => {
-			const error = new ValidationError('nop');
-
-			jest.spyOn(service, 'restore').mockResolvedValueOnce(0 as any);
-			jest.spyOn(FileRestoreDto, 'from').mockImplementationOnce(() => {
-				throw error;
-			});
-
-			await expect(controller.restore(0 as any)).rejects.toStrictEqual(error.toHttpException());
-		});
-
-		it('should rethrow the ServerError if the service throws a ServerError', async () => {
-			const error = new ServerError('service error', HttpStatus.BAD_REQUEST);
-
-			jest.spyOn(service, 'restore').mockRejectedValueOnce(error);
-			jest.spyOn(FileRestoreDto, 'from').mockReturnValueOnce(0 as any);
-
-			await expect(controller.restore(0 as any)).rejects.toStrictEqual(error.toHttpException());
-		});
-
-		it('should throw an InternalServerError if the service throws a native error', async () => {
-			const error = new ServerError('something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
-
-			jest.spyOn(service, 'restore').mockRejectedValueOnce(new Error('service error'));
-			jest.spyOn(FileRestoreDto, 'from').mockReturnValueOnce(0 as any);
-
-			await expect(controller.restore(0 as any)).rejects.toStrictEqual(error.toHttpException());
-		});
-	});
-
 	describe('rename', () => {
 		it("should resolve with the response of the service if the params are valid and the service doesn't throw", async () => {
 			const response = 'response';
@@ -169,12 +127,10 @@ describe('FileController', () => {
 
 	describe('delete', () => {
 		it("should resolve with the response of the service if the params are valid and the service doesn't throw", async () => {
-			const response = 'response';
-
-			jest.spyOn(service, 'delete').mockResolvedValueOnce(response as any);
+			jest.spyOn(service, 'delete').mockResolvedValueOnce();
 			jest.spyOn(FileDeleteDto, 'from').mockReturnValueOnce(0 as any);
 
-			await expect(controller.delete(0 as any)).resolves.toStrictEqual(response);
+			await expect(controller.delete(0 as any)).resolves.not.toThrow();
 		});
 
 		it('should rethrow the ValidationError if params are invalid', async () => {

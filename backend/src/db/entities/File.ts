@@ -14,7 +14,7 @@ export class File {
 	@Property({ type: 'varchar', nullable: false })
 	readonly name!: string;
 
-	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'no action', name: 'parentId' })
+	@ManyToOne({ entity: () => Directory, nullable: false, default: 'root', updateRule: 'no action', deleteRule: 'cascade', name: 'parentId' })
 	readonly parent!: Directory | null;
 
 	@Property({ type: 'varchar', nullable: false, default: 'application/octet-stream' })
@@ -26,6 +26,6 @@ export class File {
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()' })
 	readonly createdAt!: Date;
 
-	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp() on update current_timestamp()' })
+	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()', extra: 'on update current_timestamp()' })
 	readonly updatedAt!: Date;
 }

@@ -18,11 +18,12 @@ export interface IFileRepository {
 	 *
 	 * @param   {EntityManager}         entityManager the entityManager
 	 * @param   {string}                name          the filename
-	 * @param   {string}                mimeType      the mimeType of the file
-	 * @param   {string|null}           parent        the parent
+	 * @param   {string}                mimeType      the mimeType
+	 * @param   {number}                size          the size
+	 * @param   {string}                parentId      the parentId
 	 * @returns {Promise<{id: string}>}               the id
 	 */
-	insertReturningId(entityManager: EntityManager, name: string, mimeType: string, parent: string | null): Promise<Pick<File, 'id'>>;
+	insertReturningId(entityManager: EntityManager, name: string, mimeType: string, size: number, parentId: string): Promise<Pick<File, 'id'>>;
 
 	/**
 	 * Checks if the file at the given path exists.
@@ -60,11 +61,11 @@ export interface IFileRepository {
 	 * Updates a file.
 	 * @async
 	 *
-	 * @param {EntityManager} entityManager the entityManager
-	 * @param {string}        path          the path of the file to update
-	 * @param {Partial<File>} partial       the properties to update
+	 * @param {EntityManager}                      entityManager the entityManager
+	 * @param {string}                             path          the path of the file to update
+	 * @param {{name?: string, parentId?: string}} partial       the properties to update
 	 */
-	update(entityManager: EntityManager, path: string, partial: Partial<File>): Promise<void>;
+	update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string }): Promise<void>;
 
 	/**
 	 * Deletes a file from the db by its path.

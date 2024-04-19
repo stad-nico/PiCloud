@@ -1,6 +1,7 @@
 import { EntityManager } from '@mikro-orm/mariadb';
 import { IFileRepository } from 'src/api/file/IFileRepository';
-import { File } from 'src/db/entities/File';
+import { FILES_TABLE_NAME, File } from 'src/db/entities/File';
+import { PathUtils } from './../../util/PathUtils';
 
 type Additional = {
 	count: number;
@@ -8,88 +9,82 @@ type Additional = {
 };
 
 export class FileRepository implements IFileRepository {
-	private validate<T extends Array<keyof (File & Additional)>>(
-		entities: Array<Partial<File & Additional>>,
-		requiredKeys: T
-	): Array<Pick<File & Additional, T[number]>> {
-		const output = [];
-
-		for (const entity of entities) {
-			for (const requiredKey of requiredKeys) {
-				if (!(requiredKey in entity)) {
-					continue;
-				}
-			}
-
-			output.push(entity as Pick<File & Additional, T[number]>);
-		}
-
-		return output;
-	}
-
-	public async insertReturningId(entityManager: EntityManager, name: string, mimeType: string, parentId: string | null = null): Promise<Pick<File, 'id'>> {
-		const result = await entityManager
+	public async insertReturningId(entityManager: EntityManager, name: string, mimeType: string, size: number, parentId: string): Promise<Pick<File, 'id'>> {
+		const [rows] = await entityManager
 			.getKnex()
 			.raw<[Pick<File, 'id'>[]]>(
 				// prettier-ignore
-				`INSERT INTO files (name, mimeType, parentId) VALUES (:name, :mimeType, :parentId) RETURNING id`,
-				{ name: name, mimeType: mimeType, parentId: parentId }
+				`INSERT INTO files (name, mimeType, size, parentId) VALUES (:name, :mimeType, :size, :parentId) RETURNING id`,
+				{ name: name, mimeType: mimeType, size: size, parentId: parentId }
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		return this.validate(result[0] ?? [], ['id'])[0]!;
+		return rows![0]!;
 	}
 
 	public async exists(entityManager: EntityManager, path: string): Promise<boolean> {
-		const result = await entityManager
+		const [rows] = await entityManager
 			.getKnex()
-			.raw<[{ count: number }[]]>(
+			.raw<[Pick<Additional, 'count'>[]]>(
 				// prettier-ignore
-				`SELECT COUNT(*) as count FROM directories WHERE id = GET_FILE_UUID(:path) LIMIT 1`,
-				{ path: path }
+				`SELECT COUNT(*) as count FROM files WHERE id = GET_FILE_UUID(:path) LIMIT 1`,
+				{ path: PathUtils.normalizeFilePath(path) }
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const count = this.validate(result[0] ?? [], ['count'])[0]?.count ?? 0;
-
-		return count > 0;
+		return rows![0]!.count > 0;
 	}
 
 	public async select(entityManager: EntityManager, path: string): Promise<Pick<File, 'id' | 'name' | 'mimeType'> | null> {
-		const result = await entityManager
+		const [rows] = await entityManager
 			.getKnex()
-			.raw<[{ id: string; name: string }[]]>(
+			.raw<[Pick<File, 'id' | 'name' | 'mimeType'>[]]>(
 				// prettier-ignore
-				`SELECT name, id, mimeType FROM files WHERE id = GET_DIRECTORY_UUID(:path)`,
-				{ path: path }
+				`SELECT name, id, mimeType FROM files WHERE id = GET_FILE_UUID(:path)`,
+				{ path: PathUtils.normalizeFilePath(path) }
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const mapped = result[0]!.map((x) => entityManager.map(File, x));
-
-		return this.validate(mapped, ['id', 'name', 'mimeType'])[0] ?? null;
+		return rows![0] ?? null;
 	}
 
 	public async getMetadata(
 		entityManager: EntityManager,
 		path: string
 	): Promise<Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> | null> {
-		const result = await entityManager
+		const [rows] = await entityManager
 			.getKnex()
 			.raw<[Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
 				// prettier-ignore
 				`SELECT id, name, mimeType, size, createdAt, updatedAt FROM files WHERE id = GET_FILE_UUID(:path)`,
-				{ path: path }
+				{ path: PathUtils.normalizeFilePath(path) }
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const mapped = (result[0] ?? []).map((x) => entityManager.map(File, x));
+		const metadata = rows![0];
 
-		return this.validate(mapped, ['id', 'name', 'mimeType', 'size', 'createdAt', 'updatedAt'])[0] ?? null;
+		if (!metadata) {
+			return null;
+		}
+
+		return {
+			...metadata,
+			createdAt: new Date(Date.parse(metadata.createdAt as unknown as string)),
+			updatedAt: new Date(Date.parse(metadata.updatedAt as unknown as string)),
+		};
 	}
 
-	public async update(entityManager: EntityManager, path: string, partial: Partial<File>): Promise<void> {
-		await entityManager.createQueryBuilder(File, 'files').update(partial).where(`id = GET_DIRECTORY_UUID(:path)`, [path]).execute();
+	public async update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string }): Promise<void> {
+		if (Object.keys(partial).length === 0) {
+			return;
+		}
+
+		await entityManager
+			.getKnex()
+			.table(FILES_TABLE_NAME)
+			.update(partial)
+			.whereRaw('id = GET_FILE_UUID(?)', [PathUtils.normalizeFilePath(path)])
+			.transacting(entityManager.getTransactionContext()!);
 	}
 
 	public async deleteById(entityManager: EntityManager, id: string): Promise<void> {
@@ -99,7 +94,7 @@ export class FileRepository implements IFileRepository {
 	public async deleteByPath(entityManager: EntityManager, path: string): Promise<void> {
 		await entityManager
 			.getKnex()
-			.raw(`DELETE FROM files WHERE id = GET_FILE_UUID(:path)`, { path: path })
+			.raw(`DELETE FROM files WHERE id = GET_FILE_UUID(:path)`, { path: PathUtils.normalizeFilePath(path) })
 			.transacting(entityManager.getTransactionContext()!);
 	}
 }

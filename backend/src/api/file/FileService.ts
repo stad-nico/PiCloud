@@ -15,8 +15,6 @@ import { FileRenameDto, FileRenameResponse } from 'src/api/file/mapping/rename';
 import { FileReplaceDto } from 'src/api/file/mapping/replace/FileReplaceDto';
 import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceResponse';
 import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
-import { Directory } from 'src/db/entities/Directory';
-import { File } from 'src/db/entities/File';
 import { StoragePath } from 'src/disk/DiskService';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
@@ -100,10 +98,10 @@ export class FileService implements IFileService {
 				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const parentId = hasRootAsParent ? null : parent!.id;
+			const parentId = hasRootAsParent ? 'root' : parent!.id;
 
 			const fileName = path.basename(fileUploadDto.path);
-			const result = await this.fileRepository.insertReturningId(entityManager, fileName, fileUploadDto.mimeType, parentId);
+			const result = await this.fileRepository.insertReturningId(entityManager, fileName, fileUploadDto.mimeType, fileUploadDto.size, parentId);
 
 			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
 			await FileUtils.writeFile(resolvedPath, fileUploadDto.stream);
@@ -136,7 +134,13 @@ export class FileService implements IFileService {
 			}
 
 			const fileName = path.basename(fileReplaceDto.path);
-			const result = await this.fileRepository.insertReturningId(entityManager, fileName, fileReplaceDto.mimeType, parentDirectory.id);
+			const result = await this.fileRepository.insertReturningId(
+				entityManager,
+				fileName,
+				fileReplaceDto.mimeType,
+				fileReplaceDto.size,
+				parentDirectory.id
+			);
 
 			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
 			await FileUtils.writeFile(resolvedPath, fileReplaceDto.stream);
@@ -214,7 +218,10 @@ export class FileService implements IFileService {
 			}
 
 			const willFileNameChange = path.basename(fileRenameDto.destinationPath) !== path.basename(fileRenameDto.sourcePath);
-			let updateOptions: Partial<File> = willFileNameChange ? { name: path.basename(fileRenameDto.destinationPath) } : {};
+			let updateOptions: {
+				name?: string;
+				parentId?: string;
+			} = willFileNameChange ? { name: path.basename(fileRenameDto.destinationPath) } : {};
 
 			if (path.dirname(fileRenameDto.sourcePath) === path.dirname(fileRenameDto.destinationPath)) {
 				if (willFileNameChange) {
@@ -227,15 +234,15 @@ export class FileService implements IFileService {
 			const destParentPath = path.dirname(fileRenameDto.destinationPath);
 			const hasRootAsParent = path.relative('.', destParentPath) === '';
 
-			const destinationParent = hasRootAsParent ? null : await this.directoryRepository.select(entityManager, destParentPath);
+			const destinationParent = hasRootAsParent ? { id: 'root' } : await this.directoryRepository.select(entityManager, destParentPath);
 
-			if (!destinationParent && !hasRootAsParent) {
+			if (!destinationParent) {
 				throw new ServerError(`directory ${destParentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			updateOptions = {
 				...updateOptions,
-				parent: hasRootAsParent ? null : entityManager.getReference(Directory, destinationParent!.id),
+				parentId: destinationParent.id,
 			};
 
 			await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);

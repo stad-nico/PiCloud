@@ -9,10 +9,10 @@ export class Tree {
 	@PrimaryKey({ type: 'int', nullable: false, autoincrement: true })
 	readonly id!: number;
 
-	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'no action', name: 'parentId' })
+	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'cascade', name: 'parentId' })
 	readonly parent!: Directory | null;
 
-	@ManyToOne({ entity: () => Directory, nullable: false, updateRule: 'no action', deleteRule: 'no action', name: 'childId' })
+	@ManyToOne({ entity: () => Directory, nullable: false, updateRule: 'no action', deleteRule: 'cascade', name: 'childId' })
 	readonly child!: Directory | null;
 
 	@Property({ type: 'int', nullable: false, default: 0 })

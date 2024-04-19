@@ -80,7 +80,7 @@ export class DirectoryService implements IDirectoryService {
 				throw new ServerError(`directory ${parentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const parentId = hasRootAsParent ? null : parent!.id;
+			const parentId = hasRootAsParent ? 'root' : parent!.id;
 
 			await this.directoryRepository.insert(entityManager, path.basename(directoryCreateDto.path), parentId);
 
@@ -182,7 +182,7 @@ export class DirectoryService implements IDirectoryService {
 
 			const willDirectoryNameChange = path.basename(directoryRenameDto.destinationPath) !== path.basename(directoryRenameDto.sourcePath);
 
-			let updateOptions: { name?: string; parentId?: string | null } = willDirectoryNameChange
+			let updateOptions: { name?: string; parentId?: string } = willDirectoryNameChange
 				? { name: path.basename(directoryRenameDto.destinationPath) }
 				: {};
 
@@ -197,15 +197,15 @@ export class DirectoryService implements IDirectoryService {
 			const destParentPath = path.dirname(directoryRenameDto.destinationPath);
 			const hasRootAsParent = path.relative('.', destParentPath) === '';
 
-			const destinationParent = hasRootAsParent ? null : await this.directoryRepository.select(entityManager, destParentPath);
+			const destinationParent = hasRootAsParent ? { id: 'root' } : await this.directoryRepository.select(entityManager, destParentPath);
 
-			if (!destinationParent && !hasRootAsParent) {
+			if (!destinationParent) {
 				throw new ServerError(`directory ${destParentPath} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
 			updateOptions = {
 				...updateOptions,
-				parentId: destinationParent ? destinationParent.id : null,
+				parentId: destinationParent.id,
 			};
 
 			await this.directoryRepository.update(entityManager, directoryRenameDto.sourcePath, updateOptions);
