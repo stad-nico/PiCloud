@@ -12,7 +12,7 @@ pipeline {
             steps {
                 dir("backend") {
                     sh "npm ci"
-                }d
+                }
             }
         }
 
