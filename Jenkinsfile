@@ -22,6 +22,17 @@ pipeline {
                     sh "npm run test:unit"
                 }
             }
+
+            post {
+                always {
+                    recordCoverage(tools: [[parser: 'COBERTURA']],
+                        qualityGates: [
+                            [criticality: 'NOTE', integerThreshold: 80, metric: 'LINE', threshold: 80.0], 
+                            [criticality: 'NOTE', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0]
+                        ]
+                    )
+                }
+            }
         }
 
         stage("Backend Integration Tests") {

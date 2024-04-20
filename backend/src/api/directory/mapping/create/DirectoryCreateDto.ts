@@ -42,9 +42,9 @@ export class DirectoryCreateDto {
 			throw new ValidationError(`path ${directoryCreateParams.path} is not a valid directory path`);
 		}
 
-		if (path.basename(normalizedPath).length > PathUtils.MaxFileNameLength) {
+		if (path.basename(normalizedPath).length > PathUtils.MaxDirectoryNameLength) {
 			throw new ValidationError(
-				`directory name ${path.basename(directoryCreateParams.path)} exceeds the file name limit of 128 chars`
+				`directory name ${path.basename(directoryCreateParams.path)} exceeds the directory name limit of ${PathUtils.MaxDirectoryNameLength} chars`
 			);
 		}
 

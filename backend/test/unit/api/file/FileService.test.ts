@@ -154,7 +154,7 @@ describe('FileService', () => {
 		});
 
 		it('should insert with the parent id from the db response and resolve with the correct response', async () => {
-			const dto = { path: 'test/path.txt', mimeType: 'text/plain', stream: 'stream' as any };
+			const dto = { path: 'test/path.txt', mimeType: 'text/plain', size: 19, stream: 'stream' as any };
 			const parent = { id: 'parentId', name: 'name' };
 			const filePath = 'filePath';
 
@@ -164,12 +164,12 @@ describe('FileService', () => {
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce(filePath);
 
 			await expect(service.upload(dto)).resolves.toStrictEqual(FileUploadResponse.from(dto.path));
-			expect(fileRepository.insertReturningId).toHaveBeenCalledWith(entityManager, 'path.txt', dto.mimeType, parent.id);
+			expect(fileRepository.insertReturningId).toHaveBeenCalledWith(entityManager, 'path.txt', dto.mimeType, dto.size, parent.id);
 			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.stream);
 		});
 
 		it('should insert with null as parent id and resolve with the correct response', async () => {
-			const dto = { path: 'path.txt', mimeType: 'text/plain', stream: 'stream' as any };
+			const dto = { path: 'path.txt', mimeType: 'text/plain', size: 12, stream: 'stream' as any };
 			const filePath = 'filePath';
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
@@ -178,7 +178,7 @@ describe('FileService', () => {
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce(filePath);
 
 			await expect(service.upload(dto)).resolves.toStrictEqual(FileUploadResponse.from(dto.path));
-			expect(fileRepository.insertReturningId).toHaveBeenCalledWith(entityManager, 'path.txt', dto.mimeType, null);
+			expect(fileRepository.insertReturningId).toHaveBeenCalledWith(entityManager, 'path.txt', dto.mimeType, dto.size, 'root');
 			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.stream);
 		});
 	});
@@ -290,7 +290,7 @@ describe('FileService', () => {
 			jest.spyOn(entityManager, 'getReference').mockReturnValueOnce(parent);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(FileRenameResponse.from(dto.destinationPath));
-			expect(fileRepository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parent: parent });
+			expect(fileRepository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parentId: parent.id });
 		});
 
 		it('should only update the parent of the directory with null if the name is the same and the destination parent is the root directory and resolve with the correct response', async () => {
@@ -302,7 +302,7 @@ describe('FileService', () => {
 			jest.spyOn(entityManager, 'getReference').mockReturnValueOnce(null as any);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(FileRenameResponse.from(dto.destinationPath));
-			expect(fileRepository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parent: null });
+			expect(fileRepository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { parentId: 'root' });
 		});
 
 		it('should update name and parent of the directory and resolve with the correct response', async () => {
@@ -315,7 +315,7 @@ describe('FileService', () => {
 			jest.spyOn(entityManager, 'getReference').mockReturnValueOnce(parent);
 
 			await expect(service.rename(dto)).resolves.toStrictEqual(FileRenameResponse.from(dto.destinationPath));
-			expect(fileRepository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { name: 'path2.txt', parent: parent });
+			expect(fileRepository.update).toHaveBeenCalledWith(entityManager, dto.sourcePath, { name: 'path2.txt', parentId: parent.id });
 		});
 	});
 

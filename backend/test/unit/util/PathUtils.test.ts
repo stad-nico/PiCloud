@@ -26,6 +26,26 @@ describe('PathUtils', () => {
 		configService = module.get(ConfigService);
 	});
 
+	describe('normalizeDirectoryPath', () => {});
+
+	describe('normalizeFilePath', () => {});
+
+	describe('prepareForFS', () => {});
+
+	describe('pathExists', () => {
+		it('should return false because file does not exist', async () => {
+			(fs.access as jest.Mock).mockRejectedValue(new Error());
+
+			await expect(PathUtils.pathExists('t.txt')).resolves.toBe(false);
+		});
+
+		it('should return true because file exists', async () => {
+			(fs.access as jest.Mock).mockResolvedValue(undefined);
+
+			await expect(PathUtils.pathExists('C:')).resolves.toBe(true);
+		});
+	});
+
 	describe('isPathRelative', () => {
 		it('should return true if path is a relative path that does not leave base dir', () => {
 			expect(PathUtils.isPathRelative(configService, 't/fff/t.txt')).toBe(true);
@@ -46,30 +66,11 @@ describe('PathUtils', () => {
 		});
 	});
 
-	describe('pathExists', () => {
-		it('should return false because file does not exist', async () => {
-			(fs.access as jest.Mock).mockRejectedValue(new Error());
+	describe('join', () => {});
 
-			await expect(PathUtils.pathExists('t.txt')).toBe(false);
-		});
+	describe('uuidToDirPath', () => {});
 
-		it('should return true because file exists', async () => {
-			(fs.access as jest.Mock).mockResolvedValue(undefined);
+	describe('isDirectoryPathValid', () => {});
 
-			await expect(PathUtils.pathExists('C:')).toBe(true);
-		});
-	});
-
-	// describe('join', () => {
-	// 	it("should join the path with 'test' using path.join", () => {
-	// 		expect(PathUtils.join(configService, 't.txt', Environment.DiskStoragePath)).toBe(path.join('test', 't.txt'));
-	// 	});
-	// });
-
-	// describe('normalizePathForOS', () => {
-	// 	it('should replace slashes with path.sep', () => {
-	// 		expect(FileUtils['normalizePathForOS']('test/test.txt')).toBe('test/test.txt'.replaceAll(/(\/|\\)/gi, path.sep));
-	// 		expect(FileUtils['normalizePathForOS']('test\\test.txt')).toBe('test/test.txt'.replaceAll(/(\/|\\)/gi, path.sep));
-	// 	});
-	// });
+	describe('isFilePathValid', () => {});
 });

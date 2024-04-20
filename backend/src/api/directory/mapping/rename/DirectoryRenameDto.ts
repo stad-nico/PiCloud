@@ -51,19 +51,17 @@ export class DirectoryRenameDto {
 		const sourcePath = PathUtils.normalizeDirectoryPath(directoryRenameParams.path);
 
 		if (!PathUtils.isDirectoryPathValid(sourcePath)) {
-			throw new ValidationError(`path ${sourcePath} is not a valid directory path`);
+			throw new ValidationError(`path ${directoryRenameParams.path} is not a valid directory path`);
 		}
 
 		const destPath = PathUtils.normalizeDirectoryPath(directoryRenameBody.newPath);
 
 		if (!PathUtils.isDirectoryPathValid(destPath)) {
-			throw new ValidationError(`path ${destPath} is not a valid directory path`);
+			throw new ValidationError(`path ${directoryRenameBody.newPath} is not a valid directory path`);
 		}
 
 		if (path.basename(destPath).length > PathUtils.MaxDirectoryNameLength) {
-			throw new ValidationError(
-				`destination directory name ${path.basename(directoryRenameBody.newPath)} exceeds the file name limit of 128 chars`
-			);
+			throw new ValidationError(`destination directory name ${path.basename(directoryRenameBody.newPath)} exceeds the directory name limit of 128 chars`);
 		}
 
 		return new DirectoryRenameDto(directoryRenameParams.path, directoryRenameBody.newPath);
