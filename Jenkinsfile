@@ -19,7 +19,7 @@ pipeline {
         stage("Backend Unit Tests") {
             steps {
                 dir("backend") {
-                    sh "npm run test:unit"
+                    sh "npm run test:unit:cov"
                 }
             }
 
