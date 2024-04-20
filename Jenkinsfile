@@ -27,7 +27,7 @@ pipeline {
                 always {
                     recordCoverage(
                         enabledForFailure: true,
-                        tools: [[parser: 'COBERTURA']],
+                        tools: [[parser: 'COBERTURA', pattern: 'coverage/cobertura-coverage.xml']],
                         qualityGates: [
                             [criticality: 'NOTE', integerThreshold: 80, metric: 'LINE', threshold: 80.0], 
                             [criticality: 'NOTE', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0]
