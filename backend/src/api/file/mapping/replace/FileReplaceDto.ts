@@ -2,7 +2,6 @@ import * as path from 'path';
 import { Readable } from 'stream';
 
 import { FileReplaceParams } from 'src/api/file/mapping/replace/FileReplaceParams';
-import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 import { ValidationError } from 'src/util/ValidationError';
 
@@ -23,10 +22,6 @@ export class FileReplaceDto {
 	}
 
 	public static from(fileUploadParams: FileReplaceParams, file: Express.Multer.File): FileReplaceDto {
-		if (!FileUtils.isFileValid(file)) {
-			throw new ValidationError(`the given file is not a valid file`);
-		}
-
 		const normalizedPath = PathUtils.normalizeFilePath(fileUploadParams.path);
 
 		if (!PathUtils.isFilePathValid(normalizedPath)) {
@@ -34,7 +29,7 @@ export class FileReplaceDto {
 		}
 
 		if (path.basename(normalizedPath).length > PathUtils.MaxFileNameLength) {
-			throw new ValidationError(`file name ${path.basename(fileUploadParams.path)} exceeds the file name limit of 128 chars`);
+			throw new ValidationError(`file name ${path.basename(fileUploadParams.path)} exceeds the file name limit of ${PathUtils.MaxFileNameLength} chars`);
 		}
 
 		return new FileReplaceDto(normalizedPath, file.mimetype, file.size, file.stream);

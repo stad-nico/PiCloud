@@ -13,11 +13,6 @@ import { Readable } from 'stream';
  * @class
  */
 export class FileUtils {
-	public static isFileValid(file: Express.Multer.File): boolean {
-		//! TODO: implement actual validation
-		return Boolean(file);
-	}
-
 	/**
 	 * Tries to delete the directory recursively.
 	 * Throws an error if it fails.

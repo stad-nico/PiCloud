@@ -12,5 +12,5 @@
 	"coverageDirectory": "../coverage",
 	"testEnvironment": "node",
 	"setupFilesAfterEnv": ["<rootDir>/jest.global.ts"],
-	"coverageReporters": ["text", "cobertura"]
+	"coverageReporters": ["lcov", "cobertura"]
 }

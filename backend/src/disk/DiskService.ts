@@ -10,8 +10,6 @@ import { PathUtils } from 'src/util/PathUtils';
 
 export enum StoragePath {
 	Data = 'data',
-	Bin = 'bin',
-	Temp = 'temp',
 }
 
 /**
@@ -23,12 +21,6 @@ export class DiskService {
 	private readonly logger = new Logger(DiskService.name);
 
 	/**
-	 * The config service for using environment variables.
-	 * @type {ConfigService}
-	 */
-	private readonly configService: ConfigService;
-
-	/**
 	 * The complete, absolute path to the storage location loaded from env.
 	 * @type {string}
 	 */
@@ -38,7 +30,7 @@ export class DiskService {
 	 * Whether the storage location will be removed on application shutdown.
 	 * @type {boolean}
 	 */
-	private shouldCleanupOnShutdown: boolean;
+	private readonly shouldCleanupOnShutdown: boolean;
 
 	/**
 	 * Creates a new DiskService instance.
@@ -48,7 +40,6 @@ export class DiskService {
 	 * @returns {DiskService}                 the DiskService instance
 	 */
 	public constructor(configService: ConfigService) {
-		this.configService = configService;
 		this.storageLocationPath = configService.getOrThrow(Environment.StoragePath);
 		this.shouldCleanupOnShutdown = configService.getOrThrow(Environment.NodeENV) !== NodeEnv.Production;
 	}
@@ -75,9 +66,7 @@ export class DiskService {
 				this.logger.log(`Trying to initialize storage location '${this.storageLocationPath}' ...`);
 
 				await FileUtils.createDirectoryIfNotPresent(this.storageLocationPath);
-				await FileUtils.createDirectoryIfNotPresent(path.join(this.storageLocationPath, StoragePath.Bin));
 				await FileUtils.createDirectoryIfNotPresent(path.join(this.storageLocationPath, StoragePath.Data));
-				await FileUtils.createDirectoryIfNotPresent(path.join(this.storageLocationPath, StoragePath.Temp));
 
 				this.logger.log('Successfully initialized storage location');
 			} catch (e) {

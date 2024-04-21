@@ -29,7 +29,7 @@ export class FileRenameDto {
 
 		if (path.basename(normalizedDestPath).length > PathUtils.MaxFileNameLength) {
 			throw new ValidationError(
-				`destination file name ${path.basename(fileRenameBody.newPath)} exceeds the file name limit of 128 chars`
+				`destination file name ${path.basename(fileRenameBody.newPath)} exceeds the file name limit of ${PathUtils.MaxFileNameLength} chars`
 			);
 		}
 

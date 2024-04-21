@@ -13,7 +13,6 @@ describe('DiskService', () => {
 				{
 					provide: ConfigService,
 					useValue: {
-						get: () => {},
 						getOrThrow: () => {},
 					},
 				},
@@ -24,14 +23,12 @@ describe('DiskService', () => {
 		service = module.get(DiskService);
 	});
 
-	describe('init', () => {});
-
 	describe('formatBytes', () => {
 		it('should return 0 Bytes', () => {
 			expect(service['formatBytes']('f' as any, 0)).toStrictEqual('0 Bytes');
 		});
 
-		it('should take 0 for fixed if decimals is negative', () => {
+		it('should use 0 for fixed if decimals is negative', () => {
 			expect(service['formatBytes'](53464, -1)).toStrictEqual('52 KiB');
 		});
 	});
