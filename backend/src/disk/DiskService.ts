@@ -27,10 +27,10 @@ export class DiskService {
 	private readonly storageLocationPath: string;
 
 	/**
-	 * Whether the storage location will be removed on application shutdown.
-	 * @type {boolean}
+	 * The configService
+	 * @type {ConfigService}
 	 */
-	private readonly shouldCleanupOnShutdown: boolean;
+	private readonly configService: ConfigService;
 
 	/**
 	 * Creates a new DiskService instance.
@@ -40,12 +40,12 @@ export class DiskService {
 	 * @returns {DiskService}                 the DiskService instance
 	 */
 	public constructor(configService: ConfigService) {
+		this.configService = configService;
 		this.storageLocationPath = configService.getOrThrow(Environment.StoragePath);
-		this.shouldCleanupOnShutdown = configService.getOrThrow(Environment.NodeENV) !== NodeEnv.Production;
 	}
 
 	public async beforeApplicationShutdown(): Promise<void> {
-		if (!this.shouldCleanupOnShutdown) {
+		if (this.configService.getOrThrow(Environment.NodeENV) === NodeEnv.Production) {
 			return;
 		}
 
@@ -61,11 +61,14 @@ export class DiskService {
 	}
 
 	private async initStorageLocation(): Promise<void> {
-		if (!(await PathUtils.pathExists(this.storageLocationPath))) {
+		if (!(await PathUtils.pathExists(path.join(this.storageLocationPath, StoragePath.Data)))) {
 			try {
 				this.logger.log(`Trying to initialize storage location '${this.storageLocationPath}' ...`);
 
-				await FileUtils.createDirectoryIfNotPresent(this.storageLocationPath);
+				if (!(await PathUtils.pathExists(this.storageLocationPath))) {
+					await FileUtils.createDirectoryIfNotPresent(this.storageLocationPath);
+				}
+
 				await FileUtils.createDirectoryIfNotPresent(path.join(this.storageLocationPath, StoragePath.Data));
 
 				this.logger.log('Successfully initialized storage location');
@@ -75,7 +78,7 @@ export class DiskService {
 		}
 
 		const stats = await statfs(this.storageLocationPath);
-		const freeSpace = stats.bsize * stats.bfree;
+		const freeSpace = Number(stats.bsize * stats.bfree);
 
 		this.logger.log(`Storage location ${this.storageLocationPath} has ${this.formatBytes(freeSpace)} of free space`);
 	}
