@@ -2,14 +2,15 @@ import { Archiver, ArchiverError, create as createArchiver } from 'archiver';
 import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';
-
-import { ConfigService } from '@nestjs/config';
-import { StoragePath } from 'src/disk/DiskService';
-import { PathUtils } from 'src/util/PathUtils';
 import { Readable } from 'stream';
 
+import { ConfigService } from '@nestjs/config';
+
+import { StoragePath } from 'src/disk/DiskService';
+import { PathUtils } from 'src/util/PathUtils';
+
 /**
- * Utility class for manipulating the file system.
+ * Utility class for operations on the file system.
  * @class
  */
 export class FileUtils {
@@ -40,7 +41,7 @@ export class FileUtils {
 	}
 
 	/**
-	 * Writes a file to the disk.
+	 * Writes a file stream to the disk.
 	 *
 	 * @param {string}   absolutePath     the destination path
 	 * @param {Readable} stream           the file stream
@@ -93,7 +94,7 @@ export class FileUtils {
 	}
 
 	/**
-	 * Creates a stream of a ZIP-Archive.
+	 * Creates a read stream of a ZIP-Archive.
 	 * Each file is loaded from the fs by its id and stored in the archive under its path.
 	 *
 	 * @param   {ConfigService}                       configService the config service

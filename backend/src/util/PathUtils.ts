@@ -11,21 +11,50 @@ import { StoragePath } from 'src/disk/DiskService';
  * @class
  */
 export class PathUtils {
+	/**
+	 * The maximum length of a file name.
+	 * @type {number}
+	 */
 	public static readonly MaxFileNameLength = 128;
 
+	/**
+	 * The maximum length of a directory name.
+	 * @type {number}
+	 */
 	public static readonly MaxDirectoryNameLength = 128;
 
+	/**
+	 * The regular expression string for matching characters.
+	 * Includes umlauts Ä (\u00c4), ä (\u00e4), Ö (\u00d6), ö (\u00f6), Ü (u00dc), ü (u00fc) and ß (\u00df).
+	 * @type {string}
+	 */
 	public static readonly ValidChars = `[a-zA-Z-0-9\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]`;
 
+	/**
+	 * The regular expression string for matching a directory name.
+	 * @type {string}
+	 */
 	public static readonly ValidDirectoryNameRegExp = `([-_.]?${PathUtils.ValidChars})([-_. ]?${PathUtils.ValidChars})*`;
 
+	/**
+	 * The regular expression string for matching a file name.
+	 * @type {string}
+	 */
 	public static readonly ValidFileNameRegExp = `([-_. ]?${PathUtils.ValidChars})*(\\\.${PathUtils.ValidChars}+)`;
 
+	/**
+	 * The regular expression for matching a directory path.
+	 * @type {RegExp}
+	 */
 	public static readonly ValidDirectoryPathRegExp = new RegExp(
 		`^(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\]?)$`,
 		'm'
 	);
 
+	/**
+	 * The regular expression for matching a file path.
+	 * @type {RegExp}
+	 */
 	public static readonly ValidFilePathRegExp = new RegExp(`^(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidFileNameRegExp})$`, 'm');
 
 	/**
@@ -118,8 +147,8 @@ export class PathUtils {
 	 *
 	 * @example
 	 * ```ts
-	 * const uuid = "ded9d04b-b18f-4bce-976d-7a36acb42eb9";
-	 * PathUtils.uuidToDirPath(uuid); // returns "de/d9/d04b-b18f-4bce-976d-7a36acb42eb9"
+	 * const uuid = 'ded9d04b-b18f-4bce-976d-7a36acb42eb9';
+	 * PathUtils.uuidToDirPath(uuid); // returns de/d9/d04b-b18f-4bce-976d-7a36acb42eb9
 	 * ```
 	 *
 	 * @param   {string} uuid the uuid to convert
