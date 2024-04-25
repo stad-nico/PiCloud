@@ -1,11 +1,11 @@
 import { Archiver, ArchiverError, create as createArchiver } from 'archiver';
-import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 import { Readable } from 'stream';
 
 import { ConfigService } from '@nestjs/config';
 
+import { createReadStream } from 'fs';
 import { StoragePath } from 'src/disk/DiskService';
 import { PathUtils } from 'src/util/PathUtils';
 
@@ -49,9 +49,10 @@ export class FileUtils {
 	 */
 	public static async writeFile(absolutePath: string, stream: Readable, recursive: boolean = true): Promise<void> {
 		const normalizedPath = PathUtils.prepareForFS(absolutePath);
-		const parentPath = PathUtils.prepareForFS(path.dirname(normalizedPath));
 
 		if (recursive) {
+			const parentPath = PathUtils.prepareForFS(path.dirname(normalizedPath));
+
 			if (!(await PathUtils.pathExists(parentPath))) {
 				await fsPromises.mkdir(parentPath, { recursive: true });
 			}

@@ -1,18 +1,21 @@
-import * as fs from 'fs/promises';
+import * as fs from 'fs';
+import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { Archiver } from 'archiver';
+import { StoragePath } from 'src/disk/DiskService';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
+import { Readable } from 'stream';
 
-jest.mock('fs/promises', () => ({
-	access: jest.fn(),
-	rm: jest.fn(),
-	mkdir: jest.fn(),
-	writeFile: jest.fn(),
-}));
+const archiver = jest.requireActual('archiver');
+
+// jest.mock('archiver');
+jest.mock('fs');
+jest.mock('fs/promises');
 
 describe('FileUtils', () => {
 	let configService: ConfigService;
@@ -36,25 +39,25 @@ describe('FileUtils', () => {
 	});
 
 	beforeEach(() => {
-		jest.clearAllMocks();
+		jest.resetAllMocks();
 	});
 
 	describe('deleteDirectoryOrFail', () => {
 		it('should throw error if fs.rm throws error', async () => {
 			const error = new Error('test');
-			jest.spyOn(fs, 'rm').mockRejectedValue(error);
+			jest.spyOn(fsPromises, 'rm').mockRejectedValue(error);
 
 			await expect(FileUtils.deleteDirectoryOrFail('')).rejects.toStrictEqual(error);
 
-			expect(fs.rm).toHaveBeenCalledWith('', { recursive: true });
+			expect(fsPromises.rm).toHaveBeenCalledWith('', { recursive: true });
 		});
 
 		it('should not throw error if fs.rm does not throw error', async () => {
-			jest.spyOn(fs, 'rm').mockResolvedValue(undefined);
+			jest.spyOn(fsPromises, 'rm').mockResolvedValue(undefined);
 
 			await expect(FileUtils.deleteDirectoryOrFail('', false)).resolves.not.toThrow();
 
-			expect(fs.rm).toHaveBeenCalledWith('', { recursive: false });
+			expect(fsPromises.rm).toHaveBeenCalledWith('', { recursive: false });
 		});
 	});
 
@@ -64,7 +67,7 @@ describe('FileUtils', () => {
 
 			await FileUtils.createDirectoryIfNotPresent('test');
 
-			expect(fs.mkdir).not.toHaveBeenCalled();
+			expect(fsPromises.mkdir).not.toHaveBeenCalled();
 		});
 
 		it('should create dir if not already present', async () => {
@@ -72,27 +75,125 @@ describe('FileUtils', () => {
 
 			await FileUtils.createDirectoryIfNotPresent('test', false);
 
-			expect(fs.mkdir).toHaveBeenCalled();
+			expect(fsPromises.mkdir).toHaveBeenCalled();
 		});
 	});
 
 	describe('writeFile', () => {
-		it('should recursively create the destination path and succeed writing the file', async () => {
-			const destinationPath = 'test/path/to/file.txt';
-			const buffer = Buffer.from('');
+		it('should not create parent directory if recursive=false', async () => {
+			jest.spyOn(fsPromises, 'writeFile').mockResolvedValueOnce();
+			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
 
-			jest.spyOn(PathUtils, 'pathExists').mockResolvedValue(false);
+			await expect(FileUtils.writeFile('file.txt', Readable.from(Buffer.from('test')), false)).resolves.not.toThrow();
+			expect(mkdirSpy).not.toHaveBeenCalled();
+		});
 
-			await expect(FileUtils.writeFile(destinationPath, buffer)).resolves.not.toThrow();
+		it('should create parent directory if recursive=true', async () => {
+			const filename = 'parent/file.txt';
 
-			expect(fs.mkdir).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(destinationPath)), { recursive: true });
-			expect(fs.writeFile).toHaveBeenCalledWith(PathUtils.prepareForFS(destinationPath), buffer);
+			jest.spyOn(fsPromises, 'writeFile').mockResolvedValueOnce();
+			jest.spyOn(PathUtils, 'pathExists').mockResolvedValueOnce(false);
+			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
+
+			await expect(FileUtils.writeFile(filename, Readable.from(Buffer.from('test')), true)).resolves.not.toThrow();
+			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(filename)), { recursive: true });
+		});
+
+		it('should create parent directory if recursive not given', async () => {
+			const filename = 'parent/file.txt';
+
+			jest.spyOn(fsPromises, 'writeFile').mockResolvedValueOnce();
+			jest.spyOn(PathUtils, 'pathExists').mockResolvedValueOnce(false);
+			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
+
+			await expect(FileUtils.writeFile(filename, Readable.from(Buffer.from('test')))).resolves.not.toThrow();
+			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(filename)), { recursive: true });
 		});
 	});
 
-	describe('copyFile', () => {});
+	describe('copyFile', () => {
+		it('should not create parent directory if recursive=false', async () => {
+			jest.spyOn(fsPromises, 'copyFile').mockResolvedValueOnce();
+			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
 
-	describe('emptyDirectory', () => {});
+			await expect(FileUtils.copyFile('file.txt', 'ttt/file.txt', false)).resolves.not.toThrow();
+			expect(mkdirSpy).not.toHaveBeenCalled();
+		});
 
-	describe('createZIPArchive', () => {});
+		it('should create parent directory if recursive=true', async () => {
+			const destinationPath = 'parent/file.txt';
+
+			jest.spyOn(fsPromises, 'copyFile').mockResolvedValueOnce();
+			jest.spyOn(PathUtils, 'pathExists').mockResolvedValueOnce(false);
+			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
+
+			await expect(FileUtils.copyFile('ttt/file.txt', destinationPath, true)).resolves.not.toThrow();
+			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(destinationPath)), { recursive: true });
+		});
+
+		it('should create parent directory if recursive not given', async () => {
+			const destinationPath = 'parent/file.txt';
+
+			jest.spyOn(fsPromises, 'copyFile').mockResolvedValueOnce();
+			jest.spyOn(PathUtils, 'pathExists').mockResolvedValueOnce(false);
+			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
+
+			await expect(FileUtils.copyFile('ttt/file.txt', destinationPath)).resolves.not.toThrow();
+			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(destinationPath)), { recursive: true });
+		});
+	});
+
+	describe('emptyDirectory', () => {
+		it('should delete everything from the directory', async () => {
+			const dirPath = 'testPath';
+			const items = ['file1', 'dir1', 'file2', 'file3'];
+
+			jest.spyOn(fsPromises, 'readdir').mockResolvedValueOnce(items as any);
+			const rmSpy = jest.spyOn(fsPromises, 'rm');
+
+			await FileUtils.emptyDirectory(dirPath);
+
+			for (let item of items) {
+				expect(rmSpy).toHaveBeenCalledWith(path.join(dirPath, item), { recursive: true });
+			}
+		});
+	});
+
+	describe('createZIPArchive', () => {
+		it('should add all files to the archive and resolve', async () => {
+			const files = [
+				{ id: 'aabbaaaa', path: 'file.txt' },
+				{ id: 'aabbbbbb', path: 'file2.txt' },
+				{ id: 'aabbcccc', path: 'dir/file.txt' },
+			];
+
+			const data = {
+				aabbaaaa: 'testData1',
+				aabbbbbb: 'testData2',
+				aabbcccc: 'testData3',
+			};
+
+			jest.spyOn(PathUtils, 'uuidToDirPath').mockImplementation((uuid: string) => uuid);
+			jest.spyOn(PathUtils, 'join').mockImplementation((cs: ConfigService, path: string, sp: StoragePath) => path);
+			jest.spyOn(fs, 'createReadStream').mockImplementation(((path: string) => (data as any)[path]) as any);
+
+			await expect(FileUtils.createZIPArchive(configService, files)).resolves.not.toThrow();
+		});
+
+		it('should reject if the archiver throws an error', async () => {
+			let archiverInstance: Archiver = undefined as any;
+			const create = archiver.create;
+
+			jest.spyOn(archiver, 'create').mockImplementation(((format: 'zip') => {
+				const archiver_ = create(format);
+				archiverInstance = archiver_;
+				return archiver_;
+			}) as any);
+
+			const result = FileUtils.createZIPArchive(configService, []);
+			archiverInstance.emit('error', 'thisIsAnError');
+
+			await expect(result).rejects.toStrictEqual('thisIsAnError');
+		});
+	});
 });
