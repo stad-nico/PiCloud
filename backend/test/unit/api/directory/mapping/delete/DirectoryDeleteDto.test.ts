@@ -13,10 +13,10 @@ describe('DirectoryDeleteDto', () => {
 	});
 
 	it('should return a dto with the normalized path', () => {
+		jest.spyOn(PathUtils, 'isDirectoryPathValid').mockReturnValue(true);
+
 		const params = { path: 'test/path/to/dir' };
 		const expectedDto = DirectoryDeleteDto.from(params);
-
-		jest.spyOn(PathUtils, 'isDirectoryPathValid').mockReturnValue(true);
 
 		expect(DirectoryDeleteDto.from(params)).toStrictEqual(expectedDto);
 	});

@@ -23,11 +23,11 @@ describe('FileReplaceDto', () => {
 	});
 
 	it('should return a dto with the normalized path', () => {
+		jest.spyOn(PathUtils, 'isFilePathValid').mockReturnValue(true);
+
 		const file = { mimeType: 'text/plain', size: 19, stream: {} };
 		const params = { path: 'test/path/to/dir.txt' };
 		const expectedDto = FileReplaceDto.from(params, file as any);
-
-		jest.spyOn(PathUtils, 'isFilePathValid').mockReturnValue(true);
 
 		expect(FileReplaceDto.from(params, file as any)).toStrictEqual(expectedDto);
 	});

@@ -48,10 +48,10 @@ export class FileUtils {
 	 * @param {boolean}  [recursive=true] whether destination path should be created if it does not exist
 	 */
 	public static async writeFile(absolutePath: string, stream: Readable, recursive: boolean = true): Promise<void> {
-		const normalizedPath = PathUtils.prepareForFS(absolutePath);
+		const normalizedPath = PathUtils.prepareFilePathForFS(absolutePath);
 
 		if (recursive) {
-			const parentPath = PathUtils.prepareForFS(path.dirname(normalizedPath));
+			const parentPath = PathUtils.prepareFilePathForFS(path.dirname(normalizedPath));
 
 			if (!(await PathUtils.pathExists(parentPath))) {
 				await fsPromises.mkdir(parentPath, { recursive: true });
@@ -69,8 +69,8 @@ export class FileUtils {
 	 * @param {boolean} [recursive=true] whether destination path should be created if it does not exist
 	 */
 	public static async copyFile(from: string, to: string, recursive: boolean = true): Promise<void> {
-		const fromNormalized = PathUtils.prepareForFS(from);
-		const toNormalized = PathUtils.prepareForFS(to);
+		const fromNormalized = PathUtils.prepareFilePathForFS(from);
+		const toNormalized = PathUtils.prepareFilePathForFS(to);
 
 		if (recursive) {
 			if (!(await PathUtils.pathExists(path.dirname(toNormalized)))) {
@@ -115,7 +115,7 @@ export class FileUtils {
 			archive.on('finish', successHandler);
 
 			for (const file of files) {
-				const dirPath = PathUtils.join(configService, PathUtils.uuidToDirPath(file.id), StoragePath.Data);
+				const dirPath = PathUtils.join(configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
 				archive.append(createReadStream(dirPath), { name: file.path });
 			}
 

@@ -13,10 +13,10 @@ describe('DirectoryMetadataDto', () => {
 	});
 
 	it('should return a dto with the normalized path', () => {
+		jest.spyOn(PathUtils, 'isDirectoryPathValid').mockReturnValue(true);
+
 		const params = { path: 'test/path/to/dir' };
 		const expectedDto = DirectoryMetadataDto.from(params);
-
-		jest.spyOn(PathUtils, 'isDirectoryPathValid').mockReturnValue(true);
 
 		expect(DirectoryMetadataDto.from(params)).toStrictEqual(expectedDto);
 	});

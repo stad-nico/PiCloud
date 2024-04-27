@@ -60,16 +60,17 @@ export class PathUtils {
 	/**
 	 * Normalizes a directory path by replacing multiple slashes with a single forward slash.
 	 * Leading slashes or dots (`../`, `./`, `/`) are replaced by a single leading slash, a single trailing slash is ensured.
+	 * Relative paths are converted to absolute paths.
 	 *
 	 * @param   {string} pathToNormalize the path to normalize
 	 * @returns {string}                 the normalized path
 	 */
 	public static normalizeDirectoryPath(pathToNormalize: string): string {
-		let result = path.normalize(pathToNormalize + '/');
+		let result = path.normalize('/' + pathToNormalize + '/');
 
 		result = result.replaceAll(/\s+/g, ' ');
-		result = result.replaceAll(/[\/\\]+/g, '/');
 		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '/');
+		result = result.replaceAll(/[\/\\]+/g, '/');
 
 		return result;
 	}
@@ -78,16 +79,17 @@ export class PathUtils {
 	 * Normalizes a file path by replacing multiple slashes with a single forward slash.
 	 * Leading slashes or dots (`../`, `./`, `/`) are replaced by a single leading slash.
 	 * Trailing slashes are removed.
+	 * Relative paths are converted to absolute paths.
 	 *
 	 * @param   {string} pathToNormalize the path to normalize
 	 * @returns {string}                 the normalized path
 	 */
 	public static normalizeFilePath(pathToNormalize: string): string {
-		let result = path.normalize(pathToNormalize);
+		let result = path.normalize('/' + pathToNormalize);
 
 		result = result.replaceAll(/\s+/g, ' ');
-		result = result.replaceAll(/[\/\\]+/g, '/');
 		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '/');
+		result = result.replaceAll(/[\/\\]+/g, '/');
 		result = result.replaceAll(/\/$/g, '');
 
 		return result;
@@ -95,11 +97,12 @@ export class PathUtils {
 
 	/**
 	 * Prepare a path for file system operations by replacing all slashes with one single `/` or `\` depending on the OS.
+	 * Relative paths are converted to absolute paths.
 	 *
 	 * @param   {string} pathToPrepare the path to prepare
 	 * @returns {string}               the prepared path
 	 */
-	public static prepareForFS(pathToPrepare: string): string {
+	public static prepareFilePathForFS(pathToPrepare: string): string {
 		let result = PathUtils.normalizeFilePath(pathToPrepare);
 
 		result = result.replaceAll(/[\/\\]+/g, path.sep);
@@ -131,19 +134,20 @@ export class PathUtils {
 	}
 
 	/**
-	 * Joins a path with the storage location.
+	 * Joins a path with the storage location provided in the env variable `STORAGE_PATH`.
 	 *
-	 * @param   {string} relativePath the path to join
-	 * @returns {string} the absolute joined path
+	 * @param {StoragePath} storagePath  the storage path
+	 * @param      {string} relativePath the path to join
+	 * @returns    {string}              the absolute joined path
 	 */
-	public static join(configService: ConfigService, relativePath: string, storagePath: StoragePath): string {
+	public static join(configService: ConfigService, storagePath: StoragePath, relativePath: string): string {
 		return path.join(configService.getOrThrow(Environment.StoragePath), storagePath, relativePath);
 	}
 
 	/**
 	 * Converts a uuid to a directory path.
-	 * The 1st and 2nd characters specify the name of the first directory,
-	 * 3rd and 4th the name of the second directory and the rest the filename.
+	 * The first and second characters specify the name of the first directory,
+	 * third and fourth the name of the second directory and the rest the filename.
 	 *
 	 * @example
 	 * ```ts

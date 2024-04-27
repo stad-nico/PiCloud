@@ -103,7 +103,7 @@ export class FileService implements IFileService {
 			const fileName = path.basename(fileUploadDto.path);
 			const result = await this.fileRepository.insertReturningId(entityManager, fileName, fileUploadDto.mimeType, fileUploadDto.size, parentId);
 
-			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
+			const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(result.id));
 			await FileUtils.writeFile(resolvedPath, fileUploadDto.stream);
 
 			return FileUploadResponse.from(fileUploadDto.path);
@@ -142,7 +142,7 @@ export class FileService implements IFileService {
 				parentDirectory.id
 			);
 
-			const resolvedPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(result.id), StoragePath.Data);
+			const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(result.id));
 			await FileUtils.writeFile(resolvedPath, fileReplaceDto.stream);
 
 			return FileReplaceResponse.from(fileReplaceDto.path);
@@ -189,7 +189,7 @@ export class FileService implements IFileService {
 				throw new ServerError(`file ${fileDownloadDto.path} does not exist`, HttpStatus.NOT_FOUND);
 			}
 
-			const diskPath = PathUtils.join(this.configService, PathUtils.uuidToDirPath(fileToDownload.id), StoragePath.Data);
+			const diskPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(fileToDownload.id));
 
 			return FileDownloadResponse.from(fileToDownload.name, fileToDownload.mimeType, createReadStream(diskPath));
 		});

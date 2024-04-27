@@ -1,9 +1,13 @@
-import * as fs from 'fs/promises';
+import * as fsPromises from 'fs/promises';
+import * as path from 'path';
 
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { StoragePath } from 'src/disk/DiskService';
 import { PathUtils } from 'src/util/PathUtils';
+
+jest.mock('fs/promises');
 
 describe('PathUtils', () => {
 	let configService: ConfigService;
@@ -26,23 +30,87 @@ describe('PathUtils', () => {
 		configService = module.get(ConfigService);
 	});
 
-	describe('normalizeDirectoryPath', () => {});
+	beforeEach(() => {
+		jest.resetAllMocks();
+	});
 
-	describe('normalizeFilePath', () => {});
+	describe('normalizeDirectoryPath', () => {
+		it('should replace all backslashes with a single forward slash', () => {
+			expect(PathUtils.normalizeDirectoryPath('\\\\test\\\\path\\to\\dir\\\\')).toStrictEqual('/test/path/to/dir/');
+		});
 
-	describe('prepareForFS', () => {});
+		it('should replace leading dots', () => {
+			expect(PathUtils.normalizeDirectoryPath('.///test//path/to/dir///')).toStrictEqual('/test/path/to/dir/');
+			expect(PathUtils.normalizeDirectoryPath('..///test//path/to/dir///')).toStrictEqual('/test/path/to/dir/');
+		});
+
+		it('should ensure trailing slash', () => {
+			expect(PathUtils.normalizeDirectoryPath('//test/dir//to///path')).toStrictEqual('/test/dir/to/path/');
+		});
+
+		it('should ensure leading slash', () => {
+			expect(PathUtils.normalizeDirectoryPath('test/dir//to///path')).toStrictEqual('/test/dir/to/path/');
+		});
+	});
+
+	describe('normalizeFilePath', () => {
+		it('should replace all backslashes with a single forward slash', () => {
+			expect(PathUtils.normalizeFilePath('\\\\test\\\\path\\to\\file.txt\\\\')).toStrictEqual('/test/path/to/file.txt');
+		});
+
+		it('should replace leading dots', () => {
+			expect(PathUtils.normalizeFilePath('.///test//path/to/file.txt')).toStrictEqual('/test/path/to/file.txt');
+			expect(PathUtils.normalizeFilePath('..///test//path/to/file.txt')).toStrictEqual('/test/path/to/file.txt');
+		});
+
+		it('should remove trailing slashes', () => {
+			expect(PathUtils.normalizeFilePath('//test/path//to///file.txt//')).toStrictEqual('/test/path/to/file.txt');
+		});
+
+		it('should ensure leading slash', () => {
+			expect(PathUtils.normalizeFilePath('test/path//to///file.txt//')).toStrictEqual('/test/path/to/file.txt');
+		});
+	});
+
+	describe('prepareFilePathForFS', () => {
+		it('should replace forward slashes with `path.sep`', () => {
+			const expectedPath = path.sep + 'test' + path.sep + 'path' + path.sep + 'to' + path.sep + 'file.txt';
+
+			expect(PathUtils.prepareFilePathForFS('///test//path//to///file.txt')).toStrictEqual(expectedPath);
+		});
+
+		it('should replace backward slashes with `path.sep`', () => {
+			const expectedPath = path.sep + 'test' + path.sep + 'path' + path.sep + 'to' + path.sep + 'file.txt';
+
+			expect(PathUtils.prepareFilePathForFS('\\\\test\\\\path\\to\\\\\\file.txt')).toStrictEqual(expectedPath);
+		});
+
+		it('should ensure leading slash', () => {
+			const expectedPath = path.sep + 'test' + path.sep + 'path' + path.sep + 'to' + path.sep + 'file.txt';
+
+			expect(PathUtils.prepareFilePathForFS('test\\\\path\\to\\\\\\file.txt')).toStrictEqual(expectedPath);
+			expect(PathUtils.prepareFilePathForFS('test//path///to///file.txt')).toStrictEqual(expectedPath);
+		});
+
+		it('should remove trailing slashes', () => {
+			const expectedPath = path.sep + 'test' + path.sep + 'path' + path.sep + 'to' + path.sep + 'file.txt';
+
+			expect(PathUtils.prepareFilePathForFS('test\\\\path\\to\\\\\\file.txt\\\\')).toStrictEqual(expectedPath);
+			expect(PathUtils.prepareFilePathForFS('test//path///to///file.txt//')).toStrictEqual(expectedPath);
+		});
+	});
 
 	describe('pathExists', () => {
 		it('should return false because file does not exist', async () => {
-			(fs.access as jest.Mock).mockRejectedValue(new Error());
+			jest.spyOn(fsPromises, 'access').mockRejectedValueOnce(new Error());
 
-			await expect(PathUtils.pathExists('t.txt')).resolves.toBe(false);
+			await expect(PathUtils.pathExists('test')).resolves.toBe(false);
 		});
 
 		it('should return true because file exists', async () => {
-			(fs.access as jest.Mock).mockResolvedValue(undefined);
+			jest.spyOn(fsPromises, 'access').mockResolvedValue(undefined);
 
-			await expect(PathUtils.pathExists('C:')).resolves.toBe(true);
+			await expect(PathUtils.pathExists('test')).resolves.toBe(true);
 		});
 	});
 
@@ -66,9 +134,17 @@ describe('PathUtils', () => {
 		});
 	});
 
-	describe('join', () => {});
+	describe('join', () => {
+		it(`should join the path with the environment variable and 'data'`, async () => {
+			expect(PathUtils.join(configService, StoragePath.Data, 'path')).toStrictEqual('test' + path.sep + StoragePath.Data + path.sep + 'path');
+		});
+	});
 
-	describe('uuidToDirPath', () => {});
+	describe('uuidToDirPath', () => {
+		it('should convert uuid to directory path', () => {
+			expect(PathUtils.uuidToDirPath('ded9d04b-b18f-4bce-976d-7a36acb42eb9')).toStrictEqual('de/d9/d04b-b18f-4bce-976d-7a36acb42eb9');
+		});
+	});
 
 	describe('isDirectoryPathValid', () => {});
 

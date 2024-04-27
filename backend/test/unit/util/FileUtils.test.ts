@@ -96,7 +96,7 @@ describe('FileUtils', () => {
 			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
 
 			await expect(FileUtils.writeFile(filename, Readable.from(Buffer.from('test')), true)).resolves.not.toThrow();
-			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(filename)), { recursive: true });
+			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareFilePathForFS(path.dirname(filename)), { recursive: true });
 		});
 
 		it('should create parent directory if recursive not given', async () => {
@@ -107,7 +107,7 @@ describe('FileUtils', () => {
 			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
 
 			await expect(FileUtils.writeFile(filename, Readable.from(Buffer.from('test')))).resolves.not.toThrow();
-			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(filename)), { recursive: true });
+			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareFilePathForFS(path.dirname(filename)), { recursive: true });
 		});
 	});
 
@@ -128,7 +128,7 @@ describe('FileUtils', () => {
 			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
 
 			await expect(FileUtils.copyFile('ttt/file.txt', destinationPath, true)).resolves.not.toThrow();
-			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(destinationPath)), { recursive: true });
+			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareFilePathForFS(path.dirname(destinationPath)), { recursive: true });
 		});
 
 		it('should create parent directory if recursive not given', async () => {
@@ -139,7 +139,7 @@ describe('FileUtils', () => {
 			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
 
 			await expect(FileUtils.copyFile('ttt/file.txt', destinationPath)).resolves.not.toThrow();
-			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareForFS(path.dirname(destinationPath)), { recursive: true });
+			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareFilePathForFS(path.dirname(destinationPath)), { recursive: true });
 		});
 	});
 
@@ -174,7 +174,7 @@ describe('FileUtils', () => {
 			};
 
 			jest.spyOn(PathUtils, 'uuidToDirPath').mockImplementation((uuid: string) => uuid);
-			jest.spyOn(PathUtils, 'join').mockImplementation((cs: ConfigService, path: string, sp: StoragePath) => path);
+			jest.spyOn(PathUtils, 'join').mockImplementation((cs: ConfigService, sp: StoragePath, path: string) => path);
 			jest.spyOn(fs, 'createReadStream').mockImplementation(((path: string) => (data as any)[path]) as any);
 
 			await expect(FileUtils.createZIPArchive(configService, files)).resolves.not.toThrow();
