@@ -1,11 +1,19 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger } from 'src/logging/InjectLogger';
-import { AppModule } from './api/app.module';
+
+import { ConfigService } from '@nestjs/config';
+import { configureApplication } from 'src/config/AppConfig';
+import { Environment } from 'src/config/EnvConfig';
+import { AppModule } from './AppModule';
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule, {
-		logger: Logger,
+	const application = await NestFactory.create(AppModule, {
+		bufferLogs: true,
 	});
-	await app.listen(3000);
+
+	configureApplication(application);
+
+	const configService = application.get(ConfigService)
+	await application.listen(+configService.get(Environment.Port || 3000));
 }
+
 bootstrap();

@@ -1,0 +1,16 @@
+{
+	"moduleFileExtensions": ["js", "json", "ts"],
+	"rootDir": ".",
+	"roots": ["test/unit"],
+	"modulePaths": ["<rootDir>"],
+	"moduleDirectories": ["node_modules", "src"],
+	"testRegex": ".*\\.(spec|test)\\.ts$",
+	"transform": {
+		"^.+\\.(t|j)s$": ["ts-jest"]
+	},
+	"collectCoverageFrom": ["**/*.(t|j)s"],
+	"coverageDirectory": "../coverage",
+	"testEnvironment": "node",
+	"setupFilesAfterEnv": ["<rootDir>/jest.global.js"],
+	"coverageReporters": ["lcov", "cobertura"]
+}
