@@ -1,3 +1,9 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { createReadStream } from 'fs';
 import * as path from 'path';
 

@@ -1,4 +1,11 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { Entity, ManyToOne, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+
 import { Directory } from 'src/db/entities/Directory';
 
 export const TREE_TABLE_NAME = 'tree';

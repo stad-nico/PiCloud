@@ -1,5 +1,11 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
+import { DirectoryMetadataParams } from 'src/api/directory/mapping/metadata/DirectoryMetadataParams';
 import { PathUtils } from 'src/util/PathUtils';
-import { DirectoryMetadataParams } from './DirectoryMetadataParams';
 
 /**
  * DTO for bundling the http request data.

@@ -1,6 +1,13 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
+import { ValidationError } from 'class-validator';
+
 import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ValidationError } from 'class-validator';
 
 import { HttpExceptionFilter } from 'src/api/HttpExceptionFilter';
 import { TestValidationPipe } from 'src/api/TestValidationPipe';

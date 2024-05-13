@@ -1,3 +1,9 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { DirectoryContentDto, DirectoryContentResponse } from 'src/api/directory/mapping/content';
 import { DirectoryCreateDto, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
 import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete';

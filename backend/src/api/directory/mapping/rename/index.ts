@@ -1,6 +1,12 @@
-import { DirectoryRenameBody } from 'src/api/directory/mapping/rename/DirectoryRenameBody';
-import { DirectoryRenameDto } from 'src/api/directory/mapping/rename/DirectoryRenameDto';
-import { DirectoryRenameParams } from 'src/api/directory/mapping/rename/DirectoryRenameParams';
-import { DirectoryRenameResponse } from 'src/api/directory/mapping/rename/DirectoryRenameResponse';
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
+import { DirectoryRenameBody } from './DirectoryRenameBody';
+import { DirectoryRenameDto } from './DirectoryRenameDto';
+import { DirectoryRenameParams } from './DirectoryRenameParams';
+import { DirectoryRenameResponse } from './DirectoryRenameResponse';
 
 export { DirectoryRenameBody, DirectoryRenameDto, DirectoryRenameParams, DirectoryRenameResponse };

@@ -1,3 +1,9 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { ILogger } from 'src/logging/ILogger';
 
 export class NotifyingLoggerWithContext implements ILogger {
@@ -14,7 +20,7 @@ export class NotifyingLoggerWithContext implements ILogger {
 	debug(message: string, context: string): void;
 	debug(message: string, context?: string): void {
 		for (const logger of this.loggersToNotify) {
-			logger.debug(message, context ? context : this.context);
+			logger.debug(message, context ?? this.context);
 		}
 	}
 
@@ -22,7 +28,7 @@ export class NotifyingLoggerWithContext implements ILogger {
 	log(message: string, context: string): void;
 	log(message: string, context?: string): void {
 		for (const logger of this.loggersToNotify) {
-			logger.log(message, context ? context : this.context);
+			logger.log(message, context ?? this.context);
 		}
 	}
 
@@ -30,7 +36,7 @@ export class NotifyingLoggerWithContext implements ILogger {
 	warn(message: string, context: string): void;
 	warn(message: string, context?: string): void {
 		for (const logger of this.loggersToNotify) {
-			logger.warn(message, context ? context : this.context);
+			logger.warn(message, context ?? this.context);
 		}
 	}
 
@@ -38,7 +44,7 @@ export class NotifyingLoggerWithContext implements ILogger {
 	error(message: string, context: string): void;
 	error(message: string, context?: string): void {
 		for (const logger of this.loggersToNotify) {
-			logger.error(message, context ? context : this.context);
+			logger.error(message, context ?? this.context);
 		}
 	}
 
@@ -46,7 +52,7 @@ export class NotifyingLoggerWithContext implements ILogger {
 	fatal(message: string, context: string): void;
 	fatal(message: string, context?: string): void {
 		for (const logger of this.loggersToNotify) {
-			logger.fatal(message, context ? context : this.context);
+			logger.fatal(message, context ?? this.context);
 		}
 	}
 

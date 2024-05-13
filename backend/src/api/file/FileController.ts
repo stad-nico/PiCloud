@@ -1,3 +1,9 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { Response } from 'express';
 
 import {
@@ -18,8 +24,8 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-
 import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+
 import { IFileService } from 'src/api/file/IFileService';
 import { FileDeleteDto, FileDeleteParams } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadParams } from 'src/api/file/mapping/download';

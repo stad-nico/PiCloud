@@ -1,3 +1,9 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -8,10 +14,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
 		const response = ctx.getResponse<Response>();
 		const status = exception.getStatus();
 
-		// if (status === HttpStatus.BAD_REQUEST) {
 		return response.status(status).json({ message: (exception.getResponse() as any)['message']! });
-		// }
-
-		// return response.status(status).end();
 	}
 }

@@ -1,11 +1,17 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { Archiver, ArchiverError, create as createArchiver } from 'archiver';
+import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 import { Readable } from 'stream';
 
 import { ConfigService } from '@nestjs/config';
 
-import { createReadStream } from 'fs';
 import { StoragePath } from 'src/disk/DiskService';
 import { PathUtils } from 'src/util/PathUtils';
 

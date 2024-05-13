@@ -1,3 +1,9 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { Response } from 'express';
 
 import { Body, Controller, Delete, Get, HttpException, Inject, Logger, Param, Patch, Post, Res, StreamableFile } from '@nestjs/common';

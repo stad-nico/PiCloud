@@ -1,7 +1,14 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { EntityManager } from '@mikro-orm/mariadb';
+
 import { IFileRepository } from 'src/api/file/IFileRepository';
 import { FILES_TABLE_NAME, File } from 'src/db/entities/File';
-import { PathUtils } from './../../util/PathUtils';
+import { PathUtils } from 'src/util/PathUtils';
 
 type Additional = {
 	count: number;
