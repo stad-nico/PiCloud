@@ -1,13 +1,71 @@
-import { Directory } from 'src/db/entities/Directory';
-import { File } from 'src/db/entities/File';
+import { ApiProperty } from '@nestjs/swagger';
 
-export type DirectoryContentDirectoryType = Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & { size: number };
-export type DirectoryContentFileType = Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>;
+export class DirectoryContentFile {
+	/**
+	 * The name of the file.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The name of the file', type: 'string', example: 'file.txt' })
+	readonly name!: string;
 
-export type DirectoryContentResponseType = {
-	files: DirectoryContentFileType[];
-	directories: DirectoryContentDirectoryType[];
-};
+	/**
+	 * The mime type of the file.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The mime type of the file', type: 'string', format: 'MimeType', example: 'text/plain' })
+	readonly mimeType!: string;
+
+	/**
+	 * The size of the file.
+	 * @type {number}
+	 */
+	@ApiProperty({ description: 'The size of the file in bytes', type: 'number', example: 1193982 })
+	readonly size!: number;
+
+	/**
+	 * The creation date of the file.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The date the file was created', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
+	readonly createdAt!: string;
+
+	/**
+	 * The date the file was last modified.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The date the file was last modified', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
+	readonly updatedAt!: string;
+}
+
+export class DirectoryContentDirectory {
+	/**
+	 * The name of the directory.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The name of the directory', type: 'string', example: 'photos' })
+	readonly name!: string;
+
+	/**
+	 * The size of the directory.
+	 * @type {number}
+	 */
+	@ApiProperty({ description: 'The size of the directory in bytes', type: 'number', example: 1193982 })
+	readonly size!: number;
+
+	/**
+	 * The creation date of the directory.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The date the directory was created', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
+	readonly createdAt!: string;
+
+	/**
+	 * The date the directory was last modified.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The date the directory was last modified', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
+	readonly updatedAt!: string;
+}
 
 /**
  * Class representing the json http response.
@@ -16,25 +74,27 @@ export type DirectoryContentResponseType = {
 export class DirectoryContentResponse {
 	/**
 	 * The files the directory contains.
-	 * @type {DirectoryContentFileType[]}
+	 * @type {DirectoryContentFile[]}
 	 */
-	readonly files: DirectoryContentFileType[];
+	@ApiProperty({ type: [DirectoryContentFile] })
+	readonly files: DirectoryContentFile[];
 
 	/**
 	 * The subdirectories the directory contains.
 	 * @type {DirectoryContentDirectoryType[]}
 	 */
-	readonly directories: DirectoryContentDirectoryType[];
+	@ApiProperty({ type: [DirectoryContentDirectory] })
+	readonly directories: DirectoryContentDirectory[];
 
 	/**
 	 * Creates a new DirectoryContentResponse instance.
 	 * @private @constructor
 	 *
-	 * @param   {DirectoryContentFileType[]}      files       the files
+	 * @param   {DirectoryContentFile[]}      files       the files
 	 * @param   {DirectoryContentDirectoryType[]} directories the directories
 	 * @returns {DirectoryContentResponse}                    the DirectoryContentResponse instance
 	 */
-	private constructor(files: DirectoryContentFileType[], directories: DirectoryContentDirectoryType[]) {
+	private constructor(files: DirectoryContentFile[], directories: DirectoryContentDirectory[]) {
 		this.files = files;
 		this.directories = directories;
 	}
@@ -43,10 +103,10 @@ export class DirectoryContentResponse {
 	 * Creates a new DirectoryContentResponse instance from the content.
 	 * @public @static
 	 *
-	 * @param   {DirectoryContentResponseType} content the files and subdirectories
+	 * @param   {DirectoryContentResponse} content the files and subdirectories
 	 * @returns {DirectoryContentResponse}             the DirectoryContentResponse instance
 	 */
-	public static from(content: DirectoryContentResponseType) {
+	public static from(content: DirectoryContentResponse) {
 		return new DirectoryContentResponse(content.files, content.directories);
 	}
 }

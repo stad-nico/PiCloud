@@ -1,6 +1,5 @@
 import { DirectoryContentParams } from 'src/api/directory/mapping/content/DirectoryContentParams';
 import { PathUtils } from 'src/util/PathUtils';
-import { ValidationError } from 'src/util/ValidationError';
 
 /**
  * DTO for bundling the http request data.
@@ -26,10 +25,7 @@ export class DirectoryContentDto {
 
 	/**
 	 * Creates a new DirectoryContentDto instance from the http params.
-	 * Throws if the given params are not valid.
 	 * @public @static
-	 *
-	 * @throws  {ValidationError} path must be a valid directory path
 	 *
 	 * @param   {DirectoryContentParams} directoryContentParams the http params
 	 * @returns {DirectoryContentDto}                           the DirectoryContentDto instance
@@ -37,10 +33,6 @@ export class DirectoryContentDto {
 	public static from(directoryContentParams: DirectoryContentParams) {
 		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryContentParams.path);
 
-		if (!PathUtils.isDirectoryPathValid(normalizedPath)) {
-			throw new ValidationError(`path ${directoryContentParams.path} is not a valid directory path`);
-		}
-
-		return new DirectoryContentDto(directoryContentParams.path);
+		return new DirectoryContentDto(normalizedPath);
 	}
 }

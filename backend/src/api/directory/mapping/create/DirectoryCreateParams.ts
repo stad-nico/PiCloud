@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { Matches } from 'class-validator';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**
@@ -10,9 +11,12 @@ export class DirectoryCreateParams {
 	 * The path of the directory to create.
 	 * @type {string}
 	 */
-	@IsNotEmpty()
-	@IsString()
-	@Matches(PathUtils.ValidDirectoryPathRegExp, { message: 'path must be a valid directory path' })
+	@Matches(PathUtils.ValidDirectoryPathRegExp)
+	@ApiProperty({
+		example: '/path/to/directory',
+		description: 'The path of the directory to create',
+		pattern: `${PathUtils.ValidDirectoryPathRegExp}`,
+	})
 	readonly path: string;
 
 	/**

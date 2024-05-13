@@ -1,17 +1,13 @@
 import { EntityManager } from '@mikro-orm/mariadb';
+import { DirectoryContentResponse } from 'src/api/directory/mapping/content';
 
 import { Directory } from 'src/db/entities/Directory';
 import { File } from 'src/db/entities/File';
 
-export type DirectoryGetMetadataDBResult = Omit<Directory, 'parent'> & {
+export type DirectoryGetMetadataDBResult = Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & {
 	size: number;
 	files: number;
 	directories: number;
-};
-
-export type DirectoryGetContentDBResult = {
-	files: Array<Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>>;
-	directories: Array<Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & { size: number }>;
 };
 
 export const IDirectoryRepository = Symbol('IDirectoryRepository');
@@ -73,7 +69,7 @@ export interface IDirectoryRepository {
 	 * @param   {string}                                      path          the path of the directory
 	 * @returns {Promise<DirectoryGetContentDBResult | null>}               the result
 	 */
-	getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult>;
+	getContent(entityManager: EntityManager, path: string): Promise<DirectoryContentResponse>;
 
 	/**
 	 * Selects the path and id of all non deleted files inside a non deleted directory by the path of the root directory.

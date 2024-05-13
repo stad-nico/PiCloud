@@ -2,8 +2,9 @@ import * as path from 'path';
 
 import { DirectoryRenameBody } from 'src/api/directory/mapping/rename/DirectoryRenameBody';
 import { DirectoryRenameParams } from 'src/api/directory/mapping/rename/DirectoryRenameParams';
+import { DirectoryNameTooLongException } from 'src/exceptions/DirectoryNameTooLongException';
+import { InvalidDirectoryPathException } from 'src/exceptions/InvalidDirectoryPathException';
 import { PathUtils } from 'src/util/PathUtils';
-import { ValidationError } from 'src/util/ValidationError';
 
 /**
  * DTO for bundling the http request data.
@@ -37,11 +38,11 @@ export class DirectoryRenameDto {
 
 	/**
 	 * Creates a new DirectoryRenameDto instance from the http params.
-	 * Throws if the given params are not valid.
+	 * Throws if the path is not valid or the directory name is too long.
 	 * @public @static
 	 *
-	 * @throws  {ValidationError} sourcePath must be a valid directory path
-	 * @throws  {ValidationError} destPath must be a valid directory path
+	 * @throws  {InvalidDirectoryPathException} if the directory path is invalid
+	 * @throws  {DirectoryNameTooLongException} if the directory name is too long
 	 *
 	 * @param   {DirectoryRenameParams} directoryRenameParams the http params
 	 * @param   {DirectoryRenameBody}   directoryRenameBody   the http request body
@@ -50,20 +51,16 @@ export class DirectoryRenameDto {
 	public static from(directoryRenameParams: DirectoryRenameParams, directoryRenameBody: DirectoryRenameBody): DirectoryRenameDto {
 		const sourcePath = PathUtils.normalizeDirectoryPath(directoryRenameParams.path);
 
-		if (!PathUtils.isDirectoryPathValid(sourcePath)) {
-			throw new ValidationError(`path ${directoryRenameParams.path} is not a valid directory path`);
-		}
-
 		const destPath = PathUtils.normalizeDirectoryPath(directoryRenameBody.newPath);
 
 		if (!PathUtils.isDirectoryPathValid(destPath)) {
-			throw new ValidationError(`path ${directoryRenameBody.newPath} is not a valid directory path`);
+			throw new InvalidDirectoryPathException(directoryRenameBody.newPath);
 		}
 
 		if (path.basename(destPath).length > PathUtils.MaxDirectoryNameLength) {
-			throw new ValidationError(`destination directory name ${path.basename(directoryRenameBody.newPath)} exceeds the directory name limit of 128 chars`);
+			throw new DirectoryNameTooLongException(directoryRenameBody.newPath);
 		}
 
-		return new DirectoryRenameDto(directoryRenameParams.path, directoryRenameBody.newPath);
+		return new DirectoryRenameDto(sourcePath, destPath);
 	}
 }

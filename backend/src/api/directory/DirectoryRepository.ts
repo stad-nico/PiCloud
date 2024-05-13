@@ -1,7 +1,8 @@
 import { EntityManager } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
 
-import { DirectoryGetContentDBResult, DirectoryGetMetadataDBResult, IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
+import { DirectoryGetMetadataDBResult, IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
+import { DirectoryContentResponse } from 'src/api/directory/mapping/content';
 import { DIRECTORY_TABLE_NAME, Directory } from 'src/db/entities/Directory';
 import { FILES_TABLE_NAME, File } from 'src/db/entities/File';
 import { TREE_TABLE_NAME } from 'src/db/entities/Tree';
@@ -54,7 +55,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 	public async getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null> {
 		const [rows] = await entityManager
 			.getKnex()
-			.raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'files' | 'directories' | 'createdAt' | 'updatedAt'>[]]>(
+			.raw<[Pick<Directory & Additional, 'name' | 'size' | 'files' | 'directories' | 'createdAt' | 'updatedAt'>[]]>(
 				`WITH filesAmt AS (
 				 	 SELECT COUNT(*) as filesAmt
 				     FROM ${FILES_TABLE_NAME}
@@ -73,7 +74,7 @@ export class DirectoryRepository implements IDirectoryRepository {
 						 WHERE parentId = GET_DIRECTORY_UUID(:path)
 					 )
 				 )
-				 SELECT id, name, GET_DIRECTORY_SIZE(id) AS size, 
+				 SELECT name, GET_DIRECTORY_SIZE(id) AS size, 
 			    	    filesAmt as files, directoriesAmt as directories, createdAt, updatedAt
 				 FROM ${DIRECTORY_TABLE_NAME}
 				 INNER JOIN filesAmt
@@ -97,26 +98,20 @@ export class DirectoryRepository implements IDirectoryRepository {
 		};
 	}
 
-	public async getContent(entityManager: EntityManager, path: string): Promise<DirectoryGetContentDBResult> {
+	public async getContent(entityManager: EntityManager, path: string): Promise<DirectoryContentResponse> {
 		const [files] = await entityManager
 			.getKnex()
-			.raw<[Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
+			.raw<[(Pick<File, 'name' | 'mimeType' | 'size'> & { createdAt: string; updatedAt: string })[]]>(
 				// prettier-ignore
-				`SELECT id, name, mimeType, size, createdAt, updatedAt FROM ${FILES_TABLE_NAME} WHERE parentId = GET_DIRECTORY_UUID(:path)`,
+				`SELECT name, mimeType, size, createdAt, updatedAt FROM ${FILES_TABLE_NAME} WHERE parentId = GET_DIRECTORY_UUID(:path)`,
 				{ path: PathUtils.normalizeDirectoryPath(path) }
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const mappedFiles = files!.map((file) => ({
-			...file,
-			createdAt: new Date(Date.parse(file.createdAt as unknown as string)),
-			updatedAt: new Date(Date.parse(file.updatedAt as unknown as string)),
-		}));
-
 		const [directories] = await entityManager
 			.getKnex()
-			.raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'createdAt' | 'updatedAt'>[]]>(
-				`SELECT id, name, GET_DIRECTORY_SIZE(id) AS size, createdAt, updatedAt
+			.raw<[(Pick<Directory & Additional, 'name' | 'size'> & { createdAt: string; updatedAt: string })[]]>(
+				`SELECT name, GET_DIRECTORY_SIZE(id) AS size, createdAt, updatedAt
 				 FROM ${DIRECTORY_TABLE_NAME}
 				 WHERE parentId = GET_DIRECTORY_UUID(:path)
 				`,
@@ -124,15 +119,9 @@ export class DirectoryRepository implements IDirectoryRepository {
 			)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const mappedDirectories = directories!.map((directory) => ({
-			...directory,
-			createdAt: new Date(Date.parse(directory.createdAt as unknown as string)),
-			updatedAt: new Date(Date.parse(directory.updatedAt as unknown as string)),
-		}));
-
 		return {
-			files: mappedFiles,
-			directories: mappedDirectories,
+			files: files!,
+			directories: directories!,
 		};
 	}
 

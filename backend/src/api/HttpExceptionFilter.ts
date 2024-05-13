@@ -8,6 +8,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
 		const response = ctx.getResponse<Response>();
 		const status = exception.getStatus();
 
-		response.status(status).json(exception.getResponse());
+		// if (status === HttpStatus.BAD_REQUEST) {
+		return response.status(status).json({ message: (exception.getResponse() as any)['message']! });
+		// }
+
+		// return response.status(status).end();
 	}
 }

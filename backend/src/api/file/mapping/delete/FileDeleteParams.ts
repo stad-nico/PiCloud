@@ -1,12 +1,25 @@
-import { Matches } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * Class representing the http request url params.
+ * @class
+ */
 export class FileDeleteParams {
-	@Matches(/^(([^<>.|\/\\:"?]|\.(?!\.))+\/)*([^<>|.\/\\:"?]+(\.[^<>|.\/\\:"?]+)+)$/im, {
-		message: '$property must be a valid file path',
-	})
+	/**
+	 * The path of the file to delete.
+	 * @type {string}
+	 */
+	@ApiProperty({ example: '/path/to/file.txt', description: 'The path of the file to delete' })
 	readonly path: string;
 
-	public constructor(path: string) {
+	/**
+	 * Creates a new FileDeleteParams instance.
+	 * @private @constructor
+	 *
+	 * @param   {string}                path the path of the file
+	 * @returns {FileDeleteParams}           the FileDeleteParams instance
+	 */
+	private constructor(path: string) {
 		this.path = path;
 	}
 }

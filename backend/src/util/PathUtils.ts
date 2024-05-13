@@ -15,13 +15,13 @@ export class PathUtils {
 	 * The maximum length of a file name.
 	 * @type {number}
 	 */
-	public static readonly MaxFileNameLength = 128;
+	public static readonly MaxFileNameLength = 64;
 
 	/**
 	 * The maximum length of a directory name.
 	 * @type {number}
 	 */
-	public static readonly MaxDirectoryNameLength = 128;
+	public static readonly MaxDirectoryNameLength = 64;
 
 	/**
 	 * The regular expression string for matching characters.
@@ -47,7 +47,7 @@ export class PathUtils {
 	 * @type {RegExp}
 	 */
 	public static readonly ValidDirectoryPathRegExp = new RegExp(
-		`^(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\]?)$`,
+		`^([\\/\\\\]?root[\\/\\\\]?|[\\/\\\\]?root[\\/\\\\]?(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\]?))$`,
 		'm'
 	);
 
@@ -55,7 +55,10 @@ export class PathUtils {
 	 * The regular expression for matching a file path.
 	 * @type {RegExp}
 	 */
-	public static readonly ValidFilePathRegExp = new RegExp(`^(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidFileNameRegExp})$`, 'm');
+	public static readonly ValidFilePathRegExp = new RegExp(
+		`^[\\/\\\\]?root[\\/\\\\]?(${PathUtils.ValidDirectoryNameRegExp}[\\/\\\\])*(${PathUtils.ValidFileNameRegExp})$`,
+		'm'
+	);
 
 	/**
 	 * Normalizes a directory path by replacing multiple slashes with a single forward slash.

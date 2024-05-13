@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**
@@ -9,6 +10,7 @@ export class DirectoryRenameResponse {
 	 * The path of the directory after renaming.
 	 * @type {string}
 	 */
+	@ApiProperty({ description: 'The path of the directory after renaming', example: '/new/path/to/directory' })
 	readonly path: string;
 
 	/**

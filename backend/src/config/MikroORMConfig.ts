@@ -1,10 +1,12 @@
+import { config } from 'dotenv';
+
 import { EntityCaseNamingStrategy, MariaDbDriver, defineConfig } from '@mikro-orm/mariadb';
+
 import { Migrator } from '@mikro-orm/migrations';
 import { SeedManager } from '@mikro-orm/seeder';
-import { config } from 'dotenv';
 import { Environment } from './EnvConfig';
 
-config({ path: `../${process.env.NODE_ENV}.env` });
+config({ path: `${process.env.NODE_ENV}.env` });
 
 export default defineConfig({
 	driver: MariaDbDriver,

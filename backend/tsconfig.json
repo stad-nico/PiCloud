@@ -9,8 +9,8 @@
 		"target": "ES2021",
 		"sourceMap": true,
 		"outDir": "dist",
-		"rootDir": "src",
 		"baseUrl": ".",
+		"rootDir": "src",
 		"incremental": false,
 		"skipLibCheck": true,
 		"strictNullChecks": true,
@@ -25,6 +25,12 @@
 		"noEmit": false,
 		"paths": {
 			"src": ["src"]
-		}
-	}
+		},
+		"types": ["jest", "node", "Multer"]
+	},
+	"ts-node": {
+		"require": ["tsconfig-paths/register"]
+	},
+	"include": ["src", "test"],
+	"exclude": ["test/jest.global.ts"]
 }

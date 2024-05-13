@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**
@@ -9,6 +10,7 @@ export class DirectoryCreateResponse {
 	 * The path of the created directory.
 	 * @type {string}
 	 */
+	@ApiProperty({ example: '/path/to/directory', description: 'The path of the created directory' })
 	readonly path: string;
 
 	/**

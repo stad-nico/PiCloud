@@ -1,5 +1,4 @@
 import { PathUtils } from 'src/util/PathUtils';
-import { ValidationError } from 'src/util/ValidationError';
 import { DirectoryMetadataParams } from './DirectoryMetadataParams';
 
 /**
@@ -26,10 +25,7 @@ export class DirectoryMetadataDto {
 
 	/**
 	 * Creates a new DirectoryMetadataDto instance from the http params.
-	 * Throws if the given params are not valid.
 	 * @public @static
-	 *
-	 * @throws  {ValidationError} path must be a valid directory path
 	 *
 	 * @param   {DirectoryMetadataParams} directoryMetadataParams the http params
 	 * @returns {DirectoryMetadataDto}                            the DirectoryMetadataDto instance
@@ -37,10 +33,6 @@ export class DirectoryMetadataDto {
 	public static from(directoryMetadataParams: DirectoryMetadataParams): DirectoryMetadataDto {
 		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryMetadataParams.path);
 
-		if (!PathUtils.isDirectoryPathValid(normalizedPath)) {
-			throw new ValidationError(`path ${directoryMetadataParams.path} is not a valid directory path`);
-		}
-
-		return new DirectoryMetadataDto(directoryMetadataParams.path);
+		return new DirectoryMetadataDto(normalizedPath);
 	}
 }

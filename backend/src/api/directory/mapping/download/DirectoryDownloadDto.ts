@@ -1,5 +1,4 @@
 import { PathUtils } from 'src/util/PathUtils';
-import { ValidationError } from 'src/util/ValidationError';
 import { DirectoryDownloadParams } from './DirectoryDownloadParams';
 
 /**
@@ -26,20 +25,13 @@ export class DirectoryDownloadDto {
 
 	/**
 	 * Creates a new DirectoryDownloadDto instance from the http params.
-	 * Throws if the given params are not valid.
 	 * @public @static
-	 *
-	 * @throws  {ValidationError} path must be a valid directory path
 	 *
 	 * @param   {DirectoryDownloadParams} directoryDownloadParams the http params
 	 * @returns {DirectoryDownloadDto}                            the DirectoryDownloadDto instance
 	 */
 	public static from(directoryDownloadParams: DirectoryDownloadParams) {
 		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryDownloadParams.path);
-
-		if (!PathUtils.isDirectoryPathValid(normalizedPath)) {
-			throw new ValidationError(`path ${directoryDownloadParams.path} is not a valid directory path`);
-		}
 
 		return new DirectoryDownloadDto(normalizedPath);
 	}

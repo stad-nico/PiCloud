@@ -1,11 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Directory } from 'src/db/entities/Directory';
 import { PathUtils } from 'src/util/PathUtils';
 
-export type DirectoryMetadataResponseType = Pick<Directory, 'id' | 'name' | 'createdAt' | 'updatedAt'> & {
-	path: string;
+export type DirectoryMetadataResponseType = Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & {
 	size: number;
 	files: number;
 	directories: number;
+	path: string;
 };
 
 /**
@@ -14,60 +15,60 @@ export type DirectoryMetadataResponseType = Pick<Directory, 'id' | 'name' | 'cre
  */
 export class DirectoryMetadataResponse {
 	/**
-	 * The id of the directory.
+	 * The path of the directory.
 	 * @type {string}
 	 */
-	readonly id: string;
+	@ApiProperty({ description: 'The path of the directory', type: 'string', example: '/path/to/directory' })
+	readonly path: string;
 
 	/**
 	 * The name of the directory.
 	 * @type {string}
 	 */
+	@ApiProperty({ description: 'The name of the directory', type: 'string', example: 'photos' })
 	readonly name: string;
 
 	/**
-	 * The relative path of the directory.
-	 * @type {string}
-	 */
-	readonly path: string;
-
-	/**
-	 * The size of the directory.
+	 * The size of the directory in bytes.
 	 * @type {number}
 	 */
+	@ApiProperty({ description: 'The size of the directory in bytes', type: 'number', example: 1193982 })
 	readonly size: number;
 
 	/**
 	 * The amount of files this directory and each subdirectory contains in total.
 	 * @type {number}
 	 */
+	@ApiProperty({ description: 'The amount of files this directory and each subdirectory contains in total', type: 'number', example: 42 })
 	readonly files: number;
 
 	/**
 	 * The amount of subdirectory this directory contains in total.
 	 * @type {number}
 	 */
+	@ApiProperty({ description: 'The amount of subdirectories this directory contains in total', type: 'number', example: 9 })
 	readonly directories: number;
 
 	/**
 	 * The creation date of the directory.
 	 * @type {string}
 	 */
+	@ApiProperty({ description: 'The date the directory was created', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
 	readonly createdAt: string;
 
 	/**
-	 * The last date at which a content of the directory was changed.
+	 * The date the directory was last modified.
 	 * @type {string}
 	 */
+	@ApiProperty({ description: 'The date the directory was last modified', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
 	readonly updatedAt: string;
 
 	/**
 	 * Creates a new DirectoryMetadataResponse instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}                    id          the id
-	 * @param   {string}                    name        the name
 	 * @param   {string}                    path        the path
+	 * @param   {string}                    name        the name
 	 * @param   {number}                    size        the size
 	 * @param   {number}                    files       the amount of files
 	 * @param   {number}                    directories the amount of subdirectories
@@ -75,19 +76,9 @@ export class DirectoryMetadataResponse {
 	 * @param   {string}                    updatedAt   the last updated date
 	 * @returns {DirectoryMetadataResponse}             the DirectoryMetadataResponse instance
 	 */
-	private constructor(
-		id: string,
-		name: string,
-		path: string,
-		size: number,
-		files: number,
-		directories: number,
-		createdAt: string,
-		updatedAt: string
-	) {
-		this.id = id;
-		this.name = name;
+	private constructor(path: string, name: string, size: number, files: number, directories: number, createdAt: string, updatedAt: string) {
 		this.path = path;
+		this.name = name;
 		this.size = size;
 		this.files = files;
 		this.directories = directories;
@@ -104,9 +95,8 @@ export class DirectoryMetadataResponse {
 	 */
 	public static from(obj: DirectoryMetadataResponseType): DirectoryMetadataResponse {
 		return new DirectoryMetadataResponse(
-			obj.id,
-			obj.name,
 			PathUtils.normalizeDirectoryPath(obj.path),
+			obj.name,
 			obj.size,
 			obj.files,
 			obj.directories,

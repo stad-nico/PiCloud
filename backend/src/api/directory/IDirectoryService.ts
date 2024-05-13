@@ -13,8 +13,8 @@ export interface IDirectoryService {
 	 * Throws if a directory at that path already exists or destination parent does not exist.
 	 * @async
 	 *
-	 * @throws  {ServerError} destination parent must exist
-	 * @throws  {ServerError} destination must not already exist
+	 * @throws  {ParentDirectoryNotFoundException} if parent directory does not exist
+	 * @throws  {DirectoryAlreadyExistsException}  if directory already exists
 	 *
 	 * @param   {DirectoryCreateDto}               directoryCreateDto the dto for creating a new directory
 	 * @returns {Promise<DirectoryCreateResponse>}                    the path of the created directory
@@ -26,7 +26,7 @@ export interface IDirectoryService {
 	 * Throws if directory does not exist.
 	 * @async
 	 *
-	 * @throws  {ServerError} directory must exist
+	 * @throws  {DirectoryNotFoundException} if directory does not exist
 	 *
 	 * @param   {DirectoryContentDto}               directoryContentDto the dto for getting the contents of a directory
 	 * @returns {Promise<DirectoryContentResponse>}                     the contents of the directory
@@ -38,7 +38,7 @@ export interface IDirectoryService {
 	 * Throws if directory at the given path does not exist.
 	 * @async
 	 *
-	 * @throws  {ServerError} directory must exist
+	 * @throws  {DirectoryNotFoundException} if directory does not exist
 	 *
 	 * @param   {DirectoryMetadataDto}               directoryMetadataDto the dto for getting the metadata of a directory
 	 * @returns {Promise<DirectoryMetadataResponse>}                      the metadata of a directory
@@ -46,11 +46,11 @@ export interface IDirectoryService {
 	metadata(directoryMetadataDto: DirectoryMetadataDto): Promise<DirectoryMetadataResponse>;
 
 	/**
-	 * Returns a stream of a ZIP-archive of the contents of a directory as well as mimeType and directory name.
+	 * Returns a stream of a ZIP archive of the contents of a directory as well as mime type and directory name.
 	 * Throws if the directory at the given path does not exist.
 	 * @async
 	 *
-	 * @throws  {ServerError} directory must exist
+	 * @throws  {DirectoryNotFoundException} if directory does not exist
 	 *
 	 * @param   {DirectoryDownloadDto}               directoryDownloadDto the dto for downloading a directory
 	 * @returns {Promise<DirectoryDownloadResponse>}                      the stream, mimeType and directory name
@@ -62,9 +62,9 @@ export interface IDirectoryService {
 	 * Throws if directory does not exist, destination already exists or destination parent no exists.
 	 * @async
 	 *
-	 * @throws  {ServerError} directory must exist
-	 * @throws  {ServerError} destination must not already exist
-	 * @throws  {ServerError} destination parent must exist
+	 * @throws  {DirectoryNotFoundException}       if source directory does not exist
+	 * @throws  {DirectoryAlreadyExistsException}  if destination directory already exists
+	 * @throws  {ParentDirectoryNotFoundException} if destination parent does not exist
 	 *
 	 * @param   {DirectoryRenameDto}               directoryRenameDto the dto for renaming a directory
 	 * @returns {Promise<DirectoryRenameResponse>}                    the path of the renamed directory
@@ -76,7 +76,7 @@ export interface IDirectoryService {
 	 * Throws if directory at given path does not exist.
 	 * @async
 	 *
-	 * @throws {ServerError} directory must exist
+	 * @throws {DirectoryNotFoundException} if directory does not exist
 	 *
 	 * @param {DirectoryDeleteDto} directoryDeleteDto the dto for deleting the directory
 	 */

@@ -1,5 +1,4 @@
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
-import { PathUtils } from 'src/util/PathUtils';
+import { ApiProperty } from '@nestjs/swagger';
 
 /**
  * Class representing the http request url params.
@@ -10,9 +9,7 @@ export class DirectoryDeleteParams {
 	 * The path of the directory to delete.
 	 * @type {string}
 	 */
-	@IsNotEmpty()
-	@IsString()
-	@Matches(PathUtils.ValidDirectoryPathRegExp, { message: 'path must be a valid directory path' })
+	@ApiProperty({ example: '/path/to/directory', description: 'The path of the directory to delete' })
 	readonly path: string;
 
 	/**
