@@ -75,7 +75,7 @@ export class PathUtils {
 	 * @returns {string}                 the normalized path
 	 */
 	public static normalizeDirectoryPath(pathToNormalize: string): string {
-		let result = path.normalize('/' + pathToNormalize + '/');
+		let result = path.normalize('/' + decodeURIComponent(pathToNormalize) + '/');
 
 		result = result.replaceAll(/\s+/g, ' ');
 		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '/');
@@ -94,7 +94,7 @@ export class PathUtils {
 	 * @returns {string}                 the normalized path
 	 */
 	public static normalizeFilePath(pathToNormalize: string): string {
-		let result = path.normalize('/' + pathToNormalize);
+		let result = path.normalize('/' + decodeURIComponent(pathToNormalize));
 
 		result = result.replaceAll(/\s+/g, ' ');
 		result = result.replaceAll(/^\.{0,2}[\/\\]/g, '/');

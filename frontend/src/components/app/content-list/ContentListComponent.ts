@@ -1,74 +1,46 @@
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-type Item = {
-	name: string;
-};
-
-interface File {
-	name: string;
-	type: 'FILE';
-	size: number;
-	mimeType: string;
-	createdAt: Date;
-	updatedAt: Date;
-}
-
-interface Directory {
-	id: string;
-	name: string;
-	size: number;
-	createdAt: Date;
-	updatedAt: Date;
-	type: 'DIRECTORY';
-}
-
-const File = 'FILE';
-const Directory = 'DIRECTORY';
+import { BASE_PATH, DirectoryContentDirectory, DirectoryContentFile, DirectoryService } from 'generated';
+import { ContentListDirectoryComponent } from 'src/components/app/content-list/content-list-directory/ContentListDirectoryComponent';
+import { ContentListFileComponent } from 'src/components/app/content-list/content-list-file/ContentListFileComponent';
 
 @Component({
 	selector: 'content-list',
 	standalone: true,
 	templateUrl: './ContentListComponent.html',
-	imports: [HttpClientModule],
+	providers: [{ provide: BASE_PATH, useValue: '/api' }, DirectoryService],
+	imports: [ContentListDirectoryComponent, ContentListFileComponent],
 })
 export class ContentListComponent {
-	items: (File | Directory)[] = [];
+	private readonly directoryService: DirectoryService;
 
-	constructor(private http: HttpClient, private route: ActivatedRoute) {}
+	private readonly route: ActivatedRoute;
+
+	files: DirectoryContentFile[] = [];
+
+	directories: DirectoryContentDirectory[] = [];
+
+	constructor(@Inject(DirectoryService) directoryService: DirectoryService, route: ActivatedRoute) {
+		this.directoryService = directoryService;
+		this.route = route;
+	}
 
 	ngOnInit() {
-		this.route.params.subscribe((params) => {
-			this.fetchItems(params['path'] ?? 'root');
+		this.route.url.subscribe((segments) => {
+			const path = segments.map((x) => x.path).join('/');
+			this.fetchItems(path);
 		});
 	}
 
 	private fetchItems(path: string) {
-		this.http.get<{ files: any[]; directories: any[] }>(`/api/directory/${path}/content`).subscribe({
-			next: (value) => {
-				console.log(value);
-				this.items = [
-					...value.files.map((x) => ({
-						...x,
-						type: File,
-						createdAt: new Date(Date.parse(x.createdAt)),
-						updatedAt: new Date(Date.parse(x.updatedAt)),
-					})),
-					...value.directories.map((x) => ({
-						...x,
-						type: Directory,
-						createdAt: new Date(Date.parse(x.createdAt)),
-						updatedAt: new Date(Date.parse(x.updatedAt)),
-					})),
-				];
-				console.log(this.items);
+		this.directoryService.getDirectoryContent(path).subscribe({
+			next: (value: any) => {
+				this.files = value.files;
+				this.directories = value.directories;
 			},
-			error: (error) => {
+			error: (error: any) => {
 				console.log(error);
-			},
-			complete: () => {
-				console.log('complete');
 			},
 		});
 	}

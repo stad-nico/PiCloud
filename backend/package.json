@@ -6,7 +6,6 @@
 	"private": true,
 	"license": "UNLICENSED",
 	"scripts": {
-		"swagger-metadata": "ts-node src/generate-metadata.ts",
 		"openapi-generate": "SET NODE_ENV=test&& ts-node src/openapi.ts",
 		"mikro-orm:dev": "SET NODE_ENV=dev&& npx mikro-orm",
 		"mikro-orm:test": "SET NODE_ENV=test&& npx mikro-orm",

@@ -1,4 +1,16 @@
 import { Routes } from '@angular/router';
-import { AppComponent } from './AppComponent';
+import { ContentListComponent } from 'src/components/app/content-list/ContentListComponent';
 
-export const routes: Routes = [{ path: ':path', component: AppComponent }];
+export const routes: Routes = [
+	{ path: '', pathMatch: 'full', redirectTo: 'root' },
+	{
+		path: '',
+		children: [
+			{
+				path: '**',
+				component: ContentListComponent,
+				pathMatch: 'full',
+			},
+		],
+	},
+];

@@ -36,7 +36,7 @@ export class DirectoryController {
 	}
 
 	@Post(':path(*)')
-	@ApiOperation({ summary: 'Create directory', description: 'Create a directory at the provided path' })
+	@ApiOperation({ operationId: 'createDirectory', summary: 'Create directory', description: 'Create a directory at the provided path' })
 	@ApiCreatedResponse({ type: DirectoryCreateResponse, description: 'Success' })
 	@TemplatedApiException(() => new DirectoryNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName'), {
 		description: 'The directory name is too long',
@@ -64,7 +64,7 @@ export class DirectoryController {
 	}
 
 	@Get(':path(*)/content')
-	@ApiOperation({ summary: 'Get directory contents', description: 'Get the files and subdirectories on the first level' })
+	@ApiOperation({ operationId: 'getDirectoryContent', summary: 'Get directory contents', description: 'Get the files and subdirectories on the first level' })
 	@ApiOkResponse({ type: DirectoryContentResponse, description: 'Success' })
 	@TemplatedApiException(() => new DirectoryNotFoundException('/path/to/directory'), { description: 'The directory does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
@@ -87,7 +87,7 @@ export class DirectoryController {
 	}
 
 	@Get(':path(*)/metadata')
-	@ApiOperation({ summary: 'Get directory metadata', description: 'Get the detailed metadata of a directory' })
+	@ApiOperation({ operationId: 'getDirectoryMetadata', summary: 'Get directory metadata', description: 'Get the detailed metadata of a directory' })
 	@ApiOkResponse({ type: DirectoryMetadataResponse, description: 'Success' })
 	@TemplatedApiException(() => new DirectoryNotFoundException('/path/to/directory'), { description: 'The directory does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
@@ -110,7 +110,7 @@ export class DirectoryController {
 	}
 
 	@Get(':path(*)/download')
-	@ApiOperation({ summary: 'Download directory', description: 'Download the directory as a ZIP archive' })
+	@ApiOperation({ operationId: 'downloadDirectory', summary: 'Download directory', description: 'Download the directory as a ZIP archive' })
 	@ApiOkResponse({ content: { '*/*': { schema: { type: 'string', format: 'binary' } } }, description: 'Success' })
 	@TemplatedApiException(() => new DirectoryNotFoundException('/path/to/directory'), { description: 'The directory does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
@@ -140,7 +140,7 @@ export class DirectoryController {
 	}
 
 	@Patch(':path(*)')
-	@ApiOperation({ summary: 'Rename directory', description: 'Rename or move a directory' })
+	@ApiOperation({ operationId: 'renameDirectory', summary: 'Rename directory', description: 'Rename or move a directory' })
 	@ApiOkResponse({ type: DirectoryRenameResponse, description: 'Success' })
 	@TemplatedApiException(() => new DirectoryNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName'), {
 		description: 'The directory name is too long',
@@ -172,7 +172,11 @@ export class DirectoryController {
 	}
 
 	@Delete(':path(*)')
-	@ApiOperation({ summary: 'Delete directory', description: 'Delete the directory at the given path including all files and subdirectories' })
+	@ApiOperation({
+		operationId: 'deleteDirectory',
+		summary: 'Delete directory',
+		description: 'Delete the directory at the given path including all files and subdirectories',
+	})
 	@ApiNoContentResponse({ description: 'Success' })
 	@TemplatedApiException(() => new DirectoryNotFoundException('/path/to/directory'), { description: 'The directory does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })

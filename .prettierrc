@@ -4,5 +4,13 @@
 	"useTabs": true,
 	"tabWidth": 4,
 	"printWidth": 160,
-	"singleAttributePerLine": false
+	"singleAttributePerLine": false,
+	"overrides": [
+		{
+			"files": ["*.html"],
+			"options": {
+				"parser": "angular"
+			}
+		}
+	]
 }

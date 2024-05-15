@@ -54,7 +54,7 @@ export class FileController {
 
 	@Post(':path(*)')
 	@UseInterceptors(FileInterceptor('file'))
-	@ApiOperation({ summary: 'Upload file', description: 'Upload a file and store it under the provided path' })
+	@ApiOperation({ operationId: 'uploadFile', summary: 'Upload file', description: 'Upload a file and store it under the provided path' })
 	@ApiCreatedResponse({ type: FileUploadResponse, description: 'Success' })
 	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
 		description: 'The file name is too long',
@@ -81,7 +81,7 @@ export class FileController {
 
 	@Put(':path(*)')
 	@UseInterceptors(FileInterceptor('file'))
-	@ApiOperation({ summary: 'Replace file', description: 'Replace the file at the given path with new file' })
+	@ApiOperation({ operationId: 'replaceFile', summary: 'Replace file', description: 'Replace the file at the given path with new file' })
 	@ApiCreatedResponse({ type: FileUploadResponse, description: 'Success' })
 	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
 		description: 'The file name is too long',
@@ -106,7 +106,7 @@ export class FileController {
 	}
 
 	@Get(':path(*)/metadata')
-	@ApiOperation({ summary: 'Get file metadata', description: 'Get the detailed metadata of a file' })
+	@ApiOperation({ operationId: 'getFileMetadata', summary: 'Get file metadata', description: 'Get the detailed metadata of a file' })
 	@ApiOkResponse({ type: FileMetadataResponse, description: 'Success' })
 	@TemplatedApiException(() => new FileNotFoundException('/path/to/file.txt'), { description: 'The file does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
@@ -127,7 +127,7 @@ export class FileController {
 	}
 
 	@Get(':path(*)/download')
-	@ApiOperation({ summary: 'Download file', description: 'Download the file at the given path' })
+	@ApiOperation({ operationId: 'downloadFile', summary: 'Download file', description: 'Download the file at the given path' })
 	@ApiOkResponse({ content: { '*/*': { schema: { type: 'string', format: 'binary' } } }, description: 'Success' })
 	@TemplatedApiException(() => new FileNotFoundException('/path/to/file.txt'), { description: 'The file does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
@@ -155,7 +155,7 @@ export class FileController {
 	}
 
 	@Patch(':path(*)')
-	@ApiOperation({ summary: 'Rename file', description: 'Rename or move a file' })
+	@ApiOperation({ operationId: 'renameFile', summary: 'Rename file', description: 'Rename or move a file' })
 	@ApiOkResponse({ type: FileRenameResponse, description: 'Success' })
 	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
 		description: 'The file name is too long',
@@ -182,7 +182,7 @@ export class FileController {
 	}
 
 	@Delete(':path(*)')
-	@ApiOperation({ summary: 'Delete file', description: 'Delete the file at the given path' })
+	@ApiOperation({ operationId: 'deleteFile', summary: 'Delete file', description: 'Delete the file at the given path' })
 	@ApiNoContentResponse({ description: 'Success' })
 	@TemplatedApiException(() => new FileNotFoundException('/path/to/file.txt'), { description: 'The file does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })

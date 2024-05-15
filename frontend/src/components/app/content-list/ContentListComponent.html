@@ -1,14 +1,12 @@
-@for (item of items; track item.name) {
-
-@if (item.type === "DIRECTORY") {
-<div>{{item.name}} {{item.size}} {{item.createdAt}} {{item.updatedAt}}</div>
-}
-@else {
-<div>{{item.name}} {{item.size}} {{item.createdAt.toLocaleString()}} {{item.updatedAt.toLocaleString()}}
-    {{item.mimeType}}
-</div>
-}
-
-} @empty {
-<p>There are no items</p>
+@if (directories.length === 0 && files.length === 0) {
+    <p>EMPTY</p>
+} @else {
+    @for (item of directories; track item.name) {
+        <content-list-directory [name]="item.name" [size]="item.size"></content-list-directory>
+    } 
+    
+    @for (item of files; track item.name) {
+        <content-list-file [name]="item.name" [size]="item.size"></content-list-file>
+        <div>{{ item.name }} {{ item.size }} {{ item.createdAt }} {{ item.updatedAt }}{{ item.mimeType }}</div>
+    } 
 }
