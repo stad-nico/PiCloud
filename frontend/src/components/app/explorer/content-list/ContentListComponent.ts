@@ -2,8 +2,8 @@ import { Component, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { BASE_PATH, DirectoryContentDirectory, DirectoryContentFile, DirectoryService } from 'generated';
-import { ContentListDirectoryComponent } from 'src/components/app/content-list/content-list-directory/ContentListDirectoryComponent';
-import { ContentListFileComponent } from 'src/components/app/content-list/content-list-file/ContentListFileComponent';
+import { ContentListDirectoryComponent } from 'src/components/app/explorer/content-list/content-list-directory/ContentListDirectoryComponent';
+import { ContentListFileComponent } from 'src/components/app/explorer/content-list/content-list-file/ContentListFileComponent';
 
 @Component({
 	selector: 'content-list',

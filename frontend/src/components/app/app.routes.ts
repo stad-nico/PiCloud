@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ContentListComponent } from 'src/components/app/content-list/ContentListComponent';
+import { ExplorerComponent } from 'src/components/app/explorer/ExplorerComponent';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', redirectTo: 'root' },
@@ -8,7 +8,7 @@ export const routes: Routes = [
 		children: [
 			{
 				path: '**',
-				component: ContentListComponent,
+				component: ExplorerComponent,
 				pathMatch: 'full',
 			},
 		],
