@@ -5,7 +5,7 @@ pipeline {
 
     tools {
         nodejs "latest"
-        docker "latest"
+        dockerTool "latest"
     }
 
     stages {
