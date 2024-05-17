@@ -12,7 +12,7 @@
             stage("Backend Test") {
                 steps {
                     script {
-                        sh "docker version"
+                        sh "docker"
                         sh "docker pull mariadb:latest"
                         sh "docker inspect mariadb:latest"
                         // docker.image('mariadb:latest').withRun("--platform linux/arm64 -e MARIADB_ROOT_PASSWORD=password") { c -> 
