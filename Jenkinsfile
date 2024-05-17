@@ -8,47 +8,20 @@ pipeline {
     }
 
     stages {
-        stage("Backend Install") {
+        stage("Backend Test") {
             steps {
-                dir("backend") {
-                    sh "npm ci"
-                }
-            }
-        }
+                script {
+                    docker.image('mariadb:latest').withRun("-e MARIADB_ROOT_PASSWORD=password") { c -> 
+                        sh "while ! mariadb-admin -u root --password=password ping; do echo 'waiting for mariadb; sleep 1; done;'"
 
-        stage("Backend Unit Tests") {
-            steps {
-                dir("backend") {
-                    sh "npm run test:unit:cov"
-                }
-            }
+                        sh "mariadb-admin create cloud-test --password=password"
 
-            post {
-                always {
-                    recordCoverage(
-                        enabledForFailure: true,
-                        tools: [[parser: 'COBERTURA', pattern: 'coverage/cobertura-coverage.xml']],
-                        qualityGates: [
-                            [criticality: 'NOTE', integerThreshold: 80, metric: 'LINE', threshold: 80.0], 
-                            [criticality: 'NOTE', integerThreshold: 80, metric: 'BRANCH', threshold: 80.0]
-                        ]
-                    )
-                }
-            }
-        }
+                        sh "npm ci"
 
-        stage("Backend Integration Tests") {
-            steps {
-                dir("backend") {
-                    sh "npm run test:integration"
-                }
-            }
-        }
+                        sh "npm run mikro-orm:test migration:fresh -- --seed"
 
-        stage("Backend e2e Tests") {
-            steps {
-                dir("backend") {
-                    sh "npm run test:e2e"
+                        sh "npm run test:unit:cov"
+                    }
                 }
             }
         }

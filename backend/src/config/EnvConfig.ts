@@ -25,31 +25,22 @@ export class EnvVariables {
 	NODE_ENV!: NodeEnv;
 
 	@IsString()
-	DB_HOST!: string;
-
-	@Type(() => Number)
-	@IsNumber()
-	DB_PORT!: number;
-
-	@IsString()
 	DB_NAME!: string;
 
 	@IsString()
-	DB_USERNAME!: string;
+	DB_PASSWORD!: string;
 
 	@IsString()
-	DB_PASSWORD!: string;
+	DB_URL!: string;
 }
 
 export enum Environment {
 	Port = 'PORT',
 	StoragePath = 'STORAGE_PATH',
 	NodeENV = 'NODE_ENV',
-	DBHost = 'DB_HOST',
-	DBPort = 'DB_PORT',
 	DBName = 'DB_NAME',
 	DBPassword = 'DB_PASSWORD',
-	DBUsername = 'DB_USERNAME',
+	DBUrl = 'DB_URL',
 }
 
 export function validate(config: Record<string, unknown>) {

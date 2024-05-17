@@ -15,12 +15,14 @@ export class TreeViewComponent {
 
 	directories: DirectoryContentDirectory[] = [];
 
+	readonly path = 'root';
+
 	constructor(@Inject(DirectoryService) directoryService: DirectoryService) {
 		this.directoryService = directoryService;
 	}
 
 	ngOnInit() {
-		this.fetchItems('root');
+		this.fetchItems(this.path);
 	}
 
 	private fetchItems(path: string) {

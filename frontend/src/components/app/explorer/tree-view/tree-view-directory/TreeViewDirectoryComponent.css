@@ -1,4 +1,8 @@
 :host {
+	width: calc(100% - 30px);
+}
+
+:host > head {
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
@@ -7,22 +11,43 @@
 
 	border-radius: 15px;
 
-	width: calc(100% - 30px);
+	width: calc(100%);
 	height: 40px;
 
-	gap: 2px;
+	gap: 4px;
 }
 
-:host:hover {
+:host > head:hover {
 	background-color: rgb(235, 240, 254);
 	cursor: pointer;
 }
 
-:host > svg {
+:host > head:hover > p {
+	color: rgb(57, 97, 237);
+}
+
+:host > head > svg {
 	scale: 1;
 	fill: rgb(169, 174, 199);
 }
 
-:host > p {
-	margin-left: 8px;
+:host > head > svg.collapse:hover {
+	background-color: rgb(220, 228, 253);
+	fill: rgb(57, 97, 237);
+	border-radius: 10px;
+}
+
+:host > head > p {
+	margin-left: 2px;
+	color: rgb(102, 113, 168);
+}
+
+:host > main {
+	padding-left: 20px;
+}
+
+:host > main > p {
+	font-style: italic;
+	margin-left: 15px;
+	color: rgb(169, 174, 199);
 }
