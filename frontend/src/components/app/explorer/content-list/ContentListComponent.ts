@@ -9,6 +9,7 @@ import { ContentListFileComponent } from 'src/components/app/explorer/content-li
 	selector: 'content-list',
 	standalone: true,
 	templateUrl: './ContentListComponent.html',
+	styleUrl: './ContentListComponent.css',
 	providers: [{ provide: BASE_PATH, useValue: '/api' }, DirectoryService],
 	imports: [ContentListDirectoryComponent, ContentListFileComponent],
 })

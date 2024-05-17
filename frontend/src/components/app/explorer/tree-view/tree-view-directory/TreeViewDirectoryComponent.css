@@ -1,0 +1,28 @@
+:host {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+
+	padding: 0 15px 0 8px;
+
+	border-radius: 15px;
+
+	width: calc(100% - 30px);
+	height: 40px;
+
+	gap: 2px;
+}
+
+:host:hover {
+	background-color: rgb(235, 240, 254);
+	cursor: pointer;
+}
+
+:host > svg {
+	scale: 1;
+	fill: rgb(169, 174, 199);
+}
+
+:host > p {
+	margin-left: 8px;
+}

@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 	selector: 'interactive-path',
 	standalone: true,
 	templateUrl: './InteractivePathComponent.html',
+	styleUrl: './InteractivePathComponent.css',
 })
 export class InteractivePathComponent {
 	private readonly router: Router;

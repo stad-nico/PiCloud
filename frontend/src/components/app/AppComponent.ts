@@ -7,6 +7,7 @@ import { ExplorerComponent } from 'src/components/app/explorer/ExplorerComponent
 	standalone: true,
 	templateUrl: './AppComponent.html',
 	imports: [ExplorerComponent, RouterOutlet],
+	styleUrl: './AppComponent.css',
 })
 export class AppComponent {
 	title = 'frontend';

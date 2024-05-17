@@ -8,6 +8,7 @@ import { TreeViewDirectoryComponent } from 'src/components/app/explorer/tree-vie
 	templateUrl: './TreeViewComponent.html',
 	providers: [{ provide: BASE_PATH, useValue: '/api' }, DirectoryService],
 	imports: [TreeViewDirectoryComponent],
+	styleUrl: './TreeViewComponent.css',
 })
 export class TreeViewComponent {
 	private readonly directoryService: DirectoryService;

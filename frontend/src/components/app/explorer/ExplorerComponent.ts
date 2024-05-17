@@ -8,5 +8,6 @@ import { TreeViewComponent } from 'src/components/app/explorer/tree-view/TreeVie
 	standalone: true,
 	templateUrl: './ExplorerComponent.html',
 	imports: [ContentListComponent, TreeViewComponent, InteractivePathComponent],
+	styleUrl: './ExplorerComponent.css',
 })
 export class ExplorerComponent {}
