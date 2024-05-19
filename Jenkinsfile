@@ -5,7 +5,7 @@
 
         tools {
             nodejs "latest"
-            docker "latest"
+            dockerTool "docker"
         }
 
         stages {
