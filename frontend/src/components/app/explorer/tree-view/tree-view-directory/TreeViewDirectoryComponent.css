@@ -2,6 +2,10 @@
 	width: calc(100% - 30px);
 }
 
+:host > head.collapsed > svg.collapse {
+	transform: rotate(0deg);
+}
+
 :host > head {
 	display: flex;
 	align-items: center;
@@ -31,6 +35,10 @@
 	fill: rgb(169, 174, 199);
 }
 
+:host > head > svg.collapse {
+	transform: rotate(90deg);
+}
+
 :host > head > svg.collapse:hover {
 	background-color: rgb(220, 228, 253);
 	fill: rgb(57, 97, 237);
@@ -50,4 +58,13 @@
 	font-style: italic;
 	margin-left: 15px;
 	color: rgb(169, 174, 199);
+}
+
+:host > main > loading-spinner {
+	width: 30px;
+	height: 30px;
+
+	margin: 5px 0 5px 20px;
+
+	--thickness: 6px;
 }

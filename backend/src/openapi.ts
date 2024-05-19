@@ -7,7 +7,7 @@ import { AppModule } from 'src/AppModule';
 async function bootstrap() {
 	const application = await NestFactory.create(AppModule);
 
-	const config = new DocumentBuilder().setTitle('Cloud API').setDescription('The cloud API description').setVersion('1.0').build();
+	const config = new DocumentBuilder().addServer('/api').setTitle('Cloud API').setDescription('The cloud API description').setVersion('1.0').build();
 	const document = SwaggerModule.createDocument(application, config);
 
 	const dirPath = '../openapi';

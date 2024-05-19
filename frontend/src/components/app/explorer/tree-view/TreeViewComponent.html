@@ -1,3 +1,5 @@
-@for (item of directories; track item.name) {
-    <tree-view-directory [path]="this.path + '/' + item.name" [name]="item.name"></tree-view-directory>
-} 
+@for (item of (children$ | async); track item) {
+	<tree-view-directory [path]="path + '/' + item"></tree-view-directory>
+} @empty {
+	<p>Leer</p>
+}

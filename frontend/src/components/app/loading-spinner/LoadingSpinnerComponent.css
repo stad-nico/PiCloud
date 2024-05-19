@@ -1,0 +1,49 @@
+:host {
+	display: block;
+
+	--background: rgb(239, 240, 245);
+
+	--color: rgb(208, 211, 224);
+}
+
+:host > .loading-spinner {
+	width: calc(100% - 2 * var(--thickness));
+	height: calc(100% - 2 * var(--thickness));
+
+	position: relative;
+
+	background-color: transparent;
+
+	border: var(--thickness) solid;
+	border-color: var(--background) var(--color) var(--color) var(--color);
+
+	border-radius: 50%;
+	animation: spin infinite linear 1.5s;
+}
+
+@keyframes spin {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+:host > .loading-spinner:before,
+:host > .loading-spinner:after {
+	content: '';
+	display: block;
+	position: absolute;
+	background-color: var(--color);
+	border-radius: 50%;
+	width: var(--thickness);
+	height: var(--thickness);
+	transform: translate(-50%, -50%);
+	top: calc(50% - (50% + var(--thickness) / 2) * sin(45deg));
+}
+
+:host > .loading-spinner:before {
+	left: calc(50% - (50% + var(--thickness) / 2) * cos(45deg));
+}
+
+:host > .loading-spinner:after {
+	left: calc(50% + (50% + var(--thickness) / 2) * cos(45deg));
+}
