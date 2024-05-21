@@ -1,0 +1,2193 @@
+{
+    "pipes": [],
+    "interfaces": [
+        {
+            "name": "TreeStateModel",
+            "id": "interface-TreeStateModel-6f25fe35cd2594aa33fb8e8b9c1b0e0723f6b2c2123113f98d3e729955e4a8980d007aa7d76ad877c96ed9fcd3772dc996a2a93caa593c78743bf4557792d25e",
+            "file": "src/components/app/actions/tree.state.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext } from '@ngxs/store';\r\nimport { DirectoryService } from 'generated';\r\nimport { defaultIfEmpty, delay, forkJoin, map, mergeMap, tap } from 'rxjs';\r\nimport { GetTreeSubDirectories } from 'src/components/app/actions/directory';\r\n\r\nexport interface TreeStateModel {\r\n\t[key: string]: {\r\n\t\tchildren: { name: string; hasChildren: boolean }[];\r\n\t};\r\n}\r\n\r\n@State<TreeStateModel>({\r\n\tname: 'tree',\r\n\tdefaults: {},\r\n})\r\n@Injectable()\r\nexport class TreeState {\r\n\tconstructor(private readonly directoryService: DirectoryService) {}\r\n\r\n\t@Action(GetTreeSubDirectories)\r\n\tget(ctx: StateContext<TreeStateModel>, action: GetTreeSubDirectories) {\r\n\t\tconst isDataAlreadyInState = ctx.getState()[action.path] !== undefined;\r\n\r\n\t\tif (isDataAlreadyInState) {\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\treturn this.directoryService.getDirectoryContent(action.path).pipe(\r\n\t\t\tmap((content) => content.directories.map((directory) => directory.name)),\r\n\r\n\t\t\tdelay(2000),\r\n\t\t\tmergeMap((directoryNames) => {\r\n\t\t\t\tconst observables = directoryNames.map((name) =>\r\n\t\t\t\t\tthis.directoryService.getDirectoryMetadata(action.path + '/' + name).pipe(\r\n\t\t\t\t\t\tmap((metadata) => ({\r\n\t\t\t\t\t\t\tname: metadata.name,\r\n\t\t\t\t\t\t\thasChildren: metadata.directories > 0,\r\n\t\t\t\t\t\t}))\r\n\t\t\t\t\t)\r\n\t\t\t\t);\r\n\r\n\t\t\t\treturn forkJoin(observables).pipe(defaultIfEmpty(null));\r\n\t\t\t}),\r\n\t\t\ttap((newState) => {\r\n\t\t\t\tctx.patchState({\r\n\t\t\t\t\t[action.path]: {\r\n\t\t\t\t\t\tchildren: newState ?? [],\r\n\t\t\t\t\t},\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n}\r\n",
+            "properties": [],
+            "indexSignatures": [
+                {
+                    "id": "index-declaration-6f25fe35cd2594aa33fb8e8b9c1b0e0723f6b2c2123113f98d3e729955e4a8980d007aa7d76ad877c96ed9fcd3772dc996a2a93caa593c78743bf4557792d25e",
+                    "args": [
+                        {
+                            "name": "key",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "returnType": "literal type",
+                    "line": 7,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "kind": 181,
+            "methods": [],
+            "extends": []
+        },
+        {
+            "name": "User",
+            "id": "interface-User-d4821beac0e4a852e513391b7470981c4353fdd95a18628bb68136c8695b489ee15b926e2e5031bc26cf30e1508e0a362c3ee13a06734702b4d15af140e485d5",
+            "file": "src/stories/user.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface User {\n  name: string;\n}\n",
+            "properties": [
+                {
+                    "name": "name",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 2
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 171,
+            "methods": [],
+            "extends": []
+        }
+    ],
+    "injectables": [
+        {
+            "name": "PathState",
+            "id": "injectable-PathState-a5038ec19d805503c751abd5d67d827230a979ab54592322655ac357d2318a103b859c72ccdc673ef45569df65d5f2c49a8adb89539de3683e3e0f336df2f309",
+            "file": "src/components/app/actions/path.ts",
+            "properties": [],
+            "methods": [
+                {
+                    "name": "getPath",
+                    "args": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<string>",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "action",
+                            "type": "GetPath",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 23,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Action",
+                            "stringifiedArguments": "GetPath"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<string>",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "action",
+                            "type": "GetPath",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "path",
+                    "args": [
+                        {
+                            "name": "state",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 18,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Selector",
+                            "stringifiedArguments": ""
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        126
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "state",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { ActivatedRoute } from '@angular/router';\r\nimport { Action, Selector, State, StateContext } from '@ngxs/store';\r\n\r\nexport class GetPath {\r\n\tstatic readonly type = '[Path] Get path';\r\n\r\n\tpublic constructor(public readonly route: ActivatedRoute) {}\r\n}\r\n\r\n@State<string>({\r\n\tname: 'path',\r\n\tdefaults: 'root',\r\n})\r\n@Injectable()\r\nexport class PathState {\r\n\t@Selector()\r\n\tpublic static path(state: string) {\r\n\t\treturn state;\r\n\t}\r\n\r\n\t@Action(GetPath)\r\n\tpublic getPath(ctx: StateContext<string>, action: GetPath) {\r\n\t\taction.route.url.subscribe((segments) => {\r\n\t\t\tconst path = segments.map((x) => x.path).join('/');\r\n\r\n\t\t\tctx.setState(path);\r\n\t\t});\r\n\t}\r\n}\r\n",
+            "extends": [],
+            "type": "injectable"
+        },
+        {
+            "name": "TreeState",
+            "id": "injectable-TreeState-6f25fe35cd2594aa33fb8e8b9c1b0e0723f6b2c2123113f98d3e729955e4a8980d007aa7d76ad877c96ed9fcd3772dc996a2a93caa593c78743bf4557792d25e",
+            "file": "src/components/app/actions/tree.state.ts",
+            "properties": [],
+            "methods": [
+                {
+                    "name": "get",
+                    "args": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<TreeStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "action",
+                            "type": "GetTreeSubDirectories",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "any",
+                    "typeParameters": [],
+                    "line": 22,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Action",
+                            "stringifiedArguments": "GetTreeSubDirectories"
+                        }
+                    ],
+                    "modifierKind": [
+                        170
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<TreeStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "action",
+                            "type": "GetTreeSubDirectories",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext } from '@ngxs/store';\r\nimport { DirectoryService } from 'generated';\r\nimport { defaultIfEmpty, delay, forkJoin, map, mergeMap, tap } from 'rxjs';\r\nimport { GetTreeSubDirectories } from 'src/components/app/actions/directory';\r\n\r\nexport interface TreeStateModel {\r\n\t[key: string]: {\r\n\t\tchildren: { name: string; hasChildren: boolean }[];\r\n\t};\r\n}\r\n\r\n@State<TreeStateModel>({\r\n\tname: 'tree',\r\n\tdefaults: {},\r\n})\r\n@Injectable()\r\nexport class TreeState {\r\n\tconstructor(private readonly directoryService: DirectoryService) {}\r\n\r\n\t@Action(GetTreeSubDirectories)\r\n\tget(ctx: StateContext<TreeStateModel>, action: GetTreeSubDirectories) {\r\n\t\tconst isDataAlreadyInState = ctx.getState()[action.path] !== undefined;\r\n\r\n\t\tif (isDataAlreadyInState) {\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\treturn this.directoryService.getDirectoryContent(action.path).pipe(\r\n\t\t\tmap((content) => content.directories.map((directory) => directory.name)),\r\n\r\n\t\t\tdelay(2000),\r\n\t\t\tmergeMap((directoryNames) => {\r\n\t\t\t\tconst observables = directoryNames.map((name) =>\r\n\t\t\t\t\tthis.directoryService.getDirectoryMetadata(action.path + '/' + name).pipe(\r\n\t\t\t\t\t\tmap((metadata) => ({\r\n\t\t\t\t\t\t\tname: metadata.name,\r\n\t\t\t\t\t\t\thasChildren: metadata.directories > 0,\r\n\t\t\t\t\t\t}))\r\n\t\t\t\t\t)\r\n\t\t\t\t);\r\n\r\n\t\t\t\treturn forkJoin(observables).pipe(defaultIfEmpty(null));\r\n\t\t\t}),\r\n\t\t\ttap((newState) => {\r\n\t\t\t\tctx.patchState({\r\n\t\t\t\t\t[action.path]: {\r\n\t\t\t\t\t\tchildren: newState ?? [],\r\n\t\t\t\t\t},\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "directoryService",
+                        "type": "DirectoryService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 18,
+                "jsdoctags": [
+                    {
+                        "name": "directoryService",
+                        "type": "DirectoryService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "type": "injectable"
+        }
+    ],
+    "guards": [],
+    "interceptors": [],
+    "classes": [
+        {
+            "name": "GetPath",
+            "id": "class-GetPath-a5038ec19d805503c751abd5d67d827230a979ab54592322655ac357d2318a103b859c72ccdc673ef45569df65d5f2c49a8adb89539de3683e3e0f336df2f309",
+            "file": "src/components/app/actions/path.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { ActivatedRoute } from '@angular/router';\r\nimport { Action, Selector, State, StateContext } from '@ngxs/store';\r\n\r\nexport class GetPath {\r\n\tstatic readonly type = '[Path] Get path';\r\n\r\n\tpublic constructor(public readonly route: ActivatedRoute) {}\r\n}\r\n\r\n@State<string>({\r\n\tname: 'path',\r\n\tdefaults: 'root',\r\n})\r\n@Injectable()\r\nexport class PathState {\r\n\t@Selector()\r\n\tpublic static path(state: string) {\r\n\t\treturn state;\r\n\t}\r\n\r\n\t@Action(GetPath)\r\n\tpublic getPath(ctx: StateContext<string>, action: GetPath) {\r\n\t\taction.route.url.subscribe((segments) => {\r\n\t\t\tconst path = segments.map((x) => x.path).join('/');\r\n\r\n\t\t\tctx.setState(path);\r\n\t\t});\r\n\t}\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 6,
+                "modifierKind": [
+                    125
+                ],
+                "jsdoctags": [
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "route",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ActivatedRoute",
+                    "optional": false,
+                    "description": "",
+                    "line": 8,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "'[Path] Get path'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 6,
+                    "modifierKind": [
+                        126,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "GetTreeSubDirectories",
+            "id": "class-GetTreeSubDirectories-8fa04730defce8815dc4b283c12780dbf5414fce7fcf14da915e82878ba311ea9cde9563660bb6b311702638522e63755e860d888e89667633e95ab47f9f0361",
+            "file": "src/components/app/actions/directory.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export class GetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree] Get subdirectories';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n\r\nexport class GetTreeSubDirectoriesRecursive {\r\n\tstatic readonly type = '[Tree] Get subdirectories recursive';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "path",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 2,
+                "jsdoctags": [
+                    {
+                        "name": "path",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "path",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 4,
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "'[Tree] Get subdirectories'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 2,
+                    "modifierKind": [
+                        126,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "GetTreeSubDirectoriesRecursive",
+            "id": "class-GetTreeSubDirectoriesRecursive-8fa04730defce8815dc4b283c12780dbf5414fce7fcf14da915e82878ba311ea9cde9563660bb6b311702638522e63755e860d888e89667633e95ab47f9f0361",
+            "file": "src/components/app/actions/directory.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export class GetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree] Get subdirectories';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n\r\nexport class GetTreeSubDirectoriesRecursive {\r\n\tstatic readonly type = '[Tree] Get subdirectories recursive';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "path",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 8,
+                "jsdoctags": [
+                    {
+                        "name": "path",
+                        "type": "string",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "path",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 10,
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "'[Tree] Get subdirectories recursive'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 8,
+                    "modifierKind": [
+                        126,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        }
+    ],
+    "directives": [],
+    "components": [
+        {
+            "name": "AppComponent",
+            "id": "component-AppComponent-68b4f49a68e282f7dc912430cdd627adbc283848a993cbfbb037fbb03b36813fb7a43133ca1e03382e63519813ce3a5d3872181d2d62106a1beb27ff5d1caaab",
+            "file": "src/components/app/AppComponent.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "app",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./AppComponent.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "title",
+                    "defaultValue": "'frontend'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 13
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "ExplorerComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "RouterOutlet"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\r\nimport { RouterOutlet } from '@angular/router';\r\nimport { ExplorerComponent } from 'src/components/app/explorer/ExplorerComponent';\r\n\r\n@Component({\r\n\tselector: 'app',\r\n\tstandalone: true,\r\n\ttemplateUrl: './AppComponent.html',\r\n\timports: [ExplorerComponent, RouterOutlet],\r\n\tstyleUrl: './AppComponent.css',\r\n})\r\nexport class AppComponent {\r\n\ttitle = 'frontend';\r\n}\r\n",
+            "styleUrl": "./AppComponent.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "templateData": "<router-outlet></router-outlet>\r\n"
+        },
+        {
+            "name": "ButtonComponent",
+            "id": "component-ButtonComponent-86e2311c54fbca7431c12e070d0fd5b0ebe343eec0553a392f182ba0e04a8f86613233d26ee47718fd0e7a65078f580c76a1fcc928ce55de81193d6618025bc4",
+            "file": "src/stories/button.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "storybook-button",
+            "styleUrls": [
+                "./button.css"
+            ],
+            "styles": [],
+            "template": "<button   type=\"button\"\n   (click)=\"onClick.emit($event)\"\n   [ngClass]=\"classes\"\n   [ngStyle]=\"{ 'background-color': backgroundColor }\"\n >\n   {{ label }}\n </button>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "backgroundColor",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nWhat background color to use\n",
+                    "description": "<p>What background color to use</p>\n",
+                    "line": 29,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "label",
+                    "defaultValue": "'Button'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "pos": 798,
+                            "end": 811,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 334,
+                            "tagName": {
+                                "pos": 799,
+                                "end": 807,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "required"
+                            },
+                            "comment": ""
+                        }
+                    ],
+                    "rawdescription": "\n\nButton contents\n\n",
+                    "description": "<p>Button contents</p>\n",
+                    "line": 43,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "primary",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nIs this the principal call to action on the page?\n",
+                    "description": "<p>Is this the principal call to action on the page?</p>\n",
+                    "line": 23,
+                    "type": "boolean",
+                    "decorators": []
+                },
+                {
+                    "name": "size",
+                    "defaultValue": "'medium'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nHow large should the button be?\n",
+                    "description": "<p>How large should the button be?</p>\n",
+                    "line": 35,
+                    "type": "\"small\" | \"medium\" | \"large\"",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "onClick",
+                    "defaultValue": "new EventEmitter<Event>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nOptional click handler\n",
+                    "description": "<p>Optional click handler</p>\n",
+                    "line": 49,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "CommonModule",
+                    "type": "module"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { CommonModule } from '@angular/common';\nimport { Component, Input, Output, EventEmitter } from '@angular/core';\n\n@Component({\n  selector: 'storybook-button',\n  standalone: true,\n  imports: [CommonModule],\n  template: ` <button\n    type=\"button\"\n    (click)=\"onClick.emit($event)\"\n    [ngClass]=\"classes\"\n    [ngStyle]=\"{ 'background-color': backgroundColor }\"\n  >\n    {{ label }}\n  </button>`,\n  styleUrls: ['./button.css'],\n})\nexport class ButtonComponent {\n  /**\n   * Is this the principal call to action on the page?\n   */\n  @Input()\n  primary = false;\n\n  /**\n   * What background color to use\n   */\n  @Input()\n  backgroundColor?: string;\n\n  /**\n   * How large should the button be?\n   */\n  @Input()\n  size: 'small' | 'medium' | 'large' = 'medium';\n\n  /**\n   * Button contents\n   *\n   * @required\n   */\n  @Input()\n  label = 'Button';\n\n  /**\n   * Optional click handler\n   */\n  @Output()\n  onClick = new EventEmitter<Event>();\n\n  public get classes(): string[] {\n    const mode = this.primary ? 'storybook-button--primary' : 'storybook-button--secondary';\n\n    return ['storybook-button', `storybook-button--${this.size}`, mode];\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".storybook-button {\n  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;\n  font-weight: 700;\n  border: 0;\n  border-radius: 3em;\n  cursor: pointer;\n  display: inline-block;\n  line-height: 1;\n}\n.storybook-button--primary {\n  color: white;\n  background-color: #1ea7fd;\n}\n.storybook-button--secondary {\n  color: #333;\n  background-color: transparent;\n  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;\n}\n.storybook-button--small {\n  font-size: 12px;\n  padding: 10px 16px;\n}\n.storybook-button--medium {\n  font-size: 14px;\n  padding: 11px 20px;\n}\n.storybook-button--large {\n  font-size: 16px;\n  padding: 12px 24px;\n}\n",
+                    "styleUrl": "./button.css"
+                }
+            ],
+            "stylesData": "",
+            "extends": [],
+            "accessors": {
+                "classes": {
+                    "name": "classes",
+                    "getSignature": {
+                        "name": "classes",
+                        "type": "[]",
+                        "returnType": "string[]",
+                        "line": 51
+                    }
+                }
+            }
+        },
+        {
+            "name": "ContentListComponent",
+            "id": "component-ContentListComponent-3af0a36c0cd8a901da0e9226732c4e6bc0f26e8b9bf6228146a03ff2bab0f01b069a4c650972d2fec8d7f62b4273da26dc134f0ff4422fc26bc46e0c9213fa75",
+            "file": "src/components/app/explorer/content-list/ContentListComponent.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [
+                {
+                    "name": "{ provide: BASE_PATH, useValue:  }"
+                },
+                {
+                    "name": "DirectoryService",
+                    "type": "injectable"
+                }
+            ],
+            "selector": "content-list",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./ContentListComponent.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "directories",
+                    "defaultValue": "[]",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "DirectoryContentDirectory[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 23
+                },
+                {
+                    "name": "directoryService",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "DirectoryService",
+                    "optional": false,
+                    "description": "",
+                    "line": 17,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "files",
+                    "defaultValue": "[]",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "DirectoryContentFile[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                },
+                {
+                    "name": "route",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ActivatedRoute",
+                    "optional": false,
+                    "description": "",
+                    "line": 19,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "fetchItems",
+                    "args": [
+                        {
+                            "name": "path",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 37,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "path",
+                            "type": "string",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 30,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "ContentListDirectoryComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "ContentListFileComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Inject } from '@angular/core';\r\nimport { ActivatedRoute } from '@angular/router';\r\n\r\nimport { BASE_PATH, DirectoryContentDirectory, DirectoryContentFile, DirectoryService } from 'generated';\r\nimport { ContentListDirectoryComponent } from 'src/components/app/explorer/content-list/content-list-directory/ContentListDirectoryComponent';\r\nimport { ContentListFileComponent } from 'src/components/app/explorer/content-list/content-list-file/ContentListFileComponent';\r\n\r\n@Component({\r\n\tselector: 'content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './ContentListComponent.html',\r\n\tstyleUrl: './ContentListComponent.css',\r\n\tproviders: [{ provide: BASE_PATH, useValue: '/api' }, DirectoryService],\r\n\timports: [ContentListDirectoryComponent, ContentListFileComponent],\r\n})\r\nexport class ContentListComponent {\r\n\tprivate readonly directoryService: DirectoryService;\r\n\r\n\tprivate readonly route: ActivatedRoute;\r\n\r\n\tfiles: DirectoryContentFile[] = [];\r\n\r\n\tdirectories: DirectoryContentDirectory[] = [];\r\n\r\n\tconstructor(@Inject(DirectoryService) directoryService: DirectoryService, route: ActivatedRoute) {\r\n\t\tthis.directoryService = directoryService;\r\n\t\tthis.route = route;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.route.url.subscribe((segments) => {\r\n\t\t\tconst path = segments.map((x) => x.path).join('/');\r\n\t\t\tthis.fetchItems(path);\r\n\t\t});\r\n\t}\r\n\r\n\tprivate fetchItems(path: string) {\r\n\t\tthis.directoryService.getDirectoryContent(path).subscribe({\r\n\t\t\tnext: (value: any) => {\r\n\t\t\t\tthis.files = value.files;\r\n\t\t\t\tthis.directories = value.directories;\r\n\t\t\t},\r\n\t\t\terror: (error: any) => {\r\n\t\t\t\tconsole.log(error);\r\n\t\t\t},\r\n\t\t});\r\n\t}\r\n}\r\n",
+            "styleUrl": "./ContentListComponent.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "directoryService",
+                        "type": "DirectoryService",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 23,
+                "jsdoctags": [
+                    {
+                        "name": "directoryService",
+                        "type": "DirectoryService",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "templateData": "@if (directories.length === 0 && files.length === 0) {\r\n    <p>EMPTY</p>\r\n} @else {\r\n    @for (item of directories; track item.name) {\r\n        <content-list-directory [name]=\"item.name\" [size]=\"item.size\"></content-list-directory>\r\n    } \r\n    \r\n    @for (item of files; track item.name) {\r\n        <content-list-file [name]=\"item.name\" [size]=\"item.size\"></content-list-file>\r\n        <div>{{ item.name }} {{ item.size }} {{ item.createdAt }} {{ item.updatedAt }}{{ item.mimeType }}</div>\r\n    } \r\n}"
+        },
+        {
+            "name": "ContentListDirectoryComponent",
+            "id": "component-ContentListDirectoryComponent-2fc3dccd00ce1c8430c6919fdd33049efef469a86cd44f7083ca57565137f42d32be9ed00e2fe46a8b42a085d897d1ddf399c9476335d23797ad00f7dd01e37e",
+            "file": "src/components/app/explorer/content-list/content-list-directory/ContentListDirectoryComponent.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "content-list-directory",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./ContentListDirectoryComponent.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "required": true,
+                    "name": "name",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "optional": false,
+                    "line": 16,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "required": true,
+                    "name": "size",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "optional": false,
+                    "line": 19,
+                    "type": "number",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "route",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ActivatedRoute",
+                    "optional": false,
+                    "description": "",
+                    "line": 13,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "router",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Router",
+                    "optional": false,
+                    "description": "",
+                    "line": 11,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "onClick",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 26,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "RouterModule",
+                    "type": "module"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input } from '@angular/core';\r\nimport { ActivatedRoute, Router, RouterModule } from '@angular/router';\r\n\r\n@Component({\r\n\tselector: 'content-list-directory',\r\n\tstandalone: true,\r\n\ttemplateUrl: './ContentListDirectoryComponent.html',\r\n\timports: [RouterModule],\r\n})\r\nexport class ContentListDirectoryComponent {\r\n\tprivate readonly router: Router;\r\n\r\n\tprivate readonly route: ActivatedRoute;\r\n\r\n\t@Input({ required: true })\r\n\tname!: string;\r\n\r\n\t@Input({ required: true })\r\n\tsize!: number;\r\n\r\n\tconstructor(router: Router, route: ActivatedRoute) {\r\n\t\tthis.router = router;\r\n\t\tthis.route = route;\r\n\t}\r\n\r\n\tonClick() {\r\n\t\tthis.router.navigate([this.name], { relativeTo: this.route });\r\n\t}\r\n}\r\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 19,
+                "jsdoctags": [
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "templateData": "<div (dblclick)=\"onClick()\">FOLDER {{name}} {{size}}</div>\r\n"
+        },
+        {
+            "name": "ContentListFileComponent",
+            "id": "component-ContentListFileComponent-2826ca14a958c26cb60f4dbe807e14341491c3b65140f1ce475bcfa89df63174e05f433af6bb92705fc6a16346b2fa1a0d4c3714e721449b9191afb8a7a4bad2",
+            "file": "src/components/app/explorer/content-list/content-list-file/ContentListFileComponent.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "content-list-file",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./ContentListFileComponent.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "required": true,
+                    "name": "name",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "optional": false,
+                    "line": 10,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "required": true,
+                    "name": "size",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "optional": false,
+                    "line": 13,
+                    "type": "number",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input } from '@angular/core';\r\n\r\n@Component({\r\n\tselector: 'content-list-file',\r\n\tstandalone: true,\r\n\ttemplateUrl: './ContentListFileComponent.html',\r\n})\r\nexport class ContentListFileComponent {\r\n\t@Input({ required: true })\r\n\tname!: string;\r\n\r\n\t@Input({ required: true })\r\n\tsize!: number;\r\n}\r\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "templateData": "<div>FILE {{name}} {{size}}</div>\r\n"
+        },
+        {
+            "name": "ExplorerComponent",
+            "id": "component-ExplorerComponent-c55acd7124ba79288e853f146c93fecbd0c89c428fe9622d627b6ccc461bcdd8c85870e5ae4d19036651693d1b22606b88678e61a3f0bb969211bebbc224b3f4",
+            "file": "src/components/app/explorer/ExplorerComponent.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "explorer",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./ExplorerComponent.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "route",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ActivatedRoute",
+                    "optional": false,
+                    "description": "",
+                    "line": 17,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "store",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Store",
+                    "optional": false,
+                    "description": "",
+                    "line": 19,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 26,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "ContentListComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "InteractivePathComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "TreeViewComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\r\nimport { ActivatedRoute } from '@angular/router';\r\nimport { Store } from '@ngxs/store';\r\nimport { GetPath } from 'src/components/app/actions/path';\r\nimport { ContentListComponent } from 'src/components/app/explorer/content-list/ContentListComponent';\r\nimport { InteractivePathComponent } from 'src/components/app/explorer/interactive-path/InteractivePathComponent';\r\nimport { TreeViewComponent } from 'src/components/app/explorer/tree-view/TreeViewComponent';\r\n\r\n@Component({\r\n\tselector: 'explorer',\r\n\tstandalone: true,\r\n\ttemplateUrl: './ExplorerComponent.html',\r\n\timports: [ContentListComponent, InteractivePathComponent, TreeViewComponent],\r\n\tstyleUrl: './ExplorerComponent.css',\r\n})\r\nexport class ExplorerComponent {\r\n\tprivate readonly route: ActivatedRoute;\r\n\r\n\tprivate readonly store: Store;\r\n\r\n\tpublic constructor(route: ActivatedRoute, store: Store) {\r\n\t\tthis.route = route;\r\n\t\tthis.store = store;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.store.dispatch(new GetPath(this.route));\r\n\t}\r\n}\r\n",
+            "styleUrl": "./ExplorerComponent.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "store",
+                        "type": "Store",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 19,
+                "modifierKind": [
+                    125
+                ],
+                "jsdoctags": [
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "store",
+                        "type": "Store",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "templateData": "<!-- <interactive-path></interactive-path> -->\r\n<div>\r\n    <tree-view></tree-view>\r\n    <!-- <content-list></content-list> -->\r\n</div>\r\n"
+        },
+        {
+            "name": "HeaderComponent",
+            "id": "component-HeaderComponent-cad94b233ec8e80ceb541e7972c5f9737e08237b4e137112f3987ca48ee0cce5c0d57798d41daa5d4d24d6bdbb2df1606ab68cca2aa0a1785e38f99f3cac0729",
+            "file": "src/stories/header.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "storybook-header",
+            "styleUrls": [
+                "./header.css"
+            ],
+            "styles": [],
+            "template": "<header>    <div class=\"storybook-header\">\n      <div>\n        <svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\">\n          <g fill=\"none\" fillRule=\"evenodd\">\n            <path\n              d=\"M10 0h12a10 10 0 0110 10v12a10 10 0 01-10 10H10A10 10 0 010 22V10A10 10 0 0110 0z\"\n              fill=\"#FFF\"\n            />\n            <path\n              d=\"M5.3 10.6l10.4 6v11.1l-10.4-6v-11zm11.4-6.2l9.7 5.5-9.7 5.6V4.4z\"\n              fill=\"#555AB9\"\n            />\n            <path\n              d=\"M27.2 10.6v11.2l-10.5 6V16.5l10.5-6zM15.7 4.4v11L6 10l9.7-5.5z\"\n              fill=\"#91BAF8\"\n            />\n          </g>\n        </svg>\n        <h1>Acme</h1>\n      </div>\n      <div>\n        <div *ngIf=\"user\">\n          <span class=\"welcome\">\n            Welcome, <b>{{ user.name }}</b\n            >!\n          </span>\n          <storybook-button\n            *ngIf=\"user\"\n            size=\"small\"\n            (onClick)=\"onLogout.emit($event)\"\n            label=\"Log out\"\n          ></storybook-button>\n        </div>\n        <div *ngIf=\"!user\">\n          <storybook-button\n            *ngIf=\"!user\"\n            size=\"small\"\n            class=\"margin-left\"\n            (onClick)=\"onLogin.emit($event)\"\n            label=\"Log in\"\n          ></storybook-button>\n          <storybook-button\n            *ngIf=\"!user\"\n            size=\"small\"\n            [primary]=\"true\"\n            class=\"margin-left\"\n            (onClick)=\"onCreateAccount.emit($event)\"\n            label=\"Sign up\"\n          ></storybook-button>\n        </div>\n      </div>\n    </div>\n  </header>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "user",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 69,
+                    "type": "User | null",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "onCreateAccount",
+                    "defaultValue": "new EventEmitter<Event>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 78,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "onLogin",
+                    "defaultValue": "new EventEmitter<Event>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 72,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "onLogout",
+                    "defaultValue": "new EventEmitter<Event>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 75,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "CommonModule",
+                    "type": "module"
+                },
+                {
+                    "name": "ButtonComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input, Output, EventEmitter } from '@angular/core';\nimport { CommonModule } from '@angular/common';\n\nimport { ButtonComponent } from './button.component';\nimport type { User } from './user';\n\n@Component({\n  selector: 'storybook-header',\n  standalone: true,\n  imports: [CommonModule, ButtonComponent],\n  template: `<header>\n    <div class=\"storybook-header\">\n      <div>\n        <svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\">\n          <g fill=\"none\" fillRule=\"evenodd\">\n            <path\n              d=\"M10 0h12a10 10 0 0110 10v12a10 10 0 01-10 10H10A10 10 0 010 22V10A10 10 0 0110 0z\"\n              fill=\"#FFF\"\n            />\n            <path\n              d=\"M5.3 10.6l10.4 6v11.1l-10.4-6v-11zm11.4-6.2l9.7 5.5-9.7 5.6V4.4z\"\n              fill=\"#555AB9\"\n            />\n            <path\n              d=\"M27.2 10.6v11.2l-10.5 6V16.5l10.5-6zM15.7 4.4v11L6 10l9.7-5.5z\"\n              fill=\"#91BAF8\"\n            />\n          </g>\n        </svg>\n        <h1>Acme</h1>\n      </div>\n      <div>\n        <div *ngIf=\"user\">\n          <span class=\"welcome\">\n            Welcome, <b>{{ user.name }}</b\n            >!\n          </span>\n          <storybook-button\n            *ngIf=\"user\"\n            size=\"small\"\n            (onClick)=\"onLogout.emit($event)\"\n            label=\"Log out\"\n          ></storybook-button>\n        </div>\n        <div *ngIf=\"!user\">\n          <storybook-button\n            *ngIf=\"!user\"\n            size=\"small\"\n            class=\"margin-left\"\n            (onClick)=\"onLogin.emit($event)\"\n            label=\"Log in\"\n          ></storybook-button>\n          <storybook-button\n            *ngIf=\"!user\"\n            size=\"small\"\n            [primary]=\"true\"\n            class=\"margin-left\"\n            (onClick)=\"onCreateAccount.emit($event)\"\n            label=\"Sign up\"\n          ></storybook-button>\n        </div>\n      </div>\n    </div>\n  </header>`,\n  styleUrls: ['./header.css'],\n})\nexport class HeaderComponent {\n  @Input()\n  user: User | null = null;\n\n  @Output()\n  onLogin = new EventEmitter<Event>();\n\n  @Output()\n  onLogout = new EventEmitter<Event>();\n\n  @Output()\n  onCreateAccount = new EventEmitter<Event>();\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".storybook-header {\n  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.1);\n  padding: 15px 20px;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n}\n\n.storybook-header svg {\n  display: inline-block;\n  vertical-align: top;\n}\n\n.storybook-header h1 {\n  font-weight: 700;\n  font-size: 20px;\n  line-height: 1;\n  margin: 6px 0 6px 10px;\n  display: inline-block;\n  vertical-align: top;\n}\n\n.storybook-header button + button {\n  margin-left: 10px;\n}\n\n.storybook-header .welcome {\n  color: #333;\n  font-size: 14px;\n  margin-right: 10px;\n}\n",
+                    "styleUrl": "./header.css"
+                }
+            ],
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "InteractivePathComponent",
+            "id": "component-InteractivePathComponent-130aaa5ee8aee6872897b95a5203a67b8b269f7a51c779b26862be1f88f5962164f1da9935d92e1bd0979658290772036e9b78e611908f088cc1f609905a258d",
+            "file": "src/components/app/explorer/interactive-path/InteractivePathComponent.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "interactive-path",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./InteractivePathComponent.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "paths",
+                    "defaultValue": "[]",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string[]",
+                    "optional": false,
+                    "description": "",
+                    "line": 15
+                },
+                {
+                    "name": "route",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ActivatedRoute",
+                    "optional": false,
+                    "description": "",
+                    "line": 13,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "router",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Router",
+                    "optional": false,
+                    "description": "",
+                    "line": 11,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 22,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "onClick",
+                    "args": [
+                        {
+                            "name": "id",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 29,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "id",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\r\nimport { ActivatedRoute, Router } from '@angular/router';\r\n\r\n@Component({\r\n\tselector: 'interactive-path',\r\n\tstandalone: true,\r\n\ttemplateUrl: './InteractivePathComponent.html',\r\n\tstyleUrl: './InteractivePathComponent.css',\r\n})\r\nexport class InteractivePathComponent {\r\n\tprivate readonly router: Router;\r\n\r\n\tprivate readonly route: ActivatedRoute;\r\n\r\n\tpaths: string[] = [];\r\n\r\n\tconstructor(route: ActivatedRoute, router: Router) {\r\n\t\tthis.route = route;\r\n\t\tthis.router = router;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.route.url.subscribe((segments) => {\r\n\t\t\tthis.paths = segments.map((x) => x.path);\r\n\t\t\tconsole.log(this.paths);\r\n\t\t});\r\n\t}\r\n\r\n\tonClick(id: number) {\r\n\t\tthis.router.navigate([this.paths.slice(0, id + 1).join('/')]);\r\n\t}\r\n}\r\n",
+            "styleUrl": "./InteractivePathComponent.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 15,
+                "jsdoctags": [
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "templateData": "@for (item of paths; track item; let id = $index) {\r\n    @if (item === \"root\") {\r\n        <p (click)=\"onClick(id)\">/</p>\r\n    } @else {\r\n        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\">\r\n\t    \t<path d=\"M8.7 17.3q-.275-.275-.275-.7 0-.425.275-.7l3.9-3.9-3.9-3.9q-.275-.275-.275-.7 0-.425.275-.7.275-.275.7-.275.425 0 .7.275l4.6 4.6q.15.15.213.325.062.175.062.375t-.062.375q-.063.175-.213.325l-4.6 4.6q-.275.275-.7.275-.425 0-.7-.275Z\" />\r\n\t    </svg>\r\n        <p (click)=\"onClick(id)\">{{item}}</p>\r\n    }\r\n} "
+        },
+        {
+            "name": "LoadingSpinnerComponent",
+            "id": "component-LoadingSpinnerComponent-98bf8e09284311081d51501a2ef388eabf93b33b59782b686fedbc18050848f692c5d859646d43b8aed95912aeef42ef33aeff54c9164d9062f32d2710e81f31",
+            "file": "src/components/app/loading-spinner/LoadingSpinnerComponent.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "loading-spinner",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./LoadingSpinnerComponent.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\r\n\r\n@Component({\r\n\tselector: 'loading-spinner',\r\n\tstandalone: true,\r\n\ttemplateUrl: './LoadingSpinnerComponent.html',\r\n\tstyleUrl: './LoadingSpinnerComponent.css',\r\n})\r\nexport class LoadingSpinnerComponent {}\r\n",
+            "styleUrl": "./LoadingSpinnerComponent.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "templateData": "<div class=\"loading-spinner\"></div>"
+        },
+        {
+            "name": "PageComponent",
+            "id": "component-PageComponent-d32b0f19628254ea3fc5526c4d4564ada1cc83cf936759006d90a46f5874b02a3359e331bddda20b22e74a616a6443c660602ba74dd38ebe1160759e0de6f7ba",
+            "file": "src/stories/page.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "storybook-page",
+            "styleUrls": [
+                "./page.css"
+            ],
+            "styles": [],
+            "template": "<article>    <storybook-header\n      [user]=\"user\"\n      (onLogout)=\"doLogout()\"\n      (onLogin)=\"doLogin()\"\n      (onCreateAccount)=\"doCreateAccount()\"\n    ></storybook-header>\n    <section class=\"storybook-page\">\n      <h2>Pages in Storybook</h2>\n      <p>\n        We recommend building UIs with a\n        <a href=\"https://componentdriven.org\" target=\"_blank\" rel=\"noopener noreferrer\">\n          <strong>component-driven</strong>\n        </a>\n        process starting with atomic components and ending with pages.\n      </p>\n      <p>\n        Render pages with mock data. This makes it easy to build and review page states without\n        needing to navigate to them in your app. Here are some handy patterns for managing page data\n        in Storybook:\n      </p>\n      <ul>\n        <li>\n          Use a higher-level connected component. Storybook helps you compose such data from the\n          \"args\" of child component stories\n        </li>\n        <li>\n          Assemble data in the page component from your services. You can mock these services out\n          using Storybook.\n        </li>\n      </ul>\n      <p>\n        Get a guided tutorial on component-driven development at\n        <a href=\"https://storybook.js.org/tutorials/\" target=\"_blank\" rel=\"noopener noreferrer\">\n          Storybook tutorials\n        </a>\n        . Read more in the\n        <a href=\"https://storybook.js.org/docs\" target=\"_blank\" rel=\"noopener noreferrer\"> docs </a>\n        .\n      </p>\n      <div class=\"tip-wrapper\">\n        <span class=\"tip\">Tip</span> Adjust the width of the canvas with the\n        <svg width=\"10\" height=\"10\" viewBox=\"0 0 12 12\" xmlns=\"http://www.w3.org/2000/svg\">\n          <g fill=\"none\" fillRule=\"evenodd\">\n            <path\n              d=\"M1.5 5.2h4.8c.3 0 .5.2.5.4v5.1c-.1.2-.3.3-.4.3H1.4a.5.5 0 01-.5-.4V5.7c0-.3.2-.5.5-.5zm0-2.1h6.9c.3 0 .5.2.5.4v7a.5.5 0 01-1 0V4H1.5a.5.5 0 010-1zm0-2.1h9c.3 0 .5.2.5.4v9.1a.5.5 0 01-1 0V2H1.5a.5.5 0 010-1zm4.3 5.2H2V10h3.8V6.2z\"\n              id=\"a\"\n              fill=\"#999\"\n            />\n          </g>\n        </svg>\n        Viewports addon in the toolbar\n      </div>\n    </section>\n  </article>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "user",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "User | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 69
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "doCreateAccount",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 79,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "doLogin",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 75,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "doLogout",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 71,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "CommonModule",
+                    "type": "module"
+                },
+                {
+                    "name": "HeaderComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\nimport { CommonModule } from '@angular/common';\n\nimport { HeaderComponent } from './header.component';\nimport type { User } from './user';\n\n@Component({\n  selector: 'storybook-page',\n  standalone: true,\n  imports: [CommonModule, HeaderComponent],\n  template: `<article>\n    <storybook-header\n      [user]=\"user\"\n      (onLogout)=\"doLogout()\"\n      (onLogin)=\"doLogin()\"\n      (onCreateAccount)=\"doCreateAccount()\"\n    ></storybook-header>\n    <section class=\"storybook-page\">\n      <h2>Pages in Storybook</h2>\n      <p>\n        We recommend building UIs with a\n        <a href=\"https://componentdriven.org\" target=\"_blank\" rel=\"noopener noreferrer\">\n          <strong>component-driven</strong>\n        </a>\n        process starting with atomic components and ending with pages.\n      </p>\n      <p>\n        Render pages with mock data. This makes it easy to build and review page states without\n        needing to navigate to them in your app. Here are some handy patterns for managing page data\n        in Storybook:\n      </p>\n      <ul>\n        <li>\n          Use a higher-level connected component. Storybook helps you compose such data from the\n          \"args\" of child component stories\n        </li>\n        <li>\n          Assemble data in the page component from your services. You can mock these services out\n          using Storybook.\n        </li>\n      </ul>\n      <p>\n        Get a guided tutorial on component-driven development at\n        <a href=\"https://storybook.js.org/tutorials/\" target=\"_blank\" rel=\"noopener noreferrer\">\n          Storybook tutorials\n        </a>\n        . Read more in the\n        <a href=\"https://storybook.js.org/docs\" target=\"_blank\" rel=\"noopener noreferrer\"> docs </a>\n        .\n      </p>\n      <div class=\"tip-wrapper\">\n        <span class=\"tip\">Tip</span> Adjust the width of the canvas with the\n        <svg width=\"10\" height=\"10\" viewBox=\"0 0 12 12\" xmlns=\"http://www.w3.org/2000/svg\">\n          <g fill=\"none\" fillRule=\"evenodd\">\n            <path\n              d=\"M1.5 5.2h4.8c.3 0 .5.2.5.4v5.1c-.1.2-.3.3-.4.3H1.4a.5.5 0 01-.5-.4V5.7c0-.3.2-.5.5-.5zm0-2.1h6.9c.3 0 .5.2.5.4v7a.5.5 0 01-1 0V4H1.5a.5.5 0 010-1zm0-2.1h9c.3 0 .5.2.5.4v9.1a.5.5 0 01-1 0V2H1.5a.5.5 0 010-1zm4.3 5.2H2V10h3.8V6.2z\"\n              id=\"a\"\n              fill=\"#999\"\n            />\n          </g>\n        </svg>\n        Viewports addon in the toolbar\n      </div>\n    </section>\n  </article>`,\n  styleUrls: ['./page.css'],\n})\nexport class PageComponent {\n  user: User | null = null;\n\n  doLogout() {\n    this.user = null;\n  }\n\n  doLogin() {\n    this.user = { name: 'Jane Doe' };\n  }\n\n  doCreateAccount() {\n    this.user = { name: 'Jane Doe' };\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".storybook-page {\n  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  line-height: 24px;\n  padding: 48px 20px;\n  margin: 0 auto;\n  max-width: 600px;\n  color: #333;\n}\n\n.storybook-page h2 {\n  font-weight: 700;\n  font-size: 32px;\n  line-height: 1;\n  margin: 0 0 4px;\n  display: inline-block;\n  vertical-align: top;\n}\n\n.storybook-page p {\n  margin: 1em 0;\n}\n\n.storybook-page a {\n  text-decoration: none;\n  color: #1ea7fd;\n}\n\n.storybook-page ul {\n  padding-left: 30px;\n  margin: 1em 0;\n}\n\n.storybook-page li {\n  margin-bottom: 8px;\n}\n\n.storybook-page .tip {\n  display: inline-block;\n  border-radius: 1em;\n  font-size: 11px;\n  line-height: 12px;\n  font-weight: 700;\n  background: #e7fdd8;\n  color: #66bf3c;\n  padding: 4px 12px;\n  margin-right: 10px;\n  vertical-align: top;\n}\n\n.storybook-page .tip-wrapper {\n  font-size: 13px;\n  line-height: 20px;\n  margin-top: 40px;\n  margin-bottom: 40px;\n}\n\n.storybook-page .tip-wrapper svg {\n  display: inline-block;\n  height: 12px;\n  width: 12px;\n  margin-right: 4px;\n  vertical-align: top;\n  margin-top: 3px;\n}\n\n.storybook-page .tip-wrapper svg path {\n  fill: #1ea7fd;\n}\n",
+                    "styleUrl": "./page.css"
+                }
+            ],
+            "stylesData": "",
+            "extends": []
+        },
+        {
+            "name": "TreeViewComponent",
+            "id": "component-TreeViewComponent-29ece10dd2c95630203e6ce4f7c9fe70491032eb7386d8fcdd322c9166671d579911fe26a2e1ff4dd79313caf1d24dbe7230f5e6d51498454fd6ca87659fd2f7",
+            "file": "src/components/app/explorer/tree-view/TreeViewComponent.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "tree-view",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./TreeViewComponent.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "children$",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Observable<literal type[]>",
+                    "optional": false,
+                    "description": "",
+                    "line": 26
+                },
+                {
+                    "name": "loaded",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 24,
+                    "decorators": [
+                        {
+                            "name": "HostBinding",
+                            "stringifiedArguments": "'class.loaded'"
+                        }
+                    ],
+                    "modifierKind": [
+                        170
+                    ]
+                },
+                {
+                    "name": "name",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 21
+                },
+                {
+                    "name": "path",
+                    "defaultValue": "'root'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 19
+                },
+                {
+                    "name": "store",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Store",
+                    "optional": false,
+                    "description": "",
+                    "line": 17,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 32,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [
+                {
+                    "name": "class.loaded",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 24,
+                    "type": "boolean",
+                    "decorators": []
+                }
+            ],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "AsyncPipe",
+                    "type": "pipe"
+                },
+                {
+                    "name": "TreeViewDirectoryComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "LoadingSpinnerComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { AsyncPipe } from '@angular/common';\r\nimport { Component, HostBinding } from '@angular/core';\r\nimport { Store } from '@ngxs/store';\r\nimport { Observable } from 'rxjs';\r\nimport { GetTreeSubDirectories } from 'src/components/app/actions/directory';\r\nimport { TreeViewDirectoryComponent } from 'src/components/app/explorer/tree-view/tree-view-directory/TreeViewDirectoryComponent';\r\nimport { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';\r\n\r\n@Component({\r\n\tselector: 'tree-view',\r\n\tstandalone: true,\r\n\ttemplateUrl: './TreeViewComponent.html',\r\n\tstyleUrl: './TreeViewComponent.css',\r\n\timports: [AsyncPipe, TreeViewDirectoryComponent, LoadingSpinnerComponent],\r\n})\r\nexport class TreeViewComponent {\r\n\tprivate readonly store: Store;\r\n\r\n\tpath: string = 'root';\r\n\r\n\tname!: string;\r\n\r\n\t@HostBinding('class.loaded')\r\n\tloaded: boolean = false;\r\n\r\n\tchildren$!: Observable<{ name: string; hasChildren: boolean }[]>;\r\n\r\n\tpublic constructor(store: Store) {\r\n\t\tthis.store = store;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.name = this.path.split('/').at(-1)!;\r\n\r\n\t\tthis.children$ = this.store.select((state) => {\r\n\t\t\treturn state.tree[this.path]?.children;\r\n\t\t});\r\n\r\n\t\tthis.children$.subscribe((content) => {\r\n\t\t\tif (content) {\r\n\t\t\t\tthis.loaded = true;\r\n\t\t\t}\r\n\t\t});\r\n\r\n\t\tthis.store.dispatch(new GetTreeSubDirectories(this.path));\r\n\t}\r\n}\r\n",
+            "styleUrl": "./TreeViewComponent.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "store",
+                        "type": "Store",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 26,
+                "modifierKind": [
+                    125
+                ],
+                "jsdoctags": [
+                    {
+                        "name": "store",
+                        "type": "Store",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "templateData": "@if (loaded) {\t\r\n\t@for (item of (children$ | async); track item) {\r\n\t\t<tree-view-directory [hasChildren]=\"item.hasChildren\" [path]=\"path + '/' + item.name\"></tree-view-directory>\r\n\t} @empty {\r\n\t\t<p>Leer</p>\r\n\t}\r\n} @else {\r\n \t<loading-spinner></loading-spinner>\r\n}\r\n"
+        },
+        {
+            "name": "TreeViewDirectoryComponent",
+            "id": "component-TreeViewDirectoryComponent-7d58ab0f574e0fa61f10ba24daf7be2ad9d3d52290f8a6dfee3f41276b6a39f230bacf6de4634c4cceaf5cb62a156402cda7700324116950326ca328ba696cbc",
+            "file": "src/components/app/explorer/tree-view/tree-view-directory/TreeViewDirectoryComponent.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "tree-view-directory",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./TreeViewDirectoryComponent.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "required": true,
+                    "name": "hasChildren",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "optional": false,
+                    "line": 25,
+                    "type": "boolean",
+                    "decorators": []
+                },
+                {
+                    "required": true,
+                    "name": "path",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "optional": false,
+                    "line": 22,
+                    "type": "string",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "appPath$",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Observable<string>",
+                    "optional": false,
+                    "description": "",
+                    "line": 37
+                },
+                {
+                    "name": "children$",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Observable<literal type[]>",
+                    "optional": false,
+                    "description": "",
+                    "line": 35
+                },
+                {
+                    "name": "collapsed",
+                    "defaultValue": "true",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 29
+                },
+                {
+                    "name": "loaded",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 31
+                },
+                {
+                    "name": "name",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 27
+                },
+                {
+                    "name": "router",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Router",
+                    "optional": false,
+                    "description": "",
+                    "line": 19,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "selected",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 33
+                },
+                {
+                    "name": "store",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Store",
+                    "optional": false,
+                    "description": "",
+                    "line": 17,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 44,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "onClick",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 75,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "toggle",
+                    "args": [
+                        {
+                            "name": "e",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 83,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "e",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true,
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "AsyncPipe",
+                    "type": "pipe"
+                },
+                {
+                    "name": "LoadingSpinnerComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { AsyncPipe } from '@angular/common';\r\nimport { Component, Input } from '@angular/core';\r\nimport { Router } from '@angular/router';\r\nimport { Store } from '@ngxs/store';\r\nimport { Observable } from 'rxjs';\r\nimport { GetTreeSubDirectories } from 'src/components/app/actions/directory';\r\nimport { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';\r\n\r\n@Component({\r\n\tselector: 'tree-view-directory',\r\n\tstandalone: true,\r\n\ttemplateUrl: './TreeViewDirectoryComponent.html',\r\n\tstyleUrl: './TreeViewDirectoryComponent.css',\r\n\timports: [AsyncPipe, LoadingSpinnerComponent],\r\n})\r\nexport class TreeViewDirectoryComponent {\r\n\tprivate readonly store: Store;\r\n\r\n\tprivate readonly router: Router;\r\n\r\n\t@Input({ required: true })\r\n\tpath!: string;\r\n\r\n\t@Input({ required: true })\r\n\thasChildren!: boolean;\r\n\r\n\tname!: string;\r\n\r\n\tcollapsed: boolean = true;\r\n\r\n\tloaded: boolean = false;\r\n\r\n\tselected: boolean = false;\r\n\r\n\tchildren$!: Observable<{ name: string; hasChildren: boolean }[]>;\r\n\r\n\tappPath$!: Observable<string>;\r\n\r\n\tpublic constructor(store: Store, router: Router) {\r\n\t\tthis.store = store;\r\n\t\tthis.router = router;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.name = this.path.split('/').at(-1)!;\r\n\r\n\t\tthis.store\r\n\t\t\t.select((state) => state.path)\r\n\t\t\t.subscribe((appPath: string) => {\r\n\t\t\t\tthis.selected = appPath === this.path;\r\n\t\t\t\tthis.collapsed = this.collapsed ? !new RegExp(`${this.path}(\\/|$)`, 'im').test(appPath) : false;\r\n\t\t\t});\r\n\r\n\t\tthis.children$ = this.store.select((state) => {\r\n\t\t\treturn state.tree[this.path]?.children;\r\n\t\t});\r\n\r\n\t\tthis.children$.subscribe((content) => {\r\n\t\t\tconsole.log(this.path, content);\r\n\t\t\tif (content) {\r\n\t\t\t\tthis.loaded = true;\r\n\t\t\t}\r\n\t\t});\r\n\r\n\t\tif (!this.hasChildren) {\r\n\t\t\tthis.collapsed = true;\r\n\t\t\tthis.loaded = true;\r\n\t\t}\r\n\r\n\t\tif (!this.collapsed) {\r\n\t\t\tthis.store.dispatch(new GetTreeSubDirectories(this.path));\r\n\t\t}\r\n\t}\r\n\r\n\tonClick() {\r\n\t\tif (this.hasChildren && this.collapsed) {\r\n\t\t\tthis.toggle();\r\n\t\t}\r\n\r\n\t\tthis.router.navigate([this.path]);\r\n\t}\r\n\r\n\ttoggle(e?: Event) {\r\n\t\te?.stopPropagation();\r\n\r\n\t\tthis.collapsed = !this.collapsed;\r\n\r\n\t\tif (!this.collapsed && !this.loaded) {\r\n\t\t\tthis.store.dispatch(new GetTreeSubDirectories(this.path));\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "styleUrl": "./TreeViewDirectoryComponent.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "store",
+                        "type": "Store",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 37,
+                "modifierKind": [
+                    125
+                ],
+                "jsdoctags": [
+                    {
+                        "name": "store",
+                        "type": "Store",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "extends": [],
+            "templateData": "<head [class.selected]=\"selected\" [class.collapsed]=\"collapsed\" (click)=\"onClick()\">\r\n\t@if (hasChildren) {\r\n\t\t<svg (click)=\"toggle($event)\" class=\"collapse\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\">\r\n\t\t\t<path d=\"M8.7 17.3q-.275-.275-.275-.7 0-.425.275-.7l3.9-3.9-3.9-3.9q-.275-.275-.275-.7 0-.425.275-.7.275-.275.7-.275.425 0 .7.275l4.6 4.6q.15.15.213.325.062.175.062.375t-.062.375q-.063.175-.213.325l-4.6 4.6q-.275.275-.7.275-.425 0-.7-.275Z\" />\r\n\t\t</svg>\r\n\t} @else {\r\n\t <div class=\"placeholder\"></div>\r\n\t}\r\n\t<svg class=\"folder-icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"25\" height=\"19\">\r\n\t\t<path fill=\"rgb(255, 160, 0)\" d=\"M2 0 10 0 14 3 14 5 0 5 0 2C0 1 1 0 2 0\"/>\r\n\t\t<path fill=\"rgb(255, 202, 40)\" d=\"M2 3 22 3C24 3 25 4 25 6L25 16C25 18 24 19 22 19L3 19C1 19 0 18 0 16L0 6C0 4 1 3 3 3\"/>\r\n\t</svg>\r\n\t<p>{{name}}</p>\r\n</head>\r\n<main>\r\n\t@if (!collapsed) {\r\n\t\t@if (!loaded) {\r\n\t\t\t<loading-spinner></loading-spinner>\r\n\t\t} @else {\r\n\t\t\t@for (item of (children$ | async); track item) {\r\n\t\t\t\t<tree-view-directory [hasChildren]=\"item.hasChildren\" [path]=\"path + '/' + item.name\"></tree-view-directory>\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n</main>\r\n"
+        }
+    ],
+    "modules": [],
+    "miscellaneous": {
+        "variables": [
+            {
+                "name": "appConfig",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/components/app/app.config.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "ApplicationConfig",
+                "defaultValue": "{\r\n\tproviders: [provideRouter(routes), provideHttpClient(), importProvidersFrom(NgxsModule.forRoot([TreeState, PathState]), NgxsLoggerPluginModule.forRoot())],\r\n}"
+            }
+        ],
+        "functions": [],
+        "typealiases": [],
+        "enumerations": [],
+        "groupedVariables": {
+            "src/components/app/app.config.ts": [
+                {
+                    "name": "appConfig",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/components/app/app.config.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ApplicationConfig",
+                    "defaultValue": "{\r\n\tproviders: [provideRouter(routes), provideHttpClient(), importProvidersFrom(NgxsModule.forRoot([TreeState, PathState]), NgxsLoggerPluginModule.forRoot())],\r\n}"
+                }
+            ]
+        },
+        "groupedFunctions": {},
+        "groupedEnumerations": {},
+        "groupedTypeAliases": {}
+    },
+    "routes": [],
+    "coverage": {
+        "count": 4,
+        "status": "low",
+        "files": [
+            {
+                "filePath": "src/components/app/AppComponent.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "AppComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/actions/directory.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "GetTreeSubDirectories",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/actions/directory.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "GetTreeSubDirectoriesRecursive",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/actions/path.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "GetPath",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/actions/path.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "PathState",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/actions/tree.state.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "TreeState",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/actions/tree.state.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "TreeStateModel",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/app.config.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "appConfig",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/explorer/ExplorerComponent.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ExplorerComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/explorer/content-list/ContentListComponent.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ContentListComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/8",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/explorer/content-list/content-list-directory/ContentListDirectoryComponent.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ContentListDirectoryComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/explorer/content-list/content-list-file/ContentListFileComponent.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ContentListFileComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/explorer/interactive-path/InteractivePathComponent.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "InteractivePathComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/explorer/tree-view/TreeViewComponent.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TreeViewComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/9",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/explorer/tree-view/tree-view-directory/TreeViewDirectoryComponent.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "TreeViewDirectoryComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/15",
+                "status": "low"
+            },
+            {
+                "filePath": "src/components/app/loading-spinner/LoadingSpinnerComponent.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "LoadingSpinnerComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/button.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ButtonComponent",
+                "coveragePercent": 83,
+                "coverageCount": "5/6",
+                "status": "very-good"
+            },
+            {
+                "filePath": "src/stories/header.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "HeaderComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/page.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "PageComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/user.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "User",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            }
+        ]
+    }
+}

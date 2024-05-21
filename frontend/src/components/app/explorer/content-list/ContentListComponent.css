@@ -1,10 +1,30 @@
 :host {
 	background-color: rgb(251, 252, 255);
-	display: block;
 
 	padding: 20px;
 	border-radius: 0 25px 25px 0;
 
 	width: calc(60% - 20px);
 	height: calc(100% - 2 * 20px);
+
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+:host.loaded:not(.empty) {
+	justify-content: flex-start;
+	align-items: normal;
+}
+
+:host > loading-spinner {
+	width: 30px;
+	height: 30px;
+
+	--thickness: 6px;
+}
+
+:host > p {
+	padding-bottom: 20vh;
 }

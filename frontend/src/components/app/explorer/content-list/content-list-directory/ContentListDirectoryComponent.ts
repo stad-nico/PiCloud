@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 	selector: 'content-list-directory',
 	standalone: true,
 	templateUrl: './ContentListDirectoryComponent.html',
+	styleUrl: './ContentListDirectoryComponent.css',
 	imports: [RouterModule],
 })
 export class ContentListDirectoryComponent {

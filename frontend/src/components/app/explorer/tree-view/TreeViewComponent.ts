@@ -1,8 +1,8 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, HostBinding } from '@angular/core';
+import { Component, EventEmitter, HostBinding, Output } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
-import { GetTreeSubDirectories } from 'src/components/app/actions/directory';
+import { GetTreeSubDirectories, TreeViewStateName } from 'src/components/app/actions/tree.state';
 import { TreeViewDirectoryComponent } from 'src/components/app/explorer/tree-view/tree-view-directory/TreeViewDirectoryComponent';
 import { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';
 
@@ -23,6 +23,9 @@ export class TreeViewComponent {
 	@HostBinding('class.loaded')
 	loaded: boolean = false;
 
+	@Output()
+	loadedEvent = new EventEmitter<boolean>();
+
 	children$!: Observable<{ name: string; hasChildren: boolean }[]>;
 
 	public constructor(store: Store) {
@@ -32,13 +35,12 @@ export class TreeViewComponent {
 	ngOnInit() {
 		this.name = this.path.split('/').at(-1)!;
 
-		this.children$ = this.store.select((state) => {
-			return state.tree[this.path]?.children;
-		});
+		this.children$ = this.store.select((state) => state[TreeViewStateName][this.path]?.children);
 
 		this.children$.subscribe((content) => {
 			if (content) {
 				this.loaded = true;
+				this.loadedEvent.emit(true);
 			}
 		});
 

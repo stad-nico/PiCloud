@@ -1,5 +1,9 @@
-<!-- <interactive-path></interactive-path> -->
+@if (!this.loaded) {
+    <loading-spinner></loading-spinner>
+}
+    
+    <!-- <interactive-path></interactive-path> -->
 <div>
-    <tree-view></tree-view>
-    <!-- <content-list></content-list> -->
+    <tree-view (loadedEvent)="treeViewLoadedHandler()"></tree-view>
+    <content-list (loadedEvent)="contentListLoadedHandler()"></content-list>
 </div>

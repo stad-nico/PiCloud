@@ -1,48 +1,60 @@
-import { Component, Inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
+import { Component, EventEmitter, HostBinding, Output } from '@angular/core';
+import { Select, Store } from '@ngxs/store';
+import { DirectoryContentDirectory, DirectoryContentFile } from 'generated';
+import { Observable, combineLatest, map } from 'rxjs';
+import { ContentListStateName, ContentListStateType, GetContentListContent } from 'src/components/app/actions/content.state';
+import { PathState } from 'src/components/app/actions/path';
 
-import { BASE_PATH, DirectoryContentDirectory, DirectoryContentFile, DirectoryService } from 'generated';
 import { ContentListDirectoryComponent } from 'src/components/app/explorer/content-list/content-list-directory/ContentListDirectoryComponent';
 import { ContentListFileComponent } from 'src/components/app/explorer/content-list/content-list-file/ContentListFileComponent';
+import { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';
 
 @Component({
 	selector: 'content-list',
 	standalone: true,
 	templateUrl: './ContentListComponent.html',
 	styleUrl: './ContentListComponent.css',
-	providers: [{ provide: BASE_PATH, useValue: '/api' }, DirectoryService],
-	imports: [ContentListDirectoryComponent, ContentListFileComponent],
+	imports: [AsyncPipe, ContentListDirectoryComponent, ContentListFileComponent, LoadingSpinnerComponent],
 })
 export class ContentListComponent {
-	private readonly directoryService: DirectoryService;
+	private readonly store: Store;
 
-	private readonly route: ActivatedRoute;
+	@HostBinding('class.loaded')
+	loaded: boolean = false;
 
-	files: DirectoryContentFile[] = [];
+	@HostBinding('class.empty')
+	empty: boolean = false;
 
-	directories: DirectoryContentDirectory[] = [];
+	@Output()
+	loadedEvent = new EventEmitter<boolean>();
 
-	constructor(@Inject(DirectoryService) directoryService: DirectoryService, route: ActivatedRoute) {
-		this.directoryService = directoryService;
-		this.route = route;
+	@Select(PathState.path)
+	path$!: Observable<string>;
+
+	@Select((state: ContentListStateType) => state[ContentListStateName].directories)
+	directories$!: Observable<DirectoryContentDirectory[]>;
+
+	@Select((state: ContentListStateType) => state[ContentListStateName].files)
+	files$!: Observable<DirectoryContentFile[]>;
+
+	public constructor(store: Store) {
+		this.store = store;
 	}
 
 	ngOnInit() {
-		this.route.url.subscribe((segments) => {
-			const path = segments.map((x) => x.path).join('/');
-			this.fetchItems(path);
-		});
-	}
+		combineLatest([this.directories$, this.files$])
+			.pipe(map(([directories, files]) => ({ directories: directories, files: files })))
+			.subscribe((content) => {
+				if (content.directories && content.files) {
+					this.loaded = true;
+					this.loadedEvent.emit(true);
+					this.empty = content.directories.length === 0 && content.files.length === 0;
+				}
+			});
 
-	private fetchItems(path: string) {
-		this.directoryService.getDirectoryContent(path).subscribe({
-			next: (value: any) => {
-				this.files = value.files;
-				this.directories = value.directories;
-			},
-			error: (error: any) => {
-				console.log(error);
-			},
+		this.path$.subscribe((path) => {
+			this.store.dispatch(new GetContentListContent(path));
 		});
 	}
 }

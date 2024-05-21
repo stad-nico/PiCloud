@@ -1,9 +1,11 @@
+import { Observable } from 'rxjs';
+
 import { AsyncPipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngxs/store';
-import { Observable } from 'rxjs';
-import { GetTreeSubDirectories } from 'src/components/app/actions/directory';
+
+import { GetTreeSubDirectories, TreeViewStateName, TreeViewStateType } from 'src/components/app/actions/tree.state';
 import { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';
 
 @Component({
@@ -51,12 +53,11 @@ export class TreeViewDirectoryComponent {
 				this.collapsed = this.collapsed ? !new RegExp(`${this.path}(\/|$)`, 'im').test(appPath) : false;
 			});
 
-		this.children$ = this.store.select((state) => {
-			return state.tree[this.path]?.children;
+		this.children$ = this.store.select((state: TreeViewStateType) => {
+			return state[TreeViewStateName][this.path]?.children;
 		});
 
 		this.children$.subscribe((content) => {
-			console.log(this.path, content);
 			if (content) {
 				this.loaded = true;
 			}
