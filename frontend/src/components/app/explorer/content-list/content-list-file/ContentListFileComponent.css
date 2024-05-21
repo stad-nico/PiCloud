@@ -1,0 +1,31 @@
+:host {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+
+	padding-left: 15px;
+	margin-bottom: 2px;
+
+	border-radius: 15px;
+
+	height: 40px;
+
+	gap: 4px;
+}
+
+:host:hover {
+	background-color: rgb(235, 240, 254);
+	cursor: pointer;
+}
+
+:host:hover > p {
+	color: rgb(57, 97, 237);
+}
+
+:host > p {
+	user-select: none;
+}
+
+:host > img {
+	/* scale: 1.2; */
+}
