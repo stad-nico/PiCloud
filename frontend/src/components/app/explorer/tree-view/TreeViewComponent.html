@@ -1,5 +1,9 @@
-@for (item of (children$ | async); track item) {
-	<tree-view-directory [hasChildren]="item.hasChildren" [path]="path + '/' + item.name"></tree-view-directory>
-} @empty {
-	<p>Leer</p>
+@if (loaded) {	
+	@for (item of (children$ | async); track item) {
+		<tree-view-directory [hasChildren]="item.hasChildren" [path]="path + '/' + item.name"></tree-view-directory>
+	} @empty {
+		<p>Leer</p>
+	}
+} @else {
+ 	<loading-spinner></loading-spinner>
 }

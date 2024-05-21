@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Action, State, StateContext } from '@ngxs/store';
 import { DirectoryService } from 'generated';
-import { defaultIfEmpty, forkJoin, map, mergeMap, tap } from 'rxjs';
+import { defaultIfEmpty, delay, forkJoin, map, mergeMap, tap } from 'rxjs';
 import { GetTreeSubDirectories } from 'src/components/app/actions/directory';
 
 export interface TreeStateModel {
@@ -28,6 +28,8 @@ export class TreeState {
 
 		return this.directoryService.getDirectoryContent(action.path).pipe(
 			map((content) => content.directories.map((directory) => directory.name)),
+
+			delay(2000),
 			mergeMap((directoryNames) => {
 				const observables = directoryNames.map((name) =>
 					this.directoryService.getDirectoryMetadata(action.path + '/' + name).pipe(
