@@ -19,7 +19,7 @@ export class TreeViewComponent {
 
 	name!: string;
 
-	children$!: Observable<string[]>;
+	children$!: Observable<{ name: string; hasChildren: boolean }[]>;
 
 	public constructor(store: Store) {
 		this.store = store;

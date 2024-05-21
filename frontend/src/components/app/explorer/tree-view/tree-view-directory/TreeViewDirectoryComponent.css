@@ -2,16 +2,13 @@
 	width: calc(100% - 30px);
 }
 
-:host > head.collapsed > svg.collapse {
-	transform: rotate(0deg);
-}
-
 :host > head {
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
 
 	padding: 0 15px 0 8px;
+	margin-bottom: 2px;
 
 	border-radius: 15px;
 
@@ -30,19 +27,31 @@
 	color: rgb(57, 97, 237);
 }
 
+:host > head.selected {
+	background-color: rgb(223, 231, 253);
+}
+
 :host > head > svg {
-	scale: 1;
 	fill: rgb(169, 174, 199);
 }
 
-:host > head > svg.collapse {
+:host > head > :is(svg.collapse, .placeholder) {
+	width: 24px;
+	height: 24px;
 	transform: rotate(90deg);
 }
 
 :host > head > svg.collapse:hover {
-	background-color: rgb(220, 228, 253);
 	fill: rgb(57, 97, 237);
 	border-radius: 10px;
+}
+
+:host > head:not(.selected) > svg.collapse:hover {
+	background-color: rgb(220, 228, 253);
+}
+
+:host > head.collapsed > svg.collapse {
+	transform: rotate(0deg);
 }
 
 :host > head > p {

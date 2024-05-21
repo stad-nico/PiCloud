@@ -21,13 +21,18 @@ export class TreeViewDirectoryComponent {
 	@Input({ required: true })
 	path!: string;
 
+	@Input({ required: true })
+	hasChildren!: boolean;
+
 	name!: string;
 
 	collapsed: boolean = true;
 
 	loaded: boolean = false;
 
-	children$!: Observable<string[]>;
+	selected: boolean = false;
+
+	children$!: Observable<{ name: string; hasChildren: boolean }[]>;
 
 	appPath$!: Observable<string>;
 
@@ -42,7 +47,8 @@ export class TreeViewDirectoryComponent {
 		this.store
 			.select((state) => state.path)
 			.subscribe((appPath: string) => {
-				this.collapsed = this.collapsed ? !appPath.startsWith(this.path) : false;
+				this.selected = appPath === this.path;
+				this.collapsed = this.collapsed ? !new RegExp(`${this.path}(\/|$)`, 'im').test(appPath) : false;
 			});
 
 		this.children$ = this.store.select((state) => {
@@ -50,10 +56,16 @@ export class TreeViewDirectoryComponent {
 		});
 
 		this.children$.subscribe((content) => {
+			console.log(this.path, content);
 			if (content) {
 				this.loaded = true;
 			}
 		});
+
+		if (!this.hasChildren) {
+			this.collapsed = true;
+			this.loaded = true;
+		}
 
 		if (!this.collapsed) {
 			this.store.dispatch(new GetTreeSubDirectories(this.path));
@@ -61,9 +73,10 @@ export class TreeViewDirectoryComponent {
 	}
 
 	onClick() {
-		if (this.collapsed) {
+		if (this.hasChildren && this.collapsed) {
 			this.toggle();
 		}
+
 		this.router.navigate([this.path]);
 	}
 
