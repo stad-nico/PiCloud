@@ -36,10 +36,10 @@ export class FileReplaceDto {
 	readonly size: number;
 
 	/**
-	 * The readstream of the files content
-	 * @type {Readable}
+	 * The content of the file.
+	 * @type {Buffer}
 	 */
-	readonly stream: Readable;
+	readonly buffer: Buffer;
 
 	/**
 	 * Creates a new FileReplaceDto instance.
@@ -48,13 +48,13 @@ export class FileReplaceDto {
 	 * @param   {string}         path     the path of the file
 	 * @param   {string}         mimeType the mime type of the file
 	 * @param   {number}         size     the size of the file in bytes
-	 * @param   {Readable}       stream   the readstream of the files content
+	 * @param   {Readable}       buffer   the content of the file
 	 * @returns {FileReplaceDto}          the FileReplaceDto instance
 	 */
-	private constructor(path: string, mimeType: string, size: number, stream: Readable) {
+	private constructor(path: string, mimeType: string, size: number, buffer: Buffer) {
 		this.path = path;
 		this.mimeType = mimeType;
-		this.stream = stream;
+		this.buffer = buffer;
 		this.size = size;
 	}
 
@@ -80,6 +80,6 @@ export class FileReplaceDto {
 			throw new FileNameTooLongException(fileUploadParams.path);
 		}
 
-		return new FileReplaceDto(normalizedPath, file.mimetype, file.size, file.stream);
+		return new FileReplaceDto(normalizedPath, file.mimetype, file.size, file.buffer);
 	}
 }

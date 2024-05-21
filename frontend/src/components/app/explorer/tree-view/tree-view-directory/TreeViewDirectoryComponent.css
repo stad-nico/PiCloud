@@ -52,6 +52,7 @@
 :host > head > p {
 	margin-left: 2px;
 	color: rgb(102, 113, 168);
+	user-select: none;
 }
 
 :host > main {

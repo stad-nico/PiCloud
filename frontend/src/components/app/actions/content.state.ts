@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Action, State, StateContext } from '@ngxs/store';
+import { Action, State, StateContext, Store } from '@ngxs/store';
 import { DirectoryContentDirectory, DirectoryContentFile, DirectoryService } from 'generated';
 import { tap } from 'rxjs';
 
@@ -25,7 +25,10 @@ export interface ContentListStateModel {
 })
 @Injectable()
 export class ContentListState {
-	constructor(private readonly directoryService: DirectoryService) {}
+	constructor(
+		private readonly directoryService: DirectoryService,
+		private readonly store: Store
+	) {}
 
 	@Action(GetContentListContent)
 	get(ctx: StateContext<ContentListStateModel>, action: GetContentListContent) {

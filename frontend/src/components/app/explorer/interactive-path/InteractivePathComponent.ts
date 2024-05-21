@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Select } from '@ngxs/store';
+import { Observable } from 'rxjs';
+import { PathState } from 'src/components/app/actions/path';
 
 @Component({
 	selector: 'interactive-path',
@@ -12,6 +15,9 @@ export class InteractivePathComponent {
 
 	private readonly route: ActivatedRoute;
 
+	@Select(PathState.path)
+	path$!: Observable<string>;
+
 	paths: string[] = [];
 
 	constructor(route: ActivatedRoute, router: Router) {
@@ -20,9 +26,8 @@ export class InteractivePathComponent {
 	}
 
 	ngOnInit() {
-		this.route.url.subscribe((segments) => {
-			this.paths = segments.map((x) => x.path);
-			console.log(this.paths);
+		this.path$.subscribe((path) => {
+			this.paths = path.split('/');
 		});
 	}
 

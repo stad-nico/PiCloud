@@ -112,7 +112,7 @@ export class FileService implements IFileService {
 			const result = await this.fileRepository.insertReturningId(entityManager, fileName, fileUploadDto.mimeType, fileUploadDto.size, parentId);
 
 			const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(result.id));
-			await FileUtils.writeFile(resolvedPath, fileUploadDto.stream);
+			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
 
 			return FileUploadResponse.from(fileUploadDto.path);
 		});
@@ -151,7 +151,7 @@ export class FileService implements IFileService {
 			);
 
 			const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(result.id));
-			await FileUtils.writeFile(resolvedPath, fileReplaceDto.stream);
+			await FileUtils.writeFile(resolvedPath, fileReplaceDto.buffer);
 
 			return FileReplaceResponse.from(fileReplaceDto.path);
 		});

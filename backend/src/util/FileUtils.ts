@@ -53,7 +53,7 @@ export class FileUtils {
 	 * @param {Readable} stream           the file stream
 	 * @param {boolean}  [recursive=true] whether destination path should be created if it does not exist
 	 */
-	public static async writeFile(absolutePath: string, stream: Readable, recursive: boolean = true): Promise<void> {
+	public static async writeFile(absolutePath: string, buffer: Buffer, recursive: boolean = true): Promise<void> {
 		const normalizedPath = PathUtils.prepareFilePathForFS(absolutePath);
 
 		if (recursive) {
@@ -64,7 +64,7 @@ export class FileUtils {
 			}
 		}
 
-		await fsPromises.writeFile(normalizedPath, stream);
+		await fsPromises.writeFile(normalizedPath, buffer);
 	}
 
 	/**

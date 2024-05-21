@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -24,6 +24,7 @@ export class ContentListDirectoryComponent {
 		this.route = route;
 	}
 
+	@HostListener('dblclick')
 	onClick() {
 		this.router.navigate([this.name], { relativeTo: this.route });
 	}

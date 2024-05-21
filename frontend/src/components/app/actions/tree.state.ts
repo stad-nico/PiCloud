@@ -3,17 +3,26 @@ import { Action, State, StateContext } from '@ngxs/store';
 import { DirectoryService } from 'generated';
 import { defaultIfEmpty, forkJoin, map, mergeMap, tap } from 'rxjs';
 
-export const TreeViewStateName = 'tree_view';
-
-export type TreeViewStateType = {
-	[TreeViewStateName]: TreeViewStateModel;
-};
-
 export class GetTreeSubDirectories {
 	static readonly type = '[Tree View] Get subdirectories';
 
 	constructor(public path: string) {}
 }
+
+export class SetTreeSubDirectories {
+	static readonly type = '[Tree View] Set subdirectories';
+
+	constructor(
+		public path: string,
+		public directories: { name: string; hasChildren: boolean }[]
+	) {}
+}
+
+export const TreeViewStateName = 'tree_view';
+
+export type TreeViewStateType = {
+	[TreeViewStateName]: TreeViewStateModel;
+};
 
 export interface TreeViewStateModel {
 	[key: string]: {
@@ -59,5 +68,14 @@ export class TreeViewState {
 				});
 			})
 		);
+	}
+
+	@Action(SetTreeSubDirectories)
+	set(ctx: StateContext<TreeViewStateModel>, action: SetTreeSubDirectories) {
+		ctx.patchState({
+			[action.path]: {
+				children: action.directories,
+			},
+		});
 	}
 }

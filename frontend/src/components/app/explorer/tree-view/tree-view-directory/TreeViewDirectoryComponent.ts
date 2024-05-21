@@ -3,8 +3,9 @@ import { Observable } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { Store } from '@ngxs/store';
+import { Select, Store } from '@ngxs/store';
 
+import { PathState } from 'src/components/app/actions/path';
 import { GetTreeSubDirectories, TreeViewStateName, TreeViewStateType } from 'src/components/app/actions/tree.state';
 import { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';
 
@@ -36,6 +37,7 @@ export class TreeViewDirectoryComponent {
 
 	children$!: Observable<{ name: string; hasChildren: boolean }[]>;
 
+	@Select(PathState.path)
 	appPath$!: Observable<string>;
 
 	public constructor(store: Store, router: Router) {
@@ -46,12 +48,14 @@ export class TreeViewDirectoryComponent {
 	ngOnInit() {
 		this.name = this.path.split('/').at(-1)!;
 
-		this.store
-			.select((state) => state.path)
-			.subscribe((appPath: string) => {
-				this.selected = appPath === this.path;
-				this.collapsed = this.collapsed ? !new RegExp(`${this.path}(\/|$)`, 'im').test(appPath) : false;
-			});
+		this.appPath$.subscribe((appPath: string) => {
+			this.selected = appPath === this.path;
+			this.collapsed = this.collapsed ? !new RegExp(`${this.path}(\/|$)`, 'im').test(appPath) : false;
+
+			if (!this.collapsed) {
+				this.store.dispatch(new GetTreeSubDirectories(this.path));
+			}
+		});
 
 		this.children$ = this.store.select((state: TreeViewStateType) => {
 			return state[TreeViewStateName][this.path]?.children;
@@ -66,10 +70,6 @@ export class TreeViewDirectoryComponent {
 		if (!this.hasChildren) {
 			this.collapsed = true;
 			this.loaded = true;
-		}
-
-		if (!this.collapsed) {
-			this.store.dispatch(new GetTreeSubDirectories(this.path));
 		}
 	}
 

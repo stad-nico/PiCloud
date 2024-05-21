@@ -8,9 +8,12 @@
 	width: 70vw;
 
 	border-radius: 25px;
-	background-color: white;
 
 	overflow: hidden;
+}
+
+:host:not(.loaded) {
+	background-color: white;
 }
 
 :host > div {
@@ -23,7 +26,7 @@
 	height: 100%;
 }
 
-:host:not(.loaded) > div {
+:host:not(.loaded) > :is(div, interactive-path) {
 	display: none;
 }
 

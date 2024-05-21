@@ -21,3 +21,7 @@
 :host:hover > p {
 	color: rgb(57, 97, 237);
 }
+
+:host > p {
+	user-select: none;
+}

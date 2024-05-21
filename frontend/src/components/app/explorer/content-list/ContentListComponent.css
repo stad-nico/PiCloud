@@ -26,5 +26,6 @@
 }
 
 :host > p {
+	user-select: none;
 	padding-bottom: 20vh;
 }

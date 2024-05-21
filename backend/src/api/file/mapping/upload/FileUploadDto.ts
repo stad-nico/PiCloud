@@ -5,7 +5,6 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import * as path from 'path';
-import { Readable } from 'stream';
 
 import { FileUploadParams } from 'src/api/file/mapping/upload/FileUploadParams';
 import { FileNameTooLongException } from 'src/exceptions/FileNameTooLongException';
@@ -36,10 +35,10 @@ export class FileUploadDto {
 	readonly size: number;
 
 	/**
-	 * The readstream of the files content
-	 * @type {Readable}
+	 * The file content.
+	 * @type {Buffer}
 	 */
-	readonly stream: Readable;
+	readonly buffer: Buffer;
 
 	/**
 	 * Creates a new FileUploadDto instance.
@@ -48,13 +47,13 @@ export class FileUploadDto {
 	 * @param   {string}        path     the path of the file
 	 * @param   {string}        mimeType the mime type of the file
 	 * @param   {number}        size     the size of the file in bytes
-	 * @param   {Readable}      stream   the readstream of the files content
+	 * @param   {Buffer}        buffer   the content of the file
 	 * @returns {FileUploadDto}          the FileUploadDto instance
 	 */
-	private constructor(path: string, mimeType: string, size: number, stream: Readable) {
+	private constructor(path: string, mimeType: string, size: number, buffer: Buffer) {
 		this.path = path;
 		this.mimeType = mimeType;
-		this.stream = stream;
+		this.buffer = buffer;
 		this.size = size;
 	}
 
@@ -80,6 +79,6 @@ export class FileUploadDto {
 			throw new FileNameTooLongException(fileUploadParams.path);
 		}
 
-		return new FileUploadDto(normalizedPath, file.mimetype, file.size, file.stream);
+		return new FileUploadDto(normalizedPath, file.mimetype, file.size, file.buffer);
 	}
 }
