@@ -11,6 +11,8 @@
 	height: 40px;
 
 	gap: 4px;
+
+	user-select: none;
 }
 
 :host > head:hover {
@@ -52,7 +54,6 @@
 :host > head > p {
 	margin-left: 2px;
 	color: rgb(102, 113, 168);
-	user-select: none;
 }
 
 :host > main {
