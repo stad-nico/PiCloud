@@ -1,8 +1,10 @@
 @if (loaded) {	
 	@for (item of (children$ | async); track item) {
 		<tree-view-directory [hasChildren]="item.hasChildren" [path]="path + '/' + item.name"></tree-view-directory>
-	} @empty {
-		<p>Leer</p>
+	}
+
+	@if (displayCreateDirectoryComponent) {
+		<create-directory-component (removeEmitter)="removeDirectoryCreateComponent()"></create-directory-component>
 	}
 } @else {
  	<loading-spinner></loading-spinner>

@@ -3,10 +3,10 @@
             label "linux"
         }
 
-        tools {
-            nodejs "latest"
-            dockerTool "docker"
-        }
+        // tools {
+        //     nodejs "latest"
+        //     // dockerTool "docker"
+        // }
 
         stages {
             stage("Backend Test") {

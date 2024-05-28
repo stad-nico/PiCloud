@@ -1,9 +1,11 @@
-import { Component, HostBinding } from '@angular/core';
+import { Component, HostBinding, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngxs/store';
-import { GetPath } from 'src/components/app/actions/path';
+import { Select, Store } from '@ngxs/store';
+import { Observable } from 'rxjs';
+import { GetPath, PathState } from 'src/components/app/actions/path';
 import { ContentListComponent } from 'src/components/app/explorer/content-list/ContentListComponent';
 import { InteractivePathComponent } from 'src/components/app/explorer/interactive-path/InteractivePathComponent';
+import { MenuComponent } from 'src/components/app/explorer/menu/MenuComponent';
 import { TreeViewComponent } from 'src/components/app/explorer/tree-view/TreeViewComponent';
 import { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';
 
@@ -11,7 +13,7 @@ import { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/Load
 	selector: 'explorer',
 	standalone: true,
 	templateUrl: './ExplorerComponent.html',
-	imports: [ContentListComponent, InteractivePathComponent, TreeViewComponent, LoadingSpinnerComponent],
+	imports: [ContentListComponent, InteractivePathComponent, TreeViewComponent, LoadingSpinnerComponent, MenuComponent],
 	styleUrl: './ExplorerComponent.css',
 })
 export class ExplorerComponent {
@@ -22,9 +24,20 @@ export class ExplorerComponent {
 	@HostBinding('class.loaded')
 	loaded: boolean = false;
 
+	@Select(PathState.path)
+	path$!: Observable<string>;
+
+	@ViewChild(TreeViewComponent)
+	treeViewComponent!: TreeViewComponent;
+
+	@ViewChild(ContentListComponent)
+	contentListComponent!: ContentListComponent;
+
 	contentListLoaded: boolean = false;
 
 	treeViewLoaded: boolean = false;
+
+	path!: string;
 
 	public constructor(route: ActivatedRoute, store: Store) {
 		this.route = route;
@@ -33,6 +46,18 @@ export class ExplorerComponent {
 
 	ngOnInit() {
 		this.store.dispatch(new GetPath(this.route));
+
+		this.path$.subscribe((path) => {
+			this.path = path;
+		});
+	}
+
+	createDirectory() {
+		if (this.path === 'root') {
+			this.treeViewComponent.displayDirectoryCreateComponent();
+		} else {
+			this.contentListComponent.displayDirectoryCreateComponent();
+		}
 	}
 
 	contentListLoadedHandler() {

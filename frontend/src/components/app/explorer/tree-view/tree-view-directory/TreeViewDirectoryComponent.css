@@ -24,6 +24,10 @@
 	color: rgb(57, 97, 237);
 }
 
+:host > head:hover > .actions {
+	display: flex;
+}
+
 :host > head.selected {
 	background-color: rgb(223, 231, 253);
 }
@@ -73,4 +77,22 @@
 	margin: 5px 0 5px 20px;
 
 	--thickness: 6px;
+}
+
+:host > head > .actions {
+	display: none;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 2px;
+
+	margin-right: 10px;
+	margin-left: auto;
+}
+
+:host > head > .actions > svg {
+	fill: rgb(102, 113, 168);
+}
+
+:host > head > .actions > svg:hover {
+	fill: rgb(57, 97, 237);
 }

@@ -40,12 +40,6 @@ export class TreeViewState {
 
 	@Action(GetTreeSubDirectories)
 	get(ctx: StateContext<TreeViewStateModel>, action: GetTreeSubDirectories) {
-		const isDataAlreadyInState = ctx.getState()[action.path] !== undefined;
-
-		if (isDataAlreadyInState) {
-			return;
-		}
-
 		return this.directoryService.getDirectoryContent(action.path).pipe(
 			map((content) => content.directories.map((directory) => directory.name)),
 			mergeMap((directoryNames) => {

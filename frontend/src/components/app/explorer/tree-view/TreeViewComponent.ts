@@ -3,6 +3,7 @@ import { Component, EventEmitter, HostBinding, Output } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { GetTreeSubDirectories, TreeViewStateName } from 'src/components/app/actions/tree.state';
+import { CreateDirectoryComponent } from 'src/components/app/explorer/create-directory-component/CreateDirectoryComponent';
 import { TreeViewDirectoryComponent } from 'src/components/app/explorer/tree-view/tree-view-directory/TreeViewDirectoryComponent';
 import { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';
 
@@ -11,7 +12,7 @@ import { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/Load
 	standalone: true,
 	templateUrl: './TreeViewComponent.html',
 	styleUrl: './TreeViewComponent.css',
-	imports: [AsyncPipe, TreeViewDirectoryComponent, LoadingSpinnerComponent],
+	imports: [AsyncPipe, TreeViewDirectoryComponent, LoadingSpinnerComponent, CreateDirectoryComponent],
 })
 export class TreeViewComponent {
 	private readonly store: Store;
@@ -24,12 +25,22 @@ export class TreeViewComponent {
 	loaded: boolean = false;
 
 	@Output()
-	loadedEvent = new EventEmitter<boolean>();
+	loadedEvent = new EventEmitter<void>();
 
 	children$!: Observable<{ name: string; hasChildren: boolean }[]>;
 
+	displayCreateDirectoryComponent: boolean = false;
+
 	public constructor(store: Store) {
 		this.store = store;
+	}
+
+	displayDirectoryCreateComponent() {
+		this.displayCreateDirectoryComponent = true;
+	}
+
+	removeDirectoryCreateComponent() {
+		this.displayCreateDirectoryComponent = false;
 	}
 
 	ngOnInit() {
@@ -40,7 +51,7 @@ export class TreeViewComponent {
 		this.children$.subscribe((content) => {
 			if (content) {
 				this.loaded = true;
-				this.loadedEvent.emit(true);
+				this.loadedEvent.emit();
 			}
 		});
 

@@ -2,7 +2,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	justify-content: center;
+	justify-content: start;
 
 	height: 80vh;
 	width: 70vw;
@@ -10,6 +10,8 @@
 	border-radius: 25px;
 
 	overflow: hidden;
+
+	position: relative;
 }
 
 :host:not(.loaded) {

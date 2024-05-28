@@ -1,5 +1,7 @@
-@if (this.loaded) {
-    @if (this.empty) {
+@if (loaded) {
+    @if (isRootPath) {
+        <p>Wähle einen Ordner aus der Liste aus</p>
+    } @else if (empty) {
         <p>Hier gibt es noch nichts zu sehen</p>
     } @else {   
         @for (directory of (directories$ | async); track directory.name) {
@@ -10,6 +12,9 @@
             <content-list-file [name]="file.name" [size]="file.size"></content-list-file>
         }
     }
+    @if (displayCreateDirectoryComponent) {
+            <create-directory-component [indent]="false" (removeEmitter)="removeDirectoryCreateComponent()"></create-directory-component>
+        }
 } @else {
     <loading-spinner></loading-spinner>
 }

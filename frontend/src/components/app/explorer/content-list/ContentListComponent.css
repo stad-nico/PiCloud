@@ -11,9 +11,11 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+
+	overflow-y: scroll;
 }
 
-:host.loaded:not(.empty) {
+:host.loaded:not(.empty):not(.choosing) {
 	justify-content: flex-start;
 	align-items: normal;
 }

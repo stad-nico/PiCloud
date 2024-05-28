@@ -1,7 +1,7 @@
 :host {
 	display: grid;
 	grid-template-columns: 25px repeat(3, 1fr);
-	grid-template-rows: 1fr;
+	grid-template-rows: 40px;
 	grid-column-gap: 5px;
 	grid-template-areas: 'a b c d';
 	align-items: center;
@@ -11,8 +11,6 @@
 	margin-bottom: 2px;
 
 	border-radius: 15px;
-
-	height: 40px;
 
 	user-select: none;
 }
