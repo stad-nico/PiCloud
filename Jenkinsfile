@@ -12,9 +12,9 @@
             stage("Backend Test") {
                 steps {
                     script {
-                        sh "docker"
-                        sh "docker pull mariadb:latest"
-                        sh "docker inspect mariadb:latest"
+                        docker.image('maven:3.3.3').inside {
+        sh 'mvn --version'
+      }
                         // docker.image('mariadb:latest').withRun("--platform linux/arm64 -e MARIADB_ROOT_PASSWORD=password") { c -> 
                         //     sh "while ! mariadb-admin -u root --password=password ping; do echo 'waiting for mariadb; sleep 1; done;'"
 
