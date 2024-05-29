@@ -12,7 +12,7 @@
             stage("Backend Test") {
                 steps {
                     script {
-                        docker.image('mariadb:latest').withRun("--platform linux/arm64").inside("--entrypoint=''") {
+                        docker.image('mariadb:latest').withRun("--platform linux/arm64 --entrypoint=''") {
         sh 'mvn --version'
       }
                         // docker.image('mariadb:latest').withRun("--platform linux/arm64 -e MARIADB_ROOT_PASSWORD=password") { c -> 
