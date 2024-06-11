@@ -1,39 +1,40 @@
-    pipeline {
-        agent {
-            label "linux"
-        }
+pipeline {
+    agent {
+        label "linux"
+    }
 
-        stages {
-            stage("Parallel") {
-                parallel {
-                    stage("Frontend") {
-                        steps {
-                            echo "T"
-                        }
+    stages {
+        stage("Parallel") {
+            parallel {
+                stage("Frontend") {
+                    steps {
+                        echo "T"
                     }
+                }
+            
+               stage("Backend") {
+                    stages {
+                        stage("Unit Tests") {
+                            steps {
+                                script {
+                                    sh "docker network create cloud-test"
 
-                    stage("Backend") {
-                        stages {
-                            stage("Unit Tests") {
-                                // agent {
-                                //     dockerfile {
-                                //         filename "Dockerfile.test"
-                                //     }
-                                // }
+                                    sh "docker run --rm --network=cloud-test --name=mariadb -d -e MARIADB_ROOT_PASSWORD=password -e MARIADB_DATABASE=cloud-test mariadb:latest"
+                                    sh 'while ! docker exec -i mariadb mariadb-admin ping --password=password > /dev/null 2>&1; do echo "Warten auf MariaDB Container..."; sleep 1; done'
 
-                                steps {
-                                    script {
-                                        docker.image("mariadb").inside("-e MARIADB_ROOT_PASSWORD=password") {
-                                            sh "while ! mariadb-admin ping; do sleep 1; done"
-                                        }   
-                                    }
+                                    sh "docker build -f backend/Dockerfile.test --tag=cloud/backend:test"
+                                    sh "docker run -d --network=cloud-test -e DB_URL=mysql://root@localhost:3306 -e DB_NAME=cloud-test -e DB_PASSWORD=password cloud/backend:test"
+
+                                    sh "docker stop mariadb"
+
+                                    sh "docker volume prune"
                                 }
                             }
+                        }
 
-                            stage("Integration Tests") {
-                                steps {
-                                    echo "T"
-                                }
+                        stage("Integration Tests") {
+                            steps {
+                                echo "T"
                             }
                         }
                     }
@@ -41,3 +42,4 @@
             }
         }
     }
+}

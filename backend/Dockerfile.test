@@ -8,5 +8,4 @@ RUN npm ci
 
 ENV NODE_ENV=test
 
-# CMD ["npm", "run", "test:unit"]
-CMD []
+CMD ["npx", "mikro-orm", "migration:fresh", "--", "--seed", "&&", "npm", "run", "test:unit:cov"]
