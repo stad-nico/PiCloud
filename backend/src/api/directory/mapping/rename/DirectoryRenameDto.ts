@@ -64,7 +64,7 @@ export class DirectoryRenameDto {
 		}
 
 		if (path.basename(destPath).length > PathUtils.MaxDirectoryNameLength) {
-			throw new DirectoryNameTooLongException(directoryRenameBody.newPath);
+			throw new DirectoryNameTooLongException(path.basename(directoryRenameBody.newPath));
 		}
 
 		return new DirectoryRenameDto(sourcePath, destPath);

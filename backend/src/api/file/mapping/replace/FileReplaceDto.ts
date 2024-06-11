@@ -77,7 +77,7 @@ export class FileReplaceDto {
 		}
 
 		if (path.basename(normalizedPath).length > PathUtils.MaxFileNameLength) {
-			throw new FileNameTooLongException(fileUploadParams.path);
+			throw new FileNameTooLongException(path.basename(fileUploadParams.path));
 		}
 
 		return new FileReplaceDto(normalizedPath, file.mimetype, file.size, file.buffer);

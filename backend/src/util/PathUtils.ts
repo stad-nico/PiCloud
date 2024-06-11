@@ -112,7 +112,10 @@ export class PathUtils {
 	 * @returns {string}               the prepared path
 	 */
 	public static prepareFilePathForFS(pathToPrepare: string): string {
-		const driveName = process.platform === 'win32' ? pathToPrepare.match(/^[A-Z]:/gim)![0] : '';
+		const isWindows = process.platform === 'win32';
+		const driveNameMatch = pathToPrepare.match(/^[A-Z]:/gim);
+		const driveName = isWindows && driveNameMatch ? driveNameMatch[0] : '';
+
 		const relativePath = pathToPrepare.replace(driveName, '');
 
 		let result = path.join(driveName, PathUtils.normalizeFilePath(relativePath));

@@ -76,7 +76,7 @@ export class FileUploadDto {
 		}
 
 		if (path.basename(normalizedPath).length > PathUtils.MaxFileNameLength) {
-			throw new FileNameTooLongException(fileUploadParams.path);
+			throw new FileNameTooLongException(path.basename(fileUploadParams.path));
 		}
 
 		return new FileUploadDto(normalizedPath, file.mimetype, file.size, file.buffer);

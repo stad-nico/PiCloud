@@ -410,7 +410,6 @@ describe('DirectoryRepository', () => {
 			const metadata = await repository.getMetadata(entityManager, 'parent');
 
 			expect(metadata).toStrictEqual({
-				id: 'parentId',
 				name: 'parent',
 				size: 0,
 				directories: 0,
@@ -449,7 +448,6 @@ describe('DirectoryRepository', () => {
 			const metadata = await repository.getMetadata(entityManager, 'parent');
 
 			expect(metadata).toStrictEqual({
-				id: 'parentId',
 				name: 'parent',
 				size: 98,
 				directories: 6,
@@ -499,10 +497,10 @@ describe('DirectoryRepository', () => {
 				.transacting(entityManager.getTransactionContext()!);
 
 			await expect(repository.getContent(entityManager, 'parent')).resolves.toStrictEqual({
-				files: [{ id: 'file0Id', name: 'file0', size: 11, mimeType: 'text/plain', createdAt: expect.any(Date), updatedAt: expect.any(Date) }],
+				files: [{ name: 'file0', size: 11, mimeType: 'text/plain', createdAt: expect.any(String), updatedAt: expect.any(String) }],
 				directories: [
-					{ id: 'child1Id', name: 'child1', size: 12, createdAt: expect.any(Date), updatedAt: expect.any(Date) },
-					{ id: 'child2Id', name: 'child2', size: 13, createdAt: expect.any(Date), updatedAt: expect.any(Date) },
+					{ name: 'child1', size: 12, createdAt: expect.any(String), updatedAt: expect.any(String) },
+					{ name: 'child2', size: 13, createdAt: expect.any(String), updatedAt: expect.any(String) },
 				],
 			});
 		});

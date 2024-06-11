@@ -6,11 +6,9 @@ describe('EnvConfig.ts', () => {
 		const config: Record<string, unknown> = {
 			PORT: 3000,
 			STORAGE_PATH: 'storagePath',
-			DB_HOST: 'dbHost',
-			DB_NAME: 'dbName',
 			DB_PASSWORD: 'dbPassword',
-			DB_PORT: 4000,
-			DB_USERNAME: 'dbUsername',
+			DB_URL: 'mysql://root@localhost:3306',
+			DB_NAME: 'cloud-test',
 			NODE_ENV: NodeEnv.Develop,
 		};
 

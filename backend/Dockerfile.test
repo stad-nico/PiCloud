@@ -1,0 +1,12 @@
+FROM node:22.0.0
+
+WORKDIR /src
+
+COPY . .
+
+RUN npm ci
+
+ENV NODE_ENV=test
+
+# CMD ["npm", "run", "test:unit"]
+CMD []

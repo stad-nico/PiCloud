@@ -63,7 +63,7 @@ export class FileRenameDto {
 		}
 
 		if (path.basename(destPath).length > PathUtils.MaxFileNameLength) {
-			throw new FileNameTooLongException(fileRenameBody.newPath);
+			throw new FileNameTooLongException(path.basename(fileRenameBody.newPath));
 		}
 
 		return new FileRenameDto(sourcePath, destPath);

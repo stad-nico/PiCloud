@@ -9,7 +9,6 @@ import { Archiver } from 'archiver';
 import { StoragePath } from 'src/disk/DiskService';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
-import { Readable } from 'stream';
 
 const archiver = jest.requireActual('archiver');
 
@@ -84,7 +83,7 @@ describe('FileUtils', () => {
 			jest.spyOn(fsPromises, 'writeFile').mockResolvedValueOnce();
 			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
 
-			await expect(FileUtils.writeFile('file.txt', Readable.from(Buffer.from('test')), false)).resolves.not.toThrow();
+			await expect(FileUtils.writeFile('file.txt', Buffer.from('test'), false)).resolves.not.toThrow();
 			expect(mkdirSpy).not.toHaveBeenCalled();
 		});
 
@@ -95,7 +94,7 @@ describe('FileUtils', () => {
 			jest.spyOn(PathUtils, 'pathExists').mockResolvedValueOnce(false);
 			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
 
-			await expect(FileUtils.writeFile(filename, Readable.from(Buffer.from('test')), true)).resolves.not.toThrow();
+			await expect(FileUtils.writeFile(filename, Buffer.from('test'), true)).resolves.not.toThrow();
 			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareFilePathForFS(path.dirname(filename)), { recursive: true });
 		});
 
@@ -106,7 +105,7 @@ describe('FileUtils', () => {
 			jest.spyOn(PathUtils, 'pathExists').mockResolvedValueOnce(false);
 			const mkdirSpy = jest.spyOn(fsPromises, 'mkdir');
 
-			await expect(FileUtils.writeFile(filename, Readable.from(Buffer.from('test')))).resolves.not.toThrow();
+			await expect(FileUtils.writeFile(filename, Buffer.from('test'))).resolves.not.toThrow();
 			expect(mkdirSpy).toHaveBeenCalledWith(PathUtils.prepareFilePathForFS(path.dirname(filename)), { recursive: true });
 		});
 	});

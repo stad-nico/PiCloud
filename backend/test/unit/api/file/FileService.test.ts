@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 
 import { EntityManager } from '@mikro-orm/mariadb';
-import { HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -14,9 +13,11 @@ import { FileMetadataResponse } from 'src/api/file/mapping/metadata';
 import { FileRenameResponse } from 'src/api/file/mapping/rename';
 import { FileReplaceResponse } from 'src/api/file/mapping/replace';
 import { FileUploadResponse } from 'src/api/file/mapping/upload';
+import { FileAlreadyExistsException } from 'src/exceptions/FileAlreadyExistsException';
+import { FileNotFoundException } from 'src/exceptions/FileNotFoundException';
+import { ParentDirectoryNotFoundException } from 'src/exceptions/ParentDirectoryNotFoundExceptions';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
-import { ServerError } from 'src/util/ServerError';
 
 jest.mock('src/util/FileUtils', () => ({
 	FileUtils: {
@@ -88,7 +89,7 @@ describe('FileService', () => {
 			jest.spyOn(fileRepository, 'getMetadata').mockResolvedValueOnce(null);
 
 			const dto = { path: 'test/path.txt' };
-			const expectedError = new ServerError(`file ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
+			const expectedError = new FileNotFoundException(dto.path);
 
 			await expect(service.metadata(dto)).rejects.toStrictEqual(expectedError);
 		});
@@ -115,7 +116,7 @@ describe('FileService', () => {
 			jest.spyOn(fileRepository, 'select').mockResolvedValueOnce(null);
 
 			const dto = { path: 'test/path.txt' };
-			const expectedError = new ServerError(`file ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
+			const expectedError = new FileNotFoundException(dto.path);
 
 			await expect(service.download(dto)).rejects.toStrictEqual(expectedError);
 		});
@@ -136,7 +137,7 @@ describe('FileService', () => {
 	describe('upload', () => {
 		it('should throw 404 NOT FOUND if the parent directory does not exist and the parent directory is not the root directory', async () => {
 			const dto = { path: 'test/path' };
-			const expectedError = new ServerError(`directory test does not exist`, HttpStatus.NOT_FOUND);
+			const expectedError = new ParentDirectoryNotFoundException('test');
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(null);
@@ -146,7 +147,7 @@ describe('FileService', () => {
 
 		it('should throw 409 CONFLICT if file already exists', async () => {
 			const dto = { path: 'test/path.txt' };
-			const expectedError = new ServerError(`file ${dto.path} already exists`, HttpStatus.CONFLICT);
+			const expectedError = new FileAlreadyExistsException(dto.path);
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(true);
 
@@ -154,7 +155,7 @@ describe('FileService', () => {
 		});
 
 		it('should insert with the parent id from the db response and resolve with the correct response', async () => {
-			const dto = { path: 'test/path.txt', mimeType: 'text/plain', size: 19, stream: 'stream' as any };
+			const dto = { path: 'test/path.txt', mimeType: 'text/plain', size: 19, buffer: Buffer.from('content') };
 			const parent = { id: 'parentId', name: 'name' };
 			const filePath = 'filePath';
 
@@ -165,11 +166,11 @@ describe('FileService', () => {
 
 			await expect(service.upload(dto)).resolves.toStrictEqual(FileUploadResponse.from(dto.path));
 			expect(fileRepository.insertReturningId).toHaveBeenCalledWith(entityManager, 'path.txt', dto.mimeType, dto.size, parent.id);
-			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.stream);
+			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.buffer);
 		});
 
 		it('should insert with null as parent id and resolve with the correct response', async () => {
-			const dto = { path: 'path.txt', mimeType: 'text/plain', size: 12, stream: 'stream' as any };
+			const dto = { path: 'path.txt', mimeType: 'text/plain', size: 12, buffer: Buffer.from('content') };
 			const filePath = 'filePath';
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
@@ -179,14 +180,14 @@ describe('FileService', () => {
 
 			await expect(service.upload(dto)).resolves.toStrictEqual(FileUploadResponse.from(dto.path));
 			expect(fileRepository.insertReturningId).toHaveBeenCalledWith(entityManager, 'path.txt', dto.mimeType, dto.size, 'root');
-			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.stream);
+			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.buffer);
 		});
 	});
 
 	describe('replace', () => {
 		it('should throw 404 NOT FOUND if the parent directory does not exist', async () => {
 			const dto = { path: 'test/file.txt' };
-			const expectedError = new ServerError(`directory test does not exist`, HttpStatus.NOT_FOUND);
+			const expectedError = new ParentDirectoryNotFoundException('test');
 
 			jest.spyOn(directoryRepository, 'select').mockResolvedValueOnce(null);
 
@@ -196,7 +197,7 @@ describe('FileService', () => {
 		});
 
 		it('should insert and write new file and resolve with correct response', async () => {
-			const dto = { path: 'test/file.txt', stream: 'stream' };
+			const dto = { path: 'test/file.txt', mimeType: 'text/plain', size: 11, buffer: Buffer.from('content') };
 			const parent = { id: 'uuid' };
 			const filePath = 'filePath';
 
@@ -205,13 +206,13 @@ describe('FileService', () => {
 			jest.spyOn(fileRepository, 'insertReturningId').mockResolvedValueOnce({ id: 'uuid' });
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce(filePath);
 
-			await expect(service.replace(dto as any)).resolves.toStrictEqual(FileReplaceResponse.from(dto.path));
-			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.stream);
+			await expect(service.replace(dto)).resolves.toStrictEqual(FileReplaceResponse.from(dto.path));
+			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.buffer);
 			expect(fileRepository.deleteByPath).not.toHaveBeenCalled();
 		});
 
 		it('should delete old file from db, insert and write new file and resolve with correct response', async () => {
-			const dto = { path: 'test/file.txt', stream: 'stream' };
+			const dto = { path: 'test/file.txt', mimeType: 'text/plain', size: 11, buffer: Buffer.from('content') };
 			const parent = { id: 'uuid' };
 			const filePath = 'filePath';
 
@@ -220,8 +221,8 @@ describe('FileService', () => {
 			jest.spyOn(fileRepository, 'insertReturningId').mockResolvedValueOnce({ id: 'uuid' });
 			jest.spyOn(PathUtils, 'join').mockReturnValueOnce(filePath);
 
-			await expect(service.replace(dto as any)).resolves.toStrictEqual(FileReplaceResponse.from(dto.path));
-			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.stream);
+			await expect(service.replace(dto)).resolves.toStrictEqual(FileReplaceResponse.from(dto.path));
+			expect(FileUtils.writeFile).toHaveBeenCalledWith(filePath, dto.buffer);
 			expect(fileRepository.deleteByPath).toHaveBeenCalledWith(entityManager, dto.path);
 		});
 	});
@@ -229,7 +230,7 @@ describe('FileService', () => {
 	describe('rename', () => {
 		it('should throw 404 NOT FOUND if file does not exist', async () => {
 			const dto = { sourcePath: 'source/path.txt', destinationPath: 'destination/path.txt' };
-			const expectedError = new ServerError(`file ${dto.sourcePath} does not exist`, HttpStatus.NOT_FOUND);
+			const expectedError = new FileNotFoundException(dto.sourcePath);
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
@@ -240,7 +241,7 @@ describe('FileService', () => {
 
 		it('should throw 404 NOT FOUND if destination parent is different but does not exist and it is not the root directory', async () => {
 			const dto = { sourcePath: 'source/path.txt', destinationPath: 'destination/path.txt' };
-			const expectedError = new ServerError(`directory destination does not exist`, HttpStatus.NOT_FOUND);
+			const expectedError = new ParentDirectoryNotFoundException('destination');
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(false);
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(true);
@@ -252,7 +253,7 @@ describe('FileService', () => {
 
 		it('should throw 409 CONFLICT if file already exists', async () => {
 			const dto = { sourcePath: 'source/path.txt', destinationPath: 'destination/path.txt' };
-			const expectedError = new ServerError(`file ${dto.destinationPath} already exists`, HttpStatus.CONFLICT);
+			const expectedError = new FileAlreadyExistsException(dto.destinationPath);
 
 			jest.spyOn(fileRepository, 'exists').mockResolvedValueOnce(true);
 
@@ -322,7 +323,7 @@ describe('FileService', () => {
 	describe('delete', () => {
 		it('should throw 404 NOT FOUND if file does not exist', async () => {
 			const dto = { path: 'test/file.txt' };
-			const expectedError = new ServerError(`file ${dto.path} does not exist`, HttpStatus.NOT_FOUND);
+			const expectedError = new FileNotFoundException(dto.path);
 
 			jest.spyOn(fileRepository, 'select').mockResolvedValueOnce(null);
 

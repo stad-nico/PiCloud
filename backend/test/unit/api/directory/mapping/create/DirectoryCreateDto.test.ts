@@ -1,21 +1,22 @@
 import { DirectoryCreateDto } from 'src/api/directory/mapping/create';
+import { DirectoryNameTooLongException } from 'src/exceptions/DirectoryNameTooLongException';
+import { InvalidDirectoryPathException } from 'src/exceptions/InvalidDirectoryPathException';
 import { PathUtils } from 'src/util/PathUtils';
-import { ValidationError } from 'src/util/ValidationError';
 
 describe('DirectoryCreateDto', () => {
-	it('should throw a validation error if the path is not valid', () => {
+	it('should throw an InvalidDirectoryPathException if the path is not valid', () => {
 		const params = { path: 'test' };
-		const expectedError = new ValidationError(`path ${params.path} is not a valid directory path`);
+		const expectedError = new InvalidDirectoryPathException(params.path);
 
 		jest.spyOn(PathUtils, 'isDirectoryPathValid').mockReturnValueOnce(false);
 
 		expect(() => DirectoryCreateDto.from(params)).toThrow(expectedError);
 	});
 
-	it('should throw a validation error if the directory name is too long', () => {
+	it('should throw a DirectoryNameTooLongException if the directory name is too long', () => {
 		const dirname = new Array(PathUtils.MaxDirectoryNameLength + 1).fill('a').join('');
 		const params = { path: 'path/' + dirname };
-		const expectedError = new ValidationError(`directory name ${dirname} exceeds the directory name limit of ${PathUtils.MaxDirectoryNameLength} chars`);
+		const expectedError = new DirectoryNameTooLongException(dirname);
 
 		jest.spyOn(PathUtils, 'isDirectoryPathValid').mockReturnValueOnce(true);
 

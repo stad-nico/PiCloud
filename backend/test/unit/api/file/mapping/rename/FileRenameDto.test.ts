@@ -1,34 +1,24 @@
 import { FileRenameDto } from 'src/api/file/mapping/rename';
+import { FileNameTooLongException } from 'src/exceptions/FileNameTooLongException';
+import { InvalidFilePathException } from 'src/exceptions/InvalidFilePathException';
 import { PathUtils } from 'src/util/PathUtils';
-import { ValidationError } from 'src/util/ValidationError';
 
 describe('FileRenameDto', () => {
-	it('should throw a validation error if the source path is not valid', () => {
+	it('should throw an InvalidFilePathException if the destination path is not valid', () => {
 		const params = { path: 'test.txt' };
 		const body = { newPath: 'test/newPath/to/dir.txt' };
-		const expectedError = new ValidationError(`path ${params.path} is not a valid file path`);
+		const expectedError = new InvalidFilePathException(body.newPath);
 
 		jest.spyOn(PathUtils, 'isFilePathValid').mockReturnValueOnce(false);
 
 		expect(() => FileRenameDto.from(params, body)).toThrow(expectedError);
 	});
 
-	it('should throw a validation error if the destination path is not valid', () => {
-		const params = { path: 'test.txt' };
-		const body = { newPath: 'test/newPath/to/dir.txt' };
-		const expectedError = new ValidationError(`path ${body.newPath} is not a valid file path`);
-
-		jest.spyOn(PathUtils, 'isFilePathValid').mockReturnValueOnce(true);
-		jest.spyOn(PathUtils, 'isFilePathValid').mockReturnValueOnce(false);
-
-		expect(() => FileRenameDto.from(params, body)).toThrow(expectedError);
-	});
-
-	it('should throw a validation error if the file name is too long', () => {
+	it('should throw FileNameTooLongException if the destination file name is too long', () => {
 		const dirname = new Array(PathUtils.MaxFileNameLength + 1).fill('a').join('');
 		const params = { path: 'test/newPath/to/dir.txt' };
 		const body = { newPath: 'path/' + dirname };
-		const expectedError = new ValidationError(`destination file name ${dirname} exceeds the file name limit of ${PathUtils.MaxFileNameLength} chars`);
+		const expectedError = new FileNameTooLongException(dirname);
 
 		jest.spyOn(PathUtils, 'isFilePathValid').mockReturnValue(true);
 

@@ -52,7 +52,7 @@ export class DirectoryCreateDto {
 		}
 
 		if (path.basename(normalizedPath).length > PathUtils.MaxDirectoryNameLength) {
-			throw new DirectoryNameTooLongException(path.basename(normalizedPath));
+			throw new DirectoryNameTooLongException(path.basename(directoryCreateParams.path));
 		}
 
 		return new DirectoryCreateDto(normalizedPath);
