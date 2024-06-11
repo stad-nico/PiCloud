@@ -8,4 +8,4 @@ RUN npm ci
 
 ENV NODE_ENV=test
 
-CMD ["sh", "-c", "npx mikro-orm migration:fresh -- --seed && npm run test:unit:cov"]
+CMD ["sh", "-c", "npx mikro-orm migration:fresh --seed && npm run test:unit:cov"]
