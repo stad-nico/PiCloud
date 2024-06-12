@@ -79,7 +79,7 @@ describe('FileRepository', () => {
 				.raw<[Array<{ path: string }>]>(`SELECT GET_FILE_PATH('rootId') as path`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			expect(result![0]?.path).toStrictEqual('/root.txt');
+			expect(result![0]?.path).toStrictEqual('/root/root.txt');
 		});
 
 		it('should return correct path for nested file', async () => {
@@ -103,7 +103,7 @@ describe('FileRepository', () => {
 				.raw<[Array<{ path: string }>]>(`SELECT GET_FILE_PATH('fileId') as path`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			expect(result![0]?.path).toStrictEqual('/parent/child1/child2/file.txt');
+			expect(result![0]?.path).toStrictEqual('/root/parent/child1/child2/file.txt');
 		});
 	});
 

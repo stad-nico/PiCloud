@@ -54,7 +54,7 @@ describe('DirectoryRepository', () => {
 				.raw<[Array<{ path: string }>]>(`SELECT GET_DIRECTORY_PATH(NULL) as path`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			expect(result![0]?.path).toStrictEqual('/');
+			expect(result![0]?.path).toStrictEqual('root');
 		});
 
 		it('should return NULL if id does not exist', async () => {
@@ -81,7 +81,7 @@ describe('DirectoryRepository', () => {
 				.raw<[Array<{ path: string }>]>(`SELECT GET_DIRECTORY_PATH('testId') as path`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			expect(result![0]?.path).toStrictEqual('/test/');
+			expect(result![0]?.path).toStrictEqual('/root/test/');
 		});
 
 		it('should return correct path for nested  directory', async () => {
@@ -101,7 +101,7 @@ describe('DirectoryRepository', () => {
 				.raw<[Array<{ path: string }>]>(`SELECT GET_DIRECTORY_PATH('child2Id') as path`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			expect(result![0]?.path).toStrictEqual('/parent/child1/child2/');
+			expect(result![0]?.path).toStrictEqual('/root/parent/child1/child2/');
 		});
 	});
 
@@ -221,7 +221,7 @@ describe('DirectoryRepository', () => {
 
 			const [result] = await entityManager
 				.getKnex()
-				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID('test1') as id`)
+				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID('/root/test1') as id`)
 				.transacting(entityManager.getTransactionContext()!);
 
 			expect(result![0]?.id).toStrictEqual('test1Id');
@@ -241,7 +241,7 @@ describe('DirectoryRepository', () => {
 
 			const [result] = await entityManager
 				.getKnex()
-				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID('/parent/child1/child2') as id`)
+				.raw<[Array<{ id: string }>]>(`SELECT GET_DIRECTORY_UUID('/root/parent/child1/child2') as id`)
 				.transacting(entityManager.getTransactionContext()!);
 
 			expect(result![0]?.id).toStrictEqual('child2Id');
@@ -340,7 +340,7 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId) VALUES ('test', 'root')`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.exists(entityManager, 'test')).resolves.toBeTruthy();
+			await expect(repository.exists(entityManager, 'root/test')).resolves.toBeTruthy();
 		});
 
 		it('should return true if the directory exists (nested)', async () => {
@@ -354,13 +354,13 @@ describe('DirectoryRepository', () => {
 				)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.exists(entityManager, 'parent/nested')).resolves.toBeTruthy();
+			await expect(repository.exists(entityManager, 'root/parent/nested')).resolves.toBeTruthy();
 		});
 	});
 
 	describe('select', () => {
 		it('should return true for the root directory by default', async () => {
-			const entity = { id: 'root', name: '/' };
+			const entity = { id: 'root', name: 'root' };
 
 			await expect(repository.select(entityManager, '')).resolves.toStrictEqual(entity);
 			await expect(repository.select(entityManager, '/')).resolves.toStrictEqual(entity);
@@ -377,7 +377,7 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId) VALUES ('testId', 'test', 'root');`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.select(entityManager, 'test')).resolves.toStrictEqual({
+			await expect(repository.select(entityManager, 'root/test')).resolves.toStrictEqual({
 				name: 'test',
 				id: 'testId',
 			});
@@ -389,7 +389,7 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId) VALUES ('testId', 'test', 'root'), ('dir', 'dir', 'testId');`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.select(entityManager, 'test/dir')).resolves.toStrictEqual({
+			await expect(repository.select(entityManager, 'root/test/dir')).resolves.toStrictEqual({
 				name: 'dir',
 				id: 'dir',
 			});
@@ -407,7 +407,7 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId) VALUES ('parentId', 'parent', 'root')`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			const metadata = await repository.getMetadata(entityManager, 'parent');
+			const metadata = await repository.getMetadata(entityManager, 'root/parent');
 
 			expect(metadata).toStrictEqual({
 				name: 'parent',
@@ -445,7 +445,7 @@ describe('DirectoryRepository', () => {
 				)
 				.transacting(entityManager.getTransactionContext()!);
 
-			const metadata = await repository.getMetadata(entityManager, 'parent');
+			const metadata = await repository.getMetadata(entityManager, 'root/parent');
 
 			expect(metadata).toStrictEqual({
 				name: 'parent',
@@ -496,7 +496,7 @@ describe('DirectoryRepository', () => {
 				)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.getContent(entityManager, 'parent')).resolves.toStrictEqual({
+			await expect(repository.getContent(entityManager, 'root/parent')).resolves.toStrictEqual({
 				files: [{ name: 'file0', size: 11, mimeType: 'text/plain', createdAt: expect.any(String), updatedAt: expect.any(String) }],
 				directories: [
 					{ name: 'child1', size: 12, createdAt: expect.any(String), updatedAt: expect.any(String) },
@@ -545,7 +545,7 @@ describe('DirectoryRepository', () => {
 				)
 				.transacting(entityManager.getTransactionContext()!);
 
-			const files = (await repository.getFilesRelative(entityManager, 'parent')).sort(sortFunction);
+			const files = (await repository.getFilesRelative(entityManager, 'root/parent')).sort(sortFunction);
 
 			expect(files).toStrictEqual(
 				[
@@ -576,7 +576,7 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId) VALUES ('id', 'parent', 'root')`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await expect(repository.update(entityManager, 'parent', { parentId: 'nonexisting' })).rejects.toThrow();
+			await expect(repository.update(entityManager, 'root/parent', { parentId: 'nonexisting' })).rejects.toThrow();
 		});
 
 		it('should correctly update name and non NULL parentId', async () => {
@@ -585,7 +585,7 @@ describe('DirectoryRepository', () => {
 				.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId) VALUES ('id', 'name', 'root'), ('otherId', 'other', 'root')`)
 				.transacting(entityManager.getTransactionContext()!);
 
-			await repository.update(entityManager, 'name', { name: 'testName', parentId: 'otherId' });
+			await repository.update(entityManager, 'root/name', { name: 'testName', parentId: 'otherId' });
 
 			const [selectedDirectory] = await entityManager
 				.getKnex()
@@ -636,7 +636,7 @@ describe('DirectoryRepository', () => {
 			expect(directories).toStrictEqual([
 				{
 					id: 'root',
-					name: '/',
+					name: 'root',
 					parentId: null,
 					createdAt: expect.any(String),
 					updatedAt: expect.any(String),
