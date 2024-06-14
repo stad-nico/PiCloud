@@ -10,7 +10,7 @@
 		"sourceMap": true,
 		"outDir": "dist",
 		"baseUrl": ".",
-		"rootDir": "src",
+		"rootDirs": ["src", "test"],
 		"incremental": false,
 		"skipLibCheck": true,
 		"strictNullChecks": true,
@@ -26,7 +26,7 @@
 		"paths": {
 			"src": ["src"]
 		},
-		"types": ["jest", "node", "Multer"]
+		"types": ["jest", "node", "multer"]
 	},
 	"ts-node": {
 		"require": ["tsconfig-paths/register"]
