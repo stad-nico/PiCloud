@@ -35,12 +35,12 @@ pipeline {
                                 echo "T"
                             }
                         }
+                    }
 
-                        post {
-                            always {
-                                sh "docker stop mariadb"
-                                sh "docker volume prune -f"
-                            }
+                    post {
+                        always {
+                            sh "docker stop mariadb"
+                            sh "docker volume prune -f"
                         }
                     }
                 }
