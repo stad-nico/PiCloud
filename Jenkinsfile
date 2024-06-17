@@ -27,7 +27,7 @@ pipeline {
                             steps {
                                 sh "docker build -f backend/Dockerfile.test --tag=cloud/backend:test backend"
                                 sh "docker run --network=cloud-test --name=backend -e DB_URL=mysql://root@mariadb:3306 -e DB_NAME=cloud-test -e DB_PASSWORD=password cloud/backend:test"
-                                sh "docker cp backend:/app/coverage/ ./"
+                                sh "docker cp backend:/app/coverage/ ./coverage"
                                 sh "docker rm backend"
                             }
                         }
