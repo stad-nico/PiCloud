@@ -25,14 +25,15 @@ pipeline {
 
                         stage("Unit Tests") {
                             steps {
-                                sh "docker build -f backend/Dockerfile.test --tag=cloud/backend:test backend"
-                                sh "docker run --network=cloud-test --name=backend -e DB_URL=mysql://root@mariadb:3306 -e DB_NAME=cloud-test -e DB_PASSWORD=password cloud/backend:test"
-                                sh "docker cp backend:/app/coverage/ ./backend/coverage"
-                                sh "chown -R 1000:1000 ./backend/coverage"
+                                dir("backend") {
+                                    sh "docker build -f Dockerfile.test --tag=cloud/backend:test ."
+                                    sh "docker run --network=cloud-test --name=backend -e DB_URL=mysql://root@mariadb:3306 -e DB_NAME=cloud-test -e DB_PASSWORD=password cloud/backend:test"
+                                    sh "docker cp backend:/app/coverage/ coverage"
                                 
-                                recordCoverage qualityGates: [[integerThreshold: 90, metric: 'LINE', threshold: 90.0]], tools: [[parser: 'COBERTURA', pattern: './backend/coverage/cobertura-coverage.xml']]
+                                    recordCoverage(qualityGates: [[integerThreshold: 90, metric: 'LINE', threshold: 90.0], [integerThreshold: 90, metric: 'BRANCH', threshold: 90.0]], tools: [[parser: 'COBERTURA', pattern: '**/coverage/cobertura-coverage.xml']])
                                 
-                                sh "docker rm backend"
+                                    sh "docker rm backend"
+                                }
                             }
                         }
 
@@ -52,6 +53,7 @@ pipeline {
                                 
                                 sh "docker stop mariadb"
                                 sh "docker volume prune -f"
+                                sh "docker image prune -f"
                             }
                         }
                     }
