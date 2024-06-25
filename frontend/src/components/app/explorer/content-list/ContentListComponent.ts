@@ -61,7 +61,10 @@ export class ContentListComponent {
 
 		this.path$.subscribe((path) => {
 			this.isRootPath = path === 'root';
-			this.store.dispatch(new GetContentListContent(path));
+
+			if (!this.isRootPath) {
+				this.store.dispatch(new GetContentListContent(path));
+			}
 		});
 	}
 
