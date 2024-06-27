@@ -1,13 +1,32 @@
 :host {
-	display: block;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	overflow: hidden;
+}
+
+.wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	flex-grow: 1;
+
+	max-height: 100%;
+
+	aspect-ratio: 1 / 1;
+
+	overflow: hidden;
 
 	--background: rgb(239, 240, 245);
 
 	--color: rgb(208, 211, 224);
 }
 
-:host > .loading-spinner {
-	width: calc(100% - 2 * var(--thickness));
+.loading-spinner {
+	aspect-ratio: 1 / 1;
+
 	height: calc(100% - 2 * var(--thickness));
 
 	position: relative;
@@ -15,7 +34,6 @@
 	background-color: transparent;
 
 	border: var(--thickness) solid;
-	border-color: var(--background) var(--color) var(--color) var(--color);
 
 	border-radius: 50%;
 	animation: spin infinite linear 1.5s;
@@ -27,8 +45,16 @@
 	}
 }
 
-:host > .loading-spinner:before,
-:host > .loading-spinner:after {
+:host.minimalistic .loading-spinner {
+	border-color: var(--background) var(--background) var(--background) var(--color);
+}
+
+:host.rounded .loading-spinner {
+	border-color: var(--background) var(--color) var(--color) var(--color);
+}
+
+:host.rounded .loading-spinner:before,
+:host.rounded .loading-spinner:after {
 	content: '';
 	display: block;
 	position: absolute;
@@ -40,10 +66,10 @@
 	top: calc(50% - (50% + var(--thickness) / 2) * sin(45deg));
 }
 
-:host > .loading-spinner:before {
+.loading-spinner:before {
 	left: calc(50% - (50% + var(--thickness) / 2) * cos(45deg));
 }
 
-:host > .loading-spinner:after {
+.loading-spinner:after {
 	left: calc(50% + (50% + var(--thickness) / 2) * cos(45deg));
 }

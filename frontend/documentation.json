@@ -1,2278 +1,16 @@
 {
     "pipes": [],
-    "interfaces": [
-        {
-            "name": "ContentListStateModel",
-            "id": "interface-ContentListStateModel-44909de27234ef0ff640ae49abf8c560660b7c34904a9ee53969ff4f7c1ac877b25456f5e3d67c990d5e5c333b3937f972239a4f58755fbe4f063cdacc0efbb2",
-            "file": "src/components/app/actions/content.state.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext, Store } from '@ngxs/store';\r\nimport { DirectoryContentDirectory, DirectoryContentFile, DirectoryService } from 'generated';\r\nimport { tap } from 'rxjs';\r\n\r\nexport const ContentListStateName = 'content_list';\r\n\r\nexport type ContentListStateType = {\r\n\t[ContentListStateName]: ContentListStateModel;\r\n};\r\n\r\nexport class GetContentListContent {\r\n\tstatic readonly type = '[Content List] Get content';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n\r\nexport interface ContentListStateModel {\r\n\tdirectories: DirectoryContentDirectory[];\r\n\tfiles: DirectoryContentFile[];\r\n}\r\n\r\n@State<ContentListStateModel>({\r\n\tname: ContentListStateName,\r\n})\r\n@Injectable()\r\nexport class ContentListState {\r\n\tconstructor(\r\n\t\tprivate readonly directoryService: DirectoryService,\r\n\t\tprivate readonly store: Store\r\n\t) {}\r\n\r\n\t@Action(GetContentListContent)\r\n\tget(ctx: StateContext<ContentListStateModel>, action: GetContentListContent) {\r\n\t\treturn this.directoryService.getDirectoryContent(action.path).pipe(\r\n\t\t\ttap((content) => {\r\n\t\t\t\tctx.patchState({\r\n\t\t\t\t\tdirectories: content.directories,\r\n\t\t\t\t\tfiles: content.files,\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n}\r\n",
-            "properties": [
-                {
-                    "name": "directories",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "DirectoryContentDirectory[]",
-                    "optional": false,
-                    "description": "",
-                    "line": 19
-                },
-                {
-                    "name": "files",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "DirectoryContentFile[]",
-                    "optional": false,
-                    "description": "",
-                    "line": 20
-                }
-            ],
-            "indexSignatures": [],
-            "kind": 171,
-            "methods": [],
-            "extends": []
-        },
-        {
-            "name": "TreeViewStateModel",
-            "id": "interface-TreeViewStateModel-5b1a3d1c9ecdc019bee76b467bd5d457e8cd08902a563354af2518053b0e45cabbe7ff3dea0c5b0c53baf5f8e71fdc771a4d9515123b60b9fe06c0c907a0f67a",
-            "file": "src/components/app/actions/tree.state.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext } from '@ngxs/store';\r\nimport { DirectoryService } from 'generated';\r\nimport { defaultIfEmpty, forkJoin, map, mergeMap, tap } from 'rxjs';\r\n\r\nexport class GetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree View] Get subdirectories';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n\r\nexport class SetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree View] Set subdirectories';\r\n\r\n\tconstructor(\r\n\t\tpublic path: string,\r\n\t\tpublic directories: { name: string; hasChildren: boolean }[]\r\n\t) {}\r\n}\r\n\r\nexport const TreeViewStateName = 'tree_view';\r\n\r\nexport type TreeViewStateType = {\r\n\t[TreeViewStateName]: TreeViewStateModel;\r\n};\r\n\r\nexport interface TreeViewStateModel {\r\n\t[key: string]: {\r\n\t\tchildren: { name: string; hasChildren: boolean }[];\r\n\t};\r\n}\r\n\r\n@State<TreeViewStateModel>({\r\n\tname: TreeViewStateName,\r\n\tdefaults: {},\r\n})\r\n@Injectable()\r\nexport class TreeViewState {\r\n\tconstructor(private readonly directoryService: DirectoryService) {}\r\n\r\n\t@Action(GetTreeSubDirectories)\r\n\tget(ctx: StateContext<TreeViewStateModel>, action: GetTreeSubDirectories) {\r\n\t\treturn this.directoryService.getDirectoryContent(action.path).pipe(\r\n\t\t\tmap((content) => content.directories.map((directory) => directory.name)),\r\n\t\t\tmergeMap((directoryNames) => {\r\n\t\t\t\tconst observables = directoryNames.map((name) =>\r\n\t\t\t\t\tthis.directoryService.getDirectoryMetadata(action.path + '/' + name).pipe(\r\n\t\t\t\t\t\tmap((metadata) => ({\r\n\t\t\t\t\t\t\tname: metadata.name,\r\n\t\t\t\t\t\t\thasChildren: metadata.directories > 0,\r\n\t\t\t\t\t\t}))\r\n\t\t\t\t\t)\r\n\t\t\t\t);\r\n\r\n\t\t\t\treturn forkJoin(observables).pipe(defaultIfEmpty(null));\r\n\t\t\t}),\r\n\t\t\ttap((newState) => {\r\n\t\t\t\tctx.patchState({\r\n\t\t\t\t\t[action.path]: {\r\n\t\t\t\t\t\tchildren: newState ?? [],\r\n\t\t\t\t\t},\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action(SetTreeSubDirectories)\r\n\tset(ctx: StateContext<TreeViewStateModel>, action: SetTreeSubDirectories) {\r\n\t\tctx.patchState({\r\n\t\t\t[action.path]: {\r\n\t\t\t\tchildren: action.directories,\r\n\t\t\t},\r\n\t\t});\r\n\t}\r\n}\r\n",
-            "properties": [],
-            "indexSignatures": [
-                {
-                    "id": "index-declaration-5b1a3d1c9ecdc019bee76b467bd5d457e8cd08902a563354af2518053b0e45cabbe7ff3dea0c5b0c53baf5f8e71fdc771a4d9515123b60b9fe06c0c907a0f67a",
-                    "args": [
-                        {
-                            "name": "key",
-                            "type": "string",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        }
-                    ],
-                    "returnType": "literal type",
-                    "line": 27,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                }
-            ],
-            "kind": 181,
-            "methods": [],
-            "extends": []
-        }
-    ],
-    "injectables": [
-        {
-            "name": "ContentListState",
-            "id": "injectable-ContentListState-44909de27234ef0ff640ae49abf8c560660b7c34904a9ee53969ff4f7c1ac877b25456f5e3d67c990d5e5c333b3937f972239a4f58755fbe4f063cdacc0efbb2",
-            "file": "src/components/app/actions/content.state.ts",
-            "properties": [],
-            "methods": [
-                {
-                    "name": "get",
-                    "args": [
-                        {
-                            "name": "ctx",
-                            "type": "StateContext<ContentListStateModel>",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        },
-                        {
-                            "name": "action",
-                            "type": "GetContentListContent",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "any",
-                    "typeParameters": [],
-                    "line": 34,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "decorators": [
-                        {
-                            "name": "Action",
-                            "stringifiedArguments": "GetContentListContent"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ],
-                    "jsdoctags": [
-                        {
-                            "name": "ctx",
-                            "type": "StateContext<ContentListStateModel>",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        },
-                        {
-                            "name": "action",
-                            "type": "GetContentListContent",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "description": "",
-            "rawdescription": "\n",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext, Store } from '@ngxs/store';\r\nimport { DirectoryContentDirectory, DirectoryContentFile, DirectoryService } from 'generated';\r\nimport { tap } from 'rxjs';\r\n\r\nexport const ContentListStateName = 'content_list';\r\n\r\nexport type ContentListStateType = {\r\n\t[ContentListStateName]: ContentListStateModel;\r\n};\r\n\r\nexport class GetContentListContent {\r\n\tstatic readonly type = '[Content List] Get content';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n\r\nexport interface ContentListStateModel {\r\n\tdirectories: DirectoryContentDirectory[];\r\n\tfiles: DirectoryContentFile[];\r\n}\r\n\r\n@State<ContentListStateModel>({\r\n\tname: ContentListStateName,\r\n})\r\n@Injectable()\r\nexport class ContentListState {\r\n\tconstructor(\r\n\t\tprivate readonly directoryService: DirectoryService,\r\n\t\tprivate readonly store: Store\r\n\t) {}\r\n\r\n\t@Action(GetContentListContent)\r\n\tget(ctx: StateContext<ContentListStateModel>, action: GetContentListContent) {\r\n\t\treturn this.directoryService.getDirectoryContent(action.path).pipe(\r\n\t\t\ttap((content) => {\r\n\t\t\t\tctx.patchState({\r\n\t\t\t\t\tdirectories: content.directories,\r\n\t\t\t\t\tfiles: content.files,\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n}\r\n",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "directoryService",
-                        "type": "DirectoryService",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    },
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 27,
-                "jsdoctags": [
-                    {
-                        "name": "directoryService",
-                        "type": "DirectoryService",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    },
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "extends": [],
-            "type": "injectable"
-        },
-        {
-            "name": "PathState",
-            "id": "injectable-PathState-a5038ec19d805503c751abd5d67d827230a979ab54592322655ac357d2318a103b859c72ccdc673ef45569df65d5f2c49a8adb89539de3683e3e0f336df2f309",
-            "file": "src/components/app/actions/path.ts",
-            "properties": [],
-            "methods": [
-                {
-                    "name": "getPath",
-                    "args": [
-                        {
-                            "name": "ctx",
-                            "type": "StateContext<string>",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        },
-                        {
-                            "name": "action",
-                            "type": "GetPath",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 23,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "decorators": [
-                        {
-                            "name": "Action",
-                            "stringifiedArguments": "GetPath"
-                        }
-                    ],
-                    "modifierKind": [
-                        170,
-                        125
-                    ],
-                    "jsdoctags": [
-                        {
-                            "name": "ctx",
-                            "type": "StateContext<string>",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        },
-                        {
-                            "name": "action",
-                            "type": "GetPath",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "path",
-                    "args": [
-                        {
-                            "name": "state",
-                            "type": "string",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "string",
-                    "typeParameters": [],
-                    "line": 18,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "decorators": [
-                        {
-                            "name": "Selector",
-                            "stringifiedArguments": ""
-                        }
-                    ],
-                    "modifierKind": [
-                        170,
-                        126
-                    ],
-                    "jsdoctags": [
-                        {
-                            "name": "state",
-                            "type": "string",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "description": "",
-            "rawdescription": "\n",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { ActivatedRoute } from '@angular/router';\r\nimport { Action, Selector, State, StateContext } from '@ngxs/store';\r\n\r\nexport class GetPath {\r\n\tstatic readonly type = '[Path] Get path';\r\n\r\n\tpublic constructor(public readonly route: ActivatedRoute) {}\r\n}\r\n\r\n@State<string>({\r\n\tname: 'path',\r\n\tdefaults: 'root',\r\n})\r\n@Injectable()\r\nexport class PathState {\r\n\t@Selector()\r\n\tpublic static path(state: string) {\r\n\t\treturn state;\r\n\t}\r\n\r\n\t@Action(GetPath)\r\n\tpublic getPath(ctx: StateContext<string>, action: GetPath) {\r\n\t\taction.route.url.subscribe((segments) => {\r\n\t\t\tconst path = segments.map((x) => x.path).join('/');\r\n\r\n\t\t\tctx.setState(path);\r\n\t\t});\r\n\t}\r\n}\r\n",
-            "extends": [],
-            "type": "injectable"
-        },
-        {
-            "name": "PopupService",
-            "id": "injectable-PopupService-bba8a1717291f4efaa40d95b76ce7101c8c87e8d0b120aeebb0fd5b148c2977f8dc1188478c045ca9066105b6df296c1d3c5e08b727b1966caacb680eda1ec93",
-            "file": "src/services/PopupService.ts",
-            "properties": [],
-            "methods": [
-                {
-                    "name": "displayPopup",
-                    "args": [
-                        {
-                            "name": "title",
-                            "type": "string",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 5,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "modifierKind": [
-                        126
-                    ],
-                    "jsdoctags": [
-                        {
-                            "name": "title",
-                            "type": "string",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "description": "",
-            "rawdescription": "\n",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\n\r\n@Injectable()\r\nexport class PopupService {\r\n\tpublic static displayPopup(title: string) {}\r\n}\r\n",
-            "extends": [],
-            "type": "injectable"
-        },
-        {
-            "name": "TreeViewState",
-            "id": "injectable-TreeViewState-5b1a3d1c9ecdc019bee76b467bd5d457e8cd08902a563354af2518053b0e45cabbe7ff3dea0c5b0c53baf5f8e71fdc771a4d9515123b60b9fe06c0c907a0f67a",
-            "file": "src/components/app/actions/tree.state.ts",
-            "properties": [],
-            "methods": [
-                {
-                    "name": "get",
-                    "args": [
-                        {
-                            "name": "ctx",
-                            "type": "StateContext<TreeViewStateModel>",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        },
-                        {
-                            "name": "action",
-                            "type": "GetTreeSubDirectories",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "any",
-                    "typeParameters": [],
-                    "line": 42,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "decorators": [
-                        {
-                            "name": "Action",
-                            "stringifiedArguments": "GetTreeSubDirectories"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ],
-                    "jsdoctags": [
-                        {
-                            "name": "ctx",
-                            "type": "StateContext<TreeViewStateModel>",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        },
-                        {
-                            "name": "action",
-                            "type": "GetTreeSubDirectories",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "set",
-                    "args": [
-                        {
-                            "name": "ctx",
-                            "type": "StateContext<TreeViewStateModel>",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        },
-                        {
-                            "name": "action",
-                            "type": "SetTreeSubDirectories",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 68,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "decorators": [
-                        {
-                            "name": "Action",
-                            "stringifiedArguments": "SetTreeSubDirectories"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ],
-                    "jsdoctags": [
-                        {
-                            "name": "ctx",
-                            "type": "StateContext<TreeViewStateModel>",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        },
-                        {
-                            "name": "action",
-                            "type": "SetTreeSubDirectories",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "description": "",
-            "rawdescription": "\n",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext } from '@ngxs/store';\r\nimport { DirectoryService } from 'generated';\r\nimport { defaultIfEmpty, forkJoin, map, mergeMap, tap } from 'rxjs';\r\n\r\nexport class GetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree View] Get subdirectories';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n\r\nexport class SetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree View] Set subdirectories';\r\n\r\n\tconstructor(\r\n\t\tpublic path: string,\r\n\t\tpublic directories: { name: string; hasChildren: boolean }[]\r\n\t) {}\r\n}\r\n\r\nexport const TreeViewStateName = 'tree_view';\r\n\r\nexport type TreeViewStateType = {\r\n\t[TreeViewStateName]: TreeViewStateModel;\r\n};\r\n\r\nexport interface TreeViewStateModel {\r\n\t[key: string]: {\r\n\t\tchildren: { name: string; hasChildren: boolean }[];\r\n\t};\r\n}\r\n\r\n@State<TreeViewStateModel>({\r\n\tname: TreeViewStateName,\r\n\tdefaults: {},\r\n})\r\n@Injectable()\r\nexport class TreeViewState {\r\n\tconstructor(private readonly directoryService: DirectoryService) {}\r\n\r\n\t@Action(GetTreeSubDirectories)\r\n\tget(ctx: StateContext<TreeViewStateModel>, action: GetTreeSubDirectories) {\r\n\t\treturn this.directoryService.getDirectoryContent(action.path).pipe(\r\n\t\t\tmap((content) => content.directories.map((directory) => directory.name)),\r\n\t\t\tmergeMap((directoryNames) => {\r\n\t\t\t\tconst observables = directoryNames.map((name) =>\r\n\t\t\t\t\tthis.directoryService.getDirectoryMetadata(action.path + '/' + name).pipe(\r\n\t\t\t\t\t\tmap((metadata) => ({\r\n\t\t\t\t\t\t\tname: metadata.name,\r\n\t\t\t\t\t\t\thasChildren: metadata.directories > 0,\r\n\t\t\t\t\t\t}))\r\n\t\t\t\t\t)\r\n\t\t\t\t);\r\n\r\n\t\t\t\treturn forkJoin(observables).pipe(defaultIfEmpty(null));\r\n\t\t\t}),\r\n\t\t\ttap((newState) => {\r\n\t\t\t\tctx.patchState({\r\n\t\t\t\t\t[action.path]: {\r\n\t\t\t\t\t\tchildren: newState ?? [],\r\n\t\t\t\t\t},\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action(SetTreeSubDirectories)\r\n\tset(ctx: StateContext<TreeViewStateModel>, action: SetTreeSubDirectories) {\r\n\t\tctx.patchState({\r\n\t\t\t[action.path]: {\r\n\t\t\t\tchildren: action.directories,\r\n\t\t\t},\r\n\t\t});\r\n\t}\r\n}\r\n",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "directoryService",
-                        "type": "DirectoryService",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 38,
-                "jsdoctags": [
-                    {
-                        "name": "directoryService",
-                        "type": "DirectoryService",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "extends": [],
-            "type": "injectable"
-        }
-    ],
+    "interfaces": [],
+    "injectables": [],
     "guards": [],
     "interceptors": [],
-    "classes": [
-        {
-            "name": "GetContentListContent",
-            "id": "class-GetContentListContent-44909de27234ef0ff640ae49abf8c560660b7c34904a9ee53969ff4f7c1ac877b25456f5e3d67c990d5e5c333b3937f972239a4f58755fbe4f063cdacc0efbb2",
-            "file": "src/components/app/actions/content.state.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "class",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext, Store } from '@ngxs/store';\r\nimport { DirectoryContentDirectory, DirectoryContentFile, DirectoryService } from 'generated';\r\nimport { tap } from 'rxjs';\r\n\r\nexport const ContentListStateName = 'content_list';\r\n\r\nexport type ContentListStateType = {\r\n\t[ContentListStateName]: ContentListStateModel;\r\n};\r\n\r\nexport class GetContentListContent {\r\n\tstatic readonly type = '[Content List] Get content';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n\r\nexport interface ContentListStateModel {\r\n\tdirectories: DirectoryContentDirectory[];\r\n\tfiles: DirectoryContentFile[];\r\n}\r\n\r\n@State<ContentListStateModel>({\r\n\tname: ContentListStateName,\r\n})\r\n@Injectable()\r\nexport class ContentListState {\r\n\tconstructor(\r\n\t\tprivate readonly directoryService: DirectoryService,\r\n\t\tprivate readonly store: Store\r\n\t) {}\r\n\r\n\t@Action(GetContentListContent)\r\n\tget(ctx: StateContext<ContentListStateModel>, action: GetContentListContent) {\r\n\t\treturn this.directoryService.getDirectoryContent(action.path).pipe(\r\n\t\t\ttap((content) => {\r\n\t\t\t\tctx.patchState({\r\n\t\t\t\t\tdirectories: content.directories,\r\n\t\t\t\t\tfiles: content.files,\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n}\r\n",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "path",
-                        "type": "string",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 13,
-                "jsdoctags": [
-                    {
-                        "name": "path",
-                        "type": "string",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "inputsClass": [],
-            "outputsClass": [],
-            "properties": [
-                {
-                    "name": "path",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 15,
-                    "modifierKind": [
-                        125
-                    ]
-                },
-                {
-                    "name": "type",
-                    "defaultValue": "'[Content List] Get content'",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 13,
-                    "modifierKind": [
-                        126,
-                        148
-                    ]
-                }
-            ],
-            "methods": [],
-            "indexSignatures": [],
-            "extends": [],
-            "hostBindings": [],
-            "hostListeners": []
-        },
-        {
-            "name": "GetPath",
-            "id": "class-GetPath-a5038ec19d805503c751abd5d67d827230a979ab54592322655ac357d2318a103b859c72ccdc673ef45569df65d5f2c49a8adb89539de3683e3e0f336df2f309",
-            "file": "src/components/app/actions/path.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "class",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { ActivatedRoute } from '@angular/router';\r\nimport { Action, Selector, State, StateContext } from '@ngxs/store';\r\n\r\nexport class GetPath {\r\n\tstatic readonly type = '[Path] Get path';\r\n\r\n\tpublic constructor(public readonly route: ActivatedRoute) {}\r\n}\r\n\r\n@State<string>({\r\n\tname: 'path',\r\n\tdefaults: 'root',\r\n})\r\n@Injectable()\r\nexport class PathState {\r\n\t@Selector()\r\n\tpublic static path(state: string) {\r\n\t\treturn state;\r\n\t}\r\n\r\n\t@Action(GetPath)\r\n\tpublic getPath(ctx: StateContext<string>, action: GetPath) {\r\n\t\taction.route.url.subscribe((segments) => {\r\n\t\t\tconst path = segments.map((x) => x.path).join('/');\r\n\r\n\t\t\tctx.setState(path);\r\n\t\t});\r\n\t}\r\n}\r\n",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "route",
-                        "type": "ActivatedRoute",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 6,
-                "modifierKind": [
-                    125
-                ],
-                "jsdoctags": [
-                    {
-                        "name": "route",
-                        "type": "ActivatedRoute",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "inputsClass": [],
-            "outputsClass": [],
-            "properties": [
-                {
-                    "name": "route",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "ActivatedRoute",
-                    "optional": false,
-                    "description": "",
-                    "line": 8,
-                    "modifierKind": [
-                        125,
-                        148
-                    ]
-                },
-                {
-                    "name": "type",
-                    "defaultValue": "'[Path] Get path'",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 6,
-                    "modifierKind": [
-                        126,
-                        148
-                    ]
-                }
-            ],
-            "methods": [],
-            "indexSignatures": [],
-            "extends": [],
-            "hostBindings": [],
-            "hostListeners": []
-        },
-        {
-            "name": "GetTreeSubDirectories",
-            "id": "class-GetTreeSubDirectories-5b1a3d1c9ecdc019bee76b467bd5d457e8cd08902a563354af2518053b0e45cabbe7ff3dea0c5b0c53baf5f8e71fdc771a4d9515123b60b9fe06c0c907a0f67a",
-            "file": "src/components/app/actions/tree.state.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "class",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext } from '@ngxs/store';\r\nimport { DirectoryService } from 'generated';\r\nimport { defaultIfEmpty, forkJoin, map, mergeMap, tap } from 'rxjs';\r\n\r\nexport class GetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree View] Get subdirectories';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n\r\nexport class SetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree View] Set subdirectories';\r\n\r\n\tconstructor(\r\n\t\tpublic path: string,\r\n\t\tpublic directories: { name: string; hasChildren: boolean }[]\r\n\t) {}\r\n}\r\n\r\nexport const TreeViewStateName = 'tree_view';\r\n\r\nexport type TreeViewStateType = {\r\n\t[TreeViewStateName]: TreeViewStateModel;\r\n};\r\n\r\nexport interface TreeViewStateModel {\r\n\t[key: string]: {\r\n\t\tchildren: { name: string; hasChildren: boolean }[];\r\n\t};\r\n}\r\n\r\n@State<TreeViewStateModel>({\r\n\tname: TreeViewStateName,\r\n\tdefaults: {},\r\n})\r\n@Injectable()\r\nexport class TreeViewState {\r\n\tconstructor(private readonly directoryService: DirectoryService) {}\r\n\r\n\t@Action(GetTreeSubDirectories)\r\n\tget(ctx: StateContext<TreeViewStateModel>, action: GetTreeSubDirectories) {\r\n\t\treturn this.directoryService.getDirectoryContent(action.path).pipe(\r\n\t\t\tmap((content) => content.directories.map((directory) => directory.name)),\r\n\t\t\tmergeMap((directoryNames) => {\r\n\t\t\t\tconst observables = directoryNames.map((name) =>\r\n\t\t\t\t\tthis.directoryService.getDirectoryMetadata(action.path + '/' + name).pipe(\r\n\t\t\t\t\t\tmap((metadata) => ({\r\n\t\t\t\t\t\t\tname: metadata.name,\r\n\t\t\t\t\t\t\thasChildren: metadata.directories > 0,\r\n\t\t\t\t\t\t}))\r\n\t\t\t\t\t)\r\n\t\t\t\t);\r\n\r\n\t\t\t\treturn forkJoin(observables).pipe(defaultIfEmpty(null));\r\n\t\t\t}),\r\n\t\t\ttap((newState) => {\r\n\t\t\t\tctx.patchState({\r\n\t\t\t\t\t[action.path]: {\r\n\t\t\t\t\t\tchildren: newState ?? [],\r\n\t\t\t\t\t},\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action(SetTreeSubDirectories)\r\n\tset(ctx: StateContext<TreeViewStateModel>, action: SetTreeSubDirectories) {\r\n\t\tctx.patchState({\r\n\t\t\t[action.path]: {\r\n\t\t\t\tchildren: action.directories,\r\n\t\t\t},\r\n\t\t});\r\n\t}\r\n}\r\n",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "path",
-                        "type": "string",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 7,
-                "jsdoctags": [
-                    {
-                        "name": "path",
-                        "type": "string",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "inputsClass": [],
-            "outputsClass": [],
-            "properties": [
-                {
-                    "name": "path",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 9,
-                    "modifierKind": [
-                        125
-                    ]
-                },
-                {
-                    "name": "type",
-                    "defaultValue": "'[Tree View] Get subdirectories'",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 7,
-                    "modifierKind": [
-                        126,
-                        148
-                    ]
-                }
-            ],
-            "methods": [],
-            "indexSignatures": [],
-            "extends": [],
-            "hostBindings": [],
-            "hostListeners": []
-        },
-        {
-            "name": "SetTreeSubDirectories",
-            "id": "class-SetTreeSubDirectories-5b1a3d1c9ecdc019bee76b467bd5d457e8cd08902a563354af2518053b0e45cabbe7ff3dea0c5b0c53baf5f8e71fdc771a4d9515123b60b9fe06c0c907a0f67a",
-            "file": "src/components/app/actions/tree.state.ts",
-            "deprecated": false,
-            "deprecationMessage": "",
-            "type": "class",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext } from '@ngxs/store';\r\nimport { DirectoryService } from 'generated';\r\nimport { defaultIfEmpty, forkJoin, map, mergeMap, tap } from 'rxjs';\r\n\r\nexport class GetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree View] Get subdirectories';\r\n\r\n\tconstructor(public path: string) {}\r\n}\r\n\r\nexport class SetTreeSubDirectories {\r\n\tstatic readonly type = '[Tree View] Set subdirectories';\r\n\r\n\tconstructor(\r\n\t\tpublic path: string,\r\n\t\tpublic directories: { name: string; hasChildren: boolean }[]\r\n\t) {}\r\n}\r\n\r\nexport const TreeViewStateName = 'tree_view';\r\n\r\nexport type TreeViewStateType = {\r\n\t[TreeViewStateName]: TreeViewStateModel;\r\n};\r\n\r\nexport interface TreeViewStateModel {\r\n\t[key: string]: {\r\n\t\tchildren: { name: string; hasChildren: boolean }[];\r\n\t};\r\n}\r\n\r\n@State<TreeViewStateModel>({\r\n\tname: TreeViewStateName,\r\n\tdefaults: {},\r\n})\r\n@Injectable()\r\nexport class TreeViewState {\r\n\tconstructor(private readonly directoryService: DirectoryService) {}\r\n\r\n\t@Action(GetTreeSubDirectories)\r\n\tget(ctx: StateContext<TreeViewStateModel>, action: GetTreeSubDirectories) {\r\n\t\treturn this.directoryService.getDirectoryContent(action.path).pipe(\r\n\t\t\tmap((content) => content.directories.map((directory) => directory.name)),\r\n\t\t\tmergeMap((directoryNames) => {\r\n\t\t\t\tconst observables = directoryNames.map((name) =>\r\n\t\t\t\t\tthis.directoryService.getDirectoryMetadata(action.path + '/' + name).pipe(\r\n\t\t\t\t\t\tmap((metadata) => ({\r\n\t\t\t\t\t\t\tname: metadata.name,\r\n\t\t\t\t\t\t\thasChildren: metadata.directories > 0,\r\n\t\t\t\t\t\t}))\r\n\t\t\t\t\t)\r\n\t\t\t\t);\r\n\r\n\t\t\t\treturn forkJoin(observables).pipe(defaultIfEmpty(null));\r\n\t\t\t}),\r\n\t\t\ttap((newState) => {\r\n\t\t\t\tctx.patchState({\r\n\t\t\t\t\t[action.path]: {\r\n\t\t\t\t\t\tchildren: newState ?? [],\r\n\t\t\t\t\t},\r\n\t\t\t\t});\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action(SetTreeSubDirectories)\r\n\tset(ctx: StateContext<TreeViewStateModel>, action: SetTreeSubDirectories) {\r\n\t\tctx.patchState({\r\n\t\t\t[action.path]: {\r\n\t\t\t\tchildren: action.directories,\r\n\t\t\t},\r\n\t\t});\r\n\t}\r\n}\r\n",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "path",
-                        "type": "string",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    },
-                    {
-                        "name": "directories",
-                        "type": "literal type[]",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 13,
-                "jsdoctags": [
-                    {
-                        "name": "path",
-                        "type": "string",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    },
-                    {
-                        "name": "directories",
-                        "type": "literal type[]",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "inputsClass": [],
-            "outputsClass": [],
-            "properties": [
-                {
-                    "name": "directories",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "literal type[]",
-                    "optional": false,
-                    "description": "",
-                    "line": 17,
-                    "modifierKind": [
-                        125
-                    ]
-                },
-                {
-                    "name": "path",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 16,
-                    "modifierKind": [
-                        125
-                    ]
-                },
-                {
-                    "name": "type",
-                    "defaultValue": "'[Tree View] Set subdirectories'",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 13,
-                    "modifierKind": [
-                        126,
-                        148
-                    ]
-                }
-            ],
-            "methods": [],
-            "indexSignatures": [],
-            "extends": [],
-            "hostBindings": [],
-            "hostListeners": []
-        }
-    ],
+    "classes": [],
     "directives": [],
     "components": [
         {
-            "name": "AppComponent",
-            "id": "component-AppComponent-68b4f49a68e282f7dc912430cdd627adbc283848a993cbfbb037fbb03b36813fb7a43133ca1e03382e63519813ce3a5d3872181d2d62106a1beb27ff5d1caaab",
-            "file": "src/components/app/AppComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "app",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./AppComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [],
-            "propertiesClass": [
-                {
-                    "name": "title",
-                    "defaultValue": "'frontend'",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 13
-                }
-            ],
-            "methodsClass": [],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [
-                {
-                    "name": "ExplorerComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "RouterOutlet"
-                }
-            ],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component } from '@angular/core';\r\nimport { RouterOutlet } from '@angular/router';\r\nimport { ExplorerComponent } from 'src/components/app/explorer/ExplorerComponent';\r\n\r\n@Component({\r\n\tselector: 'app',\r\n\tstandalone: true,\r\n\ttemplateUrl: './AppComponent.html',\r\n\timports: [ExplorerComponent, RouterOutlet],\r\n\tstyleUrl: './AppComponent.css',\r\n})\r\nexport class AppComponent {\r\n\ttitle = 'frontend';\r\n}\r\n",
-            "styleUrl": "./AppComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "extends": [],
-            "templateData": "<router-outlet></router-outlet>\r\n"
-        },
-        {
-            "name": "ContentListComponent",
-            "id": "component-ContentListComponent-945f0cc1cc25be15cb9d5424d06182cb56dc3fecefc5649cbb5eefb85b59f59bd60f81b0998bf2190f5bc7cbcbeeb03703e1ad58ba8bcb2dcb66c529a9d16449",
-            "file": "src/components/app/explorer/content-list/ContentListComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "content-list",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./ContentListComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [
-                {
-                    "name": "loadedEvent",
-                    "defaultValue": "new EventEmitter<void>()",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 34,
-                    "type": "EventEmitter"
-                }
-            ],
-            "propertiesClass": [
-                {
-                    "name": "directories$",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Observable<DirectoryContentDirectory[]>",
-                    "optional": false,
-                    "description": "",
-                    "line": 40,
-                    "decorators": [
-                        {
-                            "name": "Select",
-                            "stringifiedArguments": "state => undefined.directories"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "displayCreateDirectoryComponent",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 45
-                },
-                {
-                    "name": "empty",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 28,
-                    "decorators": [
-                        {
-                            "name": "HostBinding",
-                            "stringifiedArguments": "'class.empty'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "files$",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Observable<DirectoryContentFile[]>",
-                    "optional": false,
-                    "description": "",
-                    "line": 43,
-                    "decorators": [
-                        {
-                            "name": "Select",
-                            "stringifiedArguments": "state => undefined.files"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "isRootPath",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 31,
-                    "decorators": [
-                        {
-                            "name": "HostBinding",
-                            "stringifiedArguments": "'class.choosing'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "loaded",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 25,
-                    "decorators": [
-                        {
-                            "name": "HostBinding",
-                            "stringifiedArguments": "'class.loaded'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "path$",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Observable<string>",
-                    "optional": false,
-                    "description": "",
-                    "line": 37,
-                    "decorators": [
-                        {
-                            "name": "Select",
-                            "stringifiedArguments": "PathState.path"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "store",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Store",
-                    "optional": false,
-                    "description": "",
-                    "line": 22,
-                    "modifierKind": [
-                        123,
-                        148
-                    ]
-                }
-            ],
-            "methodsClass": [
-                {
-                    "name": "displayDirectoryCreateComponent",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 71,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "ngOnInit",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 51,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "removeDirectoryCreateComponent",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 75,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [
-                {
-                    "name": "class.choosing",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 31,
-                    "type": "boolean",
-                    "decorators": []
-                },
-                {
-                    "name": "class.empty",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 28,
-                    "type": "boolean",
-                    "decorators": []
-                },
-                {
-                    "name": "class.loaded",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 25,
-                    "type": "boolean",
-                    "decorators": []
-                }
-            ],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [
-                {
-                    "name": "AsyncPipe",
-                    "type": "pipe"
-                },
-                {
-                    "name": "ContentListDirectoryComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "ContentListFileComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "LoadingSpinnerComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "CreateDirectoryComponent",
-                    "type": "component"
-                }
-            ],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { AsyncPipe } from '@angular/common';\r\nimport { Component, EventEmitter, HostBinding, Output } from '@angular/core';\r\nimport { Select, Store } from '@ngxs/store';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { Observable, combineLatest, map } from 'rxjs';\r\nimport { ContentListStateName, ContentListStateType, GetContentListContent } from 'src/components/app/actions/content.state';\r\nimport { PathState } from 'src/components/app/actions/path';\r\n\r\nimport { ContentListDirectoryComponent } from 'src/components/app/explorer/content-list/content-list-directory/ContentListDirectoryComponent';\r\nimport { ContentListFileComponent } from 'src/components/app/explorer/content-list/content-list-file/ContentListFileComponent';\r\nimport { CreateDirectoryComponent } from 'src/components/app/explorer/create-directory-component/CreateDirectoryComponent';\r\nimport { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';\r\n\r\n@Component({\r\n\tselector: 'content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './ContentListComponent.html',\r\n\tstyleUrl: './ContentListComponent.css',\r\n\timports: [AsyncPipe, ContentListDirectoryComponent, ContentListFileComponent, LoadingSpinnerComponent, CreateDirectoryComponent],\r\n})\r\nexport class ContentListComponent {\r\n\tprivate readonly store: Store;\r\n\r\n\t@HostBinding('class.loaded')\r\n\tloaded: boolean = false;\r\n\r\n\t@HostBinding('class.empty')\r\n\tempty: boolean = false;\r\n\r\n\t@HostBinding('class.choosing')\r\n\tisRootPath: boolean = false;\r\n\r\n\t@Output()\r\n\tloadedEvent = new EventEmitter<void>();\r\n\r\n\t@Select(PathState.path)\r\n\tpath$!: Observable<string>;\r\n\r\n\t@Select((state: ContentListStateType) => state[ContentListStateName].directories)\r\n\tdirectories$!: Observable<DirectoryContentDirectory[]>;\r\n\r\n\t@Select((state: ContentListStateType) => state[ContentListStateName].files)\r\n\tfiles$!: Observable<DirectoryContentFile[]>;\r\n\r\n\tdisplayCreateDirectoryComponent: boolean = false;\r\n\r\n\tpublic constructor(store: Store) {\r\n\t\tthis.store = store;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tcombineLatest([this.directories$, this.files$])\r\n\t\t\t.pipe(map(([directories, files]) => ({ directories: directories, files: files })))\r\n\t\t\t.subscribe((content) => {\r\n\t\t\t\tif (content.directories && content.files) {\r\n\t\t\t\t\tthis.loaded = true;\r\n\t\t\t\t\tthis.loadedEvent.emit();\r\n\t\t\t\t\tthis.empty = content.directories.length === 0 && content.files.length === 0;\r\n\t\t\t\t}\r\n\t\t\t});\r\n\r\n\t\tthis.path$.subscribe((path) => {\r\n\t\t\tthis.isRootPath = path === 'root';\r\n\r\n\t\t\tif (!this.isRootPath) {\r\n\t\t\t\tthis.store.dispatch(new GetContentListContent(path));\r\n\t\t\t}\r\n\t\t});\r\n\t}\r\n\r\n\tdisplayDirectoryCreateComponent() {\r\n\t\tthis.displayCreateDirectoryComponent = true;\r\n\t}\r\n\r\n\tremoveDirectoryCreateComponent() {\r\n\t\tthis.displayCreateDirectoryComponent = false;\r\n\t}\r\n}\r\n",
-            "styleUrl": "./ContentListComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 45,
-                "modifierKind": [
-                    125
-                ],
-                "jsdoctags": [
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "extends": [],
-            "templateData": "@if (loaded) {\r\n    @if (isRootPath) {\r\n        <p>Wähle einen Ordner aus der Liste aus</p>\r\n    } @else if (empty) {\r\n        <p>Hier gibt es noch nichts zu sehen</p>\r\n    } @else {   \r\n        @for (directory of (directories$ | async); track directory.name) {\r\n            <content-list-directory [name]=\"directory.name\" [size]=\"directory.size\"></content-list-directory>\r\n        }\r\n        \r\n        @for (file of (files$ | async); track file.name) {\r\n            <content-list-file [name]=\"file.name\" [size]=\"file.size\"></content-list-file>\r\n        }\r\n    }\r\n    @if (displayCreateDirectoryComponent) {\r\n            <create-directory-component [indent]=\"false\" (removeEmitter)=\"removeDirectoryCreateComponent()\"></create-directory-component>\r\n        }\r\n} @else {\r\n    <loading-spinner></loading-spinner>\r\n}"
-        },
-        {
-            "name": "ContentListDirectoryComponent",
-            "id": "component-ContentListDirectoryComponent-b38c37ff0c92f163abdc334504b61fd92ea622638077190011843a42fe695cb6977430d18849b1504ba515b95218324b8561c8472b826c926b798d06b339fc13",
-            "file": "src/components/app/explorer/content-list/content-list-directory/ContentListDirectoryComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "content-list-directory",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./ContentListDirectoryComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [
-                {
-                    "required": true,
-                    "name": "name",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "optional": false,
-                    "line": 17,
-                    "type": "string",
-                    "decorators": []
-                },
-                {
-                    "required": true,
-                    "name": "size",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "optional": false,
-                    "line": 20,
-                    "type": "number",
-                    "decorators": []
-                }
-            ],
-            "outputsClass": [],
-            "propertiesClass": [
-                {
-                    "name": "route",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "ActivatedRoute",
-                    "optional": false,
-                    "description": "",
-                    "line": 14,
-                    "modifierKind": [
-                        123,
-                        148
-                    ]
-                },
-                {
-                    "name": "router",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Router",
-                    "optional": false,
-                    "description": "",
-                    "line": 12,
-                    "modifierKind": [
-                        123,
-                        148
-                    ]
-                }
-            ],
-            "methodsClass": [
-                {
-                    "name": "formatBytes",
-                    "args": [
-                        {
-                            "name": "bytes",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        },
-                        {
-                            "name": "decimals",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "defaultValue": "2"
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "string",
-                    "typeParameters": [],
-                    "line": 32,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "jsdoctags": [
-                        {
-                            "name": "bytes",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        },
-                        {
-                            "name": "decimals",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "defaultValue": "2",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "onClick",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 28,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "decorators": [
-                        {
-                            "name": "HostListener",
-                            "stringifiedArguments": "'dblclick'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [
-                {
-                    "name": "dblclick",
-                    "args": [],
-                    "argsDecorator": [],
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 28
-                }
-            ],
-            "standalone": true,
-            "imports": [
-                {
-                    "name": "RouterModule",
-                    "type": "module"
-                }
-            ],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component, HostListener, Input } from '@angular/core';\r\nimport { ActivatedRoute, Router, RouterModule } from '@angular/router';\r\n\r\n@Component({\r\n\tselector: 'content-list-directory',\r\n\tstandalone: true,\r\n\ttemplateUrl: './ContentListDirectoryComponent.html',\r\n\tstyleUrl: './ContentListDirectoryComponent.css',\r\n\timports: [RouterModule],\r\n})\r\nexport class ContentListDirectoryComponent {\r\n\tprivate readonly router: Router;\r\n\r\n\tprivate readonly route: ActivatedRoute;\r\n\r\n\t@Input({ required: true })\r\n\tname!: string;\r\n\r\n\t@Input({ required: true })\r\n\tsize!: number;\r\n\r\n\tconstructor(router: Router, route: ActivatedRoute) {\r\n\t\tthis.router = router;\r\n\t\tthis.route = route;\r\n\t}\r\n\r\n\t@HostListener('dblclick')\r\n\tonClick() {\r\n\t\tthis.router.navigate([this.name], { relativeTo: this.route });\r\n\t}\r\n\r\n\tformatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n}\r\n",
-            "styleUrl": "./ContentListDirectoryComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "router",
-                        "type": "Router",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    },
-                    {
-                        "name": "route",
-                        "type": "ActivatedRoute",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 20,
-                "jsdoctags": [
-                    {
-                        "name": "router",
-                        "type": "Router",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    },
-                    {
-                        "name": "route",
-                        "type": "ActivatedRoute",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "extends": [],
-            "templateData": "<img src=\"assets/icons/directory.svg\">\r\n<p>{{name}}</p>\r\n<p>{{formatBytes(size)}}</p>\r\n\r\n"
-        },
-        {
-            "name": "ContentListFileComponent",
-            "id": "component-ContentListFileComponent-425797ac4f17c64e301d94fded9ad85e127f4c67796f2387e2fa70163bfc7aae1d73f1970567fbdbf700943e8c4c92fc3330a9c25b7c3fe8abad14082b3a2d09",
-            "file": "src/components/app/explorer/content-list/content-list-file/ContentListFileComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "content-list-file",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./ContentListFileComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [
-                {
-                    "required": true,
-                    "name": "name",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "optional": false,
-                    "line": 16,
-                    "type": "string",
-                    "decorators": []
-                },
-                {
-                    "required": true,
-                    "name": "size",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "optional": false,
-                    "line": 19,
-                    "type": "number",
-                    "decorators": []
-                }
-            ],
-            "outputsClass": [],
-            "propertiesClass": [
-                {
-                    "name": "extension",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "FileExtension",
-                    "optional": false,
-                    "description": "",
-                    "line": 21
-                }
-            ],
-            "methodsClass": [
-                {
-                    "name": "formatBytes",
-                    "args": [
-                        {
-                            "name": "bytes",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        },
-                        {
-                            "name": "decimals",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "defaultValue": "2"
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "string",
-                    "typeParameters": [],
-                    "line": 27,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "jsdoctags": [
-                        {
-                            "name": "bytes",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        },
-                        {
-                            "name": "decimals",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "defaultValue": "2",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "name": "ngOnInit",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 23,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component, Input } from '@angular/core';\r\n\r\nexport enum FileExtension {\r\n\tDEFAULT = 'default',\r\n\tTXT = 'txt',\r\n}\r\n\r\n@Component({\r\n\tselector: 'content-list-file',\r\n\tstandalone: true,\r\n\ttemplateUrl: './ContentListFileComponent.html',\r\n\tstyleUrl: './ContentListFileComponent.css',\r\n})\r\nexport class ContentListFileComponent {\r\n\t@Input({ required: true })\r\n\tname!: string;\r\n\r\n\t@Input({ required: true })\r\n\tsize!: number;\r\n\r\n\textension!: FileExtension;\r\n\r\n\tngOnInit() {\r\n\t\tthis.extension = /*(<any>FileExtension)[this.name.match(/(?!\\.)([^\\.]+)$/gim)![0].toUpperCase() as FileExtension] ?? */ FileExtension.DEFAULT;\r\n\t}\r\n\r\n\tformatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n}\r\n",
-            "styleUrl": "./ContentListFileComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "extends": [],
-            "templateData": "<img src='{{ \"assets/icons/\" + extension.toString() + \".svg\" }}'>\r\n<p>{{name}}</p>\r\n<p>{{formatBytes(size, 1)}}</p>\r\n<div class=\"icons\"></div>"
-        },
-        {
-            "name": "CreateDirectoryButtonComponent",
-            "id": "component-CreateDirectoryButtonComponent-c2224427af8785506cdffdf0b319bed41910f2323102b55de997698673753d2a0f2c591366c536e68ee56231f82ef26674b66b3cfbe98a7641fa82f64241a02f",
-            "file": "src/components/app/explorer/menu/create-directory-button/CreateDirectoryButtonComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "create-directory-button",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./CreateDirectoryButtonComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [
-                {
-                    "name": "createDirectoryEmitter",
-                    "defaultValue": "new EventEmitter<void>()",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 11,
-                    "type": "EventEmitter"
-                }
-            ],
-            "propertiesClass": [],
-            "methodsClass": [
-                {
-                    "name": "onClick",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 14,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "decorators": [
-                        {
-                            "name": "HostListener",
-                            "stringifiedArguments": "'click'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [
-                {
-                    "name": "click",
-                    "args": [],
-                    "argsDecorator": [],
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 14
-                }
-            ],
-            "standalone": true,
-            "imports": [],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component, EventEmitter, HostListener, Output } from '@angular/core';\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'create-directory-button',\r\n\tstyleUrl: './CreateDirectoryButtonComponent.css',\r\n\ttemplateUrl: './CreateDirectoryButtonComponent.html',\r\n})\r\nexport class CreateDirectoryButtonComponent {\r\n\t@Output()\r\n\tcreateDirectoryEmitter = new EventEmitter<void>();\r\n\r\n\t@HostListener('click')\r\n\tonClick() {\r\n\t\tthis.createDirectoryEmitter.emit();\r\n\t}\r\n}\r\n",
-            "styleUrl": "./CreateDirectoryButtonComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "extends": [],
-            "templateData": "<img src=\"assets/icons/create-directory.svg\">"
-        },
-        {
-            "name": "CreateDirectoryComponent",
-            "id": "component-CreateDirectoryComponent-68f2e18b566974bbe71b0447c762250b7e47c9edd191ce44cedd4f987d01b7286abe4ef38568bf3d2c1a5de6d7e623eca4354893ba370ddf95fb2cd7c1dcc689",
-            "file": "src/components/app/explorer/create-directory-component/CreateDirectoryComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "create-directory-component",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./CreateDirectoryComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [
-                {
-                    "name": "indent",
-                    "defaultValue": "true",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 29,
-                    "type": "boolean",
-                    "decorators": []
-                }
-            ],
-            "outputsClass": [
-                {
-                    "name": "removeEmitter",
-                    "defaultValue": "new EventEmitter<void>()",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 26,
-                    "type": "EventEmitter"
-                }
-            ],
-            "propertiesClass": [
-                {
-                    "name": "directoryNameRegex",
-                    "defaultValue": "new RegExp(`^([-_.]?${this.validChars})([-_. ]?${this.validChars})*$`, 'mi')",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "optional": false,
-                    "description": "",
-                    "line": 33
-                },
-                {
-                    "name": "inputElement",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "ElementRef",
-                    "optional": false,
-                    "description": "",
-                    "line": 45,
-                    "decorators": [
-                        {
-                            "name": "ViewChild",
-                            "stringifiedArguments": "'input'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "isNameInvalid",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 35
-                },
-                {
-                    "name": "loading",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 47
-                },
-                {
-                    "name": "name",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 37
-                },
-                {
-                    "name": "path",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 42
-                },
-                {
-                    "name": "path$",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Observable<string>",
-                    "optional": false,
-                    "description": "",
-                    "line": 40,
-                    "decorators": [
-                        {
-                            "name": "Select",
-                            "stringifiedArguments": "PathState.path"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "validChars",
-                    "defaultValue": "`[a-zA-Z-0-9\\u00c4\\u00e4\\u00d6\\u00f6\\u00dc\\u00fc\\u00df]`",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "",
-                    "optional": false,
-                    "description": "",
-                    "line": 31
-                }
-            ],
-            "methodsClass": [
-                {
-                    "name": "ngAfterViewInit",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 61,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "ngOnInit",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 49,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "onEnter",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 65,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "onNameChange",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 86,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [
-                {
-                    "name": "FormsModule",
-                    "type": "module"
-                }
-            ],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';\r\nimport { FormsModule } from '@angular/forms';\r\nimport { Router } from '@angular/router';\r\nimport { Select, Store } from '@ngxs/store';\r\nimport { DirectoryService } from 'generated';\r\nimport { Observable } from 'rxjs';\r\nimport { PathState } from 'src/components/app/actions/path';\r\nimport { GetTreeSubDirectories } from 'src/components/app/actions/tree.state';\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'create-directory-component',\r\n\ttemplateUrl: './CreateDirectoryComponent.html',\r\n\tstyleUrl: './CreateDirectoryComponent.css',\r\n\timports: [FormsModule],\r\n})\r\nexport class CreateDirectoryComponent {\r\n\tconstructor(\r\n\t\tprivate directoryService: DirectoryService,\r\n\t\tprivate store: Store,\r\n\t\tprivate router: Router,\r\n\t\tprivate elRef: ElementRef\r\n\t) {}\r\n\r\n\t@Output()\r\n\tremoveEmitter = new EventEmitter<void>();\r\n\r\n\t@Input()\r\n\tindent: boolean = true;\r\n\r\n\tvalidChars = `[a-zA-Z-0-9\\u00c4\\u00e4\\u00d6\\u00f6\\u00dc\\u00fc\\u00df]`;\r\n\r\n\tdirectoryNameRegex = new RegExp(`^([-_.]?${this.validChars})([-_. ]?${this.validChars})*$`, 'mi');\r\n\r\n\tisNameInvalid: boolean = false;\r\n\r\n\tname!: string;\r\n\r\n\t@Select(PathState.path)\r\n\tpath$!: Observable<string>;\r\n\r\n\tpath!: string;\r\n\r\n\t@ViewChild('input')\r\n\tinputElement!: ElementRef;\r\n\r\n\tloading: boolean = false;\r\n\r\n\tngOnInit() {\r\n\t\tthis.path$.subscribe((path) => {\r\n\t\t\tthis.path = path;\r\n\t\t});\r\n\r\n\t\tdocument.body.onmousedown = (e) => {\r\n\t\t\tif (!(this.elRef.nativeElement.contains(e.target) || this.elRef.nativeElement === e.target)) {\r\n\t\t\t\tthis.removeEmitter.emit();\r\n\t\t\t}\r\n\t\t};\r\n\t}\r\n\r\n\tngAfterViewInit() {\r\n\t\tthis.inputElement.nativeElement.focus();\r\n\t}\r\n\r\n\tonEnter() {\r\n\t\tif (this.isNameInvalid) {\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tthis.loading = true;\r\n\r\n\t\tthis.directoryService.createDirectory(this.path + '/' + this.name).subscribe({\r\n\t\t\tnext: () => {\r\n\t\t\t\tthis.store.dispatch(new GetTreeSubDirectories(this.path)).subscribe(() => {\r\n\t\t\t\t\tthis.loading = false;\r\n\t\t\t\t\tthis.removeEmitter.emit();\r\n\t\t\t\t\tthis.router.navigate([this.path, this.name]);\r\n\t\t\t\t});\r\n\t\t\t},\r\n\t\t\terror: (error) => {\r\n\t\t\t\tthis.loading = false;\r\n\t\t\t},\r\n\t\t});\r\n\t}\r\n\r\n\tonNameChange() {\r\n\t\tthis.isNameInvalid = !this.directoryNameRegex.test(this.name);\r\n\t}\r\n}\r\n",
-            "styleUrl": "./CreateDirectoryComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "directoryService",
-                        "type": "DirectoryService",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    },
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    },
-                    {
-                        "name": "router",
-                        "type": "Router",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    },
-                    {
-                        "name": "elRef",
-                        "type": "ElementRef",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 17,
-                "jsdoctags": [
-                    {
-                        "name": "directoryService",
-                        "type": "DirectoryService",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    },
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    },
-                    {
-                        "name": "router",
-                        "type": "Router",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    },
-                    {
-                        "name": "elRef",
-                        "type": "ElementRef",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "extends": [],
-            "templateData": "@if (this.indent) {\r\n    <div class=\"placeholder\"></div>\r\n}\r\n<img src=\"assets/icons/directory.svg\" />\r\n<input #input [(ngModel)]=\"name\" (keyup.escape)=\"removeEmitter.emit()\" (keyup.enter)=\"onEnter()\" type=\"text\" placeholder=\"Neuer Ordner\" (input)=\"onNameChange()\">\r\n@if (this.isNameInvalid) {\r\n    <p>Invalid</p>\r\n}\r\n@if (this.loading) {\r\n    <p>Loading</p>\r\n}"
-        },
-        {
-            "name": "ExplorerComponent",
-            "id": "component-ExplorerComponent-7762b30c78207320cbda4eec17da670d638e171484a10612942367f04175e7e94d776bc1dd8aecad7dc38deba8dffd3f27a0512e872572953d36f2faaec90ba4",
-            "file": "src/components/app/explorer/ExplorerComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "explorer",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./ExplorerComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [],
-            "propertiesClass": [
-                {
-                    "name": "contentListComponent",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "ContentListComponent",
-                    "optional": false,
-                    "description": "",
-                    "line": 34,
-                    "decorators": [
-                        {
-                            "name": "ViewChild",
-                            "stringifiedArguments": "ContentListComponent"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "contentListLoaded",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 36
-                },
-                {
-                    "name": "loaded",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 25,
-                    "decorators": [
-                        {
-                            "name": "HostBinding",
-                            "stringifiedArguments": "'class.loaded'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "path",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 40
-                },
-                {
-                    "name": "path$",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Observable<string>",
-                    "optional": false,
-                    "description": "",
-                    "line": 28,
-                    "decorators": [
-                        {
-                            "name": "Select",
-                            "stringifiedArguments": "PathState.path"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "route",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "ActivatedRoute",
-                    "optional": false,
-                    "description": "",
-                    "line": 20,
-                    "modifierKind": [
-                        123,
-                        148
-                    ]
-                },
-                {
-                    "name": "store",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Store",
-                    "optional": false,
-                    "description": "",
-                    "line": 22,
-                    "modifierKind": [
-                        123,
-                        148
-                    ]
-                },
-                {
-                    "name": "treeViewComponent",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "TreeViewComponent",
-                    "optional": false,
-                    "description": "",
-                    "line": 31,
-                    "decorators": [
-                        {
-                            "name": "ViewChild",
-                            "stringifiedArguments": "TreeViewComponent"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "treeViewLoaded",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 38
-                }
-            ],
-            "methodsClass": [
-                {
-                    "name": "contentListLoadedHandler",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 63,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "createDirectory",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 55,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "ngOnInit",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 47,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "treeViewLoadedHandler",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 71,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [
-                {
-                    "name": "class.loaded",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 25,
-                    "type": "boolean",
-                    "decorators": []
-                }
-            ],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [
-                {
-                    "name": "ContentListComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "InteractivePathComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "TreeViewComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "LoadingSpinnerComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "MenuComponent",
-                    "type": "component"
-                }
-            ],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component, HostBinding, ViewChild } from '@angular/core';\r\nimport { ActivatedRoute } from '@angular/router';\r\nimport { Select, Store } from '@ngxs/store';\r\nimport { Observable } from 'rxjs';\r\nimport { GetPath, PathState } from 'src/components/app/actions/path';\r\nimport { ContentListComponent } from 'src/components/app/explorer/content-list/ContentListComponent';\r\nimport { InteractivePathComponent } from 'src/components/app/explorer/interactive-path/InteractivePathComponent';\r\nimport { MenuComponent } from 'src/components/app/explorer/menu/MenuComponent';\r\nimport { TreeViewComponent } from 'src/components/app/explorer/tree-view/TreeViewComponent';\r\nimport { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';\r\n\r\n@Component({\r\n\tselector: 'explorer',\r\n\tstandalone: true,\r\n\ttemplateUrl: './ExplorerComponent.html',\r\n\timports: [ContentListComponent, InteractivePathComponent, TreeViewComponent, LoadingSpinnerComponent, MenuComponent],\r\n\tstyleUrl: './ExplorerComponent.css',\r\n})\r\nexport class ExplorerComponent {\r\n\tprivate readonly route: ActivatedRoute;\r\n\r\n\tprivate readonly store: Store;\r\n\r\n\t@HostBinding('class.loaded')\r\n\tloaded: boolean = false;\r\n\r\n\t@Select(PathState.path)\r\n\tpath$!: Observable<string>;\r\n\r\n\t@ViewChild(TreeViewComponent)\r\n\ttreeViewComponent!: TreeViewComponent;\r\n\r\n\t@ViewChild(ContentListComponent)\r\n\tcontentListComponent!: ContentListComponent;\r\n\r\n\tcontentListLoaded: boolean = false;\r\n\r\n\ttreeViewLoaded: boolean = false;\r\n\r\n\tpath!: string;\r\n\r\n\tpublic constructor(route: ActivatedRoute, store: Store) {\r\n\t\tthis.route = route;\r\n\t\tthis.store = store;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.store.dispatch(new GetPath(this.route));\r\n\r\n\t\tthis.path$.subscribe((path) => {\r\n\t\t\tthis.path = path;\r\n\t\t});\r\n\t}\r\n\r\n\tcreateDirectory() {\r\n\t\tif (this.path === 'root') {\r\n\t\t\tthis.treeViewComponent.displayDirectoryCreateComponent();\r\n\t\t} else {\r\n\t\t\tthis.contentListComponent.displayDirectoryCreateComponent();\r\n\t\t}\r\n\t}\r\n\r\n\tcontentListLoadedHandler() {\r\n\t\tthis.contentListLoaded = true;\r\n\r\n\t\tif (this.treeViewLoaded) {\r\n\t\t\tthis.loaded = true;\r\n\t\t}\r\n\t}\r\n\r\n\ttreeViewLoadedHandler() {\r\n\t\tthis.treeViewLoaded = true;\r\n\r\n\t\tif (this.contentListLoaded) {\r\n\t\t\tthis.loaded = true;\r\n\t\t}\r\n\t}\r\n}\r\n",
-            "styleUrl": "./ExplorerComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "route",
-                        "type": "ActivatedRoute",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    },
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 40,
-                "modifierKind": [
-                    125
-                ],
-                "jsdoctags": [
-                    {
-                        "name": "route",
-                        "type": "ActivatedRoute",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    },
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "extends": [],
-            "templateData": "@if (!this.loaded) {\r\n    <loading-spinner></loading-spinner>\r\n}\r\n<interactive-path></interactive-path>\r\n<div>\r\n    <tree-view (loadedEvent)=\"treeViewLoadedHandler()\"></tree-view>\r\n    <content-list (loadedEvent)=\"contentListLoadedHandler()\"></content-list>\r\n    <menu (createDirectoryEmitter)=\"createDirectory()\"></menu>\r\n</div>\r\n"
-        },
-        {
-            "name": "InteractivePathComponent",
-            "id": "component-InteractivePathComponent-fcae72cd1eb28dc8545992ae2a6f8457251fcb102a01d59340cb66eec903586e45a5214ad3a2e2aafb52a463a8fa420e0bfe8383d75ac1b25023edb3b2a5e036",
-            "file": "src/components/app/explorer/interactive-path/InteractivePathComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "interactive-path",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./InteractivePathComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [],
-            "propertiesClass": [
-                {
-                    "name": "path$",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Observable<string>",
-                    "optional": false,
-                    "description": "",
-                    "line": 19,
-                    "decorators": [
-                        {
-                            "name": "Select",
-                            "stringifiedArguments": "PathState.path"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "paths",
-                    "defaultValue": "[]",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string[]",
-                    "optional": false,
-                    "description": "",
-                    "line": 21
-                },
-                {
-                    "name": "route",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "ActivatedRoute",
-                    "optional": false,
-                    "description": "",
-                    "line": 16,
-                    "modifierKind": [
-                        123,
-                        148
-                    ]
-                },
-                {
-                    "name": "router",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Router",
-                    "optional": false,
-                    "description": "",
-                    "line": 14,
-                    "modifierKind": [
-                        123,
-                        148
-                    ]
-                }
-            ],
-            "methodsClass": [
-                {
-                    "name": "ngOnInit",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 28,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "onClick",
-                    "args": [
-                        {
-                            "name": "id",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": ""
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 34,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "jsdoctags": [
-                        {
-                            "name": "id",
-                            "type": "number",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component } from '@angular/core';\r\nimport { ActivatedRoute, Router } from '@angular/router';\r\nimport { Select } from '@ngxs/store';\r\nimport { Observable } from 'rxjs';\r\nimport { PathState } from 'src/components/app/actions/path';\r\n\r\n@Component({\r\n\tselector: 'interactive-path',\r\n\tstandalone: true,\r\n\ttemplateUrl: './InteractivePathComponent.html',\r\n\tstyleUrl: './InteractivePathComponent.css',\r\n})\r\nexport class InteractivePathComponent {\r\n\tprivate readonly router: Router;\r\n\r\n\tprivate readonly route: ActivatedRoute;\r\n\r\n\t@Select(PathState.path)\r\n\tpath$!: Observable<string>;\r\n\r\n\tpaths: string[] = [];\r\n\r\n\tconstructor(route: ActivatedRoute, router: Router) {\r\n\t\tthis.route = route;\r\n\t\tthis.router = router;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.path$.subscribe((path) => {\r\n\t\t\tthis.paths = path.split('/');\r\n\t\t});\r\n\t}\r\n\r\n\tonClick(id: number) {\r\n\t\tthis.router.navigate([this.paths.slice(0, id + 1).join('/')]);\r\n\t}\r\n}\r\n",
-            "styleUrl": "./InteractivePathComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "route",
-                        "type": "ActivatedRoute",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    },
-                    {
-                        "name": "router",
-                        "type": "Router",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    }
-                ],
-                "line": 21,
-                "jsdoctags": [
-                    {
-                        "name": "route",
-                        "type": "ActivatedRoute",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    },
-                    {
-                        "name": "router",
-                        "type": "Router",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
-            },
-            "extends": [],
-            "templateData": "@for (item of paths; track item; let id = $index) {\r\n    @if (item === \"root\") {\r\n        <p (click)=\"onClick(id)\">/</p>\r\n    } @else {\r\n        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\">\r\n\t    \t<path d=\"M8.7 17.3q-.275-.275-.275-.7 0-.425.275-.7l3.9-3.9-3.9-3.9q-.275-.275-.275-.7 0-.425.275-.7.275-.275.7-.275.425 0 .7.275l4.6 4.6q.15.15.213.325.062.175.062.375t-.062.375q-.063.175-.213.325l-4.6 4.6q-.275.275-.7.275-.425 0-.7-.275Z\" />\r\n\t    </svg>\r\n        <p (click)=\"onClick(id)\">{{item}}</p>\r\n    }\r\n} "
-        },
-        {
             "name": "LoadingSpinnerComponent",
-            "id": "component-LoadingSpinnerComponent-98bf8e09284311081d51501a2ef388eabf93b33b59782b686fedbc18050848f692c5d859646d43b8aed95912aeef42ef33aeff54c9164d9062f32d2710e81f31",
-            "file": "src/components/app/loading-spinner/LoadingSpinnerComponent.ts",
+            "id": "component-LoadingSpinnerComponent-c1c3e20ccb9b690333a4ce86c5653d23c409c854a35e6c1582b5e42b28e2d0c8f0315a02b4ac9d8d66fedf96b4a244ea076ab196194ce7cd287c1a2649f06ce1",
+            "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
@@ -2282,155 +20,44 @@
             "styleUrls": [],
             "styles": [],
             "templateUrl": [
-                "./LoadingSpinnerComponent.html"
+                "./loading-spinner.component.html"
             ],
             "viewProviders": [],
             "hostDirectives": [],
-            "inputsClass": [],
+            "inputsClass": [
+                {
+                    "name": "thickness",
+                    "defaultValue": "Thickness.Regular",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 30,
+                    "type": "Thickness",
+                    "decorators": []
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "Type.Rounded",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 33,
+                    "type": "Type",
+                    "decorators": []
+                }
+            ],
             "outputsClass": [],
-            "propertiesClass": [],
-            "methodsClass": [],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component } from '@angular/core';\r\n\r\n@Component({\r\n\tselector: 'loading-spinner',\r\n\tstandalone: true,\r\n\ttemplateUrl: './LoadingSpinnerComponent.html',\r\n\tstyleUrl: './LoadingSpinnerComponent.css',\r\n})\r\nexport class LoadingSpinnerComponent {}\r\n",
-            "styleUrl": "./LoadingSpinnerComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "extends": [],
-            "templateData": "<div class=\"loading-spinner\"></div>"
-        },
-        {
-            "name": "MenuComponent",
-            "id": "component-MenuComponent-63b734339b16904464d0d69d9d657b1e9e139b657a6db03253ed27bd22cb9b61c1a37031ade9438d84c7381f01789de45111dea9e7649547f96d31c024005f03",
-            "file": "src/components/app/explorer/menu/MenuComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "menu",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./MenuComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [
-                {
-                    "name": "createDirectoryEmitter",
-                    "defaultValue": "new EventEmitter<void>()",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 13,
-                    "type": "EventEmitter"
-                }
-            ],
-            "propertiesClass": [],
-            "methodsClass": [
-                {
-                    "name": "createDirectory",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 15,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [
-                {
-                    "name": "CreateDirectoryButtonComponent",
-                    "type": "component"
-                }
-            ],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Component, EventEmitter, Output } from '@angular/core';\r\nimport { CreateDirectoryButtonComponent } from 'src/components/app/explorer/menu/create-directory-button/CreateDirectoryButtonComponent';\r\n\r\n@Component({\r\n\tselector: 'menu',\r\n\tstandalone: true,\r\n\ttemplateUrl: './MenuComponent.html',\r\n\tstyleUrl: './MenuComponent.css',\r\n\timports: [CreateDirectoryButtonComponent],\r\n})\r\nexport class MenuComponent {\r\n\t@Output()\r\n\tcreateDirectoryEmitter = new EventEmitter<void>();\r\n\r\n\tcreateDirectory() {\r\n\t\tthis.createDirectoryEmitter.emit();\r\n\t}\r\n}\r\n",
-            "styleUrl": "./MenuComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "extends": [],
-            "templateData": "<div class=\"buttons\">\r\n    <create-directory-button (createDirectoryEmitter)=\"createDirectory()\"></create-directory-button>\r\n</div>\r\n<div class=\"plus\">\r\n    <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n        <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n    </svg>\r\n</div>"
-        },
-        {
-            "name": "TreeViewComponent",
-            "id": "component-TreeViewComponent-3854e811ca24fcdf97cb8b9f9ec308bfc23329b18243cdcab44e1b587dbe7cf4361d2eaa836a4fd25c3e1b33f8df2d49176cbc7cd856bf9bfb22a14a937c661d",
-            "file": "src/components/app/explorer/tree-view/TreeViewComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "tree-view",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./TreeViewComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [],
-            "outputsClass": [
-                {
-                    "name": "loadedEvent",
-                    "defaultValue": "new EventEmitter<void>()",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 28,
-                    "type": "EventEmitter"
-                }
-            ],
             "propertiesClass": [
                 {
-                    "name": "children$",
+                    "name": "calculatedThickness",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "Observable<literal type[]>",
+                    "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 30
-                },
-                {
-                    "name": "displayCreateDirectoryComponent",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 32
-                },
-                {
-                    "name": "loaded",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 25,
+                    "line": 36,
                     "decorators": [
                         {
                             "name": "HostBinding",
-                            "stringifiedArguments": "'class.loaded'"
+                            "stringifiedArguments": "'style.--thickness'"
                         }
                     ],
                     "modifierKind": [
@@ -2438,32 +65,13 @@
                     ]
                 },
                 {
-                    "name": "name",
+                    "name": "hostRef",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "string",
+                    "type": "ElementRef<HTMLDivElement>",
                     "optional": false,
                     "description": "",
-                    "line": 22
-                },
-                {
-                    "name": "path",
-                    "defaultValue": "'root'",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 20
-                },
-                {
-                    "name": "store",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Store",
-                    "optional": false,
-                    "description": "",
-                    "line": 18,
+                    "line": 27,
                     "modifierKind": [
                         123,
                         148
@@ -2472,74 +80,133 @@
             ],
             "methodsClass": [
                 {
-                    "name": "displayDirectoryCreateComponent",
+                    "name": "applyThickness",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 38,
+                    "line": 64,
                     "deprecated": false,
-                    "deprecationMessage": ""
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ]
                 },
                 {
-                    "name": "ngOnInit",
-                    "args": [],
+                    "name": "calculateThickness",
+                    "args": [
+                        {
+                            "name": "actualWidth",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
                     "optional": false,
-                    "returnType": "void",
+                    "returnType": "number",
                     "typeParameters": [],
-                    "line": 46,
+                    "line": 60,
                     "deprecated": false,
-                    "deprecationMessage": ""
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "actualWidth",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 },
                 {
-                    "name": "removeDirectoryCreateComponent",
+                    "name": "ngAfterViewInit",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
                     "line": 42,
                     "deprecated": false,
-                    "deprecationMessage": ""
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "ngOnChanges",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 46,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "onResize",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 56,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "HostListener",
+                            "stringifiedArguments": "'window:resize'"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        123
+                    ]
                 }
             ],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [
                 {
-                    "name": "class.loaded",
-                    "defaultValue": "false",
+                    "name": "class",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 25,
-                    "type": "boolean",
+                    "line": 51,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "style.--thickness",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 36,
+                    "type": "string",
                     "decorators": []
                 }
             ],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [
+            "hostListeners": [
                 {
-                    "name": "AsyncPipe",
-                    "type": "pipe"
-                },
-                {
-                    "name": "TreeViewDirectoryComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "LoadingSpinnerComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "CreateDirectoryComponent",
-                    "type": "component"
+                    "name": "window:resize",
+                    "args": [],
+                    "argsDecorator": [],
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 56
                 }
             ],
+            "standalone": true,
+            "imports": [],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { AsyncPipe } from '@angular/common';\r\nimport { Component, EventEmitter, HostBinding, Output } from '@angular/core';\r\nimport { Store } from '@ngxs/store';\r\nimport { Observable } from 'rxjs';\r\nimport { GetTreeSubDirectories, TreeViewStateName } from 'src/components/app/actions/tree.state';\r\nimport { CreateDirectoryComponent } from 'src/components/app/explorer/create-directory-component/CreateDirectoryComponent';\r\nimport { TreeViewDirectoryComponent } from 'src/components/app/explorer/tree-view/tree-view-directory/TreeViewDirectoryComponent';\r\nimport { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';\r\n\r\n@Component({\r\n\tselector: 'tree-view',\r\n\tstandalone: true,\r\n\ttemplateUrl: './TreeViewComponent.html',\r\n\tstyleUrl: './TreeViewComponent.css',\r\n\timports: [AsyncPipe, TreeViewDirectoryComponent, LoadingSpinnerComponent, CreateDirectoryComponent],\r\n})\r\nexport class TreeViewComponent {\r\n\tprivate readonly store: Store;\r\n\r\n\tpath: string = 'root';\r\n\r\n\tname!: string;\r\n\r\n\t@HostBinding('class.loaded')\r\n\tloaded: boolean = false;\r\n\r\n\t@Output()\r\n\tloadedEvent = new EventEmitter<void>();\r\n\r\n\tchildren$!: Observable<{ name: string; hasChildren: boolean }[]>;\r\n\r\n\tdisplayCreateDirectoryComponent: boolean = false;\r\n\r\n\tpublic constructor(store: Store) {\r\n\t\tthis.store = store;\r\n\t}\r\n\r\n\tdisplayDirectoryCreateComponent() {\r\n\t\tthis.displayCreateDirectoryComponent = true;\r\n\t}\r\n\r\n\tremoveDirectoryCreateComponent() {\r\n\t\tthis.displayCreateDirectoryComponent = false;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.name = this.path.split('/').at(-1)!;\r\n\r\n\t\tthis.children$ = this.store.select((state) => state[TreeViewStateName][this.path]?.children);\r\n\r\n\t\tthis.children$.subscribe((content) => {\r\n\t\t\tif (content) {\r\n\t\t\t\tthis.loaded = true;\r\n\t\t\t\tthis.loadedEvent.emit();\r\n\t\t\t}\r\n\t\t});\r\n\r\n\t\tthis.store.dispatch(new GetTreeSubDirectories(this.path));\r\n\t}\r\n}\r\n",
-            "styleUrl": "./TreeViewComponent.css",
+            "sourceCode": "import { Component, ElementRef, HostBinding, HostListener, Input } from '@angular/core';\r\n\r\nexport enum Type {\r\n\tMinimalistic = 'minimalistic',\r\n\tRounded = 'rounded',\r\n}\r\n\r\nexport enum Thickness {\r\n\tThick = 'thick',\r\n\tRegular = 'regular',\r\n\tThin = 'thin',\r\n}\r\n\r\nconst ThicknessMap: Record<Thickness, number> = {\r\n\t[Thickness.Thick]: 0.16,\r\n\t[Thickness.Regular]: 0.08,\r\n\t[Thickness.Thin]: 0.04,\r\n};\r\n\r\n@Component({\r\n\tselector: 'loading-spinner',\r\n\tstandalone: true,\r\n\ttemplateUrl: './loading-spinner.component.html',\r\n\tstyleUrl: './loading-spinner.component.css',\r\n})\r\nexport class LoadingSpinnerComponent {\r\n\tprivate readonly hostRef: ElementRef<HTMLDivElement>;\r\n\r\n\t@Input()\r\n\tthickness: Thickness = Thickness.Regular;\r\n\r\n\t@Input()\r\n\ttype: Type = Type.Rounded;\r\n\r\n\t@HostBinding('style.--thickness')\r\n\tcalculatedThickness!: string;\r\n\r\n\tpublic constructor(hostRef: ElementRef) {\r\n\t\tthis.hostRef = hostRef;\r\n\t}\r\n\r\n\tpublic ngAfterViewInit() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\tpublic ngOnChanges() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\t@HostBinding('class')\r\n\tget classList(): string {\r\n\t\treturn `${this.thickness.toString()} ${this.type.toString()}`;\r\n\t}\r\n\r\n\t@HostListener('window:resize')\r\n\tprivate onResize() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\tprivate calculateThickness(actualWidth: number) {\r\n\t\treturn actualWidth * ThicknessMap[this.thickness];\r\n\t}\r\n\r\n\tprivate applyThickness() {\r\n\t\tthis.calculatedThickness = `${this.calculateThickness(this.hostRef.nativeElement.clientWidth)}px`;\r\n\t}\r\n}\r\n",
+            "styleUrl": "./loading-spinner.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
@@ -2550,20 +217,20 @@
                 "deprecationMessage": "",
                 "args": [
                     {
-                        "name": "store",
-                        "type": "Store",
+                        "name": "hostRef",
+                        "type": "ElementRef",
                         "deprecated": false,
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 32,
+                "line": 36,
                 "modifierKind": [
                     125
                 ],
                 "jsdoctags": [
                     {
-                        "name": "store",
-                        "type": "Store",
+                        "name": "hostRef",
+                        "type": "ElementRef",
                         "deprecated": false,
                         "deprecationMessage": "",
                         "tagName": {
@@ -2573,339 +240,57 @@
                 ]
             },
             "extends": [],
-            "templateData": "@if (loaded) {\t\r\n\t@for (item of (children$ | async); track item) {\r\n\t\t<tree-view-directory [hasChildren]=\"item.hasChildren\" [path]=\"path + '/' + item.name\"></tree-view-directory>\r\n\t}\r\n\r\n\t@if (displayCreateDirectoryComponent) {\r\n\t\t<create-directory-component (removeEmitter)=\"removeDirectoryCreateComponent()\"></create-directory-component>\r\n\t}\r\n} @else {\r\n \t<loading-spinner></loading-spinner>\r\n}\r\n"
-        },
-        {
-            "name": "TreeViewDirectoryComponent",
-            "id": "component-TreeViewDirectoryComponent-4ee3ac11ee6bf5e5ffe685cf2d6474ebee351692040ecbeacf7045a67bc83461c690ca1394d2364476979f1bb3ebae6d1de6e4f97b312881a3358a59d91b4854",
-            "file": "src/components/app/explorer/tree-view/tree-view-directory/TreeViewDirectoryComponent.ts",
-            "encapsulation": [],
-            "entryComponents": [],
-            "inputs": [],
-            "outputs": [],
-            "providers": [],
-            "selector": "tree-view-directory",
-            "styleUrls": [],
-            "styles": [],
-            "templateUrl": [
-                "./TreeViewDirectoryComponent.html"
-            ],
-            "viewProviders": [],
-            "hostDirectives": [],
-            "inputsClass": [
-                {
-                    "required": true,
-                    "name": "hasChildren",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "optional": false,
-                    "line": 28,
-                    "type": "boolean",
-                    "decorators": []
-                },
-                {
-                    "required": true,
-                    "name": "path",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "optional": false,
-                    "line": 25,
-                    "type": "string",
-                    "decorators": []
-                }
-            ],
-            "outputsClass": [],
-            "propertiesClass": [
-                {
-                    "name": "appPath$",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Observable<string>",
-                    "optional": false,
-                    "description": "",
-                    "line": 41,
-                    "decorators": [
-                        {
-                            "name": "Select",
-                            "stringifiedArguments": "PathState.path"
-                        }
-                    ],
-                    "modifierKind": [
-                        170
-                    ]
-                },
-                {
-                    "name": "children$",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Observable<literal type[]>",
-                    "optional": false,
-                    "description": "",
-                    "line": 38
-                },
-                {
-                    "name": "collapsed",
-                    "defaultValue": "true",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 32
-                },
-                {
-                    "name": "loaded",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 34
-                },
-                {
-                    "name": "name",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "optional": false,
-                    "description": "",
-                    "line": 30
-                },
-                {
-                    "name": "router",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Router",
-                    "optional": false,
-                    "description": "",
-                    "line": 22,
-                    "modifierKind": [
-                        123,
-                        148
-                    ]
-                },
-                {
-                    "name": "selected",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "boolean",
-                    "optional": false,
-                    "description": "",
-                    "line": 36
-                },
-                {
-                    "name": "store",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "Store",
-                    "optional": false,
-                    "description": "",
-                    "line": 20,
-                    "modifierKind": [
-                        123,
-                        148
-                    ]
-                }
-            ],
-            "methodsClass": [
-                {
-                    "name": "ngOnInit",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 48,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "onClick",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 76,
-                    "deprecated": false,
-                    "deprecationMessage": ""
-                },
-                {
-                    "name": "toggle",
-                    "args": [
-                        {
-                            "name": "e",
-                            "type": "Event",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "optional": true
-                        }
-                    ],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 84,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "jsdoctags": [
-                        {
-                            "name": "e",
-                            "type": "Event",
-                            "deprecated": false,
-                            "deprecationMessage": "",
-                            "optional": true,
-                            "tagName": {
-                                "text": "param"
-                            }
-                        }
-                    ]
-                }
-            ],
-            "deprecated": false,
-            "deprecationMessage": "",
-            "hostBindings": [],
-            "hostListeners": [],
-            "standalone": true,
-            "imports": [
-                {
-                    "name": "AsyncPipe",
-                    "type": "pipe"
-                },
-                {
-                    "name": "LoadingSpinnerComponent",
-                    "type": "component"
-                }
-            ],
-            "description": "",
-            "rawdescription": "\n",
-            "type": "component",
-            "sourceCode": "import { Observable } from 'rxjs';\r\n\r\nimport { AsyncPipe } from '@angular/common';\r\nimport { Component, Input } from '@angular/core';\r\nimport { Router } from '@angular/router';\r\nimport { Select, Store } from '@ngxs/store';\r\n\r\nimport { PathState } from 'src/components/app/actions/path';\r\nimport { GetTreeSubDirectories, TreeViewStateName, TreeViewStateType } from 'src/components/app/actions/tree.state';\r\nimport { LoadingSpinnerComponent } from 'src/components/app/loading-spinner/LoadingSpinnerComponent';\r\n\r\n@Component({\r\n\tselector: 'tree-view-directory',\r\n\tstandalone: true,\r\n\ttemplateUrl: './TreeViewDirectoryComponent.html',\r\n\tstyleUrl: './TreeViewDirectoryComponent.css',\r\n\timports: [AsyncPipe, LoadingSpinnerComponent],\r\n})\r\nexport class TreeViewDirectoryComponent {\r\n\tprivate readonly store: Store;\r\n\r\n\tprivate readonly router: Router;\r\n\r\n\t@Input({ required: true })\r\n\tpath!: string;\r\n\r\n\t@Input({ required: true })\r\n\thasChildren!: boolean;\r\n\r\n\tname!: string;\r\n\r\n\tcollapsed: boolean = true;\r\n\r\n\tloaded: boolean = false;\r\n\r\n\tselected: boolean = false;\r\n\r\n\tchildren$!: Observable<{ name: string; hasChildren: boolean }[]>;\r\n\r\n\t@Select(PathState.path)\r\n\tappPath$!: Observable<string>;\r\n\r\n\tpublic constructor(store: Store, router: Router) {\r\n\t\tthis.store = store;\r\n\t\tthis.router = router;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.name = this.path.split('/').at(-1)!;\r\n\r\n\t\tthis.appPath$.subscribe((appPath: string) => {\r\n\t\t\tthis.selected = appPath === this.path;\r\n\t\t\tthis.collapsed = this.collapsed ? !new RegExp(`${this.path}(\\/|$)`, 'im').test(appPath) : false;\r\n\r\n\t\t\tif (!this.collapsed) {\r\n\t\t\t\tthis.store.dispatch(new GetTreeSubDirectories(this.path));\r\n\t\t\t}\r\n\t\t});\r\n\r\n\t\tthis.children$ = this.store.select((state: TreeViewStateType) => {\r\n\t\t\treturn state[TreeViewStateName][this.path]?.children;\r\n\t\t});\r\n\r\n\t\tthis.children$.subscribe((content) => {\r\n\t\t\tif (content) {\r\n\t\t\t\tthis.loaded = true;\r\n\t\t\t}\r\n\t\t});\r\n\r\n\t\tif (!this.hasChildren) {\r\n\t\t\tthis.collapsed = true;\r\n\t\t\tthis.loaded = true;\r\n\t\t}\r\n\t}\r\n\r\n\tonClick() {\r\n\t\tif (this.hasChildren && this.collapsed) {\r\n\t\t\tthis.toggle();\r\n\t\t}\r\n\r\n\t\tthis.router.navigate([this.path]);\r\n\t}\r\n\r\n\ttoggle(e?: Event) {\r\n\t\te?.stopPropagation();\r\n\r\n\t\tthis.collapsed = !this.collapsed;\r\n\r\n\t\tif (!this.collapsed && !this.loaded) {\r\n\t\t\tthis.store.dispatch(new GetTreeSubDirectories(this.path));\r\n\t\t}\r\n\t}\r\n}\r\n",
-            "styleUrl": "./TreeViewDirectoryComponent.css",
-            "assetsDirs": [],
-            "styleUrlsData": "",
-            "stylesData": "",
-            "constructorObj": {
-                "name": "constructor",
-                "description": "",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "args": [
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": ""
-                    },
-                    {
-                        "name": "router",
-                        "type": "Router",
-                        "deprecated": false,
-                        "deprecationMessage": ""
+            "accessors": {
+                "classList": {
+                    "name": "classList",
+                    "getSignature": {
+                        "name": "classList",
+                        "type": "string",
+                        "returnType": "string",
+                        "line": 51
                     }
-                ],
-                "line": 41,
-                "modifierKind": [
-                    125
-                ],
-                "jsdoctags": [
-                    {
-                        "name": "store",
-                        "type": "Store",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    },
-                    {
-                        "name": "router",
-                        "type": "Router",
-                        "deprecated": false,
-                        "deprecationMessage": "",
-                        "tagName": {
-                            "text": "param"
-                        }
-                    }
-                ]
+                }
             },
-            "extends": [],
-            "templateData": "<head [class.selected]=\"selected\" [class.collapsed]=\"collapsed\" (click)=\"onClick()\">\r\n\t@if (hasChildren) {\r\n\t\t<svg (click)=\"toggle($event)\" class=\"collapse\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\">\r\n\t\t\t<path d=\"M8.7 17.3q-.275-.275-.275-.7 0-.425.275-.7l3.9-3.9-3.9-3.9q-.275-.275-.275-.7 0-.425.275-.7.275-.275.7-.275.425 0 .7.275l4.6 4.6q.15.15.213.325.062.175.062.375t-.062.375q-.063.175-.213.325l-4.6 4.6q-.275.275-.7.275-.425 0-.7-.275Z\" />\r\n\t\t</svg>\r\n\t} @else {\r\n\t <div class=\"placeholder\"></div>\r\n\t}\r\n\t<img src=\"assets/icons/directory.svg\" />\r\n\t<p>{{name}}</p>\r\n\t<div class=\"actions\">\r\n\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\" width=\"24px\" fill=\"rgb(102, 113, 168)\">\r\n    \t\t<path d=\"M200-200h57l391-391-57-57-391 391v57Zm-40 80q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm600-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z\"/>\r\n\t\t</svg>\r\n\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\" width=\"24px\" fill=\"rgb(102, 113, 168)\">\r\n    \t\t<path d=\"M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z\"/>\r\n\t\t</svg>\r\n\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\" viewBox=\"0 -960 960 960\" width=\"24px\" fill=\"rgb(102, 113, 168)\">\r\n    \t\t<path d=\"M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z\"/>\r\n\t\t</svg>\r\n\t</div>\r\n</head>\r\n<main>\r\n\t@if (!collapsed) {\r\n\t\t@if (!loaded) {\r\n\t\t\t<loading-spinner></loading-spinner>\r\n\t\t} @else {\r\n\t\t\t@for (item of (children$ | async); track item) {\r\n\t\t\t\t<tree-view-directory [hasChildren]=\"item.hasChildren\" [path]=\"path + '/' + item.name\"></tree-view-directory>\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n</main>\r\n"
+            "templateData": "<div class=\"wrapper\">\r\n    <div class=\"loading-spinner\"></div>\r\n</div>"
         }
     ],
     "modules": [],
     "miscellaneous": {
         "variables": [
             {
-                "name": "appConfig",
+                "name": "ThicknessMap",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "src/components/app/app.config.ts",
+                "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "ApplicationConfig",
-                "defaultValue": "{\r\n\tproviders: [\r\n\t\tprovideRouter(routes),\r\n\t\tprovideHttpClient(),\r\n\t\timportProvidersFrom(NgxsModule.forRoot([TreeViewState, PathState, ContentListState]), NgxsLoggerPluginModule.forRoot()),\r\n\t],\r\n}"
-            },
-            {
-                "name": "ContentListStateName",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/components/app/actions/content.state.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "string",
-                "defaultValue": "'content_list'"
-            },
-            {
-                "name": "TreeViewStateName",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/components/app/actions/tree.state.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "string",
-                "defaultValue": "'tree_view'"
+                "type": "Record<Thickness, number>",
+                "defaultValue": "{\r\n\t[Thickness.Thick]: 0.16,\r\n\t[Thickness.Regular]: 0.08,\r\n\t[Thickness.Thin]: 0.04,\r\n}"
             }
         ],
         "functions": [],
-        "typealiases": [
-            {
-                "name": "ContentListStateType",
-                "ctype": "miscellaneous",
-                "subtype": "typealias",
-                "rawtype": "literal type",
-                "file": "src/components/app/actions/content.state.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "description": "",
-                "kind": 187
-            },
-            {
-                "name": "TreeViewStateType",
-                "ctype": "miscellaneous",
-                "subtype": "typealias",
-                "rawtype": "literal type",
-                "file": "src/components/app/actions/tree.state.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "description": "",
-                "kind": 187
-            }
-        ],
+        "typealiases": [],
         "enumerations": [
             {
-                "name": "FileExtension",
+                "name": "Thickness",
                 "childs": [
                     {
-                        "name": "DEFAULT",
+                        "name": "Thick",
                         "deprecated": false,
                         "deprecationMessage": "",
-                        "value": "default"
+                        "value": "thick"
                     },
                     {
-                        "name": "TXT",
+                        "name": "Regular",
                         "deprecated": false,
                         "deprecationMessage": "",
-                        "value": "txt"
+                        "value": "regular"
+                    },
+                    {
+                        "name": "Thin",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "thin"
                     }
                 ],
                 "ctype": "miscellaneous",
@@ -2913,64 +298,69 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
-                "file": "src/components/app/explorer/content-list/content-list-file/ContentListFileComponent.ts"
+                "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts"
+            },
+            {
+                "name": "Type",
+                "childs": [
+                    {
+                        "name": "Minimalistic",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "minimalistic"
+                    },
+                    {
+                        "name": "Rounded",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "rounded"
+                    }
+                ],
+                "ctype": "miscellaneous",
+                "subtype": "enum",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts"
             }
         ],
         "groupedVariables": {
-            "src/components/app/app.config.ts": [
+            "src/app/shared/components/loading-spinner/loading-spinner.component.ts": [
                 {
-                    "name": "appConfig",
+                    "name": "ThicknessMap",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
-                    "file": "src/components/app/app.config.ts",
+                    "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "ApplicationConfig",
-                    "defaultValue": "{\r\n\tproviders: [\r\n\t\tprovideRouter(routes),\r\n\t\tprovideHttpClient(),\r\n\t\timportProvidersFrom(NgxsModule.forRoot([TreeViewState, PathState, ContentListState]), NgxsLoggerPluginModule.forRoot()),\r\n\t],\r\n}"
-                }
-            ],
-            "src/components/app/actions/content.state.ts": [
-                {
-                    "name": "ContentListStateName",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/components/app/actions/content.state.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "defaultValue": "'content_list'"
-                }
-            ],
-            "src/components/app/actions/tree.state.ts": [
-                {
-                    "name": "TreeViewStateName",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/components/app/actions/tree.state.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "string",
-                    "defaultValue": "'tree_view'"
+                    "type": "Record<Thickness, number>",
+                    "defaultValue": "{\r\n\t[Thickness.Thick]: 0.16,\r\n\t[Thickness.Regular]: 0.08,\r\n\t[Thickness.Thin]: 0.04,\r\n}"
                 }
             ]
         },
         "groupedFunctions": {},
         "groupedEnumerations": {
-            "src/components/app/explorer/content-list/content-list-file/ContentListFileComponent.ts": [
+            "src/app/shared/components/loading-spinner/loading-spinner.component.ts": [
                 {
-                    "name": "FileExtension",
+                    "name": "Thickness",
                     "childs": [
                         {
-                            "name": "DEFAULT",
+                            "name": "Thick",
                             "deprecated": false,
                             "deprecationMessage": "",
-                            "value": "default"
+                            "value": "thick"
                         },
                         {
-                            "name": "TXT",
+                            "name": "Regular",
                             "deprecated": false,
                             "deprecationMessage": "",
-                            "value": "txt"
+                            "value": "regular"
+                        },
+                        {
+                            "name": "Thin",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "thin"
                         }
                     ],
                     "ctype": "miscellaneous",
@@ -2978,38 +368,34 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
-                    "file": "src/components/app/explorer/content-list/content-list-file/ContentListFileComponent.ts"
+                    "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts"
+                },
+                {
+                    "name": "Type",
+                    "childs": [
+                        {
+                            "name": "Minimalistic",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "minimalistic"
+                        },
+                        {
+                            "name": "Rounded",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "rounded"
+                        }
+                    ],
+                    "ctype": "miscellaneous",
+                    "subtype": "enum",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts"
                 }
             ]
         },
-        "groupedTypeAliases": {
-            "src/components/app/actions/content.state.ts": [
-                {
-                    "name": "ContentListStateType",
-                    "ctype": "miscellaneous",
-                    "subtype": "typealias",
-                    "rawtype": "literal type",
-                    "file": "src/components/app/actions/content.state.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "description": "",
-                    "kind": 187
-                }
-            ],
-            "src/components/app/actions/tree.state.ts": [
-                {
-                    "name": "TreeViewStateType",
-                    "ctype": "miscellaneous",
-                    "subtype": "typealias",
-                    "rawtype": "literal type",
-                    "file": "src/components/app/actions/tree.state.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "description": "",
-                    "kind": 187
-                }
-            ]
-        }
+        "groupedTypeAliases": {}
     },
     "routes": [],
     "coverage": {
@@ -3017,231 +403,22 @@
         "status": "low",
         "files": [
             {
-                "filePath": "src/components/app/AppComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "AppComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/2",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/content.state.ts",
-                "type": "class",
-                "linktype": "classe",
-                "name": "GetContentListContent",
-                "coveragePercent": 0,
-                "coverageCount": "0/4",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/content.state.ts",
-                "type": "injectable",
-                "linktype": "injectable",
-                "name": "ContentListState",
-                "coveragePercent": 0,
-                "coverageCount": "0/3",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/content.state.ts",
-                "type": "interface",
-                "linktype": "interface",
-                "name": "ContentListStateModel",
-                "coveragePercent": 0,
-                "coverageCount": "0/3",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/content.state.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "ContentListStateName",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/path.ts",
-                "type": "class",
-                "linktype": "classe",
-                "name": "GetPath",
-                "coveragePercent": 0,
-                "coverageCount": "0/4",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/path.ts",
-                "type": "injectable",
-                "linktype": "injectable",
-                "name": "PathState",
-                "coveragePercent": 0,
-                "coverageCount": "0/3",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/tree.state.ts",
-                "type": "class",
-                "linktype": "classe",
-                "name": "GetTreeSubDirectories",
-                "coveragePercent": 0,
-                "coverageCount": "0/4",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/tree.state.ts",
-                "type": "class",
-                "linktype": "classe",
-                "name": "SetTreeSubDirectories",
-                "coveragePercent": 0,
-                "coverageCount": "0/5",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/tree.state.ts",
-                "type": "injectable",
-                "linktype": "injectable",
-                "name": "TreeViewState",
-                "coveragePercent": 0,
-                "coverageCount": "0/4",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/tree.state.ts",
-                "type": "interface",
-                "linktype": "interface",
-                "name": "TreeViewStateModel",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/actions/tree.state.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "TreeViewStateName",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/app.config.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "appConfig",
-                "coveragePercent": 0,
-                "coverageCount": "0/1",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/ExplorerComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "ExplorerComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/16",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/content-list/ContentListComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "ContentListComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/17",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/content-list/content-list-directory/ContentListDirectoryComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "ContentListDirectoryComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/9",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/content-list/content-list-file/ContentListFileComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "ContentListFileComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/6",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/create-directory-component/CreateDirectoryComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "CreateDirectoryComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/16",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/interactive-path/InteractivePathComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "InteractivePathComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/8",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/menu/MenuComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "MenuComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/3",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/menu/create-directory-button/CreateDirectoryButtonComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "CreateDirectoryButtonComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/4",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/tree-view/TreeViewComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "TreeViewComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/13",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/explorer/tree-view/tree-view-directory/TreeViewDirectoryComponent.ts",
-                "type": "component",
-                "linktype": "component",
-                "name": "TreeViewDirectoryComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/15",
-                "status": "low"
-            },
-            {
-                "filePath": "src/components/app/loading-spinner/LoadingSpinnerComponent.ts",
+                "filePath": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "LoadingSpinnerComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/1",
+                "coverageCount": "0/14",
                 "status": "low"
             },
             {
-                "filePath": "src/services/PopupService.ts",
-                "type": "injectable",
-                "linktype": "injectable",
-                "name": "PopupService",
+                "filePath": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ThicknessMap",
                 "coveragePercent": 0,
-                "coverageCount": "0/2",
+                "coverageCount": "0/1",
                 "status": "low"
             }
         ]
