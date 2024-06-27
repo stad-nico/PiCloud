@@ -8,8 +8,76 @@
     "directives": [],
     "components": [
         {
+            "name": "ExpandingMenuButtonComponent",
+            "id": "component-ExpandingMenuButtonComponent-bed1a14a599a66cd87411a2702472080add372fb7dd4df1f02520cf92909f0c3e56c04698e36d9159c82cc452d5faa533b5870921a14203803e3540d54144028",
+            "file": "src/app/shared/components/expanding-menu-button/expanding-menu-button.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "expanding-menu-button",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./expanding-menu-button.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "direction",
+                    "defaultValue": "Direction.Right",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 18,
+                    "type": "Direction",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [
+                {
+                    "name": "class",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 21,
+                    "type": "string",
+                    "decorators": []
+                }
+            ],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\n\r\nexport enum Direction {\r\n\tUp = 'top',\r\n\tDown = 'down',\r\n\tLeft = 'left',\r\n\tRight = 'right',\r\n}\r\n\r\n@Component({\r\n\tselector: 'expanding-menu-button',\r\n\tstandalone: true,\r\n\ttemplateUrl: './expanding-menu-button.component.html',\r\n\tstyleUrl: './expanding-menu-button.component.css',\r\n})\r\nexport class ExpandingMenuButtonComponent {\r\n\t@Input()\r\n\tpublic direction: Direction = Direction.Right;\r\n\r\n\t@HostBinding('class')\r\n\tget classList(): string {\r\n\t\treturn this.direction.toString();\r\n\t}\r\n}\r\n",
+            "styleUrl": "./expanding-menu-button.component.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "accessors": {
+                "classList": {
+                    "name": "classList",
+                    "getSignature": {
+                        "name": "classList",
+                        "type": "string",
+                        "returnType": "string",
+                        "line": 21
+                    }
+                }
+            },
+            "templateData": "<div class=\"wrapper\">\r\n    <div class=\"buttons\">\r\n        <!-- <ng-content></ng-content> -->\r\n        <div class=\"plus\" style=\"background-color: red;\">\r\n            <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n                <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n            </svg>\r\n        </div>\r\n         <div class=\"plus\" style=\"background-color: red;\">\r\n            <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n                <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n            </svg>\r\n        </div>\r\n         <div class=\"plus\" style=\"background-color: red;\">\r\n            <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n                <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n            </svg>\r\n        </div>\r\n        <p style=\"width:10px; text-align: center;\">t</p>\r\n        <p>test2</p>\r\n    </div>\r\n    <div class=\"plus\">\r\n        <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n            <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n        </svg>\r\n    </div>\r\n</div>"
+        },
+        {
             "name": "LoadingSpinnerComponent",
-            "id": "component-LoadingSpinnerComponent-c1c3e20ccb9b690333a4ce86c5653d23c409c854a35e6c1582b5e42b28e2d0c8f0315a02b4ac9d8d66fedf96b4a244ea076ab196194ce7cd287c1a2649f06ce1",
+            "id": "component-LoadingSpinnerComponent-f6259234769258f86fb1d36f41e6249737d654abbcacbc92db8c4e54043b72c89e8d435da96b82abbce1cac8ea42e63da9ca546a92ad336293a217148477909f",
             "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -30,7 +98,54 @@
                     "defaultValue": "Thickness.Regular",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 30,
+                    "jsdoctags": [
+                        {
+                            "pos": 653,
+                            "end": 674,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 351,
+                            "tagName": {
+                                "pos": 654,
+                                "end": 658,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "type"
+                            },
+                            "comment": "",
+                            "typeExpression": {
+                                "pos": 659,
+                                "end": 670,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 316,
+                                "type": {
+                                    "pos": 660,
+                                    "end": 669,
+                                    "flags": 16777216,
+                                    "modifierFlagsCache": 0,
+                                    "transformFlags": 1,
+                                    "kind": 183,
+                                    "typeName": {
+                                        "pos": 660,
+                                        "end": 669,
+                                        "flags": 16777216,
+                                        "modifierFlagsCache": 0,
+                                        "transformFlags": 0,
+                                        "kind": 80,
+                                        "escapedText": "Thickness"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "rawdescription": "\n\nThe thickness of the spinner.\n",
+                    "description": "<p>The thickness of the spinner.</p>\n",
+                    "line": 32,
                     "type": "Thickness",
                     "decorators": []
                 },
@@ -39,7 +154,54 @@
                     "defaultValue": "Type.Rounded",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 33,
+                    "jsdoctags": [
+                        {
+                            "pos": 782,
+                            "end": 798,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 351,
+                            "tagName": {
+                                "pos": 783,
+                                "end": 787,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "type"
+                            },
+                            "comment": "",
+                            "typeExpression": {
+                                "pos": 788,
+                                "end": 794,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 316,
+                                "type": {
+                                    "pos": 789,
+                                    "end": 793,
+                                    "flags": 16777216,
+                                    "modifierFlagsCache": 0,
+                                    "transformFlags": 1,
+                                    "kind": 183,
+                                    "typeName": {
+                                        "pos": 789,
+                                        "end": 793,
+                                        "flags": 16777216,
+                                        "modifierFlagsCache": 0,
+                                        "transformFlags": 0,
+                                        "kind": 80,
+                                        "escapedText": "Type"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "rawdescription": "\n\nThe type of the spinner.\n",
+                    "description": "<p>The type of the spinner.</p>\n",
+                    "line": 39,
                     "type": "Type",
                     "decorators": []
                 }
@@ -52,8 +214,9 @@
                     "deprecationMessage": "",
                     "type": "string",
                     "optional": false,
-                    "description": "",
-                    "line": 36,
+                    "description": "<p>Host binding for setting the thickness variable for CSS use.</p>\n",
+                    "line": 52,
+                    "rawdescription": "\n\nHost binding for setting the thickness variable for CSS use.\n",
                     "decorators": [
                         {
                             "name": "HostBinding",
@@ -61,7 +224,44 @@
                         }
                     ],
                     "modifierKind": [
-                        170
+                        170,
+                        123
+                    ],
+                    "jsdoctags": [
+                        {
+                            "pos": 1073,
+                            "end": 1091,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 351,
+                            "tagName": {
+                                "pos": 1074,
+                                "end": 1078,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "type"
+                            },
+                            "comment": "",
+                            "typeExpression": {
+                                "pos": 1079,
+                                "end": 1087,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 316,
+                                "type": {
+                                    "pos": 1080,
+                                    "end": 1086,
+                                    "flags": 16777216,
+                                    "modifierFlagsCache": 0,
+                                    "transformFlags": 1,
+                                    "kind": 154
+                                }
+                            }
+                        }
                     ]
                 },
                 {
@@ -70,11 +270,76 @@
                     "deprecationMessage": "",
                     "type": "ElementRef<HTMLDivElement>",
                     "optional": false,
-                    "description": "",
-                    "line": 27,
+                    "description": "<p>Reference to the host element.</p>\n",
+                    "line": 45,
+                    "rawdescription": "\n\nReference to the host element.\n",
                     "modifierKind": [
                         123,
                         148
+                    ],
+                    "jsdoctags": [
+                        {
+                            "pos": 897,
+                            "end": 935,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 351,
+                            "tagName": {
+                                "pos": 898,
+                                "end": 902,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "type"
+                            },
+                            "comment": "",
+                            "typeExpression": {
+                                "pos": 903,
+                                "end": 931,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 316,
+                                "type": {
+                                    "pos": 904,
+                                    "end": 930,
+                                    "flags": 16777216,
+                                    "modifierFlagsCache": 0,
+                                    "transformFlags": 1,
+                                    "kind": 183,
+                                    "typeName": {
+                                        "pos": 904,
+                                        "end": 914,
+                                        "flags": 16777216,
+                                        "modifierFlagsCache": 0,
+                                        "transformFlags": 0,
+                                        "kind": 80,
+                                        "escapedText": "ElementRef"
+                                    },
+                                    "typeArguments": [
+                                        {
+                                            "pos": 915,
+                                            "end": 929,
+                                            "flags": 16777216,
+                                            "modifierFlagsCache": 0,
+                                            "transformFlags": 1,
+                                            "kind": 183,
+                                            "typeName": {
+                                                "pos": 915,
+                                                "end": 929,
+                                                "flags": 16777216,
+                                                "modifierFlagsCache": 0,
+                                                "transformFlags": 0,
+                                                "kind": 80,
+                                                "escapedText": "HTMLDivElement"
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
                     ]
                 }
             ],
@@ -85,7 +350,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 64,
+                    "line": 80,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -105,7 +370,7 @@
                     "optional": false,
                     "returnType": "number",
                     "typeParameters": [],
-                    "line": 60,
+                    "line": 76,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -129,7 +394,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 42,
+                    "line": 58,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -142,7 +407,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 46,
+                    "line": 62,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -155,7 +420,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 56,
+                    "line": 72,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -177,7 +442,7 @@
                     "name": "class",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 51,
+                    "line": 67,
                     "type": "string",
                     "decorators": []
                 },
@@ -185,7 +450,45 @@
                     "name": "style.--thickness",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 36,
+                    "jsdoctags": [
+                        {
+                            "pos": 1073,
+                            "end": 1091,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 351,
+                            "tagName": {
+                                "pos": 1074,
+                                "end": 1078,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "type"
+                            },
+                            "comment": "",
+                            "typeExpression": {
+                                "pos": 1079,
+                                "end": 1087,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 316,
+                                "type": {
+                                    "pos": 1080,
+                                    "end": 1086,
+                                    "flags": 16777216,
+                                    "modifierFlagsCache": 0,
+                                    "transformFlags": 1,
+                                    "kind": 154
+                                }
+                            }
+                        }
+                    ],
+                    "rawdescription": "\n\nHost binding for setting the thickness variable for CSS use.\n",
+                    "description": "<p>Host binding for setting the thickness variable for CSS use.</p>\n",
+                    "line": 52,
                     "type": "string",
                     "decorators": []
                 }
@@ -197,7 +500,7 @@
                     "argsDecorator": [],
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 56
+                    "line": 72
                 }
             ],
             "standalone": true,
@@ -205,7 +508,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, ElementRef, HostBinding, HostListener, Input } from '@angular/core';\r\n\r\nexport enum Type {\r\n\tMinimalistic = 'minimalistic',\r\n\tRounded = 'rounded',\r\n}\r\n\r\nexport enum Thickness {\r\n\tThick = 'thick',\r\n\tRegular = 'regular',\r\n\tThin = 'thin',\r\n}\r\n\r\nconst ThicknessMap: Record<Thickness, number> = {\r\n\t[Thickness.Thick]: 0.16,\r\n\t[Thickness.Regular]: 0.08,\r\n\t[Thickness.Thin]: 0.04,\r\n};\r\n\r\n@Component({\r\n\tselector: 'loading-spinner',\r\n\tstandalone: true,\r\n\ttemplateUrl: './loading-spinner.component.html',\r\n\tstyleUrl: './loading-spinner.component.css',\r\n})\r\nexport class LoadingSpinnerComponent {\r\n\tprivate readonly hostRef: ElementRef<HTMLDivElement>;\r\n\r\n\t@Input()\r\n\tthickness: Thickness = Thickness.Regular;\r\n\r\n\t@Input()\r\n\ttype: Type = Type.Rounded;\r\n\r\n\t@HostBinding('style.--thickness')\r\n\tcalculatedThickness!: string;\r\n\r\n\tpublic constructor(hostRef: ElementRef) {\r\n\t\tthis.hostRef = hostRef;\r\n\t}\r\n\r\n\tpublic ngAfterViewInit() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\tpublic ngOnChanges() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\t@HostBinding('class')\r\n\tget classList(): string {\r\n\t\treturn `${this.thickness.toString()} ${this.type.toString()}`;\r\n\t}\r\n\r\n\t@HostListener('window:resize')\r\n\tprivate onResize() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\tprivate calculateThickness(actualWidth: number) {\r\n\t\treturn actualWidth * ThicknessMap[this.thickness];\r\n\t}\r\n\r\n\tprivate applyThickness() {\r\n\t\tthis.calculatedThickness = `${this.calculateThickness(this.hostRef.nativeElement.clientWidth)}px`;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, ElementRef, HostBinding, HostListener, Input } from '@angular/core';\r\n\r\nexport enum Type {\r\n\tMinimalistic = 'minimalistic',\r\n\tRounded = 'rounded',\r\n}\r\n\r\nexport enum Thickness {\r\n\tThick = 'thick',\r\n\tRegular = 'regular',\r\n\tThin = 'thin',\r\n}\r\n\r\nconst ThicknessMap: Record<Thickness, number> = {\r\n\t[Thickness.Thick]: 0.16,\r\n\t[Thickness.Regular]: 0.08,\r\n\t[Thickness.Thin]: 0.04,\r\n};\r\n\r\n@Component({\r\n\tselector: 'loading-spinner',\r\n\tstandalone: true,\r\n\ttemplateUrl: './loading-spinner.component.html',\r\n\tstyleUrl: './loading-spinner.component.css',\r\n})\r\nexport class LoadingSpinnerComponent {\r\n\t/**\r\n\t * The thickness of the spinner.\r\n\t * @type {Thickness}\r\n\t */\r\n\t@Input()\r\n\tpublic thickness: Thickness = Thickness.Regular;\r\n\r\n\t/**\r\n\t * The type of the spinner.\r\n\t * @type {Type}\r\n\t */\r\n\t@Input()\r\n\tpublic type: Type = Type.Rounded;\r\n\r\n\t/**\r\n\t * Reference to the host element.\r\n\t * @type {ElementRef<HTMLDivElement>}\r\n\t */\r\n\tprivate readonly hostRef: ElementRef<HTMLDivElement>;\r\n\r\n\t/**\r\n\t * Host binding for setting the thickness variable for CSS use.\r\n\t * @type {string}\r\n\t */\r\n\t@HostBinding('style.--thickness')\r\n\tprivate calculatedThickness!: string;\r\n\r\n\tpublic constructor(hostRef: ElementRef) {\r\n\t\tthis.hostRef = hostRef;\r\n\t}\r\n\r\n\tpublic ngAfterViewInit() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\tpublic ngOnChanges() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\t@HostBinding('class')\r\n\tget classList(): string {\r\n\t\treturn `${this.thickness.toString()} ${this.type.toString()}`;\r\n\t}\r\n\r\n\t@HostListener('window:resize')\r\n\tprivate onResize() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\tprivate calculateThickness(actualWidth: number) {\r\n\t\treturn actualWidth * ThicknessMap[this.thickness];\r\n\t}\r\n\r\n\tprivate applyThickness() {\r\n\t\tthis.calculatedThickness = `${this.calculateThickness(this.hostRef.nativeElement.clientWidth)}px`;\r\n\t}\r\n}\r\n",
             "styleUrl": "./loading-spinner.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -223,7 +526,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 36,
+                "line": 52,
                 "modifierKind": [
                     125
                 ],
@@ -247,7 +550,7 @@
                         "name": "classList",
                         "type": "string",
                         "returnType": "string",
-                        "line": 51
+                        "line": 67
                     }
                 }
             },
@@ -271,6 +574,41 @@
         "functions": [],
         "typealiases": [],
         "enumerations": [
+            {
+                "name": "Direction",
+                "childs": [
+                    {
+                        "name": "Up",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "top"
+                    },
+                    {
+                        "name": "Down",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "down"
+                    },
+                    {
+                        "name": "Left",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "left"
+                    },
+                    {
+                        "name": "Right",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "value": "right"
+                    }
+                ],
+                "ctype": "miscellaneous",
+                "subtype": "enum",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "file": "src/app/shared/components/expanding-menu-button/expanding-menu-button.component.ts"
+            },
             {
                 "name": "Thickness",
                 "childs": [
@@ -340,6 +678,43 @@
         },
         "groupedFunctions": {},
         "groupedEnumerations": {
+            "src/app/shared/components/expanding-menu-button/expanding-menu-button.component.ts": [
+                {
+                    "name": "Direction",
+                    "childs": [
+                        {
+                            "name": "Up",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "top"
+                        },
+                        {
+                            "name": "Down",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "down"
+                        },
+                        {
+                            "name": "Left",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "left"
+                        },
+                        {
+                            "name": "Right",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "value": "right"
+                        }
+                    ],
+                    "ctype": "miscellaneous",
+                    "subtype": "enum",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "file": "src/app/shared/components/expanding-menu-button/expanding-menu-button.component.ts"
+                }
+            ],
             "src/app/shared/components/loading-spinner/loading-spinner.component.ts": [
                 {
                     "name": "Thickness",
@@ -399,17 +774,26 @@
     },
     "routes": [],
     "coverage": {
-        "count": 0,
+        "count": 11,
         "status": "low",
         "files": [
+            {
+                "filePath": "src/app/shared/components/expanding-menu-button/expanding-menu-button.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ExpandingMenuButtonComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/3",
+                "status": "low"
+            },
             {
                 "filePath": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "LoadingSpinnerComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/14",
-                "status": "low"
+                "coveragePercent": 35,
+                "coverageCount": "5/14",
+                "status": "medium"
             },
             {
                 "filePath": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",

@@ -1,0 +1,122 @@
+:host {
+	position: absolute;
+}
+
+:host > .wrapper {
+	position: relative;
+}
+
+:host > .wrapper > div.plus {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	background-color: rgb(57, 97, 237);
+
+	border-radius: 50%;
+
+	width: 45px;
+	height: 45px;
+
+	transition: transform 0.2s;
+
+	overflow: hidden;
+}
+
+:host:hover > .wrapper > div.plus {
+	cursor: pointer;
+	transform: rotate(45deg);
+}
+
+:host > .wrapper > div.buttons {
+	position: absolute;
+
+	display: flex;
+	gap: 5px;
+
+	height: 0;
+
+	transition: all 0.2s ease-out;
+
+	overflow: hidden;
+}
+
+:host.down > .wrapper > div.buttons {
+	padding-top: 20px;
+
+	top: 0;
+	left: 50%;
+
+	flex-direction: column;
+	align-items: center;
+
+	transform: translateX(-50%);
+}
+
+:host.down:hover > .wrapper > div.buttons {
+	height: auto;
+
+	top: 100%;
+
+	transition: all 0.2s ease-out;
+}
+
+:host.right > .wrapper > div.buttons {
+	padding-left: 20px;
+
+	left: 0;
+	top: 50%;
+
+	flex-direction: row;
+	align-items: center;
+
+	transform: translateY(-50%);
+}
+
+:host.right:hover > .wrapper > div.buttons {
+	height: auto;
+
+	left: 100%;
+
+	transition: all 0.2s ease-out;
+}
+
+:host.up > .wrapper > div.buttons {
+	padding-bottom: 20px;
+
+	bottom: 0;
+	left: 50%;
+
+	flex-direction: column-reverse;
+	align-items: center;
+
+	transform: translateX(-50%);
+}
+
+:host.up:hover > .wrapper > div.buttons {
+	height: auto;
+
+	bottom: 100%;
+
+	transition: all 0.2s ease-out;
+}
+
+:host.left > .wrapper > div.buttons {
+	padding-right: 20px;
+
+	right: 0;
+	top: 50%;
+
+	flex-direction: row;
+	align-items: center;
+
+	transform: translateY(-50%);
+}
+
+:host.left:hover > .wrapper > div.buttons {
+	height: auto;
+
+	right: 100%;
+
+	transition: all 0.2s ease-out;
+}
