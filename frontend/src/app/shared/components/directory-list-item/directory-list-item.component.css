@@ -1,0 +1,47 @@
+:host {
+	display: grid;
+	grid-template-columns: 25px repeat(3, 1fr);
+	grid-template-rows: 40px;
+	grid-column-gap: 5px;
+	grid-template-areas: 'a b c d';
+	align-items: center;
+	justify-content: left;
+
+	padding: 0 15px;
+
+	border-radius: 15px;
+
+	user-select: none;
+
+	background-color: lightgrey;
+}
+
+:host > .icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+:host > .actions {
+	margin-left: auto;
+
+	grid-area: d;
+
+	display: flex;
+	gap: 3px;
+}
+
+:host > .actions > .icon {
+	padding: 2px;
+
+	border-radius: 6px;
+
+	fill: rgb(102, 113, 168);
+
+	transition: scale 0.1s linear;
+}
+
+:host > .actions > .icon:hover {
+	scale: 1.1;
+	background-color: blue;
+}

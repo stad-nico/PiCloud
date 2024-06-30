@@ -28,7 +28,7 @@
 	transform: rotate(45deg);
 }
 
-:host > .wrapper > div.buttons {
+:host > .wrapper > div.items {
 	position: absolute;
 
 	display: flex;
@@ -41,7 +41,7 @@
 	overflow: hidden;
 }
 
-:host.down > .wrapper > div.buttons {
+:host.down > .wrapper > div.items {
 	padding-top: 20px;
 
 	top: 0;
@@ -53,7 +53,7 @@
 	transform: translateX(-50%);
 }
 
-:host.down:hover > .wrapper > div.buttons {
+:host.down:hover > .wrapper > div.items {
 	height: auto;
 
 	top: 100%;
@@ -61,7 +61,7 @@
 	transition: all 0.2s ease-out;
 }
 
-:host.right > .wrapper > div.buttons {
+:host.right > .wrapper > div.items {
 	padding-left: 20px;
 
 	left: 0;
@@ -73,7 +73,7 @@
 	transform: translateY(-50%);
 }
 
-:host.right:hover > .wrapper > div.buttons {
+:host.right:hover > .wrapper > div.items {
 	height: auto;
 
 	left: 100%;
@@ -81,7 +81,7 @@
 	transition: all 0.2s ease-out;
 }
 
-:host.up > .wrapper > div.buttons {
+:host.up > .wrapper > div.items {
 	padding-bottom: 20px;
 
 	bottom: 0;
@@ -93,7 +93,7 @@
 	transform: translateX(-50%);
 }
 
-:host.up:hover > .wrapper > div.buttons {
+:host.up:hover > .wrapper > div.items {
 	height: auto;
 
 	bottom: 100%;
@@ -101,7 +101,7 @@
 	transition: all 0.2s ease-out;
 }
 
-:host.left > .wrapper > div.buttons {
+:host.left > .wrapper > div.items {
 	padding-right: 20px;
 
 	right: 0;
@@ -113,7 +113,7 @@
 	transform: translateY(-50%);
 }
 
-:host.left:hover > .wrapper > div.buttons {
+:host.left:hover > .wrapper > div.items {
 	height: auto;
 
 	right: 100%;

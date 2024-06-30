@@ -9,6 +9,7 @@ const config: StorybookConfig = {
 		'@storybook/addon-interactions',
 		'@storybook/addon-viewport',
 		'@storybook/addon-controls',
+		'@storybook/addon-a11y',
 	],
 	framework: {
 		name: '@storybook/angular',

@@ -8,8 +8,116 @@
     "directives": [],
     "components": [
         {
+            "name": "DirectoryListItemComponent",
+            "id": "component-DirectoryListItemComponent-97770d367760002ba8dd7bab903158edc2d8df6795b0efe1f005a51b1a63a0459eb9e2befce0c77fb2c2a9f03177a36aa474752e88a6713490c4f101a5b95974",
+            "file": "src/app/shared/components/directory-list-item/directory-list-item.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "directory-list-item",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./directory-list-item.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "required": true,
+                    "name": "name",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "optional": false,
+                    "line": 11,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "required": true,
+                    "name": "size",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "optional": false,
+                    "line": 14,
+                    "type": "number",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "formatBytes",
+                    "args": [
+                        {
+                            "name": "bytes",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "decimals",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "defaultValue": "2"
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "string",
+                    "typeParameters": [],
+                    "line": 16,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        124
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "bytes",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "decimals",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "defaultValue": "2",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input } from '@angular/core';\r\n\r\n@Component({\r\n\tselector: 'directory-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-list-item.component.html',\r\n\tstyleUrl: './directory-list-item.component.css',\r\n})\r\nexport class DirectoryListItemComponent {\r\n\t@Input({ required: true })\r\n\tpublic name!: string;\r\n\r\n\t@Input({ required: true })\r\n\tpublic size!: number;\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n}\r\n",
+            "styleUrl": "./directory-list-item.component.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "templateData": "<div class=\"icon\">\r\n    <svg class=\"folder-icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"25\" height=\"19\">\r\n\t    <path fill=\"rgb(255, 160, 0)\" d=\"M2 0 10 0 14 3 14 5 0 5 0 2C0 1 1 0 2 0\"/>\r\n\t    <path fill=\"rgb(255, 202, 40)\" d=\"M2 3 22 3C24 3 25 4 25 6L25 16C25 18 24 19 22 19L3 19C1 19 0 18 0 16L0 6C0 4 1 3 3 3\"/>\r\n    </svg>\r\n</div>\r\n<p class=\"name\">{{name}}</p>\r\n<p class=\"size\">{{formatBytes(size)}}</p>\r\n<div class=\"actions\"></div>"
+        },
+        {
             "name": "ExpandingMenuButtonComponent",
-            "id": "component-ExpandingMenuButtonComponent-bed1a14a599a66cd87411a2702472080add372fb7dd4df1f02520cf92909f0c3e56c04698e36d9159c82cc452d5faa533b5870921a14203803e3540d54144028",
+            "id": "component-ExpandingMenuButtonComponent-de750fc079d4de7642911727814f0491657844d1158c6b44a6ee12900bbae3d0d4f0a3c1adf067cbf77e6925da2f25aa369c91cbf97b7d00add04189ed1837a3",
             "file": "src/app/shared/components/expanding-menu-button/expanding-menu-button.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -27,10 +135,57 @@
             "inputsClass": [
                 {
                     "name": "direction",
-                    "defaultValue": "Direction.Right",
+                    "defaultValue": "Direction.Down",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 18,
+                    "jsdoctags": [
+                        {
+                            "pos": 452,
+                            "end": 473,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 351,
+                            "tagName": {
+                                "pos": 453,
+                                "end": 457,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "type"
+                            },
+                            "comment": "",
+                            "typeExpression": {
+                                "pos": 458,
+                                "end": 469,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 316,
+                                "type": {
+                                    "pos": 459,
+                                    "end": 468,
+                                    "flags": 16777216,
+                                    "modifierFlagsCache": 0,
+                                    "transformFlags": 1,
+                                    "kind": 183,
+                                    "typeName": {
+                                        "pos": 459,
+                                        "end": 468,
+                                        "flags": 16777216,
+                                        "modifierFlagsCache": 0,
+                                        "transformFlags": 0,
+                                        "kind": 80,
+                                        "escapedText": "Direction"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "rawdescription": "\n\nThe direction to which the menu will expand.\n",
+                    "description": "<p>The direction to which the menu will expand.</p>\n",
+                    "line": 22,
                     "type": "Direction",
                     "decorators": []
                 }
@@ -45,7 +200,7 @@
                     "name": "class",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 21,
+                    "line": 25,
                     "type": "string",
                     "decorators": []
                 }
@@ -56,7 +211,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\n\r\nexport enum Direction {\r\n\tUp = 'top',\r\n\tDown = 'down',\r\n\tLeft = 'left',\r\n\tRight = 'right',\r\n}\r\n\r\n@Component({\r\n\tselector: 'expanding-menu-button',\r\n\tstandalone: true,\r\n\ttemplateUrl: './expanding-menu-button.component.html',\r\n\tstyleUrl: './expanding-menu-button.component.css',\r\n})\r\nexport class ExpandingMenuButtonComponent {\r\n\t@Input()\r\n\tpublic direction: Direction = Direction.Right;\r\n\r\n\t@HostBinding('class')\r\n\tget classList(): string {\r\n\t\treturn this.direction.toString();\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\n\r\nexport enum Direction {\r\n\tUp = 'up',\r\n\tDown = 'down',\r\n\tLeft = 'left',\r\n\tRight = 'right',\r\n}\r\n\r\n@Component({\r\n\tselector: 'expanding-menu-button',\r\n\tstandalone: true,\r\n\ttemplateUrl: './expanding-menu-button.component.html',\r\n\tstyleUrl: './expanding-menu-button.component.css',\r\n})\r\nexport class ExpandingMenuButtonComponent {\r\n\t/**\r\n\t * The direction to which the menu will expand.\r\n\t * @type {Direction}\r\n\t */\r\n\t@Input()\r\n\tpublic direction: Direction = Direction.Down;\r\n\r\n\t@HostBinding('class')\r\n\tget classList(): string {\r\n\t\treturn this.direction.toString();\r\n\t}\r\n}\r\n",
             "styleUrl": "./expanding-menu-button.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -69,15 +224,15 @@
                         "name": "classList",
                         "type": "string",
                         "returnType": "string",
-                        "line": 21
+                        "line": 25
                     }
                 }
             },
-            "templateData": "<div class=\"wrapper\">\r\n    <div class=\"buttons\">\r\n        <!-- <ng-content></ng-content> -->\r\n        <div class=\"plus\" style=\"background-color: red;\">\r\n            <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n                <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n            </svg>\r\n        </div>\r\n         <div class=\"plus\" style=\"background-color: red;\">\r\n            <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n                <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n            </svg>\r\n        </div>\r\n         <div class=\"plus\" style=\"background-color: red;\">\r\n            <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n                <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n            </svg>\r\n        </div>\r\n        <p style=\"width:10px; text-align: center;\">t</p>\r\n        <p>test2</p>\r\n    </div>\r\n    <div class=\"plus\">\r\n        <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n            <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n        </svg>\r\n    </div>\r\n</div>"
+            "templateData": "<div class=\"wrapper\">\r\n    <div class=\"items\">\r\n        <ng-content></ng-content>\r\n    </div>\r\n    <div class=\"plus\">\r\n        <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n            <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n        </svg>\r\n    </div>\r\n</div>"
         },
         {
             "name": "LoadingSpinnerComponent",
-            "id": "component-LoadingSpinnerComponent-f6259234769258f86fb1d36f41e6249737d654abbcacbc92db8c4e54043b72c89e8d435da96b82abbce1cac8ea42e63da9ca546a92ad336293a217148477909f",
+            "id": "component-LoadingSpinnerComponent-b41ec6c1e486cbf0b76f6c7d59a4d6f966fbde81445b59bac5344697542217488d9fdbcc9c213307975fe262d03ea4d0b22eb45be5ec47c0782500b3e8c99321",
             "file": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -350,9 +505,11 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 80,
+                    "line": 96,
                     "deprecated": false,
                     "deprecationMessage": "",
+                    "rawdescription": "\n\nCalculate the thickness, format for CSS and assign to host binding.\n",
+                    "description": "<p>Calculate the thickness, format for CSS and assign to host binding.</p>\n",
                     "modifierKind": [
                         123
                     ]
@@ -361,7 +518,7 @@
                     "name": "calculateThickness",
                     "args": [
                         {
-                            "name": "actualWidth",
+                            "name": "width",
                             "type": "number",
                             "deprecated": false,
                             "deprecationMessage": ""
@@ -370,21 +527,67 @@
                     "optional": false,
                     "returnType": "number",
                     "typeParameters": [],
-                    "line": 76,
+                    "line": 89,
                     "deprecated": false,
                     "deprecationMessage": "",
+                    "rawdescription": "\n\nCalculate the thickness of the spinner based off its computed width.\n\n",
+                    "description": "<p>Calculate the thickness of the spinner based off its computed width.</p>\n",
                     "modifierKind": [
                         123
                     ],
                     "jsdoctags": [
                         {
-                            "name": "actualWidth",
+                            "name": {
+                                "pos": 1926,
+                                "end": 1931,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "width"
+                            },
                             "type": "number",
                             "deprecated": false,
                             "deprecationMessage": "",
                             "tagName": {
-                                "text": "param"
+                                "pos": 1909,
+                                "end": 1914,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "param"
+                            },
+                            "comment": "<p>the width of the component</p>\n",
+                            "typeExpression": {
+                                "pos": 1917,
+                                "end": 1925,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 316,
+                                "type": {
+                                    "pos": 1918,
+                                    "end": 1924,
+                                    "flags": 16777216,
+                                    "modifierFlagsCache": 0,
+                                    "transformFlags": 1,
+                                    "kind": 150
+                                }
                             }
+                        },
+                        {
+                            "tagName": {
+                                "pos": 1965,
+                                "end": 1972,
+                                "flags": 16842752,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 80,
+                                "escapedText": "returns"
+                            },
+                            "comment": "<p>the calculated thickness</p>\n",
+                            "returnType": "number"
                         }
                     ]
                 },
@@ -394,7 +597,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 58,
+                    "line": 65,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -407,7 +610,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 62,
+                    "line": 69,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -420,7 +623,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 72,
+                    "line": 79,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -442,7 +645,7 @@
                     "name": "class",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 67,
+                    "line": 74,
                     "type": "string",
                     "decorators": []
                 },
@@ -500,7 +703,7 @@
                     "argsDecorator": [],
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 72
+                    "line": 79
                 }
             ],
             "standalone": true,
@@ -508,14 +711,14 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, ElementRef, HostBinding, HostListener, Input } from '@angular/core';\r\n\r\nexport enum Type {\r\n\tMinimalistic = 'minimalistic',\r\n\tRounded = 'rounded',\r\n}\r\n\r\nexport enum Thickness {\r\n\tThick = 'thick',\r\n\tRegular = 'regular',\r\n\tThin = 'thin',\r\n}\r\n\r\nconst ThicknessMap: Record<Thickness, number> = {\r\n\t[Thickness.Thick]: 0.16,\r\n\t[Thickness.Regular]: 0.08,\r\n\t[Thickness.Thin]: 0.04,\r\n};\r\n\r\n@Component({\r\n\tselector: 'loading-spinner',\r\n\tstandalone: true,\r\n\ttemplateUrl: './loading-spinner.component.html',\r\n\tstyleUrl: './loading-spinner.component.css',\r\n})\r\nexport class LoadingSpinnerComponent {\r\n\t/**\r\n\t * The thickness of the spinner.\r\n\t * @type {Thickness}\r\n\t */\r\n\t@Input()\r\n\tpublic thickness: Thickness = Thickness.Regular;\r\n\r\n\t/**\r\n\t * The type of the spinner.\r\n\t * @type {Type}\r\n\t */\r\n\t@Input()\r\n\tpublic type: Type = Type.Rounded;\r\n\r\n\t/**\r\n\t * Reference to the host element.\r\n\t * @type {ElementRef<HTMLDivElement>}\r\n\t */\r\n\tprivate readonly hostRef: ElementRef<HTMLDivElement>;\r\n\r\n\t/**\r\n\t * Host binding for setting the thickness variable for CSS use.\r\n\t * @type {string}\r\n\t */\r\n\t@HostBinding('style.--thickness')\r\n\tprivate calculatedThickness!: string;\r\n\r\n\tpublic constructor(hostRef: ElementRef) {\r\n\t\tthis.hostRef = hostRef;\r\n\t}\r\n\r\n\tpublic ngAfterViewInit() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\tpublic ngOnChanges() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\t@HostBinding('class')\r\n\tget classList(): string {\r\n\t\treturn `${this.thickness.toString()} ${this.type.toString()}`;\r\n\t}\r\n\r\n\t@HostListener('window:resize')\r\n\tprivate onResize() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\tprivate calculateThickness(actualWidth: number) {\r\n\t\treturn actualWidth * ThicknessMap[this.thickness];\r\n\t}\r\n\r\n\tprivate applyThickness() {\r\n\t\tthis.calculatedThickness = `${this.calculateThickness(this.hostRef.nativeElement.clientWidth)}px`;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, ElementRef, HostBinding, HostListener, Input } from '@angular/core';\r\n\r\nexport enum Type {\r\n\tMinimalistic = 'minimalistic',\r\n\tRounded = 'rounded',\r\n}\r\n\r\nexport enum Thickness {\r\n\tThick = 'thick',\r\n\tRegular = 'regular',\r\n\tThin = 'thin',\r\n}\r\n\r\nconst ThicknessMap: Record<Thickness, number> = {\r\n\t[Thickness.Thick]: 0.16,\r\n\t[Thickness.Regular]: 0.08,\r\n\t[Thickness.Thin]: 0.04,\r\n};\r\n\r\n@Component({\r\n\tselector: 'loading-spinner',\r\n\tstandalone: true,\r\n\ttemplateUrl: './loading-spinner.component.html',\r\n\tstyleUrl: './loading-spinner.component.css',\r\n})\r\nexport class LoadingSpinnerComponent {\r\n\t/**\r\n\t * The thickness of the spinner.\r\n\t * @type {Thickness}\r\n\t */\r\n\t@Input()\r\n\tpublic thickness: Thickness = Thickness.Regular;\r\n\r\n\t/**\r\n\t * The type of the spinner.\r\n\t * @type {Type}\r\n\t */\r\n\t@Input()\r\n\tpublic type: Type = Type.Rounded;\r\n\r\n\t/**\r\n\t * Reference to the host element.\r\n\t * @type {ElementRef<HTMLDivElement>}\r\n\t */\r\n\tprivate readonly hostRef: ElementRef<HTMLDivElement>;\r\n\r\n\t/**\r\n\t * Host binding for setting the thickness variable for CSS use.\r\n\t * @type {string}\r\n\t */\r\n\t@HostBinding('style.--thickness')\r\n\tprivate calculatedThickness!: string;\r\n\r\n\t/**\r\n\t * Creates a new LoadingSpinnerComponent instance.\r\n\t * @constructor\r\n\t *\r\n\t * @param   {ElementRef}              hostRef the entityManager\r\n\t * @returns {LoadingSpinnerComponent}         the LoadingSpinnerComponent instance\r\n\t */\r\n\tpublic constructor(hostRef: ElementRef) {\r\n\t\tthis.hostRef = hostRef;\r\n\t}\r\n\r\n\tpublic ngAfterViewInit() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\tpublic ngOnChanges() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\t@HostBinding('class')\r\n\tget classList(): string {\r\n\t\treturn `${this.thickness.toString()} ${this.type.toString()}`;\r\n\t}\r\n\r\n\t@HostListener('window:resize')\r\n\tprivate onResize() {\r\n\t\tthis.applyThickness();\r\n\t}\r\n\r\n\t/**\r\n\t * Calculate the thickness of the spinner based off its computed width.\r\n\t *\r\n\t * @param   {number} width the width of the component\r\n\t * @returns {number}       the calculated thickness\r\n\t */\r\n\tprivate calculateThickness(width: number) {\r\n\t\treturn width * ThicknessMap[this.thickness];\r\n\t}\r\n\r\n\t/**\r\n\t * Calculate the thickness, format for CSS and assign to host binding.\r\n\t */\r\n\tprivate applyThickness() {\r\n\t\tthis.calculatedThickness = `${this.calculateThickness(this.hostRef.nativeElement.clientWidth)}px`;\r\n\t}\r\n}\r\n",
             "styleUrl": "./loading-spinner.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
             "constructorObj": {
                 "name": "constructor",
-                "description": "",
+                "description": "<p>Creates a new LoadingSpinnerComponent instance.</p>\n",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "args": [
@@ -527,18 +730,72 @@
                     }
                 ],
                 "line": 52,
+                "rawdescription": "\n\nCreates a new LoadingSpinnerComponent instance.\n\n",
                 "modifierKind": [
                     125
                 ],
                 "jsdoctags": [
                     {
-                        "name": "hostRef",
+                        "name": {
+                            "pos": 1294,
+                            "end": 1301,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 80,
+                            "escapedText": "hostRef"
+                        },
                         "type": "ElementRef",
                         "deprecated": false,
                         "deprecationMessage": "",
                         "tagName": {
-                            "text": "param"
+                            "pos": 1260,
+                            "end": 1265,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 80,
+                            "escapedText": "param"
+                        },
+                        "comment": "<p>the entityManager</p>\n",
+                        "typeExpression": {
+                            "pos": 1268,
+                            "end": 1280,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 316,
+                            "type": {
+                                "pos": 1269,
+                                "end": 1279,
+                                "flags": 16777216,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 1,
+                                "kind": 183,
+                                "typeName": {
+                                    "pos": 1269,
+                                    "end": 1279,
+                                    "flags": 16777216,
+                                    "modifierFlagsCache": 0,
+                                    "transformFlags": 0,
+                                    "kind": 80,
+                                    "escapedText": "ElementRef"
+                                }
+                            }
                         }
+                    },
+                    {
+                        "tagName": {
+                            "pos": 1326,
+                            "end": 1333,
+                            "flags": 16842752,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 80,
+                            "escapedText": "returns"
+                        },
+                        "comment": "<p>the LoadingSpinnerComponent instance</p>\n",
+                        "returnType": ""
                     }
                 ]
             },
@@ -550,7 +807,7 @@
                         "name": "classList",
                         "type": "string",
                         "returnType": "string",
-                        "line": 67
+                        "line": 74
                     }
                 }
             },
@@ -581,7 +838,7 @@
                         "name": "Up",
                         "deprecated": false,
                         "deprecationMessage": "",
-                        "value": "top"
+                        "value": "up"
                     },
                     {
                         "name": "Down",
@@ -686,7 +943,7 @@
                             "name": "Up",
                             "deprecated": false,
                             "deprecationMessage": "",
-                            "value": "top"
+                            "value": "up"
                         },
                         {
                             "name": "Down",
@@ -774,26 +1031,35 @@
     },
     "routes": [],
     "coverage": {
-        "count": 11,
+        "count": 22,
         "status": "low",
         "files": [
+            {
+                "filePath": "src/app/shared/components/directory-list-item/directory-list-item.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "DirectoryListItemComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
             {
                 "filePath": "src/app/shared/components/expanding-menu-button/expanding-menu-button.component.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "ExpandingMenuButtonComponent",
-                "coveragePercent": 0,
-                "coverageCount": "0/3",
-                "status": "low"
+                "coveragePercent": 33,
+                "coverageCount": "1/3",
+                "status": "medium"
             },
             {
                 "filePath": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",
                 "type": "component",
                 "linktype": "component",
                 "name": "LoadingSpinnerComponent",
-                "coveragePercent": 35,
-                "coverageCount": "5/14",
-                "status": "medium"
+                "coveragePercent": 57,
+                "coverageCount": "8/14",
+                "status": "good"
             },
             {
                 "filePath": "src/app/shared/components/loading-spinner/loading-spinner.component.ts",

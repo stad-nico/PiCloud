@@ -19,7 +19,7 @@ export class ExpandingMenuButtonComponent {
 	 * @type {Direction}
 	 */
 	@Input()
-	public direction!: Direction;
+	public direction: Direction = Direction.Down;
 
 	@HostBinding('class')
 	get classList(): string {
