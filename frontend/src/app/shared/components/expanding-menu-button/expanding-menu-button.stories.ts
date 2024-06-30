@@ -2,7 +2,7 @@ import { StoryObj, argsToTemplate, type Meta } from '@storybook/angular';
 import { Direction, ExpandingMenuButtonComponent } from 'src/app/shared/components/expanding-menu-button/expanding-menu-button.component';
 
 const meta: Meta<ExpandingMenuButtonComponent> = {
-	title: 'Menu Button',
+	title: 'Components/Menu Button',
 	component: ExpandingMenuButtonComponent,
 	parameters: {
 		layout: 'centered',

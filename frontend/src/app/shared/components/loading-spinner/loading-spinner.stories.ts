@@ -3,7 +3,7 @@ import { StoryObj, type Meta } from '@storybook/angular';
 import { LoadingSpinnerComponent, Thickness, Type } from 'src/app/shared/components/loading-spinner/loading-spinner.component';
 
 const meta: Meta<LoadingSpinnerComponent> = {
-	title: 'Loading Spinner',
+	title: 'Components/Loading Spinner',
 	component: LoadingSpinnerComponent,
 	parameters: {
 		layout: 'fullscreen',

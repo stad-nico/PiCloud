@@ -1,9 +1,9 @@
 :host {
 	display: grid;
-	grid-template-columns: 25px repeat(3, 1fr);
+	grid-template-columns: auto repeat(3, 1fr) auto;
 	grid-template-rows: 40px;
 	grid-column-gap: 5px;
-	grid-template-areas: 'a b c d';
+	grid-template-areas: 'a b c d e';
 	align-items: center;
 	justify-content: left;
 
@@ -22,10 +22,15 @@
 	justify-content: center;
 }
 
+:host > .size {
+	white-space: nowrap;
+}
+
 :host > .actions {
 	margin-left: auto;
 
-	grid-area: d;
+	grid-area: e;
+	justify-self: end;
 
 	display: flex;
 	gap: 3px;

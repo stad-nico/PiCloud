@@ -1,4 +1,5 @@
 import { setCompodocJson } from '@storybook/addon-docs/angular';
+import { withThemeByClassName } from '@storybook/addon-themes';
 import type { Preview } from '@storybook/angular';
 import docJson from '../documentation.json';
 
@@ -12,8 +13,23 @@ const preview: Preview = {
 				date: /Date$/i,
 			},
 		},
+		options: {
+			storySort: {
+				order: ['Colors', 'Components'],
+			},
+		},
 	},
-	tags: ['autodocs']
+	tags: ['autodocs'],
+	decorators: [
+		withThemeByClassName({
+			themes: {
+				light: 'light-theme',
+				dark: 'dark-theme',
+				grey: 'grey-theme',
+			},
+			defaultTheme: 'light',
+		}),
+	],
 };
 
 export default preview;
