@@ -1,1 +1,109 @@
+import { ColorPalette, ColorItem } from '@storybook/blocks';
+import 'src/themes/light.css';
+import 'src/themes/dark.css';
+
+export const light = {
+	primary: '#3961ed',
+	secondary: '#6772a8',
+	background: '#fbfcff',
+	success: '#28a745',
+	warning: '#ffc107',
+	error: '#dc3545',
+};
+
 # Colors
+
+## Color Palette
+
+<ColorPalette>
+	<ColorItem title="Light" colors={light} />
+</ColorPalette>
+
+## Color Ramps
+
+<div className="light-theme">
+	<ColorPalette>
+		<ColorItem
+			title="Primary"
+			subtitle="--color-primary-xxx"
+			colors={{
+				100: '#030b26',
+				200: '#071a5a',
+				300: '#0b2a8e',
+				400: '#1039c1',
+				500: '#1d4ded',
+				600: '#5076f1',
+				700: '#809bf5',
+				800: '#afc0f8',
+				900: '#dee6fc',
+				1000: '#fafbff',
+			}}
+		/>
+		<ColorItem
+			title="Secondary"
+			subtitle="--color-secondary-xxx"
+			colors={{
+				100: '#181b2a',
+				200: '#2b304a',
+				300: '#3d456b',
+				400: '#505a8b',
+				500: '#6772a8',
+				600: '#8790ba',
+				700: '#a8aecd',
+				800: '#c8ccdf',
+				900: '#e8eaf2',
+				1000: '#fcfcfd',
+			}}
+		/>
+		<ColorItem title="Background" subtitle="--color-background-xxx" colors={{
+			100: '#809fff',
+			200: '#8fabff',
+			300: '#9eb6ff',
+			400: '#adc2ff',
+			500: '#bdcdff',
+			600: '#ccd9ff',
+			700: '#dbe4ff',
+			800: '#ebf0ff',
+			900: '#f5f7ff',
+			1000: '#fafbff',
+			1100: '#ffffff'
+		}}/>
+		<ColorItem title="Success" subtitle="--color-success-xxx" colors={{
+			100: '#0b2d13',
+			200: '#155624',
+			300: '#1f7f35',
+			400: '#29a847',
+			500: '#36ce59',
+			600: '#5fd87b',
+			700: '#88e29d',
+			800: '#b1ecbf',
+			900: '#daf6e1',
+			1000: '#fbfefc',
+		}}/>
+		<ColorItem title="Warning" subtitle="--color-warning-xxx" colors={{
+			100: '#382a00',
+			200: '#6b5000',
+			300: '#9e7700',
+			400: '#d19d00',
+			500: '#ffc105',
+			600: '#ffcd38',
+			700: '#ffda6b',
+			800: '#ffe79e',
+			900: '#fff4d1',
+			1000: '#fffefa',
+		}}/>
+		<ColorItem title="Error" subtitle="--color-error-xxx" colors={{
+			100: '#3d0b10',
+			200: '#68121b',
+			300: '#931a26',
+			400: '#bf2231',
+			500: '#dc3848',
+			600: '#e36370',
+			700: '#eb8e98',
+			800: '#f3babf',
+			900: '#fae5e7',
+			1000: '#fefbfb',
+		}}/>
+</ColorPalette>
+
+</div>
