@@ -26,12 +26,12 @@
 	background-color: var(--color-bg-selected);
 }
 
-:host > :is(.name, .size, .date) {
+:host > :is(.name, .size, .date, .mime-type) {
 	color: var(--color-text-secondary);
 }
 
 :host > .icon {
-	width: 1.5rem;
+	width: 1.375rem;
 
 	display: flex;
 	align-items: center;
@@ -39,7 +39,6 @@
 }
 
 :host > .size {
-	grid-area: e;
 	white-space: nowrap;
 }
 

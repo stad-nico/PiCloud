@@ -19,9 +19,9 @@
 
 	overflow: hidden;
 
-	--background: rgb(239, 240, 245);
+	--background: var(--color-bg-spinner-secondary);
 
-	--color: rgb(208, 211, 224);
+	--color: var(--color-bg-spinner-primary);
 }
 
 .loading-spinner {

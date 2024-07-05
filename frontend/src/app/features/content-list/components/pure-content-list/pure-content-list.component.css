@@ -1,0 +1,28 @@
+:host {
+	background-color: var(--color-bg);
+
+	padding: 1.25rem;
+	border-radius: 0 1.625rem 1.625rem 0;
+
+	display: block;
+}
+
+:host > .item {
+	height: 2.5rem;
+
+	display: flex;
+	align-items: center;
+	justify-content: start;
+}
+
+:host > .item > :is(file-list-item, directory-list-item) {
+	flex-grow: 1;
+}
+
+:host > .item:not(:last-child) {
+	margin-bottom: 2px;
+}
+
+:host > .item > checkbox {
+	height: 60%;
+}

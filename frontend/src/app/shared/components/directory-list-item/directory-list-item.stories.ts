@@ -4,10 +4,7 @@ import { DirectoryListItemComponent } from 'src/app/shared/components/directory-
 const meta: Meta<DirectoryListItemComponent> = {
 	title: 'Components/Directory List Item',
 	component: DirectoryListItemComponent,
-	parameters: {
-		// layout: 'fullscreen',
-	},
-	render: (args: Partial<DirectoryListItemComponent>) => ({
+	render: (args: any) => ({
 		template: `<div style="resize:both;overflow:hidden"><directory-list-item ${argsToTemplate(args)}></directory-list-item></div>`,
 		props: args,
 	}),
@@ -17,7 +14,11 @@ export default meta;
 
 export const Default: StoryObj<DirectoryListItemComponent> = {
 	args: {
-		name: 'example',
-		size: 10382305,
+		metadata: {
+			name: 'example',
+			size: 10382305,
+			createdAt: new Date(Date.now()).toISOString(),
+			updatedAt: new Date(Date.now()).toISOString(),
+		},
 	},
 };

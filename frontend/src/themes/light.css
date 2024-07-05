@@ -16,7 +16,7 @@
 	--color-primary-600: hsl(226, 85%, 63%);
 	--color-primary-700: hsl(226, 85%, 73%);
 	--color-primary-800: hsl(226, 85%, 83%);
-	--color-primary-900: hsl(225, 85%, 93%);
+	--color-primary-900: hsl(226, 85%, 93%);
 	--color-primary-1000: hsl(226, 85%, 99%);
 
 	--color-secondary-100: hsl(230, 27%, 13%);
@@ -38,7 +38,7 @@
 	--color-background-600: hsl(225, 100%, 90%);
 	--color-background-700: hsl(225, 100%, 93%);
 	--color-background-800: hsl(225, 100%, 96%);
-	--color-background-9000: hsl(225, 100%, 98%);
+	--color-background-900: hsl(225, 100%, 98%);
 	--color-background-1000: hsl(225, 100%, 99%);
 	--color-background-1100: hsl(225, 100%, 100%);
 
@@ -74,4 +74,19 @@
 	--color-error-800: hsl(354, 70%, 84%);
 	--color-error-900: hsl(354, 70%, 94%);
 	--color-error-1000: hsl(354, 70%, 99%);
+
+	/* TOKENS */
+	--color-bg-button-primary: var(--color-primary-500);
+	--color-bg-spinner-primary: var(--color-secondary-800);
+	--color-bg-spinner-secondary: var(--color-secondary-900);
+
+	--color-text-secondary: var(--color-secondary-500);
+
+	--color-icon: var(--color-secondary-500);
+
+	--color-bg-hover: var(--color-background-800);
+	--color-bg-hover-secondary: var(--color-background-600);
+	--color-bg-selected: var(--color-background-700);
+
+	--color-bg: var(--color-background-1000);
 }

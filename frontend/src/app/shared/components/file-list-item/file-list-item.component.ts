@@ -1,16 +1,16 @@
 import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
-import { DirectoryContentDirectory } from 'generated';
+import { DirectoryContentFile } from 'generated';
 import { ISelectable } from 'src/app/shared/models/ISelectable';
 
 @Component({
-	selector: 'directory-list-item',
+	selector: 'file-list-item',
 	standalone: true,
-	templateUrl: './directory-list-item.component.html',
-	styleUrl: './directory-list-item.component.css',
+	templateUrl: './file-list-item.component.html',
+	styleUrl: './file-list-item.component.css',
 })
-export class DirectoryListItemComponent implements ISelectable {
+export class FileListItemComponent implements ISelectable {
 	@Input({ required: true })
-	public metadata!: DirectoryContentDirectory;
+	public metadata!: DirectoryContentFile;
 
 	@Output()
 	public onClickEmitter: EventEmitter<ISelectable> = new EventEmitter();

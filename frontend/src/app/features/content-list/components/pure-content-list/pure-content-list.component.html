@@ -1,0 +1,10 @@
+@for (item of content; track item) {
+    <div class="item">
+        <checkbox></checkbox>
+        @if (isFile(item)) {
+            <file-list-item [metadata]="item" (onClickEmitter)="onClick($event)"></file-list-item>
+        } @else {
+            <directory-list-item [metadata]="item" (onClickEmitter)="onClick($event)"></directory-list-item>
+        }
+    </div>
+}
