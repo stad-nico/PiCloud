@@ -1,8 +1,8 @@
 import { Component, ElementRef, HostListener, Input } from '@angular/core';
 import { DirectoryContentDirectory, DirectoryContentFile } from 'generated';
+import { DirectoryListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/directory-list-item/directory-list-item.component';
+import { FileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/file-list-item/file-list-item.component';
 import { SelectableListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component';
-import { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';
-import { FileListItemComponent } from 'src/app/shared/components/file-list-item/file-list-item.component';
 import { ISelectable } from 'src/app/shared/models/ISelectable';
 import { SelectEvent } from 'src/app/shared/models/SelectedEvent';
 

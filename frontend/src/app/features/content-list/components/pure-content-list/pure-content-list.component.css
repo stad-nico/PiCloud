@@ -6,7 +6,9 @@
 
 	display: block;
 
-	overflow: hidden;
+	overflow: scroll;
+
+	height: 25rem;
 }
 
 :host > selectable-list-item {

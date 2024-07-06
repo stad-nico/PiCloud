@@ -1,4 +1,4 @@
-import { StoryObj, type Meta } from '@storybook/angular';
+import { argsToTemplate, StoryObj, type Meta } from '@storybook/angular';
 import {
 	ContentType,
 	Directory,
@@ -8,8 +8,12 @@ import {
 } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
 
 const meta: Meta<PureContentListComponent> = {
-	title: 'Components/Pure Content List',
+	title: 'Features/Content List/Pure Content List',
 	component: PureContentListComponent,
+	render: (args: any) => ({
+		props: args,
+		template: `<div style="resize:both;overflow:hidden"><pure-content-list ${argsToTemplate(args)}></pure-content-list></div>`,
+	}),
 };
 
 export default meta;

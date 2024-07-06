@@ -15,7 +15,7 @@ const preview: Preview = {
 		},
 		options: {
 			storySort: {
-				order: ['Colors', 'Components'],
+				order: ['Colors', 'Shared', 'Features'],
 			},
 		},
 	},

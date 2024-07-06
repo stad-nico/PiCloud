@@ -2,7 +2,7 @@ import { StoryObj, type Meta } from '@storybook/angular';
 import { SelectableListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component';
 
 const meta: Meta<SelectableListItemComponent> = {
-	title: 'Components/Selectable List Item',
+	title: 'Features/Content List/Selectable List Item',
 	component: SelectableListItemComponent,
 	render: (args: any) => ({
 		props: args,
