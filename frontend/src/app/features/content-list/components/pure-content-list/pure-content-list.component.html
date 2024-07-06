@@ -1,10 +1,9 @@
 @for (item of content; track item) {
-    <div class="item">
-        <checkbox></checkbox>
+    <selectable-list-item [selectable]="isInSelectMode" (onClick)="onClick($event)">
         @if (isFile(item)) {
-            <file-list-item [metadata]="item" (onClickEmitter)="onClick($event)"></file-list-item>
+            <file-list-item [metadata]="item"></file-list-item>
         } @else {
-            <directory-list-item [metadata]="item" (onClickEmitter)="onClick($event)"></directory-list-item>
+            <directory-list-item [metadata]="item"></directory-list-item>
         }
-    </div>
+    </selectable-list-item>
 }

@@ -1,9 +1,10 @@
 import { Component, ElementRef, HostListener, Input } from '@angular/core';
 import { DirectoryContentDirectory, DirectoryContentFile } from 'generated';
-import { CheckboxComponent } from 'src/app/shared/components/checkbox/checkbox.component';
+import { SelectableListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component';
 import { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';
 import { FileListItemComponent } from 'src/app/shared/components/file-list-item/file-list-item.component';
 import { ISelectable } from 'src/app/shared/models/ISelectable';
+import { SelectEvent } from 'src/app/shared/models/SelectedEvent';
 
 export enum Type {
 	Directory,
@@ -25,38 +26,54 @@ export type ContentType = File | Directory;
 	standalone: true,
 	templateUrl: './pure-content-list.component.html',
 	styleUrl: './pure-content-list.component.css',
-	imports: [FileListItemComponent, DirectoryListItemComponent, CheckboxComponent],
+	imports: [FileListItemComponent, DirectoryListItemComponent, SelectableListItemComponent],
 })
 export class PureContentListComponent {
 	private ref: ElementRef;
 
-	private selected!: ISelectable;
+	private selected: Array<ISelectable> = [];
 
-	private isInSelectMode: boolean;
+	public isInSelectMode: boolean = false;
 
 	@Input()
 	public content: Array<ContentType> = [];
 
 	constructor(ref: ElementRef) {
 		this.ref = ref;
-		this.isInSelectMode = false;
 	}
 
 	@HostListener('document:click', ['$event'])
 	public clickOut(event: Event) {
 		if (!this.ref.nativeElement.contains(event.target)) {
-			this.selected.unselect();
+			this.selected = [];
 			this.isInSelectMode = false;
 		}
 	}
 
-	public onClick(selectable: ISelectable) {
-		if (this.selected) {
-			this.selected.unselect();
+	public onClick(event: SelectEvent) {
+		if (!event.selected) {
+			event.component!.unselect();
+
+			const index = this.selected.indexOf(event.component!);
+
+			if (index > -1) {
+				this.selected.splice(index, 1);
+			}
+
+			if (this.selected.length === 0) {
+				this.isInSelectMode = false;
+			}
+
+			return;
 		}
 
-		this.selected = selectable;
-		this.selected.select();
+		this.isInSelectMode = true;
+
+		if (!event.ctrl && !event.shift) {
+			event.component!.select();
+
+			this.selected.push(event.component!);
+		}
 	}
 
 	public isFile(content: ContentType): content is File {

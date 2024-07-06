@@ -44,6 +44,44 @@
     "directives": [],
     "components": [
         {
+            "name": "CheckboxComponent",
+            "id": "component-CheckboxComponent-711dc4b8656626d68e74cff4d2c15bc91b2aa9fbf4376cbc512e77849ef972369c6652da8f39e9cdd3cc25491fe002c1b40b3550a8c4e41edb566db0814865f9",
+            "file": "src/app/shared/components/checkbox/checkbox.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "checkbox",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./checkbox.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\r\n\r\n@Component({\r\n\tselector: 'checkbox',\r\n\tstandalone: true,\r\n\ttemplateUrl: './checkbox.component.html',\r\n\tstyleUrl: './checkbox.component.css',\r\n})\r\nexport class CheckboxComponent {}\r\n",
+            "styleUrl": "./checkbox.component.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "templateData": "<label>\r\n    <input type=\"checkbox\">\r\n    <div class=\"wrapper\">\r\n        <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"m382-354 339-339q12-12 28-12t28 12q12 12 12 28.5T777-636L410-268q-12 12-28 12t-28-12L182-440q-12-12-11.5-28.5T183-497q12-12 28.5-12t28.5 12l142 143Z\"/>\r\n        </svg>\r\n    </div>\r\n</label>"
+        },
+        {
             "name": "ContentListComponent",
             "id": "component-ContentListComponent-750d7c886a92bfce891e049572c92e456cb8dbb1f13e409e8de58702465de76c6f726b4bc944734c360b4502d218cfcf0cc1fdb16ba025349e0e40169aa2cf84",
             "file": "src/app/features/content-list/content-list.component.ts",
@@ -1303,7 +1341,7 @@
         },
         {
             "name": "PureContentListComponent",
-            "id": "component-PureContentListComponent-e751d43d76c0af77bcfd5b71e6cb598a337e699cc727dddecbc81b7f93b61ac6e09d0aaabd0c5ea978932701ccad2bf84b55aed31e46c90d51931fa776a06ec4",
+            "id": "component-PureContentListComponent-2032a994bd9912412681dd689dade467294503e2b034c9ef8fc39b56f8e472ccb5fee145100e1b23ca621460252ab866646db0e5b78664f527fd7a13419e17cc",
             "file": "src/app/features/content-list/components/pure-content-list/pure-content-list.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1324,7 +1362,7 @@
                     "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 33,
+                    "line": 38,
                     "type": "Array<ContentType>",
                     "decorators": []
                 }
@@ -1332,19 +1370,81 @@
             "outputsClass": [],
             "propertiesClass": [
                 {
+                    "name": "isInSelectMode",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 35,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
+                    "name": "ref",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ElementRef",
+                    "optional": false,
+                    "description": "",
+                    "line": 31,
+                    "modifierKind": [
+                        123
+                    ]
+                },
+                {
                     "name": "selected",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "ISelectable",
                     "optional": false,
                     "description": "",
-                    "line": 30,
+                    "line": 33,
                     "modifierKind": [
                         123
                     ]
                 }
             ],
             "methodsClass": [
+                {
+                    "name": "clickOut",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 46,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "HostListener",
+                            "stringifiedArguments": "'document:click', ['$event']"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
                 {
                     "name": "isFile",
                     "args": [
@@ -1358,7 +1458,7 @@
                     "optional": false,
                     "returnType": "File",
                     "typeParameters": [],
-                    "line": 44,
+                    "line": 62,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -1389,7 +1489,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 35,
+                    "line": 53,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -1411,7 +1511,25 @@
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
-            "hostListeners": [],
+            "hostListeners": [
+                {
+                    "name": "document:click",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "argsDecorator": [
+                        "$event"
+                    ],
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 46
+                }
+            ],
             "standalone": true,
             "imports": [
                 {
@@ -1421,18 +1539,48 @@
                 {
                     "name": "DirectoryListItemComponent",
                     "type": "component"
+                },
+                {
+                    "name": "CheckboxComponent",
+                    "type": "component"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, Input } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';\r\nimport { FileListItemComponent } from 'src/app/shared/components/file-list-item/file-list-item.component';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [FileListItemComponent, DirectoryListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate selected!: ISelectable;\r\n\r\n\t@Input()\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tpublic onClick(selectable: ISelectable) {\r\n\t\tif (this.selected) {\r\n\t\t\tthis.selected.unselect();\r\n\t\t}\r\n\r\n\t\tthis.selected = selectable;\r\n\t\tthis.selected.select();\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, ElementRef, HostListener, Input } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { CheckboxComponent } from 'src/app/shared/components/checkbox/checkbox.component';\r\nimport { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';\r\nimport { FileListItemComponent } from 'src/app/shared/components/file-list-item/file-list-item.component';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [FileListItemComponent, DirectoryListItemComponent, CheckboxComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\tprivate selected!: ISelectable;\r\n\r\n\tprivate isInSelectMode: boolean;\r\n\r\n\t@Input()\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t\tthis.isInSelectMode = false;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.selected.unselect();\r\n\t\t\tthis.isInSelectMode = false;\r\n\t\t}\r\n\t}\r\n\r\n\tpublic onClick(selectable: ISelectable) {\r\n\t\tif (this.selected) {\r\n\t\t\tthis.selected.unselect();\r\n\t\t}\r\n\r\n\t\tthis.selected = selectable;\r\n\t\tthis.selected.select();\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n}\r\n",
             "styleUrl": "./pure-content-list.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "ref",
+                        "type": "ElementRef",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 38,
+                "jsdoctags": [
+                    {
+                        "name": "ref",
+                        "type": "ElementRef",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
             "extends": [],
-            "templateData": "@for (item of content; track item) {\r\n    @if (isFile(item)) {\r\n        <file-list-item class=\"item\" [metadata]=\"item\" (onClickEmitter)=\"onClick($event)\"></file-list-item>\r\n    } @else {\r\n        <directory-list-item class=\"item\" [metadata]=\"item\" (onClickEmitter)=\"onClick($event)\"></directory-list-item>\r\n    }\r\n}"
+            "templateData": "@for (item of content; track item) {\r\n    <div class=\"item\">\r\n        <checkbox></checkbox>\r\n        @if (isFile(item)) {\r\n            <file-list-item [metadata]=\"item\" (onClickEmitter)=\"onClick($event)\"></file-list-item>\r\n        } @else {\r\n            <directory-list-item [metadata]=\"item\" (onClickEmitter)=\"onClick($event)\"></directory-list-item>\r\n        }\r\n    </div>\r\n}"
         }
     ],
     "modules": [],
@@ -1766,7 +1914,7 @@
     },
     "routes": [],
     "coverage": {
-        "count": 11,
+        "count": 10,
         "status": "low",
         "files": [
             {
@@ -1775,7 +1923,7 @@
                 "linktype": "component",
                 "name": "PureContentListComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/5",
+                "coverageCount": "0/10",
                 "status": "low"
             },
             {
@@ -1785,6 +1933,15 @@
                 "name": "ContentListComponent",
                 "coveragePercent": 0,
                 "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/components/checkbox/checkbox.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "CheckboxComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
                 "status": "low"
             },
             {

@@ -1,5 +1,6 @@
-import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 import { DirectoryContentDirectory } from 'generated';
+import { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';
 import { ISelectable } from 'src/app/shared/models/ISelectable';
 
 @Component({
@@ -7,21 +8,14 @@ import { ISelectable } from 'src/app/shared/models/ISelectable';
 	standalone: true,
 	templateUrl: './directory-list-item.component.html',
 	styleUrl: './directory-list-item.component.css',
+	providers: [SelectableProvider(DirectoryListItemComponent)],
 })
 export class DirectoryListItemComponent implements ISelectable {
 	@Input({ required: true })
 	public metadata!: DirectoryContentDirectory;
 
-	@Output()
-	public onClickEmitter: EventEmitter<ISelectable> = new EventEmitter();
-
 	@HostBinding('class.selected')
 	public selected: boolean = false;
-
-	@HostListener('click')
-	public onClick() {
-		this.onClickEmitter.emit(this);
-	}
 
 	public select(): void {
 		this.selected = true;

@@ -1,5 +1,6 @@
-import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 import { DirectoryContentFile } from 'generated';
+import { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';
 import { ISelectable } from 'src/app/shared/models/ISelectable';
 
 @Component({
@@ -7,21 +8,14 @@ import { ISelectable } from 'src/app/shared/models/ISelectable';
 	standalone: true,
 	templateUrl: './file-list-item.component.html',
 	styleUrl: './file-list-item.component.css',
+	providers: [SelectableProvider(FileListItemComponent)],
 })
 export class FileListItemComponent implements ISelectable {
 	@Input({ required: true })
 	public metadata!: DirectoryContentFile;
 
-	@Output()
-	public onClickEmitter: EventEmitter<ISelectable> = new EventEmitter();
-
 	@HostBinding('class.selected')
 	public selected: boolean = false;
-
-	@HostListener('click')
-	public onClick() {
-		this.onClickEmitter.emit(this);
-	}
 
 	public select(): void {
 		this.selected = true;
