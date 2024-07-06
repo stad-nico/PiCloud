@@ -65,5 +65,9 @@
 }
 
 :host > .actions > .icon:hover {
-	background-color: var(--color-bg-hover-secondary);
+	background-color: var(--color-bg-hover-on-bg-hover);
+}
+
+:host.selected > .actions > .icon:hover {
+	background-color: var(--color-bg-hover-on-bg-selected);
 }

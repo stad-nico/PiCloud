@@ -37,7 +37,22 @@
             "extends": []
         }
     ],
-    "injectables": [],
+    "injectables": [
+        {
+            "name": "SelectableComponent",
+            "id": "injectable-SelectableComponent-40edc5dd39570ce416367110e66c8d68b5e82433221a06cdb852888549599ed761c4c3f2ffe35b964f352515af50ce2f47352970af97ab5e0c2130ca3cd99665",
+            "file": "src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component.ts",
+            "properties": [],
+            "methods": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "description": "",
+            "rawdescription": "\n",
+            "sourceCode": "import { forwardRef, Injectable } from '@angular/core';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Injectable()\r\nexport class SelectableComponent {}\r\n\r\nexport const SelectableProvider = <T extends ISelectable>(component: new () => T) => {\r\n\treturn {\r\n\t\tprovide: SelectableComponent,\r\n\t\tuseExisting: forwardRef(() => component),\r\n\t};\r\n};\r\n",
+            "extends": [],
+            "type": "injectable"
+        }
+    ],
     "guards": [],
     "interceptors": [],
     "classes": [],
@@ -45,7 +60,7 @@
     "components": [
         {
             "name": "CheckboxComponent",
-            "id": "component-CheckboxComponent-711dc4b8656626d68e74cff4d2c15bc91b2aa9fbf4376cbc512e77849ef972369c6652da8f39e9cdd3cc25491fe002c1b40b3550a8c4e41edb566db0814865f9",
+            "id": "component-CheckboxComponent-3ef2c3599cbfb0abeaece55e9bac65092a527419ad2ba7039d5595a2f2645a3082eaeb14b6f4ba8176529bd7a53a57334b8ed78c08dab45adefc59493f4728a8",
             "file": "src/app/shared/components/checkbox/checkbox.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -61,9 +76,50 @@
             "viewProviders": [],
             "hostDirectives": [],
             "inputsClass": [],
-            "outputsClass": [],
+            "outputsClass": [
+                {
+                    "name": "onClick",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 12,
+                    "type": "EventEmitter<SelectEvent>"
+                }
+            ],
             "propertiesClass": [],
-            "methodsClass": [],
+            "methodsClass": [
+                {
+                    "name": "onClickHandler",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "PointerEvent | MouseEvent",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 14,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "PointerEvent | MouseEvent",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
@@ -73,13 +129,13 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component } from '@angular/core';\r\n\r\n@Component({\r\n\tselector: 'checkbox',\r\n\tstandalone: true,\r\n\ttemplateUrl: './checkbox.component.html',\r\n\tstyleUrl: './checkbox.component.css',\r\n})\r\nexport class CheckboxComponent {}\r\n",
+            "sourceCode": "import { Component, EventEmitter, Output } from '@angular/core';\r\nimport { SelectEvent } from 'src/app/shared/models/SelectedEvent';\r\n\r\n@Component({\r\n\tselector: 'checkbox',\r\n\tstandalone: true,\r\n\ttemplateUrl: './checkbox.component.html',\r\n\tstyleUrl: './checkbox.component.css',\r\n})\r\nexport class CheckboxComponent {\r\n\t@Output()\r\n\tpublic onClick: EventEmitter<SelectEvent> = new EventEmitter();\r\n\r\n\tpublic onClickHandler(event: PointerEvent | MouseEvent) {\r\n\t\tconst checked = (event.target as HTMLInputElement).checked;\r\n\r\n\t\tthis.onClick.emit({ selected: checked, ctrl: event.ctrlKey, shift: event.shiftKey });\r\n\t}\r\n\t// private selected: boolean = false;\r\n\t// @Output()\r\n\t// public selectEmitter: EventEmitter<void> = new EventEmitter();\r\n\t// @Output()\r\n\t// public unselectEmitter: EventEmitter<void> = new EventEmitter();\r\n\t// @HostListener('click')\r\n\t// public onClick() {\r\n\t// \tthis.selected = !this.selected;\r\n\t// \tif (this.selected) {\r\n\t// \t\tthis.selectEmitter.emit();\r\n\t// \t} else {\r\n\t// \t\tthis.unselectEmitter.emit();\r\n\t// \t}\r\n\t// }\r\n}\r\n",
             "styleUrl": "./checkbox.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
             "extends": [],
-            "templateData": "<label>\r\n    <input type=\"checkbox\">\r\n    <div class=\"wrapper\">\r\n        <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"m382-354 339-339q12-12 28-12t28 12q12 12 12 28.5T777-636L410-268q-12 12-28 12t-28-12L182-440q-12-12-11.5-28.5T183-497q12-12 28.5-12t28.5 12l142 143Z\"/>\r\n        </svg>\r\n    </div>\r\n</label>"
+            "templateData": "<label>\r\n    <input type=\"checkbox\" (click)=\"onClickHandler($event)\">\r\n    <div class=\"wrapper\">\r\n        <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"m382-354 339-339q12-12 28-12t28 12q12 12 12 28.5T777-636L410-268q-12 12-28 12t-28-12L182-440q-12-12-11.5-28.5T183-497q12-12 28.5-12t28.5 12l142 143Z\"/>\r\n        </svg>\r\n    </div>\r\n</label>"
         },
         {
             "name": "ContentListComponent",
@@ -189,13 +245,18 @@
         },
         {
             "name": "DirectoryListItemComponent",
-            "id": "component-DirectoryListItemComponent-fd29190f6384e66fe1a4fc0f5bbf0868d9ae55f0172422a4ae4b379bd25cb25a4f3d02bd8da971d0ae3f28bc78bcf3076343c15d06d60a52bdb93b0b2c1eb398",
+            "id": "component-DirectoryListItemComponent-adedbd0e991bafb7de454926186d70d3390a268f1f66a79f2e9e841bd4502cb58e3b1b403e0965dbaf2bea70ae1fab65af1f5ccaea590d7546913c9c103365fe",
             "file": "src/app/shared/components/directory-list-item/directory-list-item.component.ts",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
             "outputs": [],
-            "providers": [],
+            "providers": [
+                {
+                    "name": "SelectableProvider(DirectoryListItemComponent)",
+                    "type": "component"
+                }
+            ],
             "selector": "directory-list-item",
             "styleUrls": [],
             "styles": [],
@@ -211,21 +272,12 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "optional": false,
-                    "line": 13,
+                    "line": 15,
                     "type": "DirectoryContentDirectory",
                     "decorators": []
                 }
             ],
-            "outputsClass": [
-                {
-                    "name": "onClickEmitter",
-                    "defaultValue": "new EventEmitter()",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 16,
-                    "type": "EventEmitter<ISelectable>"
-                }
-            ],
+            "outputsClass": [],
             "propertiesClass": [
                 {
                     "name": "selected",
@@ -235,7 +287,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 19,
+                    "line": 18,
                     "decorators": [
                         {
                             "name": "HostBinding",
@@ -269,7 +321,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 34,
+                    "line": 28,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -310,7 +362,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 46,
+                    "line": 40,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -329,32 +381,12 @@
                     ]
                 },
                 {
-                    "name": "onClick",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 22,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "decorators": [
-                        {
-                            "name": "HostListener",
-                            "stringifiedArguments": "'click'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170,
-                        125
-                    ]
-                },
-                {
                     "name": "select",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 26,
+                    "line": 20,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -367,7 +399,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 30,
+                    "line": 24,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -383,27 +415,18 @@
                     "defaultValue": "false",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 19,
+                    "line": 18,
                     "type": "boolean",
                     "decorators": []
                 }
             ],
-            "hostListeners": [
-                {
-                    "name": "click",
-                    "args": [],
-                    "argsDecorator": [],
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 22
-                }
-            ],
+            "hostListeners": [],
             "standalone": true,
             "imports": [],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';\r\nimport { DirectoryContentDirectory } from 'generated';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'directory-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-list-item.component.html',\r\n\tstyleUrl: './directory-list-item.component.css',\r\n})\r\nexport class DirectoryListItemComponent implements ISelectable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentDirectory;\r\n\r\n\t@Output()\r\n\tpublic onClickEmitter: EventEmitter<ISelectable> = new EventEmitter();\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\t@HostListener('click')\r\n\tpublic onClick() {\r\n\t\tthis.onClickEmitter.emit(this);\r\n\t}\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${date.getDay()} ${month} ${year}`;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\nimport { DirectoryContentDirectory } from 'generated';\r\nimport { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'directory-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-list-item.component.html',\r\n\tstyleUrl: './directory-list-item.component.css',\r\n\tproviders: [SelectableProvider(DirectoryListItemComponent)],\r\n})\r\nexport class DirectoryListItemComponent implements ISelectable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentDirectory;\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${date.getDay()} ${month} ${year}`;\r\n\t}\r\n}\r\n",
             "styleUrl": "./directory-list-item.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -531,13 +554,18 @@
         },
         {
             "name": "FileListItemComponent",
-            "id": "component-FileListItemComponent-ed83012348c249cc608967a347af14897184afbe301bcf9c32b7507a75682dd402178eb0efedf0044e68c1b9f3c187880b65e7037c3a30f23b4e970c26c5bdf5",
+            "id": "component-FileListItemComponent-3f8eb28969a769732a23fca19195956a5c262151017ac18e9890b12f8be0435731c06de2fdd3c9ec0805ed26e02063f6ee55aac9ed7bc22e2902043c0ece7ef4",
             "file": "src/app/shared/components/file-list-item/file-list-item.component.ts",
             "encapsulation": [],
             "entryComponents": [],
             "inputs": [],
             "outputs": [],
-            "providers": [],
+            "providers": [
+                {
+                    "name": "SelectableProvider(FileListItemComponent)",
+                    "type": "component"
+                }
+            ],
             "selector": "file-list-item",
             "styleUrls": [],
             "styles": [],
@@ -553,21 +581,12 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "optional": false,
-                    "line": 13,
+                    "line": 15,
                     "type": "DirectoryContentFile",
                     "decorators": []
                 }
             ],
-            "outputsClass": [
-                {
-                    "name": "onClickEmitter",
-                    "defaultValue": "new EventEmitter()",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 16,
-                    "type": "EventEmitter<ISelectable>"
-                }
-            ],
+            "outputsClass": [],
             "propertiesClass": [
                 {
                     "name": "selected",
@@ -577,7 +596,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 19,
+                    "line": 18,
                     "decorators": [
                         {
                             "name": "HostBinding",
@@ -611,7 +630,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 34,
+                    "line": 28,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -652,7 +671,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 46,
+                    "line": 40,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -671,32 +690,12 @@
                     ]
                 },
                 {
-                    "name": "onClick",
-                    "args": [],
-                    "optional": false,
-                    "returnType": "void",
-                    "typeParameters": [],
-                    "line": 22,
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "decorators": [
-                        {
-                            "name": "HostListener",
-                            "stringifiedArguments": "'click'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170,
-                        125
-                    ]
-                },
-                {
                     "name": "select",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 26,
+                    "line": 20,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -709,7 +708,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 30,
+                    "line": 24,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -725,27 +724,18 @@
                     "defaultValue": "false",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 19,
+                    "line": 18,
                     "type": "boolean",
                     "decorators": []
                 }
             ],
-            "hostListeners": [
-                {
-                    "name": "click",
-                    "args": [],
-                    "argsDecorator": [],
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 22
-                }
-            ],
+            "hostListeners": [],
             "standalone": true,
             "imports": [],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';\r\nimport { DirectoryContentFile } from 'generated';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'file-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './file-list-item.component.html',\r\n\tstyleUrl: './file-list-item.component.css',\r\n})\r\nexport class FileListItemComponent implements ISelectable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentFile;\r\n\r\n\t@Output()\r\n\tpublic onClickEmitter: EventEmitter<ISelectable> = new EventEmitter();\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\t@HostListener('click')\r\n\tpublic onClick() {\r\n\t\tthis.onClickEmitter.emit(this);\r\n\t}\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${date.getDay()} ${month} ${year}`;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\nimport { DirectoryContentFile } from 'generated';\r\nimport { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'file-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './file-list-item.component.html',\r\n\tstyleUrl: './file-list-item.component.css',\r\n\tproviders: [SelectableProvider(FileListItemComponent)],\r\n})\r\nexport class FileListItemComponent implements ISelectable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentFile;\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${date.getDay()} ${month} ${year}`;\r\n\t}\r\n}\r\n",
             "styleUrl": "./file-list-item.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -1341,7 +1331,7 @@
         },
         {
             "name": "PureContentListComponent",
-            "id": "component-PureContentListComponent-2032a994bd9912412681dd689dade467294503e2b034c9ef8fc39b56f8e472ccb5fee145100e1b23ca621460252ab866646db0e5b78664f527fd7a13419e17cc",
+            "id": "component-PureContentListComponent-0bbea8a131a39e0b2abd692fe2a3b93a5f5410d8f464ee26e459e60c38dc08b35611407deff110802727ec85cec0d7c6779e6617eeeed7e639cfea50189914a7",
             "file": "src/app/features/content-list/components/pure-content-list/pure-content-list.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1362,7 +1352,7 @@
                     "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 38,
+                    "line": 39,
                     "type": "Array<ContentType>",
                     "decorators": []
                 }
@@ -1371,14 +1361,15 @@
             "propertiesClass": [
                 {
                     "name": "isInSelectMode",
+                    "defaultValue": "false",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 35,
+                    "line": 36,
                     "modifierKind": [
-                        123
+                        125
                     ]
                 },
                 {
@@ -1388,19 +1379,20 @@
                     "type": "ElementRef",
                     "optional": false,
                     "description": "",
-                    "line": 31,
+                    "line": 32,
                     "modifierKind": [
                         123
                     ]
                 },
                 {
                     "name": "selected",
+                    "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "ISelectable",
+                    "type": "Array<ISelectable>",
                     "optional": false,
                     "description": "",
-                    "line": 33,
+                    "line": 34,
                     "modifierKind": [
                         123
                     ]
@@ -1458,7 +1450,7 @@
                     "optional": false,
                     "returnType": "File",
                     "typeParameters": [],
-                    "line": 62,
+                    "line": 79,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -1480,8 +1472,8 @@
                     "name": "onClick",
                     "args": [
                         {
-                            "name": "selectable",
-                            "type": "ISelectable",
+                            "name": "event",
+                            "type": "SelectEvent",
                             "deprecated": false,
                             "deprecationMessage": ""
                         }
@@ -1497,8 +1489,8 @@
                     ],
                     "jsdoctags": [
                         {
-                            "name": "selectable",
-                            "type": "ISelectable",
+                            "name": "event",
+                            "type": "SelectEvent",
                             "deprecated": false,
                             "deprecationMessage": "",
                             "tagName": {
@@ -1541,14 +1533,14 @@
                     "type": "component"
                 },
                 {
-                    "name": "CheckboxComponent",
+                    "name": "SelectableListItemComponent",
                     "type": "component"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, ElementRef, HostListener, Input } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { CheckboxComponent } from 'src/app/shared/components/checkbox/checkbox.component';\r\nimport { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';\r\nimport { FileListItemComponent } from 'src/app/shared/components/file-list-item/file-list-item.component';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [FileListItemComponent, DirectoryListItemComponent, CheckboxComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\tprivate selected!: ISelectable;\r\n\r\n\tprivate isInSelectMode: boolean;\r\n\r\n\t@Input()\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t\tthis.isInSelectMode = false;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.selected.unselect();\r\n\t\t\tthis.isInSelectMode = false;\r\n\t\t}\r\n\t}\r\n\r\n\tpublic onClick(selectable: ISelectable) {\r\n\t\tif (this.selected) {\r\n\t\t\tthis.selected.unselect();\r\n\t\t}\r\n\r\n\t\tthis.selected = selectable;\r\n\t\tthis.selected.select();\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, ElementRef, HostListener, Input } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { SelectableListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component';\r\nimport { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';\r\nimport { FileListItemComponent } from 'src/app/shared/components/file-list-item/file-list-item.component';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\nimport { SelectEvent } from 'src/app/shared/models/SelectedEvent';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [FileListItemComponent, DirectoryListItemComponent, SelectableListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\tprivate selected: Array<ISelectable> = [];\r\n\r\n\tpublic isInSelectMode: boolean = false;\r\n\r\n\t@Input()\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.selected = [];\r\n\t\t\tthis.isInSelectMode = false;\r\n\t\t}\r\n\t}\r\n\r\n\tpublic onClick(event: SelectEvent) {\r\n\t\tif (!event.selected) {\r\n\t\t\tevent.component!.unselect();\r\n\r\n\t\t\tconst index = this.selected.indexOf(event.component!);\r\n\r\n\t\t\tif (index > -1) {\r\n\t\t\t\tthis.selected.splice(index, 1);\r\n\t\t\t}\r\n\r\n\t\t\tif (this.selected.length === 0) {\r\n\t\t\t\tthis.isInSelectMode = false;\r\n\t\t\t}\r\n\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tthis.isInSelectMode = true;\r\n\r\n\t\tif (!event.ctrl && !event.shift) {\r\n\t\t\tevent.component!.select();\r\n\r\n\t\t\tthis.selected.push(event.component!);\r\n\t\t}\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n}\r\n",
             "styleUrl": "./pure-content-list.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -1566,7 +1558,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 38,
+                "line": 39,
                 "jsdoctags": [
                     {
                         "name": "ref",
@@ -1580,12 +1572,195 @@
                 ]
             },
             "extends": [],
-            "templateData": "@for (item of content; track item) {\r\n    <div class=\"item\">\r\n        <checkbox></checkbox>\r\n        @if (isFile(item)) {\r\n            <file-list-item [metadata]=\"item\" (onClickEmitter)=\"onClick($event)\"></file-list-item>\r\n        } @else {\r\n            <directory-list-item [metadata]=\"item\" (onClickEmitter)=\"onClick($event)\"></directory-list-item>\r\n        }\r\n    </div>\r\n}"
+            "templateData": "@for (item of content; track item) {\r\n    <selectable-list-item [selectable]=\"isInSelectMode\" (onClick)=\"onClick($event)\">\r\n        @if (isFile(item)) {\r\n            <file-list-item [metadata]=\"item\"></file-list-item>\r\n        } @else {\r\n            <directory-list-item [metadata]=\"item\"></directory-list-item>\r\n        }\r\n    </selectable-list-item>\r\n}"
+        },
+        {
+            "name": "SelectableListItemComponent",
+            "id": "component-SelectableListItemComponent-c254b60d64a661777fc85e7edf6f2d310352af53e2692bddb516d0c214204ea5d4c895c89dddd2f1d3ce5148299afd3ca1c5195fc6adb07d5b203b571e631940",
+            "file": "src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "selectable-list-item",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./selectable-list-item.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "selectable",
+                    "defaultValue": "true",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 23,
+                    "type": "boolean",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "onClick",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 26,
+                    "type": "EventEmitter<SelectEvent>"
+                }
+            ],
+            "propertiesClass": [
+                {
+                    "name": "content",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ISelectable",
+                    "optional": false,
+                    "description": "",
+                    "line": 19,
+                    "decorators": [
+                        {
+                            "name": "ContentChild",
+                            "stringifiedArguments": "SelectableComponent"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        125
+                    ]
+                },
+                {
+                    "name": "selected",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 16,
+                    "decorators": [
+                        {
+                            "name": "HostBinding",
+                            "stringifiedArguments": "'class.selected'"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        125
+                    ]
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "onClickHandler",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "SelectEvent",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 28,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "SelectEvent",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "select",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 32,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
+                    "name": "unselect",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 38,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ]
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [
+                {
+                    "name": "class.selected",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 16,
+                    "type": "boolean",
+                    "decorators": []
+                }
+            ],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "CheckboxComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, ContentChild, EventEmitter, HostBinding, Input, Output } from '@angular/core';\r\nimport { SelectableComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';\r\nimport { CheckboxComponent } from 'src/app/shared/components/checkbox/checkbox.component';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\nimport { SelectEvent } from 'src/app/shared/models/SelectedEvent';\r\n\r\n@Component({\r\n\tselector: 'selectable-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './selectable-list-item.component.html',\r\n\tstyleUrl: './selectable-list-item.component.css',\r\n\timports: [CheckboxComponent],\r\n})\r\nexport class SelectableListItemComponent implements ISelectable {\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\t@ContentChild(SelectableComponent)\r\n\tpublic content!: ISelectable;\r\n\r\n\t@HostBinding('class.selectable')\r\n\t@Input('selectable')\r\n\tpublic isSelectable: boolean = true;\r\n\r\n\t@Output()\r\n\tpublic onClick: EventEmitter<SelectEvent> = new EventEmitter();\r\n\r\n\tpublic onClickHandler(event: SelectEvent) {\r\n\t\tthis.onClick.emit({ component: this, ...event });\r\n\t}\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\r\n\t\tthis.content.select();\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\r\n\t\tthis.content.unselect();\r\n\t}\r\n}\r\n",
+            "styleUrl": "./selectable-list-item.component.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "implements": [
+                "ISelectable"
+            ],
+            "templateData": "<label>\r\n    <checkbox (onClick)=\"onClickHandler($event)\"></checkbox>\r\n    <ng-content ></ng-content>\r\n</label>"
         }
     ],
     "modules": [],
     "miscellaneous": {
         "variables": [
+            {
+                "name": "SelectableProvider",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "<T extends ISelectable>(component: new () => T) => {\r\n\treturn {\r\n\t\tprovide: SelectableComponent,\r\n\t\tuseExisting: forwardRef(() => component),\r\n\t};\r\n}"
+            },
             {
                 "name": "ThicknessMap",
                 "ctype": "miscellaneous",
@@ -1631,6 +1806,17 @@
                 "deprecationMessage": "",
                 "description": "",
                 "kind": 193
+            },
+            {
+                "name": "SelectEvent",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "literal type",
+                "file": "src/app/shared/models/SelectedEvent.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 187
             }
         ],
         "enumerations": [
@@ -1744,6 +1930,18 @@
             }
         ],
         "groupedVariables": {
+            "src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component.ts": [
+                {
+                    "name": "SelectableProvider",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "<T extends ISelectable>(component: new () => T) => {\r\n\treturn {\r\n\t\tprovide: SelectableComponent,\r\n\t\tuseExisting: forwardRef(() => component),\r\n\t};\r\n}"
+                }
+            ],
             "src/app/shared/components/loading-spinner/loading-spinner.component.ts": [
                 {
                     "name": "ThicknessMap",
@@ -1909,14 +2107,55 @@
                     "description": "",
                     "kind": 193
                 }
+            ],
+            "src/app/shared/models/SelectedEvent.ts": [
+                {
+                    "name": "SelectEvent",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "literal type",
+                    "file": "src/app/shared/models/SelectedEvent.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 187
+                }
             ]
         }
     },
     "routes": [],
     "coverage": {
-        "count": 10,
+        "count": 7,
         "status": "low",
         "files": [
+            {
+                "filePath": "src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "SelectableListItemComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/9",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component.ts",
+                "type": "injectable",
+                "linktype": "injectable",
+                "name": "SelectableComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "SelectableProvider",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
             {
                 "filePath": "src/app/features/content-list/components/pure-content-list/pure-content-list.component.ts",
                 "type": "component",
@@ -1941,7 +2180,7 @@
                 "linktype": "component",
                 "name": "CheckboxComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/1",
+                "coverageCount": "0/3",
                 "status": "low"
             },
             {
@@ -1950,7 +2189,7 @@
                 "linktype": "component",
                 "name": "DirectoryListItemComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/11",
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {
@@ -1968,7 +2207,7 @@
                 "linktype": "component",
                 "name": "FileListItemComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/11",
+                "coverageCount": "0/8",
                 "status": "low"
             },
             {

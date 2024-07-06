@@ -31,7 +31,20 @@ const exampleDirectory: Directory = {
 	updatedAt: new Date(Date.now()).toISOString(),
 };
 
-const defaultContent: Array<ContentType> = [exampleDirectory, exampleDirectory, exampleDirectory, exampleFile, exampleFile];
+const defaultContent: Array<ContentType> = [
+	exampleDirectory,
+	exampleDirectory,
+	exampleDirectory,
+	exampleDirectory,
+	exampleDirectory,
+	exampleDirectory,
+	exampleFile,
+	exampleFile,
+	exampleFile,
+	exampleFile,
+	exampleFile,
+	exampleFile,
+];
 
 export const Default: StoryObj<PureContentListComponent> = {
 	args: {

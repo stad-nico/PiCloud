@@ -5,18 +5,66 @@
 	border-radius: 0 1.625rem 1.625rem 0;
 
 	display: block;
+
+	overflow: hidden;
 }
 
 :host > selectable-list-item {
-	height: 2.5rem;
-
 	display: flex;
 	align-items: center;
 	justify-content: start;
 
-	gap: 8px;
+	margin-bottom: 2px;
 }
 
-:host > selectable-list-item:not(:last-child) {
-	margin-bottom: 2px;
+:host > selectable-list-item file-list-item,
+:host > selectable-list-item directory-list-item {
+	transition:
+		border-radius 0.2s ease,
+		background-color 0.2s ease;
+}
+
+/* The following code matches blocks of selected adjacent items */
+
+/* Match the actual file-list-item or directory-list-item to adjust border radius: */
+
+/* FIRST */
+/* Match the file-list-item of the first selected list item that is immediately followed by another selected list item */
+selectable-list-item.selected:first-of-type:has(+ selectable-list-item.selected) file-list-item,
+/* Match the directory-list-item of the first selected list item that is immediately followed by another selected list item */
+selectable-list-item.selected:first-of-type:has(+ selectable-list-item.selected) directory-list-item,
+/* Match the file-list-item of a selected list item that is placed after a non selected list item and immediately followed by another selected list item */
+selectable-list-item:not(.selected) + selectable-list-item.selected:has(+ selectable-list-item.selected) file-list-item,
+/* Match the directory-list-item of a selected list item that is placed after a non selected list item and immediately followed by another selected list item */
+selectable-list-item:not(.selected) + selectable-list-item.selected:has(+ selectable-list-item.selected) directory-list-item {
+	border-radius: 0.9rem 0.9rem 0 0;
+	padding-bottom: 2px;
+}
+
+/* MIDDLE */
+/* Match the file-list-item of a selected list item that is preceded by and placed after a selected list item */
+selectable-list-item.selected + selectable-list-item.selected:not(:last-of-type):has(+ selectable-list-item.selected) file-list-item,
+/* Match the directory-list-item of a selected list item that is preceded by and placed after a selected list item */
+selectable-list-item.selected + selectable-list-item.selected:not(:last-of-type):has(+ selectable-list-item.selected) directory-list-item {
+	border-radius: 0;
+	padding-bottom: 2px;
+}
+
+/* LAST */
+/* Match the file-list-item of the last selected list item that is placed after a selected list item */
+selectable-list-item.selected + selectable-list-item.selected:last-of-type file-list-item,
+/* Match the directory-list-item of the last selected list item that is placed after a selected list item */
+selectable-list-item.selected + selectable-list-item.selected:last-of-type directory-list-item,
+/* Match the file-list-item of a selected list item that is placed after a selected list item and followed by a non selected  list item */
+selectable-list-item.selected + selectable-list-item.selected:not(:first-of-type):has(+ :not(selectable-list-item.selected)) file-list-item,
+/* Match the directory-list-item of a selected list item that is placed after a selected list item and followed by a non selected  list item */
+selectable-list-item.selected + selectable-list-item.selected:not(:first-of-type):has(+ :not(selectable-list-item.selected)) directory-list-item {
+	border-radius: 0 0 0.9rem 0.9rem;
+}
+
+/* Match any selectable-list-item that is in the beginning or in the middle of a coherent block to adjust margin: */
+selectable-list-item.selected:first-of-type:has(+ selectable-list-item.selected),
+selectable-list-item:not(.selected) + selectable-list-item.selected:has(+ selectable-list-item.selected),
+selectable-list-item.selected + selectable-list-item.selected:not(:last-of-type):has(+ selectable-list-item.selected) {
+	margin-bottom: 0;
 }
