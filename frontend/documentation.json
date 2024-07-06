@@ -2,6 +2,81 @@
     "pipes": [],
     "interfaces": [
         {
+            "name": "IDeletable",
+            "id": "interface-IDeletable-3bc82e5bb7a098c58bfb3c2da11d09c55587e42d8486dbbdfb83a7354ce13ce9c6f1cd93b258daf3d0c26ec2beba73f2195af5fe99a6b0adb6238b176876f52b",
+            "file": "src/app/shared/models/IDeletable.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface IDeletable {\r\n\tdelete(): void;\r\n}\r\n",
+            "properties": [],
+            "indexSignatures": [],
+            "kind": 173,
+            "methods": [
+                {
+                    "name": "delete",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 2,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "extends": []
+        },
+        {
+            "name": "IDownloadable",
+            "id": "interface-IDownloadable-14f1252c62ca6fadedcfe069d780593d55f64820828c14f7ad65bb4a71cc40bccad86950318ffeb3873856d755870b9b2e849cd7bd86aaacfa0d63945c96a045",
+            "file": "src/app/shared/models/IDownloadable.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface IDownloadable {\r\n\tdownload(): void;\r\n}\r\n",
+            "properties": [],
+            "indexSignatures": [],
+            "kind": 173,
+            "methods": [
+                {
+                    "name": "download",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 2,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "extends": []
+        },
+        {
+            "name": "IRenamable",
+            "id": "interface-IRenamable-42e3241a2f7d646f3a497c5a5ad292cc3cac6454eebed20ee96bf0279655bc31ee487d58dd92f543193fb442811b8bddf31146487d270ae75520455884003eb4",
+            "file": "src/app/shared/models/IRenamable.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface IRenamable {\r\n\trename(): void;\r\n}\r\n",
+            "properties": [],
+            "indexSignatures": [],
+            "kind": 173,
+            "methods": [
+                {
+                    "name": "rename",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 2,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "extends": []
+        },
+        {
             "name": "ISelectable",
             "id": "interface-ISelectable-672847f4b7d0103733d3fe22ac4fc7c1abf5d05e4b4647c0932a9a43f2ec35c7270dfde138fa792411db2626b82bdc87d07d115273d965b1daf06d7c449111ae",
             "file": "src/app/shared/models/ISelectable.ts",
@@ -245,7 +320,7 @@
         },
         {
             "name": "DirectoryListItemComponent",
-            "id": "component-DirectoryListItemComponent-adedbd0e991bafb7de454926186d70d3390a268f1f66a79f2e9e841bd4502cb58e3b1b403e0965dbaf2bea70ae1fab65af1f5ccaea590d7546913c9c103365fe",
+            "id": "component-DirectoryListItemComponent-c19290125015e62e4e9680c470c5a48009264fbd1dd5a256fbff61d1749568cc923ac48a819203428b160ca076d894c898cd4a9bedccde6e0c7fe96023074ef5",
             "file": "src/app/shared/components/directory-list-item/directory-list-item.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -272,7 +347,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "optional": false,
-                    "line": 15,
+                    "line": 18,
                     "type": "DirectoryContentDirectory",
                     "decorators": []
                 }
@@ -287,7 +362,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 18,
+                    "line": 21,
                     "decorators": [
                         {
                             "name": "HostBinding",
@@ -301,6 +376,72 @@
                 }
             ],
             "methodsClass": [
+                {
+                    "name": "delete",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 25,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true,
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "download",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 27,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true,
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
                 {
                     "name": "formatBytes",
                     "args": [
@@ -321,7 +462,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 28,
+                    "line": 37,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -362,7 +503,7 @@
                     "optional": false,
                     "returnType": "string",
                     "typeParameters": [],
-                    "line": 40,
+                    "line": 49,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -381,12 +522,45 @@
                     ]
                 },
                 {
+                    "name": "rename",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 23,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "Event",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "optional": true,
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "select",
                     "args": [],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 20,
+                    "line": 29,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -399,7 +573,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 24,
+                    "line": 33,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -415,7 +589,7 @@
                     "defaultValue": "false",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 18,
+                    "line": 21,
                     "type": "boolean",
                     "decorators": []
                 }
@@ -426,16 +600,19 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\nimport { DirectoryContentDirectory } from 'generated';\r\nimport { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'directory-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-list-item.component.html',\r\n\tstyleUrl: './directory-list-item.component.css',\r\n\tproviders: [SelectableProvider(DirectoryListItemComponent)],\r\n})\r\nexport class DirectoryListItemComponent implements ISelectable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentDirectory;\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${date.getDay()} ${month} ${year}`;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\nimport { DirectoryContentDirectory } from 'generated';\r\nimport { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';\r\nimport { IDeletable } from 'src/app/shared/models/IDeletable';\r\nimport { IDownloadable } from 'src/app/shared/models/IDownloadable';\r\nimport { IRenamable } from 'src/app/shared/models/IRenamable';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'directory-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-list-item.component.html',\r\n\tstyleUrl: './directory-list-item.component.css',\r\n\tproviders: [SelectableProvider(DirectoryListItemComponent)],\r\n})\r\nexport class DirectoryListItemComponent implements ISelectable, IDownloadable, IRenamable, IDeletable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentDirectory;\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\tpublic rename(event?: Event): void {}\r\n\r\n\tpublic delete(event?: Event): void {}\r\n\r\n\tpublic download(event?: Event): void {}\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${date.getDay()} ${month} ${year}`;\r\n\t}\r\n}\r\n",
             "styleUrl": "./directory-list-item.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
             "extends": [],
             "implements": [
-                "ISelectable"
+                "ISelectable",
+                "IDownloadable",
+                "IRenamable",
+                "IDeletable"
             ],
-            "templateData": "<div class=\"icon\">\r\n    <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 25 19\">\r\n\t    <path fill=\"rgb(255, 160, 0)\" d=\"M2 0 10 0 14 3 14 5 0 5 0 2C0 1 1 0 2 0\"/>\r\n\t    <path fill=\"rgb(255, 202, 40)\" d=\"M2 3 22 3C24 3 25 4 25 6L25 16C25 18 24 19 22 19L3 19C1 19 0 18 0 16L0 6C0 4 1 3 3 3\"/>\r\n    </svg>\r\n</div>\r\n<p class=\"name\">{{metadata.name}}</p>\r\n<p class=\"date\">{{formatDate(metadata.updatedAt)}}</p>\r\n<p class=\"size\">{{formatBytes(metadata.size)}}</p>\r\n<div class=\"actions\">\r\n        <svg class=\"rename icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M200-200h57l391-391-57-57-391 391v57Zm-40 80q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm600-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z\"/>\r\n        </svg>\r\n        <svg class=\"download icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z\"/>\r\n        </svg>\r\n        <svg class=\"delete icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z\"/>\r\n        </svg>\r\n    <!-- <svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\"><path d=\"M240-400q-33 0-56.5-23.5T160-480q0-33 23.5-56.5T240-560q33 0 56.5 23.5T320-480q0 33-23.5 56.5T240-400Zm240 0q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm240 0q-33 0-56.5-23.5T640-480q0-33 23.5-56.5T720-560q33 0 56.5 23.5T800-480q0 33-23.5 56.5T720-400Z\"/></svg> -->\r\n</div>"
+            "templateData": "<div class=\"icon\">\r\n    <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 25 19\">\r\n\t    <path fill=\"rgb(255, 160, 0)\" d=\"M2 0 10 0 14 3 14 5 0 5 0 2C0 1 1 0 2 0\"/>\r\n\t    <path fill=\"rgb(255, 202, 40)\" d=\"M2 3 22 3C24 3 25 4 25 6L25 16C25 18 24 19 22 19L3 19C1 19 0 18 0 16L0 6C0 4 1 3 3 3\"/>\r\n    </svg>\r\n</div>\r\n<p class=\"name\">{{metadata.name}}</p>\r\n<p class=\"date\">{{formatDate(metadata.updatedAt)}}</p>\r\n<p class=\"size\">{{formatBytes(metadata.size)}}</p>\r\n<div class=\"actions\">\r\n        <svg (click)=\"rename($event)\" class=\"rename icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M200-200h57l391-391-57-57-391 391v57Zm-40 80q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm600-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z\"/>\r\n        </svg>\r\n        <svg (click)=\"download($event)\" class=\"download icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z\"/>\r\n        </svg>\r\n        <svg (click)=\"delete($event)\" class=\"delete icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z\"/>\r\n        </svg>\r\n    <!-- <svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\"><path d=\"M240-400q-33 0-56.5-23.5T160-480q0-33 23.5-56.5T240-560q33 0 56.5 23.5T320-480q0 33-23.5 56.5T240-400Zm240 0q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm240 0q-33 0-56.5-23.5T640-480q0-33 23.5-56.5T720-560q33 0 56.5 23.5T800-480q0 33-23.5 56.5T720-400Z\"/></svg> -->\r\n</div>"
         },
         {
             "name": "ExpandingMenuButtonComponent",
@@ -2125,7 +2302,7 @@
     },
     "routes": [],
     "coverage": {
-        "count": 7,
+        "count": 6,
         "status": "low",
         "files": [
             {
@@ -2189,7 +2366,7 @@
                 "linktype": "component",
                 "name": "DirectoryListItemComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/8",
+                "coverageCount": "0/11",
                 "status": "low"
             },
             {
@@ -2227,6 +2404,33 @@
                 "name": "ThicknessMap",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/models/IDeletable.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "IDeletable",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/models/IDownloadable.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "IDownloadable",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/models/IRenamable.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "IRenamable",
+                "coveragePercent": 0,
+                "coverageCount": "0/2",
                 "status": "low"
             },
             {

@@ -1,6 +1,9 @@
 import { Component, HostBinding, Input } from '@angular/core';
 import { DirectoryContentDirectory } from 'generated';
 import { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';
+import { IDeletable } from 'src/app/shared/models/IDeletable';
+import { IDownloadable } from 'src/app/shared/models/IDownloadable';
+import { IRenamable } from 'src/app/shared/models/IRenamable';
 import { ISelectable } from 'src/app/shared/models/ISelectable';
 
 @Component({
@@ -10,12 +13,24 @@ import { ISelectable } from 'src/app/shared/models/ISelectable';
 	styleUrl: './directory-list-item.component.css',
 	providers: [SelectableProvider(DirectoryListItemComponent)],
 })
-export class DirectoryListItemComponent implements ISelectable {
+export class DirectoryListItemComponent implements ISelectable, IDownloadable, IRenamable, IDeletable {
 	@Input({ required: true })
 	public metadata!: DirectoryContentDirectory;
 
 	@HostBinding('class.selected')
 	public selected: boolean = false;
+
+	public rename(event?: Event): void {
+		event?.preventDefault();
+	}
+
+	public delete(event?: Event): void {
+		event?.preventDefault();
+	}
+
+	public download(event?: Event): void {
+		event?.preventDefault();
+	}
 
 	public select(): void {
 		this.selected = true;

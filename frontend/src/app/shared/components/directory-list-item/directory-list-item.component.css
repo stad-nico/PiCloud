@@ -22,8 +22,16 @@
 	background-color: var(--color-bg-hover);
 }
 
+:host:hover > .actions {
+	opacity: 1;
+}
+
 :host.selected {
 	background-color: var(--color-bg-selected);
+}
+
+:host:hover > :is(.name, .size, .date) {
+	color: var(--color-text-hover);
 }
 
 :host > :is(.name, .size, .date) {
@@ -50,7 +58,11 @@
 	justify-self: end;
 
 	display: flex;
+	opacity: 0;
+
 	gap: 3px;
+
+	transition: opacity 0.2s ease;
 }
 
 :host > .actions > .icon {
@@ -67,6 +79,7 @@
 
 :host > .actions > .icon:hover {
 	background-color: var(--color-bg-hover-on-bg-hover);
+	fill: var(--color-icon-hover);
 }
 
 :host.selected > .actions > .icon:hover {

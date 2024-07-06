@@ -61,6 +61,11 @@
 	display: none;
 }
 
+:host > label > input:checked + .wrapper:hover {
+	width: 120%;
+	height: 120%;
+}
+
 :host > label > input:checked + .wrapper > svg {
 	scale: 1.2;
 }

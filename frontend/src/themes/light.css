@@ -80,9 +80,11 @@
 	--color-bg-spinner-primary: var(--color-secondary-800);
 	--color-bg-spinner-secondary: var(--color-secondary-900);
 
+	--color-text-hover: var(--color-primary-500);
 	--color-text-secondary: var(--color-secondary-500);
 
 	--color-icon: var(--color-secondary-500);
+	--color-icon-hover: var(--color-primary-500);
 
 	--color-bg-hover: var(--color-background-800);
 	--color-bg-hover-on-bg-hover: var(--color-background-700);
