@@ -14,6 +14,13 @@ export default meta;
 
 export const Default: StoryObj<DirectoryTreeItemComponent> = {
 	args: {
-		name: 'test',
+		name: 'example',
+	},
+};
+
+export const Selected: StoryObj<DirectoryTreeItemComponent> = {
+	args: {
+		name: 'example',
+		selected: true,
 	},
 };

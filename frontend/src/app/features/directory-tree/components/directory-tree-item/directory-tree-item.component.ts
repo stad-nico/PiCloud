@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 
 @Component({
 	selector: 'directory-tree-item',
@@ -9,4 +9,7 @@ import { Component, Input } from '@angular/core';
 export class DirectoryTreeItemComponent {
 	@Input({ required: true })
 	public name!: string;
+
+	@HostBinding('class.selected')
+	public selected: boolean = false;
 }

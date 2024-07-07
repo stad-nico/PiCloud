@@ -1,0 +1,42 @@
+:host {
+	height: 2.5rem;
+
+	padding: 0 0.9rem;
+
+	border-radius: 0.9rem;
+
+	user-select: none;
+
+	transition: background-color 0.2s ease;
+
+	display: flex;
+	align-items: center;
+	justify-content: left;
+	gap: 0.5rem;
+}
+
+:host:hover {
+	cursor: pointer;
+
+	background-color: var(--color-bg-hover);
+}
+
+:host.selected {
+	background-color: var(--color-bg-selected);
+}
+
+:host > .icon {
+	width: 1.5rem;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+:host > .name {
+	color: var(--color-text-secondary);
+}
+
+:host:hover > .name {
+	color: var(--color-text-hover);
+}

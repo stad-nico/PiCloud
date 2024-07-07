@@ -55,9 +55,10 @@ export class FileListItemComponent implements ISelectable, IDownloadable, IRenam
 	protected formatDate(dateOrString: Date | string): string {
 		const date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));
 
+		const day = date.toLocaleDateString('de-DE', { day: 'numeric' });
 		const month = date.toLocaleDateString('de-DE', { month: 'short' });
 		const year = date.toLocaleDateString('de-DE', { year: '2-digit' });
 
-		return `${date.getDay()} ${month} ${year}`;
+		return `${day} ${month} ${year}`;
 	}
 }
