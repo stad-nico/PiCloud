@@ -10,6 +10,13 @@ export class DirectoryTreeItemComponent {
 	@Input({ required: true })
 	public name!: string;
 
+	@Input({ required: true, alias: 'has-children' })
+	@HostBinding('class.has-children')
+	public hasChildren!: boolean;
+
+	@Input()
+	public children: Array<any> = [];
+
 	@HostBinding('class.selected')
 	public selected: boolean = false;
 }

@@ -74,7 +74,7 @@
 
 	fill: var(--color-icon);
 
-	transition: background-color 0.2s ease;
+	transition: all 0.2s ease;
 }
 
 :host > .actions > .icon:hover {

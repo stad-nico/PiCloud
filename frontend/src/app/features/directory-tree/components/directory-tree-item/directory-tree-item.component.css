@@ -33,6 +33,39 @@
 	justify-content: center;
 }
 
+:host.has-children > .arrow {
+	opacity: 1;
+	pointer-events: all;
+}
+
+:host > .arrow {
+	opacity: 0;
+	pointer-events: none;
+
+	width: 1.375rem;
+
+	padding: 2px;
+
+	margin-right: -0.25rem;
+
+	border-radius: 0.5rem;
+
+	fill: var(--color-icon);
+
+	transition: all 0.2s ease;
+
+	transform: rotate(-90deg);
+}
+
+:host > .arrow:hover {
+	background-color: var(--color-bg-hover-on-bg-hover);
+	fill: var(--color-icon-hover);
+}
+
+:host.selected > .arrow:hover {
+	background-color: var(--color-bg-hover-on-bg-selected);
+}
+
 :host > .name {
 	color: var(--color-text-secondary);
 }

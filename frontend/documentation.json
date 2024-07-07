@@ -320,7 +320,7 @@
         },
         {
             "name": "DirectoryListItemComponent",
-            "id": "component-DirectoryListItemComponent-8fac4265dcc0fe2cafe536edfe54ad3fd5f53a65ad5e6a06fdb2e9eecc299eb3d07b7cfd7ee4f01a7dc45f4f3d888c512e1365fcef9c5fcef6f799e2928bd547",
+            "id": "component-DirectoryListItemComponent-a4e29bd323acaab80a581f0862c1dfea60a8ba263105497987f18dcd6787f68029d69453ae92f1a8f3835a94967a69de9a569735c631b35268e1cb81f50aa278",
             "file": "src/app/features/content-list/components/pure-content-list/components/directory-list-item/directory-list-item.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -600,7 +600,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\nimport { DirectoryContentDirectory } from 'generated';\r\nimport { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';\r\nimport { IDeletable } from 'src/app/shared/models/IDeletable';\r\nimport { IDownloadable } from 'src/app/shared/models/IDownloadable';\r\nimport { IRenamable } from 'src/app/shared/models/IRenamable';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'directory-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-list-item.component.html',\r\n\tstyleUrl: './directory-list-item.component.css',\r\n\tproviders: [SelectableProvider(DirectoryListItemComponent)],\r\n})\r\nexport class DirectoryListItemComponent implements ISelectable, IDownloadable, IRenamable, IDeletable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentDirectory;\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\tpublic rename(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic delete(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic download(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${date.getDay()} ${month} ${year}`;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\nimport { DirectoryContentDirectory } from 'generated';\r\nimport { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';\r\nimport { IDeletable } from 'src/app/shared/models/IDeletable';\r\nimport { IDownloadable } from 'src/app/shared/models/IDownloadable';\r\nimport { IRenamable } from 'src/app/shared/models/IRenamable';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'directory-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-list-item.component.html',\r\n\tstyleUrl: './directory-list-item.component.css',\r\n\tproviders: [SelectableProvider(DirectoryListItemComponent)],\r\n})\r\nexport class DirectoryListItemComponent implements ISelectable, IDownloadable, IRenamable, IDeletable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentDirectory;\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\tpublic rename(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic delete(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic download(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst day = date.toLocaleDateString('de-DE', { day: 'numeric' });\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${day} ${month} ${year}`;\r\n\t}\r\n}\r\n",
             "styleUrl": "./directory-list-item.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -616,7 +616,7 @@
         },
         {
             "name": "DirectoryTreeItemComponent",
-            "id": "component-DirectoryTreeItemComponent-5e8359ba94f788b470da3278cb861edbcffb91b067f59b8e72557fadd9dfbff3bd26551c08dba16cbf420c8d76ccfdb4570de636f35354e3c1da38a1d8598a07",
+            "id": "component-DirectoryTreeItemComponent-80c78e9b8aaeefb65387f1854591cc3d5fcb3af06e8159e018ea0118e65774d58c2c8cbc39b4e38075751659491d17d35bc6b35003b13681eca7e56f58a7b49b",
             "file": "src/app/features/directory-tree/components/directory-tree-item/directory-tree-item.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -644,18 +644,49 @@
                 }
             ],
             "outputsClass": [],
-            "propertiesClass": [],
+            "propertiesClass": [
+                {
+                    "name": "selected",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": false,
+                    "description": "",
+                    "line": 14,
+                    "decorators": [
+                        {
+                            "name": "HostBinding",
+                            "stringifiedArguments": "'class.selected'"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        125
+                    ]
+                }
+            ],
             "methodsClass": [],
             "deprecated": false,
             "deprecationMessage": "",
-            "hostBindings": [],
+            "hostBindings": [
+                {
+                    "name": "class.selected",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 14,
+                    "type": "boolean",
+                    "decorators": []
+                }
+            ],
             "hostListeners": [],
             "standalone": true,
             "imports": [],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, Input } from '@angular/core';\r\n\r\n@Component({\r\n\tselector: 'directory-tree-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-tree-item.component.html',\r\n\tstyleUrl: './directory-tree-item.component.css',\r\n})\r\nexport class DirectoryTreeItemComponent {\r\n\t@Input({ required: true })\r\n\tpublic name!: string;\r\n}\r\n",
+            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\n\r\n@Component({\r\n\tselector: 'directory-tree-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-tree-item.component.html',\r\n\tstyleUrl: './directory-tree-item.component.css',\r\n})\r\nexport class DirectoryTreeItemComponent {\r\n\t@Input({ required: true })\r\n\tpublic name!: string;\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n}\r\n",
             "styleUrl": "./directory-tree-item.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -780,7 +811,7 @@
         },
         {
             "name": "FileListItemComponent",
-            "id": "component-FileListItemComponent-c6d889ec554155e430fa76da79e3b68ac43f3954646cade8fd75a1459d405be5d2018a955ec0c38c8c2979ae42ce5655827d5a72ea14f3cb33bb6b72f12dbd8e",
+            "id": "component-FileListItemComponent-cda8faa0eccaf96e628491f91ef6277a0edc7d68d843023e2fdbac2c6779d6739f3e07657e079a3b3e2569e054c9247b0d51d035fd49e6e71ee7b51674f8af4d",
             "file": "src/app/features/content-list/components/pure-content-list/components/file-list-item/file-list-item.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1060,7 +1091,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\nimport { DirectoryContentFile } from 'generated';\r\nimport { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';\r\nimport { IDeletable } from 'src/app/shared/models/IDeletable';\r\nimport { IDownloadable } from 'src/app/shared/models/IDownloadable';\r\nimport { IRenamable } from 'src/app/shared/models/IRenamable';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'file-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './file-list-item.component.html',\r\n\tstyleUrl: './file-list-item.component.css',\r\n\tproviders: [SelectableProvider(FileListItemComponent)],\r\n})\r\nexport class FileListItemComponent implements ISelectable, IDownloadable, IRenamable, IDeletable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentFile;\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\tpublic rename(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic delete(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic download(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${date.getDay()} ${month} ${year}`;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\nimport { DirectoryContentFile } from 'generated';\r\nimport { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';\r\nimport { IDeletable } from 'src/app/shared/models/IDeletable';\r\nimport { IDownloadable } from 'src/app/shared/models/IDownloadable';\r\nimport { IRenamable } from 'src/app/shared/models/IRenamable';\r\nimport { ISelectable } from 'src/app/shared/models/ISelectable';\r\n\r\n@Component({\r\n\tselector: 'file-list-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './file-list-item.component.html',\r\n\tstyleUrl: './file-list-item.component.css',\r\n\tproviders: [SelectableProvider(FileListItemComponent)],\r\n})\r\nexport class FileListItemComponent implements ISelectable, IDownloadable, IRenamable, IDeletable {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentFile;\r\n\r\n\t@HostBinding('class.selected')\r\n\tpublic selected: boolean = false;\r\n\r\n\tpublic rename(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic delete(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic download(event?: Event): void {\r\n\t\tevent?.preventDefault();\r\n\t}\r\n\r\n\tpublic select(): void {\r\n\t\tthis.selected = true;\r\n\t}\r\n\r\n\tpublic unselect(): void {\r\n\t\tthis.selected = false;\r\n\t}\r\n\r\n\tprotected formatBytes(bytes: number, decimals: number = 2): string {\r\n\t\tif (!+bytes) return '0 B';\r\n\r\n\t\tconst k = 1024;\r\n\t\tconst dm = decimals < 0 ? 0 : decimals;\r\n\t\tconst sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];\r\n\r\n\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\r\n\r\n\t\treturn `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;\r\n\t}\r\n\r\n\tprotected formatDate(dateOrString: Date | string): string {\r\n\t\tconst date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));\r\n\r\n\t\tconst day = date.toLocaleDateString('de-DE', { day: 'numeric' });\r\n\t\tconst month = date.toLocaleDateString('de-DE', { month: 'short' });\r\n\t\tconst year = date.toLocaleDateString('de-DE', { year: '2-digit' });\r\n\r\n\t\treturn `${day} ${month} ${year}`;\r\n\t}\r\n}\r\n",
             "styleUrl": "./file-list-item.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -2526,7 +2557,7 @@
                 "linktype": "component",
                 "name": "DirectoryTreeItemComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/2",
+                "coverageCount": "0/4",
                 "status": "low"
             },
             {
