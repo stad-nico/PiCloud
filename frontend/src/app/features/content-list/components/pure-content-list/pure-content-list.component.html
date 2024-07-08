@@ -1,5 +1,5 @@
 @for (item of content; track item) {
-    <selectable-list-item [selectable]="isInSelectMode" (onClick)="onClick($event)">
+    <selectable-list-item [id]="$index" [selectable]="isInSelectMode" (onClick)="onClick($event)">
         @if (isFile(item)) {
             <file-list-item [metadata]="item"></file-list-item>
         } @else {

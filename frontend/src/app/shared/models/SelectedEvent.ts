@@ -1,7 +1,5 @@
-import { ISelectable } from 'src/app/shared/models/ISelectable';
-
 export type SelectEvent = {
-	component?: ISelectable | null;
+	id?: number;
 	selected: boolean;
 	shift: boolean;
 	ctrl: boolean;

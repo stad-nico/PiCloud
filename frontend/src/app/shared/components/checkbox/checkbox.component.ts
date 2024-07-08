@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { ISelectable } from 'src/app/shared/models/ISelectable';
 import { SelectEvent } from 'src/app/shared/models/SelectedEvent';
 
 @Component({
@@ -7,7 +8,10 @@ import { SelectEvent } from 'src/app/shared/models/SelectedEvent';
 	templateUrl: './checkbox.component.html',
 	styleUrl: './checkbox.component.css',
 })
-export class CheckboxComponent {
+export class CheckboxComponent implements ISelectable {
+	@ViewChild('input')
+	public input!: ElementRef<HTMLInputElement>;
+
 	@Output()
 	public onClick: EventEmitter<SelectEvent> = new EventEmitter();
 
@@ -16,18 +20,12 @@ export class CheckboxComponent {
 
 		this.onClick.emit({ selected: checked, ctrl: event.ctrlKey, shift: event.shiftKey });
 	}
-	// private selected: boolean = false;
-	// @Output()
-	// public selectEmitter: EventEmitter<void> = new EventEmitter();
-	// @Output()
-	// public unselectEmitter: EventEmitter<void> = new EventEmitter();
-	// @HostListener('click')
-	// public onClick() {
-	// 	this.selected = !this.selected;
-	// 	if (this.selected) {
-	// 		this.selectEmitter.emit();
-	// 	} else {
-	// 		this.unselectEmitter.emit();
-	// 	}
-	// }
+
+	public select(): void {
+		this.input.nativeElement.checked = true;
+	}
+
+	public unselect(): void {
+		this.input.nativeElement.checked = false;
+	}
 }
