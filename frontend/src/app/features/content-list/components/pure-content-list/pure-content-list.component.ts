@@ -54,6 +54,10 @@ export class PureContentListComponent {
 		}
 	}
 
+	public isFile(content: ContentType): content is File {
+		return content.type === Type.File;
+	}
+
 	public onClick(event: SelectEvent) {
 		const component: SelectableListItemComponent | undefined = this.children.get(event.id!);
 
@@ -61,50 +65,44 @@ export class PureContentListComponent {
 			return;
 		}
 
-		if (!event.selected && !event.ctrl && !event.shift) {
-			component.unselect();
-
-			this.selected.delete(component.id);
-
-			if (this.selected.size === 0) {
-				this.isInSelectMode = false;
-			}
-
-			return;
+		if (this.lastSelectedId === undefined || (!event.ctrl && !event.shift)) {
+			this.handleSingleSelect(event.selected, component);
+		} else {
+			this.handleRangeSelect(event.selected, component);
 		}
 
-		if (!event.selected && (event.ctrl || event.shift)) {
-			const start = Math.min(this.lastSelectedId, component.id);
-			const range = Math.abs(this.lastSelectedId - component.id) + 1;
+		this.lastSelectedId = component.id;
+	}
 
-			this.unselectRange(start, start + range);
-
-			return;
-		}
-
-		this.isInSelectMode = true;
-
-		if (event.ctrl || event.shift) {
-			const start = Math.min(this.lastSelectedId, component.id);
-			const range = Math.abs(this.lastSelectedId - component.id) + 1;
-
-			this.selectRange(start, start + range);
-		}
-
-		if (!event.ctrl && !event.shift) {
-			this.lastSelectedId = component.id;
+	private handleSingleSelect(selected: boolean, component: SelectableListItemComponent) {
+		if (selected) {
 			component.select();
+			this.selected.add(component.id);
+		} else {
+			component.unselect();
+			this.selected.delete(component.id);
+		}
 
+		this.isInSelectMode = this.selected.size > 0;
+	}
+
+	private handleRangeSelect(selected: boolean, component: SelectableListItemComponent) {
+		const start = Math.min(this.lastSelectedId, component.id);
+		const end = Math.max(this.lastSelectedId, component.id);
+
+		if ((selected && end - start <= 2) || this.isUnselectedComponentInRange(start, end)) {
+			this.selectRange(start, end);
+		} else if (selected) {
+			this.unselectRange(start, end);
+		} else {
+			this.unselectRange(start === component.id ? start + 1 : start, end);
+			component.select();
 			this.selected.add(component.id);
 		}
 	}
 
-	//! Remove unselectRange and selectRange and replace with dynamicRange:
-	// IF one in range is not selected, select all
-	// IF all in range are selected, unselect all
-
-	public selectRange(start: number, end: number) {
-		for (let i = start; i < end; i++) {
+	private selectRange(start: number, end: number) {
+		for (let i = start; i <= end; i++) {
 			const child = this.children.get(i);
 
 			if (!child) {
@@ -114,12 +112,10 @@ export class PureContentListComponent {
 			child.select();
 			this.selected.add(child.id);
 		}
-
-		this.lastSelectedId = end;
 	}
 
-	public unselectRange(start: number, end: number) {
-		for (let i = start; i < end; i++) {
+	private unselectRange(start: number, end: number) {
+		for (let i = start; i <= end; i++) {
 			const child = this.children.get(i);
 
 			if (!child) {
@@ -129,11 +125,9 @@ export class PureContentListComponent {
 			child.unselect();
 			this.selected.delete(child.id);
 		}
-
-		this.lastSelectedId = end;
 	}
 
-	public isFile(content: ContentType): content is File {
-		return content.type === Type.File;
+	private isUnselectedComponentInRange(start: number, end: number): boolean {
+		return this.children.find((c) => c.id >= start && c.id <= end && !c.selected) !== undefined;
 	}
 }
