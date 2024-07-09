@@ -93,4 +93,5 @@
 	--color-bg-hover-on-bg-selected: var(--color-background-600);
 
 	--color-bg: var(--color-background-1000);
+	--color-bg-secondary: var(--color-background-1100);
 }

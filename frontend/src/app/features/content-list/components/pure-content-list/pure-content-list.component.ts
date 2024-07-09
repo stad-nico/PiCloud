@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, Input, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, HostBinding, HostListener, Input, QueryList, ViewChildren } from '@angular/core';
 import { DirectoryContentDirectory, DirectoryContentFile } from 'generated';
 import { DirectoryListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/directory-list-item/directory-list-item.component';
 import { FileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/file-list-item/file-list-item.component';
@@ -32,6 +32,7 @@ export class PureContentListComponent {
 
 	private selected: Set<number> = new Set();
 
+	@HostBinding('class.in-select-mode')
 	public isInSelectMode: boolean = false;
 
 	private lastSelectedId!: number;

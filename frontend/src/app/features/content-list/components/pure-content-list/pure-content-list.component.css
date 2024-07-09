@@ -2,13 +2,69 @@
 	background-color: var(--color-bg);
 
 	padding: 1.25rem;
+	padding-bottom: 0;
 	border-radius: 0 1.625rem 1.625rem 0;
 
 	display: block;
 
+	overflow: hidden;
+
+	height: 26.25rem;
+
+	position: relative;
+}
+
+:host > .actions {
+	position: absolute;
+
+	top: 0.625rem;
+	left: 50%;
+
+	transform: translateX(-50%);
+
+	display: flex;
+	align-items: center;
+	justify-content: start;
+
+	gap: 10px;
+}
+
+:host > .actions > .action {
+	background-color: var(--color-bg-secondary);
+
+	border-radius: 8px;
+	box-shadow: 0px 60px 80px rgba(0, 0, 0, 0.3);
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	padding: 4px;
+
+	transition: all 0.2s ease;
+}
+
+:host > .actions > .action > .icon {
+	width: 1.625rem;
+
+	fill: var(--color-icon);
+}
+
+:host > .actions > .action:hover {
+	scale: 1.1;
+
+	cursor: pointer;
+}
+
+:host > .actions > .action:hover > .icon {
+	fill: var(--color-icon-hover);
+}
+
+:host > .items {
 	overflow: scroll;
 
-	height: 25rem;
+	width: 100%;
+	height: 100%;
 }
 
 :host > selectable-list-item {
