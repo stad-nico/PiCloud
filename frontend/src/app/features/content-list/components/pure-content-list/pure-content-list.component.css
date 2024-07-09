@@ -1,45 +1,58 @@
 :host {
 	background-color: var(--color-bg);
 
-	padding: 1.25rem;
-	padding-bottom: 0;
 	border-radius: 0 1.625rem 1.625rem 0;
 
 	display: block;
 
 	overflow: hidden;
 
-	height: 26.25rem;
+	height: 25rem;
 
 	position: relative;
 }
 
+:host.in-select-mode > .actions {
+	transform: translate(-50%, 0);
+
+	opacity: 1;
+
+	pointer-events: all;
+}
+
 :host > .actions {
+	pointer-events: none;
+
+	opacity: 0;
+
 	position: absolute;
 
 	top: 0.625rem;
 	left: 50%;
 
-	transform: translateX(-50%);
+	transform: translate(-50%, -2rem);
 
 	display: flex;
 	align-items: center;
 	justify-content: start;
 
-	gap: 10px;
+	gap: 0.625rem;
+
+	transition: all 0.2s ease;
 }
 
 :host > .actions > .action {
 	background-color: var(--color-bg-secondary);
 
-	border-radius: 8px;
-	box-shadow: 0px 60px 80px rgba(0, 0, 0, 0.3);
+	border-radius: 0.5rem;
 
 	display: flex;
 	align-items: center;
 	justify-content: center;
 
-	padding: 4px;
+	box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.2);
+
+	padding: 0.25rem;
 
 	transition: all 0.2s ease;
 }
@@ -54,29 +67,46 @@
 	scale: 1.1;
 
 	cursor: pointer;
+
+	background-color: var(--color-background-700);
 }
 
 :host > .actions > .action:hover > .icon {
 	fill: var(--color-icon-hover);
 }
 
+:host > .actions > .action.delete > .icon {
+	fill: var(--color-icon-danger);
+}
+
+:host > .actions > .action.delete:hover {
+	background-color: var(--color-bg-danger);
+}
+
+:host > .actions > .action.delete:hover > .icon {
+	fill: var(--color-icon-danger-hover);
+}
+
 :host > .items {
+	box-sizing: border-box;
 	overflow: scroll;
 
 	width: 100%;
 	height: 100%;
+
+	padding: 1.625rem;
 }
 
-:host > selectable-list-item {
+:host > .items > selectable-list-item {
 	display: flex;
 	align-items: center;
 	justify-content: start;
 
-	margin-bottom: 2px;
+	margin-bottom: 0.125rem;
 }
 
-:host > selectable-list-item file-list-item,
-:host > selectable-list-item directory-list-item {
+:host > .items > selectable-list-item file-list-item,
+:host > .items > selectable-list-item directory-list-item {
 	transition:
 		border-radius 0.2s ease,
 		background-color 0.2s ease;
@@ -96,7 +126,7 @@ selectable-list-item:not(.selected) + selectable-list-item.selected:has(+ select
 /* Match the directory-list-item of a selected list item that is placed after a non selected list item and immediately followed by another selected list item */
 selectable-list-item:not(.selected) + selectable-list-item.selected:has(+ selectable-list-item.selected) directory-list-item {
 	border-radius: 0.9rem 0.9rem 0 0;
-	padding-bottom: 2px;
+	padding-bottom: 0.125rem;
 }
 
 /* MIDDLE */
@@ -105,7 +135,7 @@ selectable-list-item.selected + selectable-list-item.selected:not(:last-of-type)
 /* Match the directory-list-item of a selected list item that is preceded by and placed after a selected list item */
 selectable-list-item.selected + selectable-list-item.selected:not(:last-of-type):has(+ selectable-list-item.selected) directory-list-item {
 	border-radius: 0;
-	padding-bottom: 2px;
+	padding-bottom: 0.125rem;
 }
 
 /* LAST */

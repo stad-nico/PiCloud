@@ -55,6 +55,26 @@ export class PureContentListComponent {
 		}
 	}
 
+	public selectAll() {
+		this.isInSelectMode = true;
+		this.selected.clear();
+
+		this.children.map((c) => {
+			c.select();
+			this.selected.add(c.id);
+		});
+	}
+
+	public unselectAll() {
+		this.selected.clear();
+
+		this.children.map((c) => {
+			c.unselect();
+		});
+
+		this.isInSelectMode = false;
+	}
+
 	public isFile(content: ContentType): content is File {
 		return content.type === Type.File;
 	}

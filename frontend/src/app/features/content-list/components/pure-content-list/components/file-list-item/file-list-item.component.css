@@ -84,3 +84,12 @@
 :host.selected > .actions > .icon:hover {
 	background-color: var(--color-bg-hover-on-bg-selected);
 }
+
+:host > .actions > .icon.delete {
+	fill: var(--color-icon-danger);
+}
+
+:host > .actions > .icon.delete:hover {
+	fill: var(--color-icon-danger-hover);
+	background-color: var(--color-bg-danger);
+}

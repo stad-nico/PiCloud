@@ -86,6 +86,9 @@
 	--color-icon: var(--color-secondary-500);
 	--color-icon-hover: var(--color-primary-500);
 
+	--color-icon-danger: var(--color-error-600);
+	--color-icon-danger-hover: var(--color-error-500);
+
 	--color-bg-hover: var(--color-background-800);
 	--color-bg-hover-on-bg-hover: var(--color-background-700);
 
@@ -94,4 +97,6 @@
 
 	--color-bg: var(--color-background-1000);
 	--color-bg-secondary: var(--color-background-1100);
+
+	--color-bg-danger: var(--color-error-800);
 }

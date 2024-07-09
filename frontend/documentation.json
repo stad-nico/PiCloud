@@ -1758,7 +1758,7 @@
         },
         {
             "name": "PureContentListComponent",
-            "id": "component-PureContentListComponent-aacdde76fc364b68b129eb082f58a863249501ccd639871827e9042a34eadc1491a07c454cf3afe0ebb7fc21a982c4071b9e25efeb0c62dcc1a331c9f5f6bb31",
+            "id": "component-PureContentListComponent-e77c1d136229920a2b508ebd94f9bbb6f14a42f2e91af70c309085eab288f9f884d8fd4af0b8efcc07651f92a9a78fd5f39c29e9183306cac0fbd17fb5964fa4",
             "file": "src/app/features/content-list/components/pure-content-list/pure-content-list.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1779,7 +1779,7 @@
                     "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 43,
+                    "line": 44,
                     "type": "Array<ContentType>",
                     "decorators": []
                 }
@@ -1793,7 +1793,7 @@
                     "type": "QueryList<SelectableListItemComponent>",
                     "optional": false,
                     "description": "",
-                    "line": 40,
+                    "line": 41,
                     "decorators": [
                         {
                             "name": "ViewChildren",
@@ -1813,8 +1813,15 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 35,
+                    "line": 36,
+                    "decorators": [
+                        {
+                            "name": "HostBinding",
+                            "stringifiedArguments": "'class.in-select-mode'"
+                        }
+                    ],
                     "modifierKind": [
+                        170,
                         125
                     ]
                 },
@@ -1825,7 +1832,7 @@
                     "type": "number",
                     "optional": false,
                     "description": "",
-                    "line": 37,
+                    "line": 38,
                     "modifierKind": [
                         123
                     ]
@@ -1870,7 +1877,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 50,
+                    "line": 51,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -1914,7 +1921,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 89,
+                    "line": 90,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -1960,7 +1967,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 77,
+                    "line": 78,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2000,7 +2007,7 @@
                     "optional": false,
                     "returnType": "File",
                     "typeParameters": [],
-                    "line": 57,
+                    "line": 58,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2037,7 +2044,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 130,
+                    "line": 131,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2077,7 +2084,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 61,
+                    "line": 62,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2114,7 +2121,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 104,
+                    "line": 105,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2160,7 +2167,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 117,
+                    "line": 118,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2190,7 +2197,17 @@
             ],
             "deprecated": false,
             "deprecationMessage": "",
-            "hostBindings": [],
+            "hostBindings": [
+                {
+                    "name": "class.in-select-mode",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 36,
+                    "type": "boolean",
+                    "decorators": []
+                }
+            ],
             "hostListeners": [
                 {
                     "name": "document:click",
@@ -2207,7 +2224,7 @@
                     ],
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 50
+                    "line": 51
                 }
             ],
             "standalone": true,
@@ -2228,7 +2245,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, ElementRef, HostListener, Input, QueryList, ViewChildren } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { DirectoryListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/directory-list-item/directory-list-item.component';\r\nimport { FileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/file-list-item/file-list-item.component';\r\nimport { SelectableListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component';\r\nimport { SelectEvent } from 'src/app/shared/models/SelectedEvent';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [FileListItemComponent, DirectoryListItemComponent, SelectableListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\tprivate selected: Set<number> = new Set();\r\n\r\n\tpublic isInSelectMode: boolean = false;\r\n\r\n\tprivate lastSelectedId!: number;\r\n\r\n\t@ViewChildren(SelectableListItemComponent)\r\n\tprivate children!: QueryList<SelectableListItemComponent>;\r\n\r\n\t@Input()\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.selected.clear();\r\n\t\t\tthis.isInSelectMode = false;\r\n\t\t}\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n\r\n\tpublic onClick(event: SelectEvent) {\r\n\t\tconst component: SelectableListItemComponent | undefined = this.children.get(event.id!);\r\n\r\n\t\tif (!component) {\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tif (this.lastSelectedId === undefined || (!event.ctrl && !event.shift)) {\r\n\t\t\tthis.handleSingleSelect(event.selected, component);\r\n\t\t} else {\r\n\t\t\tthis.handleRangeSelect(event.selected, component);\r\n\t\t}\r\n\r\n\t\tthis.lastSelectedId = component.id;\r\n\t}\r\n\r\n\tprivate handleSingleSelect(selected: boolean, component: SelectableListItemComponent) {\r\n\t\tif (selected) {\r\n\t\t\tcomponent.select();\r\n\t\t\tthis.selected.add(component.id);\r\n\t\t} else {\r\n\t\t\tcomponent.unselect();\r\n\t\t\tthis.selected.delete(component.id);\r\n\t\t}\r\n\r\n\t\tthis.isInSelectMode = this.selected.size > 0;\r\n\t}\r\n\r\n\tprivate handleRangeSelect(selected: boolean, component: SelectableListItemComponent) {\r\n\t\tconst start = Math.min(this.lastSelectedId, component.id);\r\n\t\tconst end = Math.max(this.lastSelectedId, component.id);\r\n\r\n\t\tif ((selected && end - start <= 2) || this.isUnselectedComponentInRange(start, end)) {\r\n\t\t\tthis.selectRange(start, end);\r\n\t\t} else if (selected) {\r\n\t\t\tthis.unselectRange(start, end);\r\n\t\t} else {\r\n\t\t\tthis.unselectRange(start === component.id ? start + 1 : start, end);\r\n\t\t\tcomponent.select();\r\n\t\t\tthis.selected.add(component.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate selectRange(start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tconst child = this.children.get(i);\r\n\r\n\t\t\tif (!child) {\r\n\t\t\t\tcontinue;\r\n\t\t\t}\r\n\r\n\t\t\tchild.select();\r\n\t\t\tthis.selected.add(child.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate unselectRange(start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tconst child = this.children.get(i);\r\n\r\n\t\t\tif (!child) {\r\n\t\t\t\tcontinue;\r\n\t\t\t}\r\n\r\n\t\t\tchild.unselect();\r\n\t\t\tthis.selected.delete(child.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate isUnselectedComponentInRange(start: number, end: number): boolean {\r\n\t\treturn this.children.find((c) => c.id >= start && c.id <= end && !c.selected) !== undefined;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, ElementRef, HostBinding, HostListener, Input, QueryList, ViewChildren } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { DirectoryListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/directory-list-item/directory-list-item.component';\r\nimport { FileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/file-list-item/file-list-item.component';\r\nimport { SelectableListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component';\r\nimport { SelectEvent } from 'src/app/shared/models/SelectedEvent';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [FileListItemComponent, DirectoryListItemComponent, SelectableListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\tprivate selected: Set<number> = new Set();\r\n\r\n\t@HostBinding('class.in-select-mode')\r\n\tpublic isInSelectMode: boolean = false;\r\n\r\n\tprivate lastSelectedId!: number;\r\n\r\n\t@ViewChildren(SelectableListItemComponent)\r\n\tprivate children!: QueryList<SelectableListItemComponent>;\r\n\r\n\t@Input()\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.selected.clear();\r\n\t\t\tthis.isInSelectMode = false;\r\n\t\t}\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n\r\n\tpublic onClick(event: SelectEvent) {\r\n\t\tconst component: SelectableListItemComponent | undefined = this.children.get(event.id!);\r\n\r\n\t\tif (!component) {\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tif (this.lastSelectedId === undefined || (!event.ctrl && !event.shift)) {\r\n\t\t\tthis.handleSingleSelect(event.selected, component);\r\n\t\t} else {\r\n\t\t\tthis.handleRangeSelect(event.selected, component);\r\n\t\t}\r\n\r\n\t\tthis.lastSelectedId = component.id;\r\n\t}\r\n\r\n\tprivate handleSingleSelect(selected: boolean, component: SelectableListItemComponent) {\r\n\t\tif (selected) {\r\n\t\t\tcomponent.select();\r\n\t\t\tthis.selected.add(component.id);\r\n\t\t} else {\r\n\t\t\tcomponent.unselect();\r\n\t\t\tthis.selected.delete(component.id);\r\n\t\t}\r\n\r\n\t\tthis.isInSelectMode = this.selected.size > 0;\r\n\t}\r\n\r\n\tprivate handleRangeSelect(selected: boolean, component: SelectableListItemComponent) {\r\n\t\tconst start = Math.min(this.lastSelectedId, component.id);\r\n\t\tconst end = Math.max(this.lastSelectedId, component.id);\r\n\r\n\t\tif ((selected && end - start <= 2) || this.isUnselectedComponentInRange(start, end)) {\r\n\t\t\tthis.selectRange(start, end);\r\n\t\t} else if (selected) {\r\n\t\t\tthis.unselectRange(start, end);\r\n\t\t} else {\r\n\t\t\tthis.unselectRange(start === component.id ? start + 1 : start, end);\r\n\t\t\tcomponent.select();\r\n\t\t\tthis.selected.add(component.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate selectRange(start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tconst child = this.children.get(i);\r\n\r\n\t\t\tif (!child) {\r\n\t\t\t\tcontinue;\r\n\t\t\t}\r\n\r\n\t\t\tchild.select();\r\n\t\t\tthis.selected.add(child.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate unselectRange(start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tconst child = this.children.get(i);\r\n\r\n\t\t\tif (!child) {\r\n\t\t\t\tcontinue;\r\n\t\t\t}\r\n\r\n\t\t\tchild.unselect();\r\n\t\t\tthis.selected.delete(child.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate isUnselectedComponentInRange(start: number, end: number): boolean {\r\n\t\treturn this.children.find((c) => c.id >= start && c.id <= end && !c.selected) !== undefined;\r\n\t}\r\n}\r\n",
             "styleUrl": "./pure-content-list.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -2246,7 +2263,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 43,
+                "line": 44,
                 "jsdoctags": [
                     {
                         "name": "ref",
@@ -2260,7 +2277,7 @@
                 ]
             },
             "extends": [],
-            "templateData": "@for (item of content; track item) {\r\n    <selectable-list-item [id]=\"$index\" [selectable]=\"isInSelectMode\" (onClick)=\"onClick($event)\">\r\n        @if (isFile(item)) {\r\n            <file-list-item [metadata]=\"item\"></file-list-item>\r\n        } @else {\r\n            <directory-list-item [metadata]=\"item\"></directory-list-item>\r\n        }\r\n    </selectable-list-item>\r\n}"
+            "templateData": "<div class=\"actions\">\r\n    <div class=\"action\">\r\n        <svg class=\"download icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z\"/>\r\n        </svg>\r\n    </div>\r\n    <div class=\"action\">\r\n        <svg class=\"delete icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z\"/>\r\n        </svg>\r\n    </div>\r\n</div>\r\n<div class=\"items\">\r\n    @for (item of content; track item) {\r\n        <selectable-list-item [id]=\"$index\" [selectable]=\"isInSelectMode\" (onClick)=\"onClick($event)\">\r\n            @if (isFile(item)) {\r\n                <file-list-item [metadata]=\"item\"></file-list-item>\r\n            } @else {\r\n                <directory-list-item [metadata]=\"item\"></directory-list-item>\r\n            }\r\n        </selectable-list-item>\r\n    }\r\n</div>"
         },
         {
             "name": "SelectableListItemComponent",
@@ -2897,7 +2914,7 @@
                 "linktype": "component",
                 "name": "PureContentListComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/17",
+                "coverageCount": "0/18",
                 "status": "low"
             },
             {
