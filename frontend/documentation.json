@@ -1758,7 +1758,7 @@
         },
         {
             "name": "PureContentListComponent",
-            "id": "component-PureContentListComponent-e77c1d136229920a2b508ebd94f9bbb6f14a42f2e91af70c309085eab288f9f884d8fd4af0b8efcc07651f92a9a78fd5f39c29e9183306cac0fbd17fb5964fa4",
+            "id": "component-PureContentListComponent-85818f0e8b73658aabe3105493dbf00c56cd6adeb0bbc42accd0a974e6c1010a01b9ba75c38d72e934099fc95f6c2ed6d59eb90e06e5321e0c3e04ca63523ec3",
             "file": "src/app/features/content-list/components/pure-content-list/pure-content-list.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1921,7 +1921,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 90,
+                    "line": 110,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -1967,7 +1967,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 78,
+                    "line": 98,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2007,7 +2007,7 @@
                     "optional": false,
                     "returnType": "File",
                     "typeParameters": [],
-                    "line": 58,
+                    "line": 78,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2044,7 +2044,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 131,
+                    "line": 151,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2084,7 +2084,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 62,
+                    "line": 82,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2100,6 +2100,19 @@
                                 "text": "param"
                             }
                         }
+                    ]
+                },
+                {
+                    "name": "selectAll",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 58,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
                     ]
                 },
                 {
@@ -2121,7 +2134,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 105,
+                    "line": 125,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2149,6 +2162,19 @@
                     ]
                 },
                 {
+                    "name": "unselectAll",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 68,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
                     "name": "unselectRange",
                     "args": [
                         {
@@ -2167,7 +2193,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 118,
+                    "line": 138,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2245,7 +2271,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, ElementRef, HostBinding, HostListener, Input, QueryList, ViewChildren } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { DirectoryListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/directory-list-item/directory-list-item.component';\r\nimport { FileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/file-list-item/file-list-item.component';\r\nimport { SelectableListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component';\r\nimport { SelectEvent } from 'src/app/shared/models/SelectedEvent';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [FileListItemComponent, DirectoryListItemComponent, SelectableListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\tprivate selected: Set<number> = new Set();\r\n\r\n\t@HostBinding('class.in-select-mode')\r\n\tpublic isInSelectMode: boolean = false;\r\n\r\n\tprivate lastSelectedId!: number;\r\n\r\n\t@ViewChildren(SelectableListItemComponent)\r\n\tprivate children!: QueryList<SelectableListItemComponent>;\r\n\r\n\t@Input()\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.selected.clear();\r\n\t\t\tthis.isInSelectMode = false;\r\n\t\t}\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n\r\n\tpublic onClick(event: SelectEvent) {\r\n\t\tconst component: SelectableListItemComponent | undefined = this.children.get(event.id!);\r\n\r\n\t\tif (!component) {\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tif (this.lastSelectedId === undefined || (!event.ctrl && !event.shift)) {\r\n\t\t\tthis.handleSingleSelect(event.selected, component);\r\n\t\t} else {\r\n\t\t\tthis.handleRangeSelect(event.selected, component);\r\n\t\t}\r\n\r\n\t\tthis.lastSelectedId = component.id;\r\n\t}\r\n\r\n\tprivate handleSingleSelect(selected: boolean, component: SelectableListItemComponent) {\r\n\t\tif (selected) {\r\n\t\t\tcomponent.select();\r\n\t\t\tthis.selected.add(component.id);\r\n\t\t} else {\r\n\t\t\tcomponent.unselect();\r\n\t\t\tthis.selected.delete(component.id);\r\n\t\t}\r\n\r\n\t\tthis.isInSelectMode = this.selected.size > 0;\r\n\t}\r\n\r\n\tprivate handleRangeSelect(selected: boolean, component: SelectableListItemComponent) {\r\n\t\tconst start = Math.min(this.lastSelectedId, component.id);\r\n\t\tconst end = Math.max(this.lastSelectedId, component.id);\r\n\r\n\t\tif ((selected && end - start <= 2) || this.isUnselectedComponentInRange(start, end)) {\r\n\t\t\tthis.selectRange(start, end);\r\n\t\t} else if (selected) {\r\n\t\t\tthis.unselectRange(start, end);\r\n\t\t} else {\r\n\t\t\tthis.unselectRange(start === component.id ? start + 1 : start, end);\r\n\t\t\tcomponent.select();\r\n\t\t\tthis.selected.add(component.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate selectRange(start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tconst child = this.children.get(i);\r\n\r\n\t\t\tif (!child) {\r\n\t\t\t\tcontinue;\r\n\t\t\t}\r\n\r\n\t\t\tchild.select();\r\n\t\t\tthis.selected.add(child.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate unselectRange(start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tconst child = this.children.get(i);\r\n\r\n\t\t\tif (!child) {\r\n\t\t\t\tcontinue;\r\n\t\t\t}\r\n\r\n\t\t\tchild.unselect();\r\n\t\t\tthis.selected.delete(child.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate isUnselectedComponentInRange(start: number, end: number): boolean {\r\n\t\treturn this.children.find((c) => c.id >= start && c.id <= end && !c.selected) !== undefined;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, ElementRef, HostBinding, HostListener, Input, QueryList, ViewChildren } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { DirectoryListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/directory-list-item/directory-list-item.component';\r\nimport { FileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/file-list-item/file-list-item.component';\r\nimport { SelectableListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component';\r\nimport { SelectEvent } from 'src/app/shared/models/SelectedEvent';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [FileListItemComponent, DirectoryListItemComponent, SelectableListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\tprivate selected: Set<number> = new Set();\r\n\r\n\t@HostBinding('class.in-select-mode')\r\n\tpublic isInSelectMode: boolean = false;\r\n\r\n\tprivate lastSelectedId!: number;\r\n\r\n\t@ViewChildren(SelectableListItemComponent)\r\n\tprivate children!: QueryList<SelectableListItemComponent>;\r\n\r\n\t@Input()\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.selected.clear();\r\n\t\t\tthis.isInSelectMode = false;\r\n\t\t}\r\n\t}\r\n\r\n\tpublic selectAll() {\r\n\t\tthis.isInSelectMode = true;\r\n\t\tthis.selected.clear();\r\n\r\n\t\tthis.children.map((c) => {\r\n\t\t\tc.select();\r\n\t\t\tthis.selected.add(c.id);\r\n\t\t});\r\n\t}\r\n\r\n\tpublic unselectAll() {\r\n\t\tthis.selected.clear();\r\n\r\n\t\tthis.children.map((c) => {\r\n\t\t\tc.unselect();\r\n\t\t});\r\n\r\n\t\tthis.isInSelectMode = false;\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n\r\n\tpublic onClick(event: SelectEvent) {\r\n\t\tconst component: SelectableListItemComponent | undefined = this.children.get(event.id!);\r\n\r\n\t\tif (!component) {\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tif (this.lastSelectedId === undefined || (!event.ctrl && !event.shift)) {\r\n\t\t\tthis.handleSingleSelect(event.selected, component);\r\n\t\t} else {\r\n\t\t\tthis.handleRangeSelect(event.selected, component);\r\n\t\t}\r\n\r\n\t\tthis.lastSelectedId = component.id;\r\n\t}\r\n\r\n\tprivate handleSingleSelect(selected: boolean, component: SelectableListItemComponent) {\r\n\t\tif (selected) {\r\n\t\t\tcomponent.select();\r\n\t\t\tthis.selected.add(component.id);\r\n\t\t} else {\r\n\t\t\tcomponent.unselect();\r\n\t\t\tthis.selected.delete(component.id);\r\n\t\t}\r\n\r\n\t\tthis.isInSelectMode = this.selected.size > 0;\r\n\t}\r\n\r\n\tprivate handleRangeSelect(selected: boolean, component: SelectableListItemComponent) {\r\n\t\tconst start = Math.min(this.lastSelectedId, component.id);\r\n\t\tconst end = Math.max(this.lastSelectedId, component.id);\r\n\r\n\t\tif ((selected && end - start <= 2) || this.isUnselectedComponentInRange(start, end)) {\r\n\t\t\tthis.selectRange(start, end);\r\n\t\t} else if (selected) {\r\n\t\t\tthis.unselectRange(start, end);\r\n\t\t} else {\r\n\t\t\tthis.unselectRange(start === component.id ? start + 1 : start, end);\r\n\t\t\tcomponent.select();\r\n\t\t\tthis.selected.add(component.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate selectRange(start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tconst child = this.children.get(i);\r\n\r\n\t\t\tif (!child) {\r\n\t\t\t\tcontinue;\r\n\t\t\t}\r\n\r\n\t\t\tchild.select();\r\n\t\t\tthis.selected.add(child.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate unselectRange(start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tconst child = this.children.get(i);\r\n\r\n\t\t\tif (!child) {\r\n\t\t\t\tcontinue;\r\n\t\t\t}\r\n\r\n\t\t\tchild.unselect();\r\n\t\t\tthis.selected.delete(child.id);\r\n\t\t}\r\n\t}\r\n\r\n\tprivate isUnselectedComponentInRange(start: number, end: number): boolean {\r\n\t\treturn this.children.find((c) => c.id >= start && c.id <= end && !c.selected) !== undefined;\r\n\t}\r\n}\r\n",
             "styleUrl": "./pure-content-list.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -2277,7 +2303,7 @@
                 ]
             },
             "extends": [],
-            "templateData": "<div class=\"actions\">\r\n    <div class=\"action\">\r\n        <svg class=\"download icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z\"/>\r\n        </svg>\r\n    </div>\r\n    <div class=\"action\">\r\n        <svg class=\"delete icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z\"/>\r\n        </svg>\r\n    </div>\r\n</div>\r\n<div class=\"items\">\r\n    @for (item of content; track item) {\r\n        <selectable-list-item [id]=\"$index\" [selectable]=\"isInSelectMode\" (onClick)=\"onClick($event)\">\r\n            @if (isFile(item)) {\r\n                <file-list-item [metadata]=\"item\"></file-list-item>\r\n            } @else {\r\n                <directory-list-item [metadata]=\"item\"></directory-list-item>\r\n            }\r\n        </selectable-list-item>\r\n    }\r\n</div>"
+            "templateData": "<div class=\"hint\">\r\n    <svg class=\"arrow\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n        <path d=\"M480-361q-8 0-15-2.5t-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5Z\"/>\r\n    </svg>\r\n</div>\r\n<div class=\"actions\">\r\n    <div class=\"action select-all\">\r\n        <svg (click)=\"selectAll()\" class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M70-438q-12-12-11.5-28T71-494q12-11 28-11.5t28 11.5l142 142 14 14 14 14q12 12 11.5 28T296-268q-12 11-28 11.5T240-268L70-438Zm424 85 340-340q12-12 28-11.5t28 12.5q11 12 11.5 28T890-636L522-268q-12 12-28 12t-28-12L296-438q-11-11-11-27.5t11-28.5q12-12 28.5-12t28.5 12l141 141Zm169-282L522-494q-11 11-27.5 11T466-494q-12-12-12-28.5t12-28.5l141-141q11-11 27.5-11t28.5 11q12 12 12 28.5T663-635Z\"/>\r\n        </svg>\r\n    </div>\r\n    <div class=\"action unselect-all\">\r\n        <svg (click)=\"unselectAll()\" class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M845-116 609-352l-86 86q-12 12-28 12t-28-12L297-436q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T354-493l141 141 56-56-386-386q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T222-851l679 679q11 11 11 28t-11 28q-11 11-28 11t-28-11ZM241-266 71-436q-11-11-11-28t11-28q11-11 28-11t28 11l142 142 56 56-28 28q-12 12-28 12t-28-12Zm480-198-56-56 169-169q11-11 27-11.5t28 10.5q12 11 12.5 28T890-633L721-464ZM607-578l-56-56 58-58q11-11 28-11t28 11q11 11 11 28t-11 28l-58 58Z\"/>\r\n        </svg>\r\n    </div>\r\n    <div class=\"action download\">\r\n        <svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z\"/>\r\n        </svg>\r\n    </div>\r\n    <div class=\"action delete\">\r\n        <svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n            <path d=\"M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z\"/>\r\n        </svg>\r\n    </div>\r\n</div>\r\n<div class=\"items\">\r\n    @for (item of content; track item) {\r\n        <selectable-list-item [id]=\"$index\" [selectable]=\"isInSelectMode\" (onClick)=\"onClick($event)\">\r\n            @if (isFile(item)) {\r\n                <file-list-item [metadata]=\"item\"></file-list-item>\r\n            } @else {\r\n                <directory-list-item [metadata]=\"item\"></directory-list-item>\r\n            }\r\n        </selectable-list-item>\r\n    }\r\n</div>"
         },
         {
             "name": "SelectableListItemComponent",
@@ -2914,7 +2940,7 @@
                 "linktype": "component",
                 "name": "PureContentListComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/18",
+                "coverageCount": "0/20",
                 "status": "low"
             },
             {
