@@ -8,7 +8,7 @@
 	overflow: hidden;
 
 	/* AMT of items + spacing between items excluding last one + padding */
-	height: calc(10.5 * 2.5rem + (10 - 1) * 2px + 1.625rem);
+	height: calc(10.5 * 2.5rem + (10 - 1) * 0.125rem + 1.625rem);
 
 	position: relative;
 }
@@ -28,18 +28,18 @@
 
 	position: absolute;
 
-	bottom: 9px;
-	left: 9px;
+	bottom: 0.563rem;
+	left: 0.563rem;
 
-	background-color: white;
+	background-color: var(--color-bg-tertiary);
 
-	padding: 2px;
+	padding: 0.125rem;
 
-	border-radius: 5px;
+	border-radius: 0.313rem;
 
 	transition: all 0.2s ease;
 
-	box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
 }
 
 :host > .action-trigger:hover {
@@ -53,7 +53,7 @@
 }
 
 :host > .action-trigger > .arrow {
-	width: 18px;
+	width: 1.125rem;
 
 	rotate: 180deg;
 
@@ -65,20 +65,18 @@
 :host > .actions {
 	position: absolute;
 
-	padding: 6px 12px;
+	padding: 0.375rem 0.75rem;
 
 	bottom: 0;
 
-	/* trigger left + padding + width */
-	/* left: calc(9px + 2 * 2px + 18px); */
-	left: 31px;
+	left: 1.938rem;
 
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	justify-content: start;
 
-	gap: 10px;
+	gap: 0.625rem;
 
 	transition: all 0.2s ease;
 }
@@ -88,16 +86,15 @@
 	align-items: center;
 	justify-content: center;
 
-	background-color: var(--color-background-1100);
+	background-color: var(--color-bg-tertiary);
 
 	border-radius: 0.375rem;
 
-	padding: 2px;
+	padding: 0.125rem;
 
-	box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
 
-	/* distance bottom + padding + height */
-	transform: translateY(calc(6px + 2 * 2px + 24px));
+	transform: translateY(2.125rem);
 
 	opacity: 0;
 
@@ -123,7 +120,7 @@
 }
 
 :host > .actions > .action > .icon {
-	width: 24px;
+	width: 1.5rem;
 
 	fill: var(--color-icon);
 }
@@ -154,7 +151,7 @@
 	height: 100%;
 
 	padding: 1.625rem;
-	padding-bottom: 34px;
+	padding-bottom: 2.125rem;
 }
 
 :host > .items > selectable-list-item {

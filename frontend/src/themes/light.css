@@ -97,6 +97,7 @@
 
 	--color-bg: var(--color-background-900);
 	--color-bg-secondary: var(--color-background-1000);
+	--color-bg-tertiary: var(--color-background-1100);
 
 	--color-bg-danger: var(--color-error-800);
 }
