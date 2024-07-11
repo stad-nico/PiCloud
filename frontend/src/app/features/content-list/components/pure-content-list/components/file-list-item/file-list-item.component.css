@@ -30,7 +30,7 @@
 	background-color: var(--color-bg-selected);
 }
 
-:host:hover > :is(.name, .size, .date) {
+:host:hover > :is(.name, .size, .date, .mime-type) {
 	color: var(--color-text-hover);
 }
 
