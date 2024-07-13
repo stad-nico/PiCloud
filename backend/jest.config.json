@@ -12,5 +12,6 @@
 	"coverageDirectory": "./coverage",
 	"testEnvironment": "node",
 	"setupFilesAfterEnv": ["<rootDir>/test/jest.global.ts"],
-	"coverageReporters": ["lcov", "cobertura"]
+	"coverageReporters": ["lcov", "cobertura"],
+	"maxWorkers": 4
 }
