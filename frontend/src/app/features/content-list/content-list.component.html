@@ -1,1 +1,9 @@
-<pure-content-list [content]="content"></pure-content-list>
+<pure-content-list
+	[content]="content"
+	[isInSelectMode]="isInSelectMode"
+	(onClickOutside)="unselectAll()"
+	(onSelectAll)="selectAll()"
+	(onUnselectAll)="unselectAll()"
+	(onSelect)="onSelect($event)"
+	(onUnselect)="onUnselect($event)"
+></pure-content-list>

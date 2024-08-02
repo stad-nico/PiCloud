@@ -1,6 +1,7 @@
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { setCompodocJson } from '@storybook/addon-docs/angular';
 import { withThemeByClassName } from '@storybook/addon-themes';
-import type { Preview } from '@storybook/angular';
+import { applicationConfig, type Preview } from '@storybook/angular';
 import docJson from '../documentation.json';
 
 setCompodocJson(docJson);
@@ -29,6 +30,7 @@ const preview: Preview = {
 			},
 			defaultTheme: 'light',
 		}),
+		applicationConfig({ providers: [provideAnimationsAsync()] }),
 	],
 };
 

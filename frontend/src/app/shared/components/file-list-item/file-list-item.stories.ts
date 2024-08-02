@@ -1,8 +1,8 @@
 import { StoryObj, argsToTemplate, type Meta } from '@storybook/angular';
-import { FileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/file-list-item/file-list-item.component';
+import { FileListItemComponent } from 'src/app/shared/components/file-list-item/file-list-item.component';
 
 const meta: Meta<FileListItemComponent> = {
-	title: 'Features/Content List/File List Item',
+	title: 'Shared/File List Item',
 	component: FileListItemComponent,
 	render: (args: any) => ({
 		template: `<div style="resize:both;overflow:hidden"><file-list-item ${argsToTemplate(args)}></file-list-item></div>`,
@@ -29,6 +29,6 @@ export const Default: StoryObj<FileListItemComponent> = {
 export const Selected: StoryObj<FileListItemComponent> = {
 	args: {
 		metadata: defaultMetadata,
-		selected: true,
+		isSelected: true,
 	},
 };

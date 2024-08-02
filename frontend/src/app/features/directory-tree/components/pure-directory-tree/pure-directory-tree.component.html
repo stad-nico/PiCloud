@@ -1,0 +1,26 @@
+@if (!isLeaf(metadata)) {
+	@for (item of metadata.children; track item.id) {
+		@if (isLeaf(item)) {
+			<directory-tree-item
+				(onExpand)="onExpand.emit($event)"
+				(onCollapse)="onCollapse.emit($event)"
+				(onClick)="onClick.emit($event)"
+				[id]="item.id"
+				[name]="item.name"
+				[isSelected]="item.isSelected"
+			></directory-tree-item>
+		} @else {
+			<directory-tree-item
+				(onExpand)="onExpand.emit($event)"
+				(onCollapse)="onCollapse.emit($event)"
+				(onClick)="onClick.emit($event)"
+				[id]="item.id"
+				[name]="item.name"
+				[isCollapsed]="item.isCollapsed"
+				[hasChildren]="item.hasChildren"
+				[isSelected]="item.isSelected"
+				[children]="item.children"
+			></directory-tree-item>
+		}
+	}
+}

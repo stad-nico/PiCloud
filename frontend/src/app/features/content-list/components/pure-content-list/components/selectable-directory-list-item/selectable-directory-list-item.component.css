@@ -1,0 +1,40 @@
+:host {
+	display: block;
+}
+
+:host:not(:last-child) {
+	margin-bottom: 0.125rem;
+}
+
+:host > label {
+	display: flex;
+	align-items: flex-start;
+	justify-content: flex-start;
+
+	width: 100%;
+
+	gap: 0.5rem;
+}
+
+:host > label > checkbox {
+	width: 1.5rem;
+
+	margin-top: 0.5rem;
+
+	opacity: 0;
+
+	margin-left: -2rem;
+}
+
+:host.selectable > label > checkbox {
+	margin-left: 0;
+	opacity: 1;
+}
+
+:host > label > directory-list-item {
+	flex-grow: 1;
+
+	transition:
+		border-radius 0.2s ease,
+		background-color 0.2s ease;
+}

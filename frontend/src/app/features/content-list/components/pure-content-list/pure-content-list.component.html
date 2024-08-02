@@ -1,12 +1,26 @@
 <div class="items">
-	@for (item of content; track item) {
-		<selectable-list-item [id]="$index" [selectable]="isInSelectMode" (onClick)="onClick($event)">
-			@if (isFile(item)) {
-				<file-list-item [metadata]="item"></file-list-item>
-			} @else {
-				<directory-list-item [metadata]="item"></directory-list-item>
-			}
-		</selectable-list-item>
+	@for (item of content; track item.name) {
+		@if (isFile(item)) {
+			<selectable-file-list-item
+				class="selectable-list-item"
+				(onSelect)="this.onSelect.emit($event)"
+				(onUnselect)="this.onUnselect.emit($event)"
+				[id]="$index"
+				[metadata]="item"
+				[isSelectable]="this.isInSelectMode"
+				[isSelected]="item.isSelected"
+			></selectable-file-list-item>
+		} @else {
+			<selectable-directory-list-item
+				class="selectable-list-item"
+				(onSelect)="this.onSelect.emit($event)"
+				(onUnselect)="this.onUnselect.emit($event)"
+				[id]="$index"
+				[metadata]="item"
+				[isSelectable]="this.isInSelectMode"
+				[isSelected]="item.isSelected"
+			></selectable-directory-list-item>
+		}
 	}
 </div>
 <div class="action-trigger">
@@ -17,14 +31,14 @@
 	</svg>
 </div>
 <div class="actions">
-	<div (click)="selectAll()" class="action select-all">
+	<div (click)="onSelectAll.emit()" class="action select-all">
 		<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
 			<path
 				d="M70-438q-12-12-11.5-28T71-494q12-11 28-11.5t28 11.5l142 142 14 14 14 14q12 12 11.5 28T296-268q-12 11-28 11.5T240-268L70-438Zm424 85 340-340q12-12 28-11.5t28 12.5q11 12 11.5 28T890-636L522-268q-12 12-28 12t-28-12L296-438q-11-11-11-27.5t11-28.5q12-12 28.5-12t28.5 12l141 141Zm169-282L522-494q-11 11-27.5 11T466-494q-12-12-12-28.5t12-28.5l141-141q11-11 27.5-11t28.5 11q12 12 12 28.5T663-635Z"
 			/>
 		</svg>
 	</div>
-	<div (click)="unselectAll()" class="action unselect-all">
+	<div (click)="onUnselectAll.emit()" class="action unselect-all">
 		<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
 			<path
 				d="M845-116 609-352l-86 86q-12 12-28 12t-28-12L297-436q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T354-493l141 141 56-56-386-386q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T222-851l679 679q11 11 11 28t-11 28q-11 11-28 11t-28-11ZM241-266 71-436q-11-11-11-28t11-28q11-11 28-11t28 11l142 142 56 56-28 28q-12 12-28 12t-28-12Zm480-198-56-56 169-169q11-11 27-11.5t28 10.5q12 11 12.5 28T890-633L721-464ZM607-578l-56-56 58-58q11-11 28-11t28 11q11 11 11 28t-11 28l-58 58Z"

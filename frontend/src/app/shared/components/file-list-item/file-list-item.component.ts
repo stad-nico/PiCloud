@@ -1,6 +1,5 @@
 import { Component, HostBinding, Input } from '@angular/core';
 import { DirectoryContentFile } from 'generated';
-import { SelectableProvider } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable.component';
 import { IDeletable } from 'src/app/shared/models/IDeletable';
 import { IDownloadable } from 'src/app/shared/models/IDownloadable';
 import { IRenamable } from 'src/app/shared/models/IRenamable';
@@ -11,14 +10,22 @@ import { ISelectable } from 'src/app/shared/models/ISelectable';
 	standalone: true,
 	templateUrl: './file-list-item.component.html',
 	styleUrl: './file-list-item.component.css',
-	providers: [SelectableProvider(FileListItemComponent)],
 })
 export class FileListItemComponent implements ISelectable, IDownloadable, IRenamable, IDeletable {
 	@Input({ required: true })
 	public metadata!: DirectoryContentFile;
 
 	@HostBinding('class.selected')
-	public selected: boolean = false;
+	@Input('isSelected')
+	public isSelected: boolean = false;
+
+	select(): void {
+		this.isSelected = true;
+	}
+
+	unselect(): void {
+		this.isSelected = false;
+	}
 
 	public rename(event?: Event): void {
 		event?.preventDefault();
@@ -30,14 +37,6 @@ export class FileListItemComponent implements ISelectable, IDownloadable, IRenam
 
 	public download(event?: Event): void {
 		event?.preventDefault();
-	}
-
-	public select(): void {
-		this.selected = true;
-	}
-
-	public unselect(): void {
-		this.selected = false;
 	}
 
 	protected formatBytes(bytes: number, decimals: number = 2): string {

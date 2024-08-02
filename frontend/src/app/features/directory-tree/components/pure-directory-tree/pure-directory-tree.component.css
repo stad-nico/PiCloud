@@ -1,0 +1,14 @@
+:host {
+	background-color: var(--color-bg-tertiary);
+
+	border-radius: 0 1.625rem 1.625rem 0;
+
+	display: block;
+
+	overflow: hidden;
+
+	/* AMT of items + spacing between items excluding last one + padding */
+	height: calc(10.5 * 2.5rem + (10 - 1) * 0.125rem + 1.625rem);
+
+	position: relative;
+}

@@ -61,15 +61,15 @@
 	display: none;
 }
 
-:host > label > input:checked + .wrapper:hover {
+:host.selected > label > input + .wrapper:hover {
 	width: 120%;
 	height: 120%;
 }
 
-:host > label > input:checked + .wrapper > svg {
+:host.selected > label > input + .wrapper > svg {
 	scale: 1.2;
 }
 
-:host > label > input:checked + .wrapper::before {
+:host.selected > label > input + .wrapper::before {
 	opacity: 0;
 }

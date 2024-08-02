@@ -1,0 +1,4 @@
+<label [@isSelectable]="this.isSelectable">
+	<checkbox [isSelected]="this.isSelected" (onCheck)="this.onCheck($event)" (onUncheck)="this.onUncheck($event)"></checkbox>
+	<directory-list-item [isSelected]="this.isSelected" [metadata]="this.metadata"></directory-list-item>
+</label>

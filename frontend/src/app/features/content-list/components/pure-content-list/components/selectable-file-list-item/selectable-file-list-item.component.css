@@ -1,7 +1,15 @@
+:host {
+	display: block;
+}
+
+:host:not(:last-child) {
+	margin-bottom: 0.125rem;
+}
+
 :host > label {
 	display: flex;
-	align-items: start;
-	justify-content: start;
+	align-items: flex-start;
+	justify-content: flex-start;
 
 	width: 100%;
 
@@ -16,21 +24,17 @@
 	opacity: 0;
 
 	margin-left: -2rem;
-
-	transition:
-		margin-left 0.3s ease,
-		opacity 0.25s ease-out;
 }
 
 :host.selectable > label > checkbox {
 	margin-left: 0;
 	opacity: 1;
-
-	transition:
-		margin-left 0.3s ease,
-		opacity 0.25s ease 0.05s;
 }
 
-:host ::ng-deep > label > :not(checkbox) {
+:host > label > file-list-item {
 	flex-grow: 1;
+
+	transition:
+		border-radius 0.2s ease,
+		background-color 0.2s ease;
 }

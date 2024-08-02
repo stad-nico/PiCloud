@@ -1,0 +1,129 @@
+:host {
+	display: block;
+
+	margin-bottom: 0.125rem;
+}
+
+:host > header {
+	position: relative;
+
+	height: 2.5rem;
+
+	padding: 0 0.9rem;
+
+	border-radius: 0.9rem;
+
+	user-select: none;
+
+	transition: background-color 0.2s ease;
+
+	display: flex;
+	align-items: center;
+	justify-content: left;
+	gap: 0.5rem;
+
+	z-index: 2;
+}
+
+:host > header:hover {
+	cursor: pointer;
+
+	background-color: var(--color-bg-hover);
+}
+
+:host.is-selected > header {
+	background-color: var(--color-bg-selected);
+}
+
+:host.is-selected > header:hover + main {
+	background-color: var(--color-bg-hover);
+}
+
+:host > header:hover + main {
+	background-color: var(--color-bg-hover-secondary);
+}
+
+:host > header:hover > .name {
+	color: var(--color-text-hover);
+}
+
+:host > header > .icon {
+	width: 1.5rem;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+:host > header > .arrow {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	opacity: 0;
+
+	width: 1.375rem;
+
+	padding: 2px;
+
+	margin-right: -0.25rem;
+
+	border-radius: 0.5rem;
+
+	transition: all 0.2s ease;
+}
+
+:host > header > .arrow > svg {
+	fill: var(--color-icon);
+
+	transition: all 0.2s ease;
+}
+
+:host > header > .arrow:hover {
+	background-color: var(--color-bg-hover-on-bg-hover);
+}
+
+:host > header > .arrow:hover > svg {
+	fill: var(--color-icon-hover);
+}
+
+:host.is-selected > header > .arrow:hover {
+	background-color: var(--color-bg-hover-on-bg-selected);
+}
+
+:host.is-collapsed > header > .arrow > svg {
+	transform: rotate(-90deg);
+}
+
+:host.has-children > header > .arrow {
+	opacity: 1;
+}
+
+:host > header > .name {
+	color: var(--color-text-secondary);
+}
+
+:host > main {
+	position: relative;
+
+	z-index: 1;
+
+	height: auto;
+
+	padding-left: 20px;
+
+	overflow: hidden;
+
+	margin-top: -20px;
+	padding-top: calc(20px + 0.125rem);
+
+	transition: background-color 0.2s ease;
+
+	border-radius: 0 0 0.9rem 0.9rem;
+}
+
+:host.is-collapsed > main {
+	height: 0;
+	padding: 0;
+	margin: 0;
+}
