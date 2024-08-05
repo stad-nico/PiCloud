@@ -1,0 +1,8 @@
+:host {
+	/* AMT of items + spacing between items excluding last one + padding */
+	/* height: calc(10.5 * 2.5rem + (10 - 1) * 0.125rem + 1.625rem); */
+
+	/* 10 -> 29rem; 11 -> 31,625rem; 12 -> 34,25rem */
+	/* => full height but in 2.625rem steps */
+	height: calc(100% - mod(100%, 2.625rem));
+}

@@ -879,15 +879,175 @@
         },
         {
             "name": "DirectoryTreeState",
-            "id": "injectable-DirectoryTreeState-d68e06e7fda930751fbb6c5c080d2a266a379e4985b9efd768d89ed9eec0803d1537ca7b62285bd153f578c780f2dce451ca860e6557335adb28362655d40de5",
+            "id": "injectable-DirectoryTreeState-30fa0e2b58cf5883ec128c2ad02d0b8ee4899bbfeab6d42d580697acb6170d3b338a13d8c9b9f9205e90fdf9e8906147d4380ecf0134e312f7aff3f3aac9065f",
             "file": "src/app/features/directory-tree/state/directory-tree.state.ts",
             "properties": [],
-            "methods": [],
+            "methods": [
+                {
+                    "name": "collapse",
+                    "args": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<DirectoryTreeStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "action",
+                            "type": "DirectoryTreeActions.Collapse",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 67,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Action",
+                            "stringifiedArguments": "DirectoryTreeActions.Collapse"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<DirectoryTreeStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "action",
+                            "type": "DirectoryTreeActions.Collapse",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "expand",
+                    "args": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<DirectoryTreeStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "action",
+                            "type": "DirectoryTreeActions.Expand",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 72,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Action",
+                            "stringifiedArguments": "DirectoryTreeActions.Expand"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<DirectoryTreeStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "action",
+                            "type": "DirectoryTreeActions.Expand",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "select",
+                    "args": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<DirectoryTreeStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "action",
+                            "type": "DirectoryTreeActions.Select",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 57,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Action",
+                            "stringifiedArguments": "DirectoryTreeActions.Select"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<DirectoryTreeStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "action",
+                            "type": "DirectoryTreeActions.Select",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ],
             "deprecated": false,
             "deprecationMessage": "",
             "description": "",
             "rawdescription": "\n",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { State } from '@ngxs/store';\r\n\r\nexport type Leaf = { name: string; hasChildren: false };\r\n\r\nexport type Node = { name: string; hasChildren: true; isCollapsed: boolean; children: Array<Node | Leaf> };\r\n\r\nexport type DirectoryTreeItemMetadata = { name: string; hasChildren: boolean; isCollapsed: boolean; children: Array<DirectoryTreeItemMetadata> };\r\n\r\nexport const DirectoryTreeStateToken = 'directory_tree';\r\n\r\nexport type DirectoryTreeStateModel = Node | Leaf;\r\n\r\n@State<DirectoryTreeStateModel>({\r\n\tname: DirectoryTreeStateToken,\r\n\tdefaults: {\r\n\t\tname: 'root',\r\n\t\thasChildren: true,\r\n\t\tisCollapsed: false,\r\n\t\tchildren: [\r\n\t\t\t{ name: 'example1', hasChildren: false },\r\n\t\t\t{ name: 'example2', hasChildren: false },\r\n\t\t\t{\r\n\t\t\t\tname: 'example3',\r\n\t\t\t\thasChildren: true,\r\n\t\t\t\tisCollapsed: false,\r\n\t\t\t\tchildren: [\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tname: 'test',\r\n\t\t\t\t\t\thasChildren: true,\r\n\t\t\t\t\t\tisCollapsed: false,\r\n\t\t\t\t\t\tchildren: [\r\n\t\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\tname: 'test',\r\n\t\t\t\t\t\t\t\thasChildren: false,\r\n\t\t\t\t\t\t\t},\r\n\t\t\t\t\t\t],\r\n\t\t\t\t\t},\r\n\t\t\t\t],\r\n\t\t\t},\r\n\t\t],\r\n\t},\r\n})\r\n@Injectable()\r\nexport class DirectoryTreeState {}\r\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, State, StateContext } from '@ngxs/store';\r\nimport { compose, StateOperator } from '@ngxs/store/operators';\r\nimport { DirectoryTreeActions } from 'src/app/features/directory-tree/state/directory-tree.actions';\r\n\r\nexport type Leaf = { name: string; hasChildren: false; isSelected: boolean; id: number };\r\n\r\nexport type Node = { name: string; hasChildren: true; isCollapsed: boolean; children: Array<Node | Leaf>; isSelected: boolean; id: number };\r\n\r\nexport type DirectoryTreeItemMetadata = { name: string; hasChildren: boolean; isCollapsed: boolean; children: Array<DirectoryTreeItemMetadata> };\r\n\r\nexport const DirectoryTreeStateToken = 'directory_tree';\r\n\r\nexport type DirectoryTreeStateModel = Node | Leaf;\r\n\r\n@State<DirectoryTreeStateModel>({\r\n\tname: DirectoryTreeStateToken,\r\n\tdefaults: {\r\n\t\tname: 'root',\r\n\t\thasChildren: true,\r\n\t\tisCollapsed: false,\r\n\t\tisSelected: false,\r\n\t\tid: 0,\r\n\t\tchildren: [\r\n\t\t\t{ name: 'example1', hasChildren: false, isSelected: false, id: 1 },\r\n\t\t\t{ name: 'example2', hasChildren: false, isSelected: false, id: 2 },\r\n\t\t\t{\r\n\t\t\t\tname: 'example3',\r\n\t\t\t\thasChildren: true,\r\n\t\t\t\tisCollapsed: false,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t\tid: 3,\r\n\t\t\t\tchildren: [\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tname: 'test',\r\n\t\t\t\t\t\thasChildren: true,\r\n\t\t\t\t\t\tisCollapsed: false,\r\n\t\t\t\t\t\tisSelected: false,\r\n\t\t\t\t\t\tid: 4,\r\n\t\t\t\t\t\tchildren: [\r\n\t\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\tname: 'test',\r\n\t\t\t\t\t\t\t\thasChildren: false,\r\n\t\t\t\t\t\t\t\tisSelected: false,\r\n\t\t\t\t\t\t\t\tid: 5,\r\n\t\t\t\t\t\t\t},\r\n\t\t\t\t\t\t],\r\n\t\t\t\t\t},\r\n\t\t\t\t],\r\n\t\t\t},\r\n\t\t],\r\n\t},\r\n})\r\n@Injectable()\r\nexport class DirectoryTreeState {\r\n\t@Action(DirectoryTreeActions.Select)\r\n\tpublic select(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.Select) {\r\n\t\tctx.setState(\r\n\t\t\tcompose(\r\n\t\t\t\tpatchRecursive((n) => true, { isSelected: false }, false),\r\n\t\t\t\tpatchRecursive((n) => n.id === action.id, { isSelected: true })\r\n\t\t\t)\r\n\t\t);\r\n\t}\r\n\r\n\t@Action(DirectoryTreeActions.Collapse)\r\n\tpublic collapse(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.Collapse) {\r\n\t\tctx.setState(patchRecursive((n) => n.id === action.id, { isCollapsed: true }));\r\n\t}\r\n\r\n\t@Action(DirectoryTreeActions.Expand)\r\n\tpublic expand(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.Expand) {\r\n\t\tctx.setState(patchRecursive((n) => n.id === action.id, { isCollapsed: false }));\r\n\t}\r\n}\r\n\r\nfunction patchRecursive(selector: (n: Node | Leaf) => boolean, obj: Object, stopOnMatch: boolean = true): StateOperator<Node | Leaf> {\r\n\tfunction recursive(nodeOrLeaf: Node | Leaf): Node | Leaf {\r\n\t\tif (selector(nodeOrLeaf)) {\r\n\t\t\tif (stopOnMatch) {\r\n\t\t\t\treturn { ...nodeOrLeaf, ...obj };\r\n\t\t\t} else {\r\n\t\t\t\tif (isLeaf(nodeOrLeaf)) {\r\n\t\t\t\t\treturn { ...nodeOrLeaf, ...obj };\r\n\t\t\t\t} else {\r\n\t\t\t\t\treturn { ...nodeOrLeaf, ...obj, children: nodeOrLeaf.children.map((child) => recursive(child)) };\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\tif (isLeaf(nodeOrLeaf)) {\r\n\t\t\treturn nodeOrLeaf;\r\n\t\t}\r\n\r\n\t\treturn {\r\n\t\t\t...nodeOrLeaf,\r\n\t\t\tchildren: nodeOrLeaf.children.map((child) => recursive(child)),\r\n\t\t};\r\n\t}\r\n\r\n\treturn (state: Node | Leaf) => recursive(state);\r\n}\r\n\r\nfunction isLeaf(leafOrNode: Leaf | Node): leafOrNode is Leaf {\r\n\treturn !('children' in leafOrNode);\r\n}\r\n",
             "extends": [],
             "type": "injectable"
         }
@@ -895,6 +1055,77 @@
     "guards": [],
     "interceptors": [],
     "classes": [
+        {
+            "name": "Collapse",
+            "id": "class-Collapse-363bf1b15bbb73a2d1057bedb3de52725f7e647cdeba374e000ed0fd1c28abb4b2d73ac3c0337690aedf7f288ce2d457860d4e1a1e2afdfc392ca9ca77f18225",
+            "file": "src/app/features/directory-tree/state/directory-tree.actions.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export namespace DirectoryTreeActions {\r\n\texport class Select {\r\n\t\tpublic static readonly type = '[Directory Tree] Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Expand {\r\n\t\tpublic static readonly type = '[Directory Tree] Expand';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Collapse {\r\n\t\tpublic static readonly type = '[Directory Tree] Collapse';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "id",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 25,
+                "jsdoctags": [
+                    {
+                        "name": "id",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "id",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 25,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "'[Directory Tree] Collapse'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 23,
+                    "modifierKind": [
+                        126,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
         {
             "name": "CtrlSelect",
             "id": "class-CtrlSelect-db8ec6c816cf8902681b71b1d7923e89f7f08367f70fae9b630eeb94b09a776c88713ba1dd5e1474b530789c766a90485c2e8b4c29e1055b2d28421c2c22f089",
@@ -1025,6 +1256,148 @@
                     "optional": false,
                     "description": "",
                     "line": 61,
+                    "modifierKind": [
+                        126,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "Expand",
+            "id": "class-Expand-363bf1b15bbb73a2d1057bedb3de52725f7e647cdeba374e000ed0fd1c28abb4b2d73ac3c0337690aedf7f288ce2d457860d4e1a1e2afdfc392ca9ca77f18225",
+            "file": "src/app/features/directory-tree/state/directory-tree.actions.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export namespace DirectoryTreeActions {\r\n\texport class Select {\r\n\t\tpublic static readonly type = '[Directory Tree] Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Expand {\r\n\t\tpublic static readonly type = '[Directory Tree] Expand';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Collapse {\r\n\t\tpublic static readonly type = '[Directory Tree] Collapse';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "id",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 15,
+                "jsdoctags": [
+                    {
+                        "name": "id",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "id",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 15,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "'[Directory Tree] Expand'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 13,
+                    "modifierKind": [
+                        126,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
+            "name": "Select",
+            "id": "class-Select-363bf1b15bbb73a2d1057bedb3de52725f7e647cdeba374e000ed0fd1c28abb4b2d73ac3c0337690aedf7f288ce2d457860d4e1a1e2afdfc392ca9ca77f18225",
+            "file": "src/app/features/directory-tree/state/directory-tree.actions.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export namespace DirectoryTreeActions {\r\n\texport class Select {\r\n\t\tpublic static readonly type = '[Directory Tree] Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Expand {\r\n\t\tpublic static readonly type = '[Directory Tree] Expand';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Collapse {\r\n\t\tpublic static readonly type = '[Directory Tree] Collapse';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "id",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 5,
+                "jsdoctags": [
+                    {
+                        "name": "id",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "id",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 5,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "'[Directory Tree] Select'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 3,
                     "modifierKind": [
                         126,
                         148
@@ -2094,7 +2467,7 @@
         },
         {
             "name": "DirectoryTreeComponent",
-            "id": "component-DirectoryTreeComponent-796830710f0236c51bc0bdccfd840629d92a010bcefb3318c36ddafe227b9246eb30a78bea6e3f2857771c220398771b973940bd4bc5a8b2adab762280b0ac8b",
+            "id": "component-DirectoryTreeComponent-b1afe7b3c39df95250f51ad50f763066f11ac013209a6585702ef6688273b03ea92b00eec285d1dd64e848cf8448cd81e0d4c830e449f78d2e686ee00558d04e",
             "file": "src/app/features/directory-tree/directory-tree.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -2116,10 +2489,10 @@
                     "name": "metadata",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "Node",
+                    "type": "Node | Leaf",
                     "optional": false,
                     "description": "",
-                    "line": 21,
+                    "line": 23,
                     "modifierKind": [
                         125
                     ]
@@ -2128,10 +2501,10 @@
                     "name": "metadata$",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "type": "Observable<Node>",
+                    "type": "Observable<Node | Leaf>",
                     "optional": false,
                     "description": "",
-                    "line": 17,
+                    "line": 19,
                     "modifierKind": [
                         123,
                         148
@@ -2145,9 +2518,22 @@
                     "type": "string",
                     "optional": false,
                     "description": "",
-                    "line": 15,
+                    "line": 17,
                     "modifierKind": [
                         125,
+                        148
+                    ]
+                },
+                {
+                    "name": "store",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Store",
+                    "optional": false,
+                    "description": "",
+                    "line": 16,
+                    "modifierKind": [
+                        123,
                         148
                     ]
                 },
@@ -2159,7 +2545,7 @@
                     "type": "Subscription",
                     "optional": false,
                     "description": "",
-                    "line": 19,
+                    "line": 21,
                     "modifierKind": [
                         123,
                         148
@@ -2173,7 +2559,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 36,
+                    "line": 39,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2183,9 +2569,102 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 27,
+                    "line": 30,
                     "deprecated": false,
                     "deprecationMessage": ""
+                },
+                {
+                    "name": "onClick",
+                    "args": [
+                        {
+                            "name": "id",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 43,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "id",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "onCollapse",
+                    "args": [
+                        {
+                            "name": "id",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 51,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "id",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "onExpand",
+                    "args": [
+                        {
+                            "name": "id",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 47,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "id",
+                            "type": "number",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 }
             ],
             "deprecated": false,
@@ -2202,7 +2681,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component } from '@angular/core';\r\nimport { Store } from '@ngxs/store';\r\nimport { Observable, Subscription } from 'rxjs';\r\nimport { PureDirectoryTreeComponent } from 'src/app/features/directory-tree/components/pure-directory-tree/pure-directory-tree.component';\r\nimport { Node } from 'src/app/features/directory-tree/state/directory-tree.state';\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'directory-tree',\r\n\tstyleUrl: './directory-tree.component.css',\r\n\ttemplateUrl: './directory-tree.component.html',\r\n\timports: [PureDirectoryTreeComponent],\r\n})\r\nexport class DirectoryTreeComponent {\r\n\tpublic readonly rootPath = '/root/';\r\n\r\n\tprivate readonly metadata$: Observable<Node>;\r\n\r\n\tprivate readonly subscriptions: Subscription = new Subscription();\r\n\r\n\tpublic metadata!: Node;\r\n\r\n\tconstructor(store: Store) {\r\n\t\tthis.metadata$ = store.select((state) => state['directory_tree']);\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.subscriptions.add(\r\n\t\t\tthis.metadata$.subscribe((metadata) => {\r\n\t\t\t\tthis.metadata = metadata;\r\n\t\t\t\tconsole.log(metadata);\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\tngOnDestroy() {\r\n\t\tthis.subscriptions.unsubscribe();\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component } from '@angular/core';\r\nimport { Store } from '@ngxs/store';\r\nimport { Observable, Subscription } from 'rxjs';\r\nimport { PureDirectoryTreeComponent } from 'src/app/features/directory-tree/components/pure-directory-tree/pure-directory-tree.component';\r\nimport { DirectoryTreeActions } from 'src/app/features/directory-tree/state/directory-tree.actions';\r\nimport { Leaf, Node } from 'src/app/features/directory-tree/state/directory-tree.state';\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'directory-tree',\r\n\tstyleUrl: './directory-tree.component.css',\r\n\ttemplateUrl: './directory-tree.component.html',\r\n\timports: [PureDirectoryTreeComponent],\r\n})\r\nexport class DirectoryTreeComponent {\r\n\tprivate readonly store: Store;\r\n\tpublic readonly rootPath = '/root/';\r\n\r\n\tprivate readonly metadata$: Observable<Node | Leaf>;\r\n\r\n\tprivate readonly subscriptions: Subscription = new Subscription();\r\n\r\n\tpublic metadata!: Node | Leaf;\r\n\r\n\tconstructor(store: Store) {\r\n\t\tthis.metadata$ = store.select((state) => state['directory_tree']);\r\n\t\tthis.store = store;\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.subscriptions.add(\r\n\t\t\tthis.metadata$.subscribe((metadata) => {\r\n\t\t\t\tconsole.log('CHANGED');\r\n\t\t\t\tthis.metadata = metadata;\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\tngOnDestroy() {\r\n\t\tthis.subscriptions.unsubscribe();\r\n\t}\r\n\r\n\tpublic onClick(id: number) {\r\n\t\tthis.store.dispatch(new DirectoryTreeActions.Select(id));\r\n\t}\r\n\r\n\tpublic onExpand(id: number) {\r\n\t\tthis.store.dispatch(new DirectoryTreeActions.Expand(id));\r\n\t}\r\n\r\n\tpublic onCollapse(id: number) {\r\n\t\tthis.store.dispatch(new DirectoryTreeActions.Collapse(id));\r\n\t}\r\n}\r\n",
             "styleUrl": "./directory-tree.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -2220,7 +2699,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 21,
+                "line": 23,
                 "jsdoctags": [
                     {
                         "name": "store",
@@ -2234,11 +2713,11 @@
                 ]
             },
             "extends": [],
-            "templateData": "<pure-directory-tree [metadata]=\"this.metadata\"></pure-directory-tree>\r\n"
+            "templateData": "<pure-directory-tree (onCollapse)=\"onCollapse($event)\" (onExpand)=\"onExpand($event)\" (onClick)=\"onClick($event)\" [metadata]=\"metadata\"></pure-directory-tree>\r\n"
         },
         {
             "name": "DirectoryTreeItemComponent",
-            "id": "component-DirectoryTreeItemComponent-d32ad9204c32b794ccb246cab595459e5325886cbd3b9890d2492fef48f48e9530475f034959f1e816752e9a651051c48e6e2e2b689402b005747ec8207d5c4f",
+            "id": "component-DirectoryTreeItemComponent-b7701abb01f9f979d48c50f0fe8a9a20a62fbd067b445a1ae895d10785a9366627a9b67afd4e0040d749a98562afadcef947f6e51b99f3c5432b22871c0371a2",
             "file": "src/app/features/directory-tree/components/pure-directory-tree/components/directory-tree-item/directory-tree-item.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -2255,59 +2734,89 @@
             "hostDirectives": [],
             "inputsClass": [
                 {
-                    "required": true,
-                    "name": "metadata",
+                    "name": "children",
+                    "defaultValue": "[]",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "optional": false,
-                    "line": 12,
-                    "type": "Leaf | Node",
+                    "line": 30,
+                    "type": "Array<Leaf | Node>",
                     "decorators": []
-                }
-            ],
-            "outputsClass": [],
-            "propertiesClass": [
+                },
                 {
                     "name": "hasChildren",
                     "defaultValue": "false",
                     "deprecated": false,
                     "deprecationMessage": "",
+                    "line": 19,
                     "type": "boolean",
+                    "decorators": []
+                },
+                {
+                    "required": true,
+                    "name": "id",
+                    "deprecated": false,
+                    "deprecationMessage": "",
                     "optional": false,
-                    "description": "",
-                    "line": 15,
-                    "decorators": [
-                        {
-                            "name": "HostBinding",
-                            "stringifiedArguments": "'class.has-children'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170,
-                        123
-                    ]
+                    "line": 12,
+                    "type": "number",
+                    "decorators": []
                 },
                 {
                     "name": "isCollapsed",
                     "defaultValue": "true",
                     "deprecated": false,
                     "deprecationMessage": "",
+                    "line": 27,
                     "type": "boolean",
+                    "decorators": []
+                },
+                {
+                    "name": "isSelected",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 23,
+                    "type": "boolean",
+                    "decorators": []
+                },
+                {
+                    "required": true,
+                    "name": "name",
+                    "deprecated": false,
+                    "deprecationMessage": "",
                     "optional": false,
-                    "description": "",
-                    "line": 18,
-                    "decorators": [
-                        {
-                            "name": "HostBinding",
-                            "stringifiedArguments": "'class.is-collapsed'"
-                        }
-                    ],
-                    "modifierKind": [
-                        170,
-                        123
-                    ]
+                    "line": 15,
+                    "type": "string",
+                    "decorators": []
                 }
             ],
+            "outputsClass": [
+                {
+                    "name": "onClick",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 33,
+                    "type": "EventEmitter<number>"
+                },
+                {
+                    "name": "onCollapse",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 36,
+                    "type": "EventEmitter<number>"
+                },
+                {
+                    "name": "onExpand",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 39,
+                    "type": "EventEmitter<number>"
+                }
+            ],
+            "propertiesClass": [],
             "methodsClass": [
                 {
                     "name": "isLeaf",
@@ -2322,7 +2831,7 @@
                     "optional": false,
                     "returnType": "Leaf",
                     "typeParameters": [],
-                    "line": 20,
+                    "line": 41,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -2341,51 +2850,53 @@
                     ]
                 },
                 {
-                    "name": "ngOnInit",
-                    "args": [],
+                    "name": "onArrowClick",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent | PointerEvent",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 24,
+                    "line": 45,
                     "deprecated": false,
-                    "deprecationMessage": ""
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "MouseEvent | PointerEvent",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 }
             ],
             "deprecated": false,
             "deprecationMessage": "",
-            "hostBindings": [
-                {
-                    "name": "class.has-children",
-                    "defaultValue": "false",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 15,
-                    "type": "boolean",
-                    "decorators": []
-                },
-                {
-                    "name": "class.is-collapsed",
-                    "defaultValue": "true",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "line": 18,
-                    "type": "boolean",
-                    "decorators": []
-                }
-            ],
+            "hostBindings": [],
             "hostListeners": [],
             "standalone": true,
             "imports": [],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, HostBinding, Input } from '@angular/core';\r\nimport { Leaf, Node } from 'src/app/features/directory-tree/state/directory-tree.state';\r\n\r\n@Component({\r\n\tselector: 'directory-tree-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-tree-item.component.html',\r\n\tstyleUrl: './directory-tree-item.component.css',\r\n})\r\nexport class DirectoryTreeItemComponent {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: Leaf | Node;\r\n\r\n\t@HostBinding('class.has-children')\r\n\tprivate hasChildren: boolean = false;\r\n\r\n\t@HostBinding('class.is-collapsed')\r\n\tprivate isCollapsed: boolean = true;\r\n\r\n\tpublic isLeaf(metadata: Leaf | Node): metadata is Leaf {\r\n\t\treturn !('children' in metadata);\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.hasChildren = this.metadata.hasChildren;\r\n\t\tthis.isCollapsed = this.isLeaf(this.metadata) ? this.isCollapsed : this.metadata.isCollapsed;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';\r\nimport { Leaf, Node } from 'src/app/features/directory-tree/state/directory-tree.state';\r\n\r\n@Component({\r\n\tselector: 'directory-tree-item',\r\n\tstandalone: true,\r\n\ttemplateUrl: './directory-tree-item.component.html',\r\n\tstyleUrl: './directory-tree-item.component.css',\r\n})\r\nexport class DirectoryTreeItemComponent {\r\n\t@Input({ required: true })\r\n\tpublic id!: number;\r\n\r\n\t@Input({ required: true })\r\n\tpublic name!: string;\r\n\r\n\t@HostBinding('class.has-children')\r\n\t@Input()\r\n\tpublic hasChildren: boolean = false;\r\n\r\n\t@HostBinding('class.is-selected')\r\n\t@Input()\r\n\tpublic isSelected: boolean = false;\r\n\r\n\t@HostBinding('class.is-collapsed')\r\n\t@Input()\r\n\tpublic isCollapsed: boolean = true;\r\n\r\n\t@Input()\r\n\tpublic children: Array<Leaf | Node> = [];\r\n\r\n\t@Output()\r\n\tpublic onClick: EventEmitter<number> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onCollapse: EventEmitter<number> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onExpand: EventEmitter<number> = new EventEmitter();\r\n\r\n\tpublic isLeaf(metadata: Leaf | Node): metadata is Leaf {\r\n\t\treturn !('children' in metadata);\r\n\t}\r\n\r\n\tpublic onArrowClick(event: MouseEvent | PointerEvent) {\r\n\t\tevent.stopPropagation();\r\n\r\n\t\tif (this.isCollapsed) {\r\n\t\t\tthis.onExpand.emit(this.id);\r\n\t\t} else {\r\n\t\t\tthis.onCollapse.emit(this.id);\r\n\t\t}\r\n\t}\r\n}\r\n",
             "styleUrl": "./directory-tree-item.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
             "extends": [],
-            "templateData": "<header>\r\n\t<svg class=\"arrow\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t<path\r\n\t\t\td=\"M 480 -321 q -8 0 -15 -2.5 t -13 -8.5 L 268 -516 q -11 -11 -11 -28 t 11 -28 q 11 -11 28 -11 t 28 11 l 156 156 l 156 -156 q 11 -11 28 -11 t 28 11 q 11 11 11 28 t -11 28 L 508 -332 q -6 6 -13 8.5 t -15 2.5 Z\"\r\n\t\t/>\r\n\t</svg>\r\n\t<div class=\"icon\">\r\n\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 25 19\">\r\n\t\t\t<path fill=\"rgb(255, 160, 0)\" d=\"M2 0 10 0 14 3 14 5 0 5 0 2C0 1 1 0 2 0\" />\r\n\t\t\t<path fill=\"rgb(255, 202, 40)\" d=\"M2 3 22 3C24 3 25 4 25 6L25 16C25 18 24 19 22 19L3 19C1 19 0 18 0 16L0 6C0 4 1 3 3 3\" />\r\n\t\t</svg>\r\n\t</div>\r\n\t<p class=\"name\">{{ metadata.name }}</p>\r\n</header>\r\n@if (!isLeaf(metadata)) {\r\n\t<main>\r\n\t\t@for (item of metadata.children; track item) {\r\n\t\t\t<directory-tree-item [metadata]=\"item\"></directory-tree-item>\r\n\t\t}\r\n\t</main>\r\n}\r\n"
+            "templateData": "<header (click)=\"onClick.emit(id)\">\r\n\t<div class=\"arrow\">\r\n\t\t<svg (click)=\"onArrowClick($event)\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t\t<path\r\n\t\t\t\td=\"M 480 -321 q -8 0 -15 -2.5 t -13 -8.5 L 268 -516 q -11 -11 -11 -28 t 11 -28 q 11 -11 28 -11 t 28 11 l 156 156 l 156 -156 q 11 -11 28 -11 t 28 11 q 11 11 11 28 t -11 28 L 508 -332 q -6 6 -13 8.5 t -15 2.5 Z\"\r\n\t\t\t/>\r\n\t\t</svg>\r\n\t</div>\r\n\t<div class=\"icon\">\r\n\t\t<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 25 19\">\r\n\t\t\t<path fill=\"rgb(255, 160, 0)\" d=\"M2 0 10 0 14 3 14 5 0 5 0 2C0 1 1 0 2 0\" />\r\n\t\t\t<path fill=\"rgb(255, 202, 40)\" d=\"M2 3 22 3C24 3 25 4 25 6L25 16C25 18 24 19 22 19L3 19C1 19 0 18 0 16L0 6C0 4 1 3 3 3\" />\r\n\t\t</svg>\r\n\t</div>\r\n\t<p class=\"name\">{{ name }}</p>\r\n</header>\r\n<main>\r\n\t@for (item of children; track item.id) {\r\n\t\t@if (isLeaf(item)) {\r\n\t\t\t<directory-tree-item\r\n\t\t\t\t(onExpand)=\"onExpand.emit($event)\"\r\n\t\t\t\t(onCollapse)=\"onCollapse.emit($event)\"\r\n\t\t\t\t(onClick)=\"onClick.emit($event)\"\r\n\t\t\t\t[id]=\"item.id\"\r\n\t\t\t\t[name]=\"item.name\"\r\n\t\t\t\t[isSelected]=\"item.isSelected\"\r\n\t\t\t></directory-tree-item>\r\n\t\t} @else {\r\n\t\t\t<directory-tree-item\r\n\t\t\t\t(onExpand)=\"onExpand.emit($event)\"\r\n\t\t\t\t(onCollapse)=\"onCollapse.emit($event)\"\r\n\t\t\t\t(onClick)=\"onClick.emit($event)\"\r\n\t\t\t\t[id]=\"item.id\"\r\n\t\t\t\t[name]=\"item.name\"\r\n\t\t\t\t[isCollapsed]=\"item.isCollapsed\"\r\n\t\t\t\t[hasChildren]=\"item.hasChildren\"\r\n\t\t\t\t[children]=\"item.children\"\r\n\t\t\t\t[isSelected]=\"item.isSelected\"\r\n\t\t\t></directory-tree-item>\r\n\t\t}\r\n\t}\r\n</main>\r\n"
         },
         {
             "name": "ExpandingMenuButtonComponent",
@@ -3350,7 +3861,7 @@
         },
         {
             "name": "PureContentListComponent",
-            "id": "component-PureContentListComponent-8ab66564078a6246b24c3525ef63f072978d603beccc67777854ae98c34917c4d83eea9cd7fe20c2dcec99b0a7955c2aa8fd30ff224095998978342b1ecd0ddc",
+            "id": "component-PureContentListComponent-e5fcd9264bdc8a472726053d9dc2f212e068b3e5c4b92a182839a8b4cb9164fdd43759fb5c837b8cdd9c80d5d927819a45185774d9900475c678e3d2f6cf16ea",
             "file": "src/app/features/content-list/components/pure-content-list/pure-content-list.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3550,7 +4061,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { SelectableFileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-file-list-item/selectable-file-list-item.component';\r\nimport {\r\n\tListItemSelectEvent,\r\n\tListItemUnselectEvent,\r\n\tSelectableDirectoryListItemComponent,\r\n} from './components/selectable-directory-list-item/selectable-directory-list-item.component';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n\tid: number;\r\n\tisSelected: boolean;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n\tid: number;\r\n\tisSelected: boolean;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [SelectableDirectoryListItemComponent, SelectableFileListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\t@HostBinding('class.in-select-mode')\r\n\t@Input({ alias: 'isInSelectMode', required: true })\r\n\tpublic isInSelectMode!: boolean;\r\n\r\n\t@Input({ required: true })\r\n\tpublic content!: Array<ContentType>;\r\n\r\n\t@Output()\r\n\tpublic onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselect: EventEmitter<ListItemUnselectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onClickOutside: EventEmitter<void> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onSelectAll: EventEmitter<void> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselectAll: EventEmitter<void> = new EventEmitter();\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\t// this.onClickOutside.emit();\r\n\t\t}\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { SelectableFileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-file-list-item/selectable-file-list-item.component';\r\nimport {\r\n\tListItemSelectEvent,\r\n\tListItemUnselectEvent,\r\n\tSelectableDirectoryListItemComponent,\r\n} from './components/selectable-directory-list-item/selectable-directory-list-item.component';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n\tid: number;\r\n\tisSelected: boolean;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n\tid: number;\r\n\tisSelected: boolean;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [SelectableDirectoryListItemComponent, SelectableFileListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\t@HostBinding('class.in-select-mode')\r\n\t@Input({ alias: 'isInSelectMode', required: true })\r\n\tpublic isInSelectMode!: boolean;\r\n\r\n\t@Input({ required: true })\r\n\tpublic content!: Array<ContentType>;\r\n\r\n\t@Output()\r\n\tpublic onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselect: EventEmitter<ListItemUnselectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onClickOutside: EventEmitter<void> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onSelectAll: EventEmitter<void> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselectAll: EventEmitter<void> = new EventEmitter();\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.onClickOutside.emit();\r\n\t\t}\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n}\r\n",
             "styleUrl": "./pure-content-list.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -3586,7 +4097,7 @@
         },
         {
             "name": "PureDirectoryTreeComponent",
-            "id": "component-PureDirectoryTreeComponent-caa56fa10f23aadf56ae32541bd7f49f21e8772e72409b9105ceb3981107bceeb7c28c9627f8936918825bac8785d6a0f96a143e4a524d8f7c8c542d5651ea89",
+            "id": "component-PureDirectoryTreeComponent-9a974c6b19d2f390514802e812e9de8e272d45caf043f7ec755b9d278254b26eaf502ebcacd14ed612b7558c28b5e7a2043727cf5592974dab7c2fda0eddc435",
             "file": "src/app/features/directory-tree/components/pure-directory-tree/pure-directory-tree.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3609,13 +4120,80 @@
                     "deprecationMessage": "",
                     "optional": false,
                     "line": 14,
-                    "type": "Node",
+                    "type": "Node | Leaf",
                     "decorators": []
                 }
             ],
-            "outputsClass": [],
+            "outputsClass": [
+                {
+                    "name": "onClick",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 17,
+                    "type": "EventEmitter<number>"
+                },
+                {
+                    "name": "onCollapse",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 23,
+                    "type": "EventEmitter<number>"
+                },
+                {
+                    "name": "onExpand",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 20,
+                    "type": "EventEmitter<number>"
+                }
+            ],
             "propertiesClass": [],
-            "methodsClass": [],
+            "methodsClass": [
+                {
+                    "name": "isLeaf",
+                    "args": [
+                        {
+                            "name": "metadata",
+                            "type": "Leaf | Node",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "Leaf",
+                    "typeParameters": [],
+                    "line": 25,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "metadata",
+                            "type": "Leaf | Node",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "ngOnChange",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 29,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
             "deprecated": false,
             "deprecationMessage": "",
             "hostBindings": [],
@@ -3630,13 +4208,13 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, Input } from '@angular/core';\r\nimport { DirectoryTreeItemComponent } from 'src/app/features/directory-tree/components/pure-directory-tree/components/directory-tree-item/directory-tree-item.component';\r\nimport { Node } from 'src/app/features/directory-tree/state/directory-tree.state';\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'pure-directory-tree',\r\n\ttemplateUrl: './pure-directory-tree.component.html',\r\n\tstyleUrl: './pure-directory-tree.component.css',\r\n\timports: [DirectoryTreeItemComponent],\r\n})\r\nexport class PureDirectoryTreeComponent {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: Node;\r\n}\r\n",
+            "sourceCode": "import { Component, EventEmitter, Input, Output } from '@angular/core';\r\nimport { DirectoryTreeItemComponent } from 'src/app/features/directory-tree/components/pure-directory-tree/components/directory-tree-item/directory-tree-item.component';\r\nimport { Leaf, Node } from 'src/app/features/directory-tree/state/directory-tree.state';\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'pure-directory-tree',\r\n\ttemplateUrl: './pure-directory-tree.component.html',\r\n\tstyleUrl: './pure-directory-tree.component.css',\r\n\timports: [DirectoryTreeItemComponent],\r\n})\r\nexport class PureDirectoryTreeComponent {\r\n\t@Input({ required: true })\r\n\tpublic metadata!: Node | Leaf;\r\n\r\n\t@Output()\r\n\tpublic onClick: EventEmitter<number> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onExpand: EventEmitter<number> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onCollapse: EventEmitter<number> = new EventEmitter();\r\n\r\n\tpublic isLeaf(metadata: Leaf | Node): metadata is Leaf {\r\n\t\treturn !('children' in metadata);\r\n\t}\r\n\r\n\tngOnChange() {\r\n\t\tconsole.log('CHANGFED HERE');\r\n\t}\r\n}\r\n",
             "styleUrl": "./pure-directory-tree.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
             "extends": [],
-            "templateData": "@for (item of metadata.children; track item) {\r\n\t<directory-tree-item [metadata]=\"item\"></directory-tree-item>\r\n}\r\n"
+            "templateData": "@if (!isLeaf(metadata)) {\r\n\t@for (item of metadata.children; track item.id) {\r\n\t\t@if (isLeaf(item)) {\r\n\t\t\t<directory-tree-item\r\n\t\t\t\t(onExpand)=\"onExpand.emit($event)\"\r\n\t\t\t\t(onCollapse)=\"onCollapse.emit($event)\"\r\n\t\t\t\t(onClick)=\"onClick.emit($event)\"\r\n\t\t\t\t[id]=\"item.id\"\r\n\t\t\t\t[name]=\"item.name\"\r\n\t\t\t\t[isSelected]=\"item.isSelected\"\r\n\t\t\t></directory-tree-item>\r\n\t\t} @else {\r\n\t\t\t<directory-tree-item\r\n\t\t\t\t(onExpand)=\"onExpand.emit($event)\"\r\n\t\t\t\t(onCollapse)=\"onCollapse.emit($event)\"\r\n\t\t\t\t(onClick)=\"onClick.emit($event)\"\r\n\t\t\t\t[id]=\"item.id\"\r\n\t\t\t\t[name]=\"item.name\"\r\n\t\t\t\t[isCollapsed]=\"item.isCollapsed\"\r\n\t\t\t\t[hasChildren]=\"item.hasChildren\"\r\n\t\t\t\t[isSelected]=\"item.isSelected\"\r\n\t\t\t\t[children]=\"item.children\"\r\n\t\t\t></directory-tree-item>\r\n\t\t}\r\n\t}\r\n}\r\n"
         },
         {
             "name": "SelectableDirectoryListItemComponent",
@@ -4015,7 +4593,94 @@
                 "defaultValue": "{\r\n\t[Thickness.Thick]: 0.16,\r\n\t[Thickness.Regular]: 0.08,\r\n\t[Thickness.Thin]: 0.04,\r\n}"
             }
         ],
-        "functions": [],
+        "functions": [
+            {
+                "name": "isLeaf",
+                "file": "src/app/features/directory-tree/state/directory-tree.state.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "args": [
+                    {
+                        "name": "leafOrNode",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "returnType": "Leaf",
+                "jsdoctags": [
+                    {
+                        "name": "leafOrNode",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "patchRecursive",
+                "file": "src/app/features/directory-tree/state/directory-tree.state.ts",
+                "ctype": "miscellaneous",
+                "subtype": "function",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "args": [
+                    {
+                        "name": "selector",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "obj",
+                        "type": "Object",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "stopOnMatch",
+                        "type": "boolean",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "defaultValue": "true"
+                    }
+                ],
+                "returnType": "StateOperator<Node | Leaf>",
+                "jsdoctags": [
+                    {
+                        "name": "selector",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "obj",
+                        "type": "Object",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "stopOnMatch",
+                        "type": "boolean",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "defaultValue": "true",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            }
+        ],
         "typealiases": [
             {
                 "name": "CheckboxCheckEvent",
@@ -4310,7 +4975,96 @@
                 }
             ]
         },
-        "groupedFunctions": {},
+        "groupedFunctions": {
+            "src/app/features/directory-tree/state/directory-tree.state.ts": [
+                {
+                    "name": "isLeaf",
+                    "file": "src/app/features/directory-tree/state/directory-tree.state.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "leafOrNode",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "returnType": "Leaf",
+                    "jsdoctags": [
+                        {
+                            "name": "leafOrNode",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "patchRecursive",
+                    "file": "src/app/features/directory-tree/state/directory-tree.state.ts",
+                    "ctype": "miscellaneous",
+                    "subtype": "function",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "args": [
+                        {
+                            "name": "selector",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "obj",
+                            "type": "Object",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "stopOnMatch",
+                            "type": "boolean",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "defaultValue": "true"
+                        }
+                    ],
+                    "returnType": "StateOperator<Node | Leaf>",
+                    "jsdoctags": [
+                        {
+                            "name": "selector",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "obj",
+                            "type": "Object",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "stopOnMatch",
+                            "type": "boolean",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "defaultValue": "true",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
         "groupedEnumerations": {
             "src/app/shared/components/expanding-menu-button/expanding-menu-button.component.ts": [
                 {
@@ -4747,7 +5501,7 @@
                 "linktype": "component",
                 "name": "DirectoryTreeItemComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/8",
+                "coverageCount": "0/12",
                 "status": "low"
             },
             {
@@ -4756,7 +5510,7 @@
                 "linktype": "component",
                 "name": "PureDirectoryTreeComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/2",
+                "coverageCount": "0/7",
                 "status": "low"
             },
             {
@@ -4765,7 +5519,34 @@
                 "linktype": "component",
                 "name": "DirectoryTreeComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/8",
+                "coverageCount": "0/12",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/directory-tree/state/directory-tree.actions.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "Collapse",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/directory-tree/state/directory-tree.actions.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "Expand",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/directory-tree/state/directory-tree.actions.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "Select",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
                 "status": "low"
             },
             {
@@ -4773,6 +5554,26 @@
                 "type": "injectable",
                 "linktype": "injectable",
                 "name": "DirectoryTreeState",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/directory-tree/state/directory-tree.state.ts",
+                "type": "function",
+                "linktype": "miscellaneous",
+                "linksubtype": "function",
+                "name": "isLeaf",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/directory-tree/state/directory-tree.state.ts",
+                "type": "function",
+                "linktype": "miscellaneous",
+                "linksubtype": "function",
+                "name": "patchRecursive",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
