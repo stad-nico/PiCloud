@@ -12,6 +12,10 @@ export type ListItemUnselectEvent = CheckboxUncheckEvent & {
 	id: number;
 };
 
+export type ListItemOpenEvent = {
+	id: number;
+};
+
 @Component({
 	standalone: true,
 	selector: 'selectable-directory-list-item',
@@ -64,11 +68,18 @@ export class SelectableDirectoryListItemComponent {
 	@Output()
 	public onUnselect: EventEmitter<ListItemUnselectEvent> = new EventEmitter();
 
+	@Output()
+	public onOpen: EventEmitter<ListItemOpenEvent> = new EventEmitter();
+
 	public onCheck(event: CheckboxCheckEvent) {
 		this.onSelect.emit({ id: this.id, ...event });
 	}
 
 	public onUncheck(event: CheckboxUncheckEvent) {
 		this.onUnselect.emit({ id: this.id, ...event });
+	}
+
+	public onDblClick() {
+		this.onOpen.emit({ id: this.id });
 	}
 }

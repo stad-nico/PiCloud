@@ -15,6 +15,7 @@
 				class="selectable-list-item"
 				(onSelect)="this.onSelect.emit($event)"
 				(onUnselect)="this.onUnselect.emit($event)"
+				(onOpen)="this.onOpen.emit($event)"
 				[id]="$index"
 				[metadata]="item"
 				[isSelectable]="this.isInSelectMode"

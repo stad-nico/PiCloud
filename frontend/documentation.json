@@ -3,12 +3,12 @@
     "interfaces": [
         {
             "name": "ContentListStateModel",
-            "id": "interface-ContentListStateModel-976f31343454c98559106f17236542240dd0c4abdafb645f4290e0de658f363e44595fae40a6b431013636b66e35b93397b2004dd22aceccf253275c746e5478",
+            "id": "interface-ContentListStateModel-bbd87a2515078811ad2a22f2adb9cc1460b73e6510a35b42294a8d3088051213c603a85720a42b45c801ae79f272da87a15b64ca7415ef61c89740000140d53b",
             "file": "src/app/features/content-list/state/content-list.state.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "interface",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, Selector, State, StateContext } from '@ngxs/store';\r\nimport { patch, updateItem } from '@ngxs/store/operators';\r\nimport { ContentType, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';\r\nimport { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';\r\n\r\nexport interface ContentListStateModel {\r\n\titems: ContentType[];\r\n\tlastInteractedId: number | undefined;\r\n}\r\n\r\n@State<ContentListStateModel>({\r\n\tname: 'content_list',\r\n\tdefaults: {\r\n\t\titems: [\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 0,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 1,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 2,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 3,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 4,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 5,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 6,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 7,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t],\r\n\t\tlastInteractedId: undefined,\r\n\t},\r\n})\r\n@Injectable()\r\nexport class ContentListState {\r\n\t@Selector()\r\n\tpublic static getContent(state: ContentListStateModel) {\r\n\t\treturn state.items;\r\n\t}\r\n\r\n\t@Selector()\r\n\tpublic static isAtLeastOneSelected(state: ContentListStateModel) {\r\n\t\treturn state.items.some((item) => item.isSelected);\r\n\t}\r\n\r\n\t@Action(ContentListActions.SelectSingle)\r\n\tpublic selectItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.SelectSingle) {\r\n\t\tctx.setState(\r\n\t\t\tpatch({\r\n\t\t\t\titems: updateItem((item) => item.id === action.id, patch({ isSelected: true })),\r\n\t\t\t\tlastInteractedId: action.id,\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action(ContentListActions.UnselectSingle)\r\n\tpublic unselectItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.UnselectSingle) {\r\n\t\tctx.setState(\r\n\t\t\tpatch({\r\n\t\t\t\titems: updateItem((item) => item.id === action.id, patch({ isSelected: false })),\r\n\t\t\t\tlastInteractedId: action.id,\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action([ContentListActions.ShiftSelect, ContentListActions.CtrlSelect])\r\n\tpublic rangeSelect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftSelect | ContentListActions.CtrlSelect) {\r\n\t\tconst lastInteractedId = ctx.getState().lastInteractedId;\r\n\r\n\t\tif (lastInteractedId === undefined) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tconst start = Math.min(lastInteractedId, action.id);\r\n\t\tconst end = Math.max(lastInteractedId, action.id);\r\n\r\n\t\tif (end - start <= 2 || this.isUnselectedInRange(ctx, start, end)) {\r\n\t\t\tthis.selectRange(ctx, start, end);\r\n\t\t} else {\r\n\t\t\tthis.unselectRange(ctx, start, end);\r\n\t\t}\r\n\t}\r\n\r\n\t@Action([ContentListActions.ShiftUnselect, ContentListActions.CtrlUnselect])\r\n\tpublic rangeUnselect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftUnselect | ContentListActions.CtrlUnselect) {\r\n\t\tconst lastInteractedId = ctx.getState().lastInteractedId;\r\n\r\n\t\tif (lastInteractedId === undefined) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tconst start = Math.min(lastInteractedId, action.id);\r\n\t\tconst end = Math.max(lastInteractedId, action.id);\r\n\r\n\t\tthis.unselectRange(ctx, start === action.id ? start + 1 : start, end);\r\n\r\n\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t}\r\n\r\n\t@Action(ContentListActions.SelectAll)\r\n\tpublic selectAll(ctx: StateContext<ContentListStateModel>) {\r\n\t\tconst items = ctx.getState().items;\r\n\r\n\t\tctx.setState({\r\n\t\t\titems: items.map((item) => ({ ...item, isSelected: true })),\r\n\t\t\tlastInteractedId: items.at(-1)?.id,\r\n\t\t});\r\n\t}\r\n\r\n\t@Action(ContentListActions.UnselectAll)\r\n\tpublic unselectAll(ctx: StateContext<ContentListStateModel>) {\r\n\t\tconst items = ctx.getState().items;\r\n\r\n\t\tctx.setState({\r\n\t\t\titems: items.map((item) => ({ ...item, isSelected: false })),\r\n\t\t\tlastInteractedId: items.at(0)?.id,\r\n\t\t});\r\n\t}\r\n\r\n\tprivate selectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(i));\r\n\t\t}\r\n\t}\r\n\r\n\tprivate unselectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tctx.dispatch(new ContentListActions.UnselectSingle(i));\r\n\t\t}\r\n\t}\r\n\r\n\tprivate isUnselectedInRange(ctx: StateContext<ContentListStateModel>, from: number, to: number): boolean {\r\n\t\tif (from > to) {\r\n\t\t\t[from, to] = [to, from];\r\n\t\t}\r\n\r\n\t\treturn ctx.getState().items.find((item) => item.id >= from && item.id <= to && !item.isSelected) !== undefined;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { ActivatedRoute, Router } from '@angular/router';\r\nimport { Navigate } from '@ngxs/router-plugin';\r\nimport { Action, Selector, State, StateContext } from '@ngxs/store';\r\nimport { patch, updateItem } from '@ngxs/store/operators';\r\nimport { ContentType, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';\r\nimport { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';\r\n\r\nexport interface ContentListStateModel {\r\n\titems: ContentType[];\r\n\tlastInteractedId: number | undefined;\r\n}\r\n\r\n@State<ContentListStateModel>({\r\n\tname: 'content_list',\r\n\tdefaults: {\r\n\t\titems: [\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 0,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 1,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 2,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 3,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 4,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 5,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 6,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 7,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 8,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 9,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 10,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 11,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 12,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 13,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t],\r\n\t\tlastInteractedId: undefined,\r\n\t},\r\n})\r\n@Injectable()\r\nexport class ContentListState {\r\n\tprivate readonly router: Router;\r\n\r\n\tprivate readonly route: ActivatedRoute;\r\n\r\n\tpublic constructor(router: Router, route: ActivatedRoute) {\r\n\t\tthis.router = router;\r\n\t\tthis.route = route;\r\n\t}\r\n\r\n\t@Selector()\r\n\tpublic static getContent(state: ContentListStateModel) {\r\n\t\treturn state.items;\r\n\t}\r\n\r\n\t@Selector()\r\n\tpublic static isAtLeastOneSelected(state: ContentListStateModel) {\r\n\t\treturn state.items.some((item) => item.isSelected);\r\n\t}\r\n\r\n\t@Action(ContentListActions.Open)\r\n\tpublic open(ctx: StateContext<ContentListStateModel>, action: ContentListActions.Open) {\r\n\t\tconst name = ctx.getState().items.find((item) => item.id === action.id)?.name;\r\n\r\n\t\tif (!name) {\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tctx.dispatch(new Navigate([name], undefined, { relativeTo: this.route }));\r\n\t}\r\n\r\n\t@Action(ContentListActions.SelectSingle)\r\n\tpublic selectItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.SelectSingle) {\r\n\t\tctx.setState(\r\n\t\t\tpatch({\r\n\t\t\t\titems: updateItem((item) => item.id === action.id, patch({ isSelected: true })),\r\n\t\t\t\tlastInteractedId: action.id,\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action(ContentListActions.UnselectSingle)\r\n\tpublic unselectItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.UnselectSingle) {\r\n\t\tctx.setState(\r\n\t\t\tpatch({\r\n\t\t\t\titems: updateItem((item) => item.id === action.id, patch({ isSelected: false })),\r\n\t\t\t\tlastInteractedId: action.id,\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action([ContentListActions.ShiftSelect, ContentListActions.CtrlSelect])\r\n\tpublic rangeSelect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftSelect | ContentListActions.CtrlSelect) {\r\n\t\tconst lastInteractedId = ctx.getState().lastInteractedId;\r\n\r\n\t\tif (lastInteractedId === undefined) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tconst start = Math.min(lastInteractedId, action.id);\r\n\t\tconst end = Math.max(lastInteractedId, action.id);\r\n\r\n\t\tif (end - start <= 2 || this.isUnselectedInRange(ctx, start, end)) {\r\n\t\t\tthis.selectRange(ctx, start, end);\r\n\t\t} else {\r\n\t\t\tthis.unselectRange(ctx, start, end);\r\n\t\t}\r\n\t}\r\n\r\n\t@Action([ContentListActions.ShiftUnselect, ContentListActions.CtrlUnselect])\r\n\tpublic rangeUnselect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftUnselect | ContentListActions.CtrlUnselect) {\r\n\t\tconst lastInteractedId = ctx.getState().lastInteractedId;\r\n\r\n\t\tif (lastInteractedId === undefined) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tconst start = Math.min(lastInteractedId, action.id);\r\n\t\tconst end = Math.max(lastInteractedId, action.id);\r\n\r\n\t\tthis.unselectRange(ctx, start === action.id ? start + 1 : start, end);\r\n\r\n\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t}\r\n\r\n\t@Action(ContentListActions.SelectAll)\r\n\tpublic selectAll(ctx: StateContext<ContentListStateModel>) {\r\n\t\tconst items = ctx.getState().items;\r\n\r\n\t\tctx.setState({\r\n\t\t\titems: items.map((item) => ({ ...item, isSelected: true })),\r\n\t\t\tlastInteractedId: items.at(-1)?.id,\r\n\t\t});\r\n\t}\r\n\r\n\t@Action(ContentListActions.UnselectAll)\r\n\tpublic unselectAll(ctx: StateContext<ContentListStateModel>) {\r\n\t\tconst items = ctx.getState().items;\r\n\r\n\t\tctx.setState({\r\n\t\t\titems: items.map((item) => ({ ...item, isSelected: false })),\r\n\t\t\tlastInteractedId: items.at(0)?.id,\r\n\t\t});\r\n\t}\r\n\r\n\tprivate selectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(i));\r\n\t\t}\r\n\t}\r\n\r\n\tprivate unselectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tctx.dispatch(new ContentListActions.UnselectSingle(i));\r\n\t\t}\r\n\t}\r\n\r\n\tprivate isUnselectedInRange(ctx: StateContext<ContentListStateModel>, from: number, to: number): boolean {\r\n\t\tif (from > to) {\r\n\t\t\t[from, to] = [to, from];\r\n\t\t}\r\n\r\n\t\treturn ctx.getState().items.find((item) => item.id >= from && item.id <= to && !item.isSelected) !== undefined;\r\n\t}\r\n}\r\n",
             "properties": [
                 {
                     "name": "items",
@@ -17,7 +17,7 @@
                     "type": "ContentType[]",
                     "optional": false,
                     "description": "",
-                    "line": 8
+                    "line": 10
                 },
                 {
                     "name": "lastInteractedId",
@@ -26,7 +26,7 @@
                     "type": "number | undefined",
                     "optional": false,
                     "description": "",
-                    "line": 9
+                    "line": 11
                 }
             ],
             "indexSignatures": [],
@@ -148,7 +148,7 @@
     "injectables": [
         {
             "name": "ContentListService",
-            "id": "injectable-ContentListService-c0a4e015373627af1e50967fb3f02be6eb9f85d3f44a83e07d2075a14b650b1ed4f446eaed3ad315c06d7bb3214a29be2717a58ec081ab22cca599d96ed4e45b",
+            "id": "injectable-ContentListService-a924db3a8edaccf7404c63a56abcd366378b73bd031feea9212232b4ad5f56a0e2b99461623ab5a6b32ae4236ff9a5987ccbba4594aed5e337896cb718f34f49",
             "file": "src/app/features/content-list/content-list.service.ts",
             "properties": [
                 {
@@ -158,7 +158,7 @@
                     "type": "Store",
                     "optional": false,
                     "description": "",
-                    "line": 16,
+                    "line": 17,
                     "modifierKind": [
                         123,
                         148
@@ -172,7 +172,7 @@
                     "optional": false,
                     "returnType": "Observable<Array<ContentType>>",
                     "typeParameters": [],
-                    "line": 22,
+                    "line": 23,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -185,11 +185,42 @@
                     "optional": false,
                     "returnType": "Observable<boolean>",
                     "typeParameters": [],
-                    "line": 26,
+                    "line": 27,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
                         125
+                    ]
+                },
+                {
+                    "name": "open",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "ListItemOpenEvent",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 51,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "ListItemOpenEvent",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
                     ]
                 },
                 {
@@ -205,7 +236,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 30,
+                    "line": 31,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -229,7 +260,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 50,
+                    "line": 55,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -249,7 +280,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 40,
+                    "line": 41,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -273,7 +304,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 54,
+                    "line": 59,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -285,7 +316,7 @@
             "deprecationMessage": "",
             "description": "",
             "rawdescription": "\n",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Store } from '@ngxs/store';\r\nimport { Observable } from 'rxjs';\r\nimport {\r\n\tListItemSelectEvent,\r\n\tListItemUnselectEvent,\r\n} from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';\r\nimport { ContentType } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';\r\nimport { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';\r\nimport { ContentListState } from 'src/app/features/content-list/state/content-list.state';\r\n\r\n@Injectable({\r\n\tprovidedIn: 'root',\r\n})\r\nexport class ContentListService {\r\n\tprivate readonly store: Store;\r\n\r\n\tconstructor(store: Store) {\r\n\t\tthis.store = store;\r\n\t}\r\n\r\n\tpublic getContent(): Observable<Array<ContentType>> {\r\n\t\treturn this.store.select(ContentListState.getContent);\r\n\t}\r\n\r\n\tpublic isAtLeastOneSelected(): Observable<boolean> {\r\n\t\treturn this.store.select(ContentListState.isAtLeastOneSelected);\r\n\t}\r\n\r\n\tpublic select(event: ListItemSelectEvent) {\r\n\t\tif (event.shift) {\r\n\t\t\tthis.store.dispatch(new ContentListActions.ShiftSelect(event.id));\r\n\t\t} else if (event.ctrl) {\r\n\t\t\tthis.store.dispatch(new ContentListActions.CtrlSelect(event.id));\r\n\t\t} else {\r\n\t\t\tthis.store.dispatch(new ContentListActions.SelectSingle(event.id));\r\n\t\t}\r\n\t}\r\n\r\n\tpublic unselect(event: ListItemUnselectEvent) {\r\n\t\tif (event.shift) {\r\n\t\t\tthis.store.dispatch(new ContentListActions.ShiftUnselect(event.id));\r\n\t\t} else if (event.ctrl) {\r\n\t\t\tthis.store.dispatch(new ContentListActions.CtrlUnselect(event.id));\r\n\t\t} else {\r\n\t\t\tthis.store.dispatch(new ContentListActions.UnselectSingle(event.id));\r\n\t\t}\r\n\t}\r\n\r\n\tpublic selectAll() {\r\n\t\tthis.store.dispatch(new ContentListActions.SelectAll());\r\n\t}\r\n\r\n\tpublic unselectAll() {\r\n\t\tthis.store.dispatch(new ContentListActions.UnselectAll());\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Store } from '@ngxs/store';\r\nimport { Observable } from 'rxjs';\r\nimport {\r\n\tListItemOpenEvent,\r\n\tListItemSelectEvent,\r\n\tListItemUnselectEvent,\r\n} from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';\r\nimport { ContentType } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';\r\nimport { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';\r\nimport { ContentListState } from 'src/app/features/content-list/state/content-list.state';\r\n\r\n@Injectable({\r\n\tprovidedIn: 'root',\r\n})\r\nexport class ContentListService {\r\n\tprivate readonly store: Store;\r\n\r\n\tconstructor(store: Store) {\r\n\t\tthis.store = store;\r\n\t}\r\n\r\n\tpublic getContent(): Observable<Array<ContentType>> {\r\n\t\treturn this.store.select(ContentListState.getContent);\r\n\t}\r\n\r\n\tpublic isAtLeastOneSelected(): Observable<boolean> {\r\n\t\treturn this.store.select(ContentListState.isAtLeastOneSelected);\r\n\t}\r\n\r\n\tpublic select(event: ListItemSelectEvent) {\r\n\t\tif (event.shift) {\r\n\t\t\tthis.store.dispatch(new ContentListActions.ShiftSelect(event.id));\r\n\t\t} else if (event.ctrl) {\r\n\t\t\tthis.store.dispatch(new ContentListActions.CtrlSelect(event.id));\r\n\t\t} else {\r\n\t\t\tthis.store.dispatch(new ContentListActions.SelectSingle(event.id));\r\n\t\t}\r\n\t}\r\n\r\n\tpublic unselect(event: ListItemUnselectEvent) {\r\n\t\tif (event.shift) {\r\n\t\t\tthis.store.dispatch(new ContentListActions.ShiftUnselect(event.id));\r\n\t\t} else if (event.ctrl) {\r\n\t\t\tthis.store.dispatch(new ContentListActions.CtrlUnselect(event.id));\r\n\t\t} else {\r\n\t\t\tthis.store.dispatch(new ContentListActions.UnselectSingle(event.id));\r\n\t\t}\r\n\t}\r\n\r\n\tpublic open(event: ListItemOpenEvent) {\r\n\t\tthis.store.dispatch(new ContentListActions.Open(event.id));\r\n\t}\r\n\r\n\tpublic selectAll() {\r\n\t\tthis.store.dispatch(new ContentListActions.SelectAll());\r\n\t}\r\n\r\n\tpublic unselectAll() {\r\n\t\tthis.store.dispatch(new ContentListActions.UnselectAll());\r\n\t}\r\n}\r\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -299,7 +330,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 16,
+                "line": 17,
                 "jsdoctags": [
                     {
                         "name": "store",
@@ -317,9 +348,36 @@
         },
         {
             "name": "ContentListState",
-            "id": "injectable-ContentListState-976f31343454c98559106f17236542240dd0c4abdafb645f4290e0de658f363e44595fae40a6b431013636b66e35b93397b2004dd22aceccf253275c746e5478",
+            "id": "injectable-ContentListState-bbd87a2515078811ad2a22f2adb9cc1460b73e6510a35b42294a8d3088051213c603a85720a42b45c801ae79f272da87a15b64ca7415ef61c89740000140d53b",
             "file": "src/app/features/content-list/state/content-list.state.ts",
-            "properties": [],
+            "properties": [
+                {
+                    "name": "route",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ActivatedRoute",
+                    "optional": false,
+                    "description": "",
+                    "line": 156,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                },
+                {
+                    "name": "router",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Router",
+                    "optional": false,
+                    "description": "",
+                    "line": 154,
+                    "modifierKind": [
+                        123,
+                        148
+                    ]
+                }
+            ],
             "methods": [
                 {
                     "name": "getContent",
@@ -334,7 +392,7 @@
                     "optional": false,
                     "returnType": "{}",
                     "typeParameters": [],
-                    "line": 99,
+                    "line": 164,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -372,7 +430,7 @@
                     "optional": false,
                     "returnType": "any",
                     "typeParameters": [],
-                    "line": 104,
+                    "line": 169,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -422,7 +480,7 @@
                     "optional": false,
                     "returnType": "boolean",
                     "typeParameters": [],
-                    "line": 196,
+                    "line": 272,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -459,6 +517,59 @@
                     ]
                 },
                 {
+                    "name": "open",
+                    "args": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<ContentListStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        },
+                        {
+                            "name": "action",
+                            "type": "ContentListActions.Open",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 174,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "decorators": [
+                        {
+                            "name": "Action",
+                            "stringifiedArguments": "ContentListActions.Open"
+                        }
+                    ],
+                    "modifierKind": [
+                        170,
+                        125
+                    ],
+                    "jsdoctags": [
+                        {
+                            "name": "ctx",
+                            "type": "StateContext<ContentListStateModel>",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        },
+                        {
+                            "name": "action",
+                            "type": "ContentListActions.Open",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "rangeSelect",
                     "args": [
                         {
@@ -477,7 +588,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 129,
+                    "line": 205,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -530,7 +641,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 148,
+                    "line": 224,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -577,7 +688,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 165,
+                    "line": 241,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -621,7 +732,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 109,
+                    "line": 185,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -680,7 +791,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 184,
+                    "line": 260,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -729,7 +840,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 175,
+                    "line": 251,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -773,7 +884,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 119,
+                    "line": 195,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -832,7 +943,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 190,
+                    "line": 266,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -873,7 +984,51 @@
             "deprecationMessage": "",
             "description": "",
             "rawdescription": "\n",
-            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { Action, Selector, State, StateContext } from '@ngxs/store';\r\nimport { patch, updateItem } from '@ngxs/store/operators';\r\nimport { ContentType, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';\r\nimport { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';\r\n\r\nexport interface ContentListStateModel {\r\n\titems: ContentType[];\r\n\tlastInteractedId: number | undefined;\r\n}\r\n\r\n@State<ContentListStateModel>({\r\n\tname: 'content_list',\r\n\tdefaults: {\r\n\t\titems: [\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 0,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 1,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 2,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 3,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 4,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 5,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 6,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 7,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t],\r\n\t\tlastInteractedId: undefined,\r\n\t},\r\n})\r\n@Injectable()\r\nexport class ContentListState {\r\n\t@Selector()\r\n\tpublic static getContent(state: ContentListStateModel) {\r\n\t\treturn state.items;\r\n\t}\r\n\r\n\t@Selector()\r\n\tpublic static isAtLeastOneSelected(state: ContentListStateModel) {\r\n\t\treturn state.items.some((item) => item.isSelected);\r\n\t}\r\n\r\n\t@Action(ContentListActions.SelectSingle)\r\n\tpublic selectItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.SelectSingle) {\r\n\t\tctx.setState(\r\n\t\t\tpatch({\r\n\t\t\t\titems: updateItem((item) => item.id === action.id, patch({ isSelected: true })),\r\n\t\t\t\tlastInteractedId: action.id,\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action(ContentListActions.UnselectSingle)\r\n\tpublic unselectItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.UnselectSingle) {\r\n\t\tctx.setState(\r\n\t\t\tpatch({\r\n\t\t\t\titems: updateItem((item) => item.id === action.id, patch({ isSelected: false })),\r\n\t\t\t\tlastInteractedId: action.id,\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action([ContentListActions.ShiftSelect, ContentListActions.CtrlSelect])\r\n\tpublic rangeSelect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftSelect | ContentListActions.CtrlSelect) {\r\n\t\tconst lastInteractedId = ctx.getState().lastInteractedId;\r\n\r\n\t\tif (lastInteractedId === undefined) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tconst start = Math.min(lastInteractedId, action.id);\r\n\t\tconst end = Math.max(lastInteractedId, action.id);\r\n\r\n\t\tif (end - start <= 2 || this.isUnselectedInRange(ctx, start, end)) {\r\n\t\t\tthis.selectRange(ctx, start, end);\r\n\t\t} else {\r\n\t\t\tthis.unselectRange(ctx, start, end);\r\n\t\t}\r\n\t}\r\n\r\n\t@Action([ContentListActions.ShiftUnselect, ContentListActions.CtrlUnselect])\r\n\tpublic rangeUnselect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftUnselect | ContentListActions.CtrlUnselect) {\r\n\t\tconst lastInteractedId = ctx.getState().lastInteractedId;\r\n\r\n\t\tif (lastInteractedId === undefined) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tconst start = Math.min(lastInteractedId, action.id);\r\n\t\tconst end = Math.max(lastInteractedId, action.id);\r\n\r\n\t\tthis.unselectRange(ctx, start === action.id ? start + 1 : start, end);\r\n\r\n\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t}\r\n\r\n\t@Action(ContentListActions.SelectAll)\r\n\tpublic selectAll(ctx: StateContext<ContentListStateModel>) {\r\n\t\tconst items = ctx.getState().items;\r\n\r\n\t\tctx.setState({\r\n\t\t\titems: items.map((item) => ({ ...item, isSelected: true })),\r\n\t\t\tlastInteractedId: items.at(-1)?.id,\r\n\t\t});\r\n\t}\r\n\r\n\t@Action(ContentListActions.UnselectAll)\r\n\tpublic unselectAll(ctx: StateContext<ContentListStateModel>) {\r\n\t\tconst items = ctx.getState().items;\r\n\r\n\t\tctx.setState({\r\n\t\t\titems: items.map((item) => ({ ...item, isSelected: false })),\r\n\t\t\tlastInteractedId: items.at(0)?.id,\r\n\t\t});\r\n\t}\r\n\r\n\tprivate selectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(i));\r\n\t\t}\r\n\t}\r\n\r\n\tprivate unselectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tctx.dispatch(new ContentListActions.UnselectSingle(i));\r\n\t\t}\r\n\t}\r\n\r\n\tprivate isUnselectedInRange(ctx: StateContext<ContentListStateModel>, from: number, to: number): boolean {\r\n\t\tif (from > to) {\r\n\t\t\t[from, to] = [to, from];\r\n\t\t}\r\n\r\n\t\treturn ctx.getState().items.find((item) => item.id >= from && item.id <= to && !item.isSelected) !== undefined;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Injectable } from '@angular/core';\r\nimport { ActivatedRoute, Router } from '@angular/router';\r\nimport { Navigate } from '@ngxs/router-plugin';\r\nimport { Action, Selector, State, StateContext } from '@ngxs/store';\r\nimport { patch, updateItem } from '@ngxs/store/operators';\r\nimport { ContentType, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';\r\nimport { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';\r\n\r\nexport interface ContentListStateModel {\r\n\titems: ContentType[];\r\n\tlastInteractedId: number | undefined;\r\n}\r\n\r\n@State<ContentListStateModel>({\r\n\tname: 'content_list',\r\n\tdefaults: {\r\n\t\titems: [\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 0,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 1,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 2,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 3,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 4,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 5,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 6,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 7,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 8,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.Directory,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 9,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 10,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 11,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 12,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t\t{\r\n\t\t\t\ttype: Type.File,\r\n\t\t\t\tname: 'element',\r\n\t\t\t\tmimeType: 'text/plain',\r\n\t\t\t\tsize: 239,\r\n\t\t\t\tcreatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tupdatedAt: new Date(Date.now()).toISOString(),\r\n\t\t\t\tid: 13,\r\n\t\t\t\tisSelected: false,\r\n\t\t\t},\r\n\t\t],\r\n\t\tlastInteractedId: undefined,\r\n\t},\r\n})\r\n@Injectable()\r\nexport class ContentListState {\r\n\tprivate readonly router: Router;\r\n\r\n\tprivate readonly route: ActivatedRoute;\r\n\r\n\tpublic constructor(router: Router, route: ActivatedRoute) {\r\n\t\tthis.router = router;\r\n\t\tthis.route = route;\r\n\t}\r\n\r\n\t@Selector()\r\n\tpublic static getContent(state: ContentListStateModel) {\r\n\t\treturn state.items;\r\n\t}\r\n\r\n\t@Selector()\r\n\tpublic static isAtLeastOneSelected(state: ContentListStateModel) {\r\n\t\treturn state.items.some((item) => item.isSelected);\r\n\t}\r\n\r\n\t@Action(ContentListActions.Open)\r\n\tpublic open(ctx: StateContext<ContentListStateModel>, action: ContentListActions.Open) {\r\n\t\tconst name = ctx.getState().items.find((item) => item.id === action.id)?.name;\r\n\r\n\t\tif (!name) {\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tctx.dispatch(new Navigate([name], undefined, { relativeTo: this.route }));\r\n\t}\r\n\r\n\t@Action(ContentListActions.SelectSingle)\r\n\tpublic selectItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.SelectSingle) {\r\n\t\tctx.setState(\r\n\t\t\tpatch({\r\n\t\t\t\titems: updateItem((item) => item.id === action.id, patch({ isSelected: true })),\r\n\t\t\t\tlastInteractedId: action.id,\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action(ContentListActions.UnselectSingle)\r\n\tpublic unselectItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.UnselectSingle) {\r\n\t\tctx.setState(\r\n\t\t\tpatch({\r\n\t\t\t\titems: updateItem((item) => item.id === action.id, patch({ isSelected: false })),\r\n\t\t\t\tlastInteractedId: action.id,\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\t@Action([ContentListActions.ShiftSelect, ContentListActions.CtrlSelect])\r\n\tpublic rangeSelect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftSelect | ContentListActions.CtrlSelect) {\r\n\t\tconst lastInteractedId = ctx.getState().lastInteractedId;\r\n\r\n\t\tif (lastInteractedId === undefined) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tconst start = Math.min(lastInteractedId, action.id);\r\n\t\tconst end = Math.max(lastInteractedId, action.id);\r\n\r\n\t\tif (end - start <= 2 || this.isUnselectedInRange(ctx, start, end)) {\r\n\t\t\tthis.selectRange(ctx, start, end);\r\n\t\t} else {\r\n\t\t\tthis.unselectRange(ctx, start, end);\r\n\t\t}\r\n\t}\r\n\r\n\t@Action([ContentListActions.ShiftUnselect, ContentListActions.CtrlUnselect])\r\n\tpublic rangeUnselect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftUnselect | ContentListActions.CtrlUnselect) {\r\n\t\tconst lastInteractedId = ctx.getState().lastInteractedId;\r\n\r\n\t\tif (lastInteractedId === undefined) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t\t\treturn;\r\n\t\t}\r\n\r\n\t\tconst start = Math.min(lastInteractedId, action.id);\r\n\t\tconst end = Math.max(lastInteractedId, action.id);\r\n\r\n\t\tthis.unselectRange(ctx, start === action.id ? start + 1 : start, end);\r\n\r\n\t\tctx.dispatch(new ContentListActions.SelectSingle(action.id));\r\n\t}\r\n\r\n\t@Action(ContentListActions.SelectAll)\r\n\tpublic selectAll(ctx: StateContext<ContentListStateModel>) {\r\n\t\tconst items = ctx.getState().items;\r\n\r\n\t\tctx.setState({\r\n\t\t\titems: items.map((item) => ({ ...item, isSelected: true })),\r\n\t\t\tlastInteractedId: items.at(-1)?.id,\r\n\t\t});\r\n\t}\r\n\r\n\t@Action(ContentListActions.UnselectAll)\r\n\tpublic unselectAll(ctx: StateContext<ContentListStateModel>) {\r\n\t\tconst items = ctx.getState().items;\r\n\r\n\t\tctx.setState({\r\n\t\t\titems: items.map((item) => ({ ...item, isSelected: false })),\r\n\t\t\tlastInteractedId: items.at(0)?.id,\r\n\t\t});\r\n\t}\r\n\r\n\tprivate selectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tctx.dispatch(new ContentListActions.SelectSingle(i));\r\n\t\t}\r\n\t}\r\n\r\n\tprivate unselectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {\r\n\t\tfor (let i = start; i <= end; i++) {\r\n\t\t\tctx.dispatch(new ContentListActions.UnselectSingle(i));\r\n\t\t}\r\n\t}\r\n\r\n\tprivate isUnselectedInRange(ctx: StateContext<ContentListStateModel>, from: number, to: number): boolean {\r\n\t\tif (from > to) {\r\n\t\t\t[from, to] = [to, from];\r\n\t\t}\r\n\r\n\t\treturn ctx.getState().items.find((item) => item.id >= from && item.id <= to && !item.isSelected) !== undefined;\r\n\t}\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 156,
+                "modifierKind": [
+                    125
+                ],
+                "jsdoctags": [
+                    {
+                        "name": "router",
+                        "type": "Router",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "route",
+                        "type": "ActivatedRoute",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
             "extends": [],
             "type": "injectable"
         },
@@ -1128,12 +1283,12 @@
         },
         {
             "name": "CtrlSelect",
-            "id": "class-CtrlSelect-db8ec6c816cf8902681b71b1d7923e89f7f08367f70fae9b630eeb94b09a776c88713ba1dd5e1474b530789c766a90485c2e8b4c29e1055b2d28421c2c22f089",
+            "id": "class-CtrlSelect-01504a5f54d911760f187d5f7246766931f3398c6d39276f95ec6382e46b437f58b76363679502db42d7508801d63fe801ca7a1358acc67e4be4b9965761b216",
             "file": "src/app/features/content-list/state/content-list.actions.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Open {\r\n\t\tpublic static readonly type = '[Content List] Open';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1199,12 +1354,12 @@
         },
         {
             "name": "CtrlUnselect",
-            "id": "class-CtrlUnselect-db8ec6c816cf8902681b71b1d7923e89f7f08367f70fae9b630eeb94b09a776c88713ba1dd5e1474b530789c766a90485c2e8b4c29e1055b2d28421c2c22f089",
+            "id": "class-CtrlUnselect-01504a5f54d911760f187d5f7246766931f3398c6d39276f95ec6382e46b437f58b76363679502db42d7508801d63fe801ca7a1358acc67e4be4b9965761b216",
             "file": "src/app/features/content-list/state/content-list.actions.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Open {\r\n\t\tpublic static readonly type = '[Content List] Open';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1340,6 +1495,77 @@
             "hostListeners": []
         },
         {
+            "name": "Open",
+            "id": "class-Open-01504a5f54d911760f187d5f7246766931f3398c6d39276f95ec6382e46b437f58b76363679502db42d7508801d63fe801ca7a1358acc67e4be4b9965761b216",
+            "file": "src/app/features/content-list/state/content-list.actions.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "class",
+            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Open {\r\n\t\tpublic static readonly type = '[Content List] Open';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "id",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 73,
+                "jsdoctags": [
+                    {
+                        "name": "id",
+                        "type": "number",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "inputsClass": [],
+            "outputsClass": [],
+            "properties": [
+                {
+                    "name": "id",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "number",
+                    "optional": false,
+                    "description": "",
+                    "line": 73,
+                    "modifierKind": [
+                        125,
+                        148
+                    ]
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "'[Content List] Open'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "",
+                    "line": 71,
+                    "modifierKind": [
+                        126,
+                        148
+                    ]
+                }
+            ],
+            "methods": [],
+            "indexSignatures": [],
+            "extends": [],
+            "hostBindings": [],
+            "hostListeners": []
+        },
+        {
             "name": "Select",
             "id": "class-Select-363bf1b15bbb73a2d1057bedb3de52725f7e647cdeba374e000ed0fd1c28abb4b2d73ac3c0337690aedf7f288ce2d457860d4e1a1e2afdfc392ca9ca77f18225",
             "file": "src/app/features/directory-tree/state/directory-tree.actions.ts",
@@ -1412,12 +1638,12 @@
         },
         {
             "name": "SelectAll",
-            "id": "class-SelectAll-db8ec6c816cf8902681b71b1d7923e89f7f08367f70fae9b630eeb94b09a776c88713ba1dd5e1474b530789c766a90485c2e8b4c29e1055b2d28421c2c22f089",
+            "id": "class-SelectAll-01504a5f54d911760f187d5f7246766931f3398c6d39276f95ec6382e46b437f58b76363679502db42d7508801d63fe801ca7a1358acc67e4be4b9965761b216",
             "file": "src/app/features/content-list/state/content-list.actions.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Open {\r\n\t\tpublic static readonly type = '[Content List] Open';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
             "inputsClass": [],
             "outputsClass": [],
             "properties": [
@@ -1444,12 +1670,12 @@
         },
         {
             "name": "SelectSingle",
-            "id": "class-SelectSingle-db8ec6c816cf8902681b71b1d7923e89f7f08367f70fae9b630eeb94b09a776c88713ba1dd5e1474b530789c766a90485c2e8b4c29e1055b2d28421c2c22f089",
+            "id": "class-SelectSingle-01504a5f54d911760f187d5f7246766931f3398c6d39276f95ec6382e46b437f58b76363679502db42d7508801d63fe801ca7a1358acc67e4be4b9965761b216",
             "file": "src/app/features/content-list/state/content-list.actions.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Open {\r\n\t\tpublic static readonly type = '[Content List] Open';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1515,12 +1741,12 @@
         },
         {
             "name": "ShiftSelect",
-            "id": "class-ShiftSelect-db8ec6c816cf8902681b71b1d7923e89f7f08367f70fae9b630eeb94b09a776c88713ba1dd5e1474b530789c766a90485c2e8b4c29e1055b2d28421c2c22f089",
+            "id": "class-ShiftSelect-01504a5f54d911760f187d5f7246766931f3398c6d39276f95ec6382e46b437f58b76363679502db42d7508801d63fe801ca7a1358acc67e4be4b9965761b216",
             "file": "src/app/features/content-list/state/content-list.actions.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Open {\r\n\t\tpublic static readonly type = '[Content List] Open';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1586,12 +1812,12 @@
         },
         {
             "name": "ShiftUnselect",
-            "id": "class-ShiftUnselect-db8ec6c816cf8902681b71b1d7923e89f7f08367f70fae9b630eeb94b09a776c88713ba1dd5e1474b530789c766a90485c2e8b4c29e1055b2d28421c2c22f089",
+            "id": "class-ShiftUnselect-01504a5f54d911760f187d5f7246766931f3398c6d39276f95ec6382e46b437f58b76363679502db42d7508801d63fe801ca7a1358acc67e4be4b9965761b216",
             "file": "src/app/features/content-list/state/content-list.actions.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Open {\r\n\t\tpublic static readonly type = '[Content List] Open';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1657,12 +1883,12 @@
         },
         {
             "name": "UnselectAll",
-            "id": "class-UnselectAll-db8ec6c816cf8902681b71b1d7923e89f7f08367f70fae9b630eeb94b09a776c88713ba1dd5e1474b530789c766a90485c2e8b4c29e1055b2d28421c2c22f089",
+            "id": "class-UnselectAll-01504a5f54d911760f187d5f7246766931f3398c6d39276f95ec6382e46b437f58b76363679502db42d7508801d63fe801ca7a1358acc67e4be4b9965761b216",
             "file": "src/app/features/content-list/state/content-list.actions.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Open {\r\n\t\tpublic static readonly type = '[Content List] Open';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
             "inputsClass": [],
             "outputsClass": [],
             "properties": [
@@ -1689,12 +1915,12 @@
         },
         {
             "name": "UnselectSingle",
-            "id": "class-UnselectSingle-db8ec6c816cf8902681b71b1d7923e89f7f08367f70fae9b630eeb94b09a776c88713ba1dd5e1474b530789c766a90485c2e8b4c29e1055b2d28421c2c22f089",
+            "id": "class-UnselectSingle-01504a5f54d911760f187d5f7246766931f3398c6d39276f95ec6382e46b437f58b76363679502db42d7508801d63fe801ca7a1358acc67e4be4b9965761b216",
             "file": "src/app/features/content-list/state/content-list.actions.ts",
             "deprecated": false,
             "deprecationMessage": "",
             "type": "class",
-            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
+            "sourceCode": "export namespace ContentListActions {\r\n\texport class SelectSingle {\r\n\t\tpublic static readonly type = '[Content List] Select Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class UnselectSingle {\r\n\t\tpublic static readonly type = '[Content List] Unselect Single';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class SelectAll {\r\n\t\tpublic static readonly type = '[Content List] Select All';\r\n\t}\r\n\r\n\texport class UnselectAll {\r\n\t\tpublic static readonly type = '[Content List] Unselect All';\r\n\t}\r\n\r\n\texport class ShiftSelect {\r\n\t\tpublic static readonly type = '[Content List] Shift Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class ShiftUnselect {\r\n\t\tpublic static readonly type = '[Content List] Shift Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlSelect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Select';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class CtrlUnselect {\r\n\t\tpublic static readonly type = '[Content List] Ctrl Unselect';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n\r\n\texport class Open {\r\n\t\tpublic static readonly type = '[Content List] Open';\r\n\r\n\t\tpublic readonly id: number;\r\n\r\n\t\tconstructor(id: number) {\r\n\t\t\tthis.id = id;\r\n\t\t}\r\n\t}\r\n}\r\n",
             "constructorObj": {
                 "name": "constructor",
                 "description": "",
@@ -1763,7 +1989,7 @@
     "components": [
         {
             "name": "AppComponent",
-            "id": "component-AppComponent-45649654b59f7094c2c240c2a6c25c5e6e3246ab351a412425f87eac2494a74a7eebad606deb9b0566ec1902efbc7c2680ff23eea68640ca772d77765c8a8420",
+            "id": "component-AppComponent-0c69b691f77752a22a66596593eb5c2fd215937a888f8af69a83ad70dc1ef386c88cfb65502674326a53c372ba9d0c21c5497fb662550f094f4f283df71ace04",
             "file": "src/app/app.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1821,23 +2047,20 @@
             "standalone": true,
             "imports": [
                 {
-                    "name": "ContentListComponent",
-                    "type": "component"
-                },
-                {
-                    "name": "DirectoryTreeComponent",
+                    "name": "ExplorerComponent",
                     "type": "component"
                 }
             ],
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, HostBinding } from '@angular/core';\r\nimport { ContentListComponent } from 'src/app/features/content-list/content-list.component';\r\nimport { DirectoryTreeComponent } from 'src/app/features/directory-tree/directory-tree.component';\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'app',\r\n\ttemplateUrl: './app.component.html',\r\n\timports: [ContentListComponent, DirectoryTreeComponent],\r\n})\r\nexport class AppComponent {\r\n\t@HostBinding('class.light-theme')\r\n\tprivate readonly lightTheme: boolean = true;\r\n}\r\n",
+            "sourceCode": "import { Component, HostBinding } from '@angular/core';\r\nimport { ExplorerComponent } from 'src/app/core/components/explorer/explorer.component';\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'app',\r\n\ttemplateUrl: './app.component.html',\r\n\tstyleUrl: './app.component.css',\r\n\timports: [ExplorerComponent],\r\n})\r\nexport class AppComponent {\r\n\t@HostBinding('class.light-theme')\r\n\tprivate readonly lightTheme: boolean = true;\r\n}\r\n",
+            "styleUrl": "./app.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
             "extends": [],
-            "templateData": "<directory-tree></directory-tree>\r\n<content-list></content-list>\r\n"
+            "templateData": "<explorer></explorer>\r\n"
         },
         {
             "name": "CheckboxComponent",
@@ -1958,7 +2181,7 @@
         },
         {
             "name": "ContentListComponent",
-            "id": "component-ContentListComponent-1c56f0546c284ac9f7d0c6361b3ea6ded0eb099d5ef1d018c9a4c0ddb8a139ae61f25c32d305bde643b621ed4c22d9f22e117282309391863dc89843e210b765",
+            "id": "component-ContentListComponent-f45c123c78c612d6c7e4309715b84ded2e1171c1597c7dd91596182af1782c95acd48be773e5575bfbd16f21b152801bbe6b6ca8061f371425e4e5e92fce2c64",
             "file": "src/app/features/content-list/content-list.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -1984,7 +2207,7 @@
                     "type": "Array<ContentType>",
                     "optional": false,
                     "description": "",
-                    "line": 28,
+                    "line": 29,
                     "modifierKind": [
                         125
                     ]
@@ -1996,7 +2219,7 @@
                     "type": "Observable<Array<ContentType>>",
                     "optional": false,
                     "description": "",
-                    "line": 20,
+                    "line": 21,
                     "modifierKind": [
                         123,
                         148
@@ -2010,7 +2233,7 @@
                     "type": "boolean",
                     "optional": false,
                     "description": "",
-                    "line": 26,
+                    "line": 27,
                     "modifierKind": [
                         125
                     ]
@@ -2022,7 +2245,7 @@
                     "type": "Observable<boolean>",
                     "optional": false,
                     "description": "",
-                    "line": 22,
+                    "line": 23,
                     "modifierKind": [
                         123,
                         148
@@ -2035,7 +2258,7 @@
                     "type": "ContentListService",
                     "optional": false,
                     "description": "",
-                    "line": 18,
+                    "line": 19,
                     "modifierKind": [
                         123,
                         148
@@ -2049,7 +2272,7 @@
                     "type": "Subscription",
                     "optional": false,
                     "description": "",
-                    "line": 24,
+                    "line": 25,
                     "modifierKind": [
                         123,
                         148
@@ -2063,7 +2286,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 51,
+                    "line": 52,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2073,9 +2296,37 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 37,
+                    "line": 38,
                     "deprecated": false,
                     "deprecationMessage": ""
+                },
+                {
+                    "name": "onOpen",
+                    "args": [
+                        {
+                            "name": "event",
+                            "type": "ListItemOpenEvent",
+                            "deprecated": false,
+                            "deprecationMessage": ""
+                        }
+                    ],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 64,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "name": "event",
+                            "type": "ListItemOpenEvent",
+                            "deprecated": false,
+                            "deprecationMessage": "",
+                            "tagName": {
+                                "text": "param"
+                            }
+                        }
+                    ]
                 },
                 {
                     "name": "onSelect",
@@ -2090,7 +2341,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 55,
+                    "line": 56,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -2118,7 +2369,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 59,
+                    "line": 60,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "jsdoctags": [
@@ -2139,7 +2390,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 63,
+                    "line": 68,
                     "deprecated": false,
                     "deprecationMessage": ""
                 },
@@ -2149,7 +2400,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 67,
+                    "line": 72,
                     "deprecated": false,
                     "deprecationMessage": ""
                 }
@@ -2168,7 +2419,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component } from '@angular/core';\r\nimport { Observable, Subscription } from 'rxjs';\r\nimport {\r\n\tListItemSelectEvent,\r\n\tListItemUnselectEvent,\r\n} from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';\r\nimport { ContentType, PureContentListComponent } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';\r\nimport { ContentListService } from 'src/app/features/content-list/content-list.service';\r\n\r\n@Component({\r\n\tselector: 'content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './content-list.component.html',\r\n\tstyleUrl: './content-list.component.css',\r\n\timports: [PureContentListComponent],\r\n})\r\nexport class ContentListComponent {\r\n\tprivate readonly service: ContentListService;\r\n\r\n\tprivate readonly content$: Observable<Array<ContentType>>;\r\n\r\n\tprivate readonly isInSelectMode$: Observable<boolean>;\r\n\r\n\tprivate readonly subscriptions: Subscription = new Subscription();\r\n\r\n\tpublic isInSelectMode: boolean = false;\r\n\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tconstructor(service: ContentListService) {\r\n\t\tthis.service = service;\r\n\r\n\t\tthis.content$ = service.getContent();\r\n\t\tthis.isInSelectMode$ = service.isAtLeastOneSelected();\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.subscriptions.add(\r\n\t\t\tthis.content$.subscribe((content) => {\r\n\t\t\t\tthis.content = content;\r\n\t\t\t})\r\n\t\t);\r\n\r\n\t\tthis.subscriptions.add(\r\n\t\t\tthis.isInSelectMode$.subscribe((isInSelectMode) => {\r\n\t\t\t\tthis.isInSelectMode = isInSelectMode;\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\tngOnDestroy() {\r\n\t\tthis.subscriptions.unsubscribe();\r\n\t}\r\n\r\n\tonSelect(event: ListItemSelectEvent) {\r\n\t\tthis.service.select(event);\r\n\t}\r\n\r\n\tonUnselect(event: ListItemUnselectEvent) {\r\n\t\tthis.service.unselect(event);\r\n\t}\r\n\r\n\tselectAll() {\r\n\t\tthis.service.selectAll();\r\n\t}\r\n\r\n\tunselectAll() {\r\n\t\tthis.service.unselectAll();\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component } from '@angular/core';\r\nimport { Observable, Subscription } from 'rxjs';\r\nimport {\r\n\tListItemOpenEvent,\r\n\tListItemSelectEvent,\r\n\tListItemUnselectEvent,\r\n} from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';\r\nimport { ContentType, PureContentListComponent } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';\r\nimport { ContentListService } from 'src/app/features/content-list/content-list.service';\r\n\r\n@Component({\r\n\tselector: 'content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './content-list.component.html',\r\n\tstyleUrl: './content-list.component.css',\r\n\timports: [PureContentListComponent],\r\n})\r\nexport class ContentListComponent {\r\n\tprivate readonly service: ContentListService;\r\n\r\n\tprivate readonly content$: Observable<Array<ContentType>>;\r\n\r\n\tprivate readonly isInSelectMode$: Observable<boolean>;\r\n\r\n\tprivate readonly subscriptions: Subscription = new Subscription();\r\n\r\n\tpublic isInSelectMode: boolean = false;\r\n\r\n\tpublic content: Array<ContentType> = [];\r\n\r\n\tconstructor(service: ContentListService) {\r\n\t\tthis.service = service;\r\n\r\n\t\tthis.content$ = service.getContent();\r\n\t\tthis.isInSelectMode$ = service.isAtLeastOneSelected();\r\n\t}\r\n\r\n\tngOnInit() {\r\n\t\tthis.subscriptions.add(\r\n\t\t\tthis.content$.subscribe((content) => {\r\n\t\t\t\tthis.content = content;\r\n\t\t\t})\r\n\t\t);\r\n\r\n\t\tthis.subscriptions.add(\r\n\t\t\tthis.isInSelectMode$.subscribe((isInSelectMode) => {\r\n\t\t\t\tthis.isInSelectMode = isInSelectMode;\r\n\t\t\t})\r\n\t\t);\r\n\t}\r\n\r\n\tngOnDestroy() {\r\n\t\tthis.subscriptions.unsubscribe();\r\n\t}\r\n\r\n\tonSelect(event: ListItemSelectEvent) {\r\n\t\tthis.service.select(event);\r\n\t}\r\n\r\n\tonUnselect(event: ListItemUnselectEvent) {\r\n\t\tthis.service.unselect(event);\r\n\t}\r\n\r\n\tonOpen(event: ListItemOpenEvent) {\r\n\t\tthis.service.open(event);\r\n\t}\r\n\r\n\tselectAll() {\r\n\t\tthis.service.selectAll();\r\n\t}\r\n\r\n\tunselectAll() {\r\n\t\tthis.service.unselectAll();\r\n\t}\r\n}\r\n",
             "styleUrl": "./content-list.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -2186,7 +2437,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 28,
+                "line": 29,
                 "jsdoctags": [
                     {
                         "name": "service",
@@ -2200,7 +2451,7 @@
                 ]
             },
             "extends": [],
-            "templateData": "<pure-content-list\r\n\t[content]=\"content\"\r\n\t[isInSelectMode]=\"isInSelectMode\"\r\n\t(onClickOutside)=\"unselectAll()\"\r\n\t(onSelectAll)=\"selectAll()\"\r\n\t(onUnselectAll)=\"unselectAll()\"\r\n\t(onSelect)=\"onSelect($event)\"\r\n\t(onUnselect)=\"onUnselect($event)\"\r\n></pure-content-list>\r\n"
+            "templateData": "<pure-content-list\r\n\t[content]=\"content\"\r\n\t[isInSelectMode]=\"isInSelectMode\"\r\n\t(onClickOutside)=\"unselectAll()\"\r\n\t(onSelectAll)=\"selectAll()\"\r\n\t(onUnselectAll)=\"unselectAll()\"\r\n\t(onSelect)=\"onSelect($event)\"\r\n\t(onUnselect)=\"onUnselect($event)\"\r\n\t(onOpen)=\"onOpen($event)\"\r\n></pure-content-list>\r\n"
         },
         {
             "name": "DirectoryListItemComponent",
@@ -3012,6 +3263,53 @@
                 }
             },
             "templateData": "<div class=\"wrapper\">\r\n    <div class=\"items\">\r\n        <ng-content></ng-content>\r\n    </div>\r\n    <div class=\"plus\">\r\n        <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 -960 960 960\" width=\"24\">\r\n            <path fill=\"white\" d=\"M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z\"/>\r\n        </svg>\r\n    </div>\r\n</div>"
+        },
+        {
+            "name": "ExplorerComponent",
+            "id": "component-ExplorerComponent-6b3f23d8bd915bc5db449b73f5a7f20b10df382f1f65e910fefd7023b08473f5d163a48685b640326c59b7ea8d9e538c08a1f6d144b992f8919a208a31f73f9a",
+            "file": "src/app/core/components/explorer/explorer.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "explorer",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./explorer.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [
+                {
+                    "name": "DirectoryTreeComponent",
+                    "type": "component"
+                },
+                {
+                    "name": "ContentListComponent",
+                    "type": "component"
+                }
+            ],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\r\nimport { ContentListComponent } from 'src/app/features/content-list/content-list.component';\r\nimport { DirectoryTreeComponent } from 'src/app/features/directory-tree/directory-tree.component';\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'explorer',\r\n\ttemplateUrl: './explorer.component.html',\r\n\tstyleUrl: './explorer.component.css',\r\n\timports: [DirectoryTreeComponent, ContentListComponent],\r\n})\r\nexport class ExplorerComponent {}\r\n",
+            "styleUrl": "./explorer.component.css",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "templateData": "<main>\r\n\t<directory-tree></directory-tree>\r\n\t<content-list></content-list>\r\n</main>\r\n"
         },
         {
             "name": "FileListItemComponent",
@@ -3861,7 +4159,7 @@
         },
         {
             "name": "PureContentListComponent",
-            "id": "component-PureContentListComponent-e5fcd9264bdc8a472726053d9dc2f212e068b3e5c4b92a182839a8b4cb9164fdd43759fb5c837b8cdd9c80d5d927819a45185774d9900475c678e3d2f6cf16ea",
+            "id": "component-PureContentListComponent-b895df6764dfc59b869be1e153e582f673257b2682f2009ae67c0ba51beccff689f7dc4af8e25192984b941f74b37d4baaf32e2fd2c2cddc7f72c201379a4687",
             "file": "src/app/features/content-list/components/pure-content-list/pure-content-list.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -3883,7 +4181,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "optional": false,
-                    "line": 44,
+                    "line": 45,
                     "type": "Array<ContentType>",
                     "decorators": []
                 },
@@ -3893,7 +4191,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "optional": false,
-                    "line": 41,
+                    "line": 42,
                     "type": "boolean",
                     "decorators": []
                 }
@@ -3904,15 +4202,23 @@
                     "defaultValue": "new EventEmitter()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 53,
+                    "line": 54,
                     "type": "EventEmitter<void>"
+                },
+                {
+                    "name": "onOpen",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 63,
+                    "type": "EventEmitter<ListItemOpenEvent>"
                 },
                 {
                     "name": "onSelect",
                     "defaultValue": "new EventEmitter()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 47,
+                    "line": 48,
                     "type": "EventEmitter<ListItemSelectEvent>"
                 },
                 {
@@ -3920,7 +4226,7 @@
                     "defaultValue": "new EventEmitter()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 56,
+                    "line": 57,
                     "type": "EventEmitter<void>"
                 },
                 {
@@ -3928,7 +4234,7 @@
                     "defaultValue": "new EventEmitter()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 50,
+                    "line": 51,
                     "type": "EventEmitter<ListItemUnselectEvent>"
                 },
                 {
@@ -3936,7 +4242,7 @@
                     "defaultValue": "new EventEmitter()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 59,
+                    "line": 60,
                     "type": "EventEmitter<void>"
                 }
             ],
@@ -3948,7 +4254,7 @@
                     "type": "ElementRef",
                     "optional": false,
                     "description": "",
-                    "line": 37,
+                    "line": 38,
                     "modifierKind": [
                         123
                     ]
@@ -3968,7 +4274,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 66,
+                    "line": 70,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "decorators": [
@@ -4006,7 +4312,7 @@
                     "optional": false,
                     "returnType": "File",
                     "typeParameters": [],
-                    "line": 72,
+                    "line": 76,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -4044,7 +4350,7 @@
                     ],
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 66
+                    "line": 70
                 }
             ],
             "standalone": true,
@@ -4061,7 +4367,7 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { SelectableFileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-file-list-item/selectable-file-list-item.component';\r\nimport {\r\n\tListItemSelectEvent,\r\n\tListItemUnselectEvent,\r\n\tSelectableDirectoryListItemComponent,\r\n} from './components/selectable-directory-list-item/selectable-directory-list-item.component';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n\tid: number;\r\n\tisSelected: boolean;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n\tid: number;\r\n\tisSelected: boolean;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [SelectableDirectoryListItemComponent, SelectableFileListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\t@HostBinding('class.in-select-mode')\r\n\t@Input({ alias: 'isInSelectMode', required: true })\r\n\tpublic isInSelectMode!: boolean;\r\n\r\n\t@Input({ required: true })\r\n\tpublic content!: Array<ContentType>;\r\n\r\n\t@Output()\r\n\tpublic onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselect: EventEmitter<ListItemUnselectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onClickOutside: EventEmitter<void> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onSelectAll: EventEmitter<void> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselectAll: EventEmitter<void> = new EventEmitter();\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.onClickOutside.emit();\r\n\t\t}\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';\r\nimport { DirectoryContentDirectory, DirectoryContentFile } from 'generated';\r\nimport { SelectableFileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-file-list-item/selectable-file-list-item.component';\r\nimport {\r\n\tListItemOpenEvent,\r\n\tListItemSelectEvent,\r\n\tListItemUnselectEvent,\r\n\tSelectableDirectoryListItemComponent,\r\n} from './components/selectable-directory-list-item/selectable-directory-list-item.component';\r\n\r\nexport enum Type {\r\n\tDirectory,\r\n\tFile,\r\n}\r\n\r\nexport type Directory = DirectoryContentDirectory & {\r\n\ttype: Type.Directory;\r\n\tid: number;\r\n\tisSelected: boolean;\r\n};\r\n\r\nexport type File = DirectoryContentFile & {\r\n\ttype: Type.File;\r\n\tid: number;\r\n\tisSelected: boolean;\r\n};\r\n\r\nexport type ContentType = File | Directory;\r\n\r\n@Component({\r\n\tselector: 'pure-content-list',\r\n\tstandalone: true,\r\n\ttemplateUrl: './pure-content-list.component.html',\r\n\tstyleUrl: './pure-content-list.component.css',\r\n\timports: [SelectableDirectoryListItemComponent, SelectableFileListItemComponent],\r\n})\r\nexport class PureContentListComponent {\r\n\tprivate ref: ElementRef;\r\n\r\n\t@HostBinding('class.in-select-mode')\r\n\t@Input({ alias: 'isInSelectMode', required: true })\r\n\tpublic isInSelectMode!: boolean;\r\n\r\n\t@Input({ required: true })\r\n\tpublic content!: Array<ContentType>;\r\n\r\n\t@Output()\r\n\tpublic onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselect: EventEmitter<ListItemUnselectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onClickOutside: EventEmitter<void> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onSelectAll: EventEmitter<void> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselectAll: EventEmitter<void> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onOpen: EventEmitter<ListItemOpenEvent> = new EventEmitter();\r\n\r\n\tconstructor(ref: ElementRef) {\r\n\t\tthis.ref = ref;\r\n\t}\r\n\r\n\t@HostListener('document:click', ['$event'])\r\n\tpublic clickOut(event: Event) {\r\n\t\tif (!this.ref.nativeElement.contains(event.target)) {\r\n\t\t\tthis.onClickOutside.emit();\r\n\t\t}\r\n\t}\r\n\r\n\tpublic isFile(content: ContentType): content is File {\r\n\t\treturn content.type === Type.File;\r\n\t}\r\n}\r\n",
             "styleUrl": "./pure-content-list.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
@@ -4079,7 +4385,7 @@
                         "deprecationMessage": ""
                     }
                 ],
-                "line": 59,
+                "line": 63,
                 "jsdoctags": [
                     {
                         "name": "ref",
@@ -4093,7 +4399,7 @@
                 ]
             },
             "extends": [],
-            "templateData": "<div class=\"items\">\r\n\t@for (item of content; track item.name) {\r\n\t\t@if (isFile(item)) {\r\n\t\t\t<selectable-file-list-item\r\n\t\t\t\tclass=\"selectable-list-item\"\r\n\t\t\t\t(onSelect)=\"this.onSelect.emit($event)\"\r\n\t\t\t\t(onUnselect)=\"this.onUnselect.emit($event)\"\r\n\t\t\t\t[id]=\"$index\"\r\n\t\t\t\t[metadata]=\"item\"\r\n\t\t\t\t[isSelectable]=\"this.isInSelectMode\"\r\n\t\t\t\t[isSelected]=\"item.isSelected\"\r\n\t\t\t></selectable-file-list-item>\r\n\t\t} @else {\r\n\t\t\t<selectable-directory-list-item\r\n\t\t\t\tclass=\"selectable-list-item\"\r\n\t\t\t\t(onSelect)=\"this.onSelect.emit($event)\"\r\n\t\t\t\t(onUnselect)=\"this.onUnselect.emit($event)\"\r\n\t\t\t\t[id]=\"$index\"\r\n\t\t\t\t[metadata]=\"item\"\r\n\t\t\t\t[isSelectable]=\"this.isInSelectMode\"\r\n\t\t\t\t[isSelected]=\"item.isSelected\"\r\n\t\t\t></selectable-directory-list-item>\r\n\t\t}\r\n\t}\r\n</div>\r\n<div class=\"action-trigger\">\r\n\t<svg class=\"arrow\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t<path\r\n\t\t\td=\"M480-361q-8 0-15-2.5t-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5Z\"\r\n\t\t/>\r\n\t</svg>\r\n</div>\r\n<div class=\"actions\">\r\n\t<div (click)=\"onSelectAll.emit()\" class=\"action select-all\">\r\n\t\t<svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t\t<path\r\n\t\t\t\td=\"M70-438q-12-12-11.5-28T71-494q12-11 28-11.5t28 11.5l142 142 14 14 14 14q12 12 11.5 28T296-268q-12 11-28 11.5T240-268L70-438Zm424 85 340-340q12-12 28-11.5t28 12.5q11 12 11.5 28T890-636L522-268q-12 12-28 12t-28-12L296-438q-11-11-11-27.5t11-28.5q12-12 28.5-12t28.5 12l141 141Zm169-282L522-494q-11 11-27.5 11T466-494q-12-12-12-28.5t12-28.5l141-141q11-11 27.5-11t28.5 11q12 12 12 28.5T663-635Z\"\r\n\t\t\t/>\r\n\t\t</svg>\r\n\t</div>\r\n\t<div (click)=\"onUnselectAll.emit()\" class=\"action unselect-all\">\r\n\t\t<svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t\t<path\r\n\t\t\t\td=\"M845-116 609-352l-86 86q-12 12-28 12t-28-12L297-436q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T354-493l141 141 56-56-386-386q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T222-851l679 679q11 11 11 28t-11 28q-11 11-28 11t-28-11ZM241-266 71-436q-11-11-11-28t11-28q11-11 28-11t28 11l142 142 56 56-28 28q-12 12-28 12t-28-12Zm480-198-56-56 169-169q11-11 27-11.5t28 10.5q12 11 12.5 28T890-633L721-464ZM607-578l-56-56 58-58q11-11 28-11t28 11q11 11 11 28t-11 28l-58 58Z\"\r\n\t\t\t/>\r\n\t\t</svg>\r\n\t</div>\r\n\t<div class=\"action download\">\r\n\t\t<svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t\t<path\r\n\t\t\t\td=\"M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z\"\r\n\t\t\t/>\r\n\t\t</svg>\r\n\t</div>\r\n\t<div class=\"action delete\">\r\n\t\t<svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t\t<path\r\n\t\t\t\td=\"M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z\"\r\n\t\t\t/>\r\n\t\t</svg>\r\n\t</div>\r\n</div>\r\n"
+            "templateData": "<div class=\"items\">\r\n\t@for (item of content; track item.name) {\r\n\t\t@if (isFile(item)) {\r\n\t\t\t<selectable-file-list-item\r\n\t\t\t\tclass=\"selectable-list-item\"\r\n\t\t\t\t(onSelect)=\"this.onSelect.emit($event)\"\r\n\t\t\t\t(onUnselect)=\"this.onUnselect.emit($event)\"\r\n\t\t\t\t[id]=\"$index\"\r\n\t\t\t\t[metadata]=\"item\"\r\n\t\t\t\t[isSelectable]=\"this.isInSelectMode\"\r\n\t\t\t\t[isSelected]=\"item.isSelected\"\r\n\t\t\t></selectable-file-list-item>\r\n\t\t} @else {\r\n\t\t\t<selectable-directory-list-item\r\n\t\t\t\tclass=\"selectable-list-item\"\r\n\t\t\t\t(onSelect)=\"this.onSelect.emit($event)\"\r\n\t\t\t\t(onUnselect)=\"this.onUnselect.emit($event)\"\r\n\t\t\t\t(onOpen)=\"this.onOpen.emit($event)\"\r\n\t\t\t\t[id]=\"$index\"\r\n\t\t\t\t[metadata]=\"item\"\r\n\t\t\t\t[isSelectable]=\"this.isInSelectMode\"\r\n\t\t\t\t[isSelected]=\"item.isSelected\"\r\n\t\t\t></selectable-directory-list-item>\r\n\t\t}\r\n\t}\r\n</div>\r\n<div class=\"action-trigger\">\r\n\t<svg class=\"arrow\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t<path\r\n\t\t\td=\"M480-361q-8 0-15-2.5t-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5Z\"\r\n\t\t/>\r\n\t</svg>\r\n</div>\r\n<div class=\"actions\">\r\n\t<div (click)=\"onSelectAll.emit()\" class=\"action select-all\">\r\n\t\t<svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t\t<path\r\n\t\t\t\td=\"M70-438q-12-12-11.5-28T71-494q12-11 28-11.5t28 11.5l142 142 14 14 14 14q12 12 11.5 28T296-268q-12 11-28 11.5T240-268L70-438Zm424 85 340-340q12-12 28-11.5t28 12.5q11 12 11.5 28T890-636L522-268q-12 12-28 12t-28-12L296-438q-11-11-11-27.5t11-28.5q12-12 28.5-12t28.5 12l141 141Zm169-282L522-494q-11 11-27.5 11T466-494q-12-12-12-28.5t12-28.5l141-141q11-11 27.5-11t28.5 11q12 12 12 28.5T663-635Z\"\r\n\t\t\t/>\r\n\t\t</svg>\r\n\t</div>\r\n\t<div (click)=\"onUnselectAll.emit()\" class=\"action unselect-all\">\r\n\t\t<svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t\t<path\r\n\t\t\t\td=\"M845-116 609-352l-86 86q-12 12-28 12t-28-12L297-436q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T354-493l141 141 56-56-386-386q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T222-851l679 679q11 11 11 28t-11 28q-11 11-28 11t-28-11ZM241-266 71-436q-11-11-11-28t11-28q11-11 28-11t28 11l142 142 56 56-28 28q-12 12-28 12t-28-12Zm480-198-56-56 169-169q11-11 27-11.5t28 10.5q12 11 12.5 28T890-633L721-464ZM607-578l-56-56 58-58q11-11 28-11t28 11q11 11 11 28t-11 28l-58 58Z\"\r\n\t\t\t/>\r\n\t\t</svg>\r\n\t</div>\r\n\t<div class=\"action download\">\r\n\t\t<svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t\t<path\r\n\t\t\t\td=\"M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z\"\r\n\t\t\t/>\r\n\t\t</svg>\r\n\t</div>\r\n\t<div class=\"action delete\">\r\n\t\t<svg class=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 -960 960 960\">\r\n\t\t\t<path\r\n\t\t\t\td=\"M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM400-280q17 0 28.5-11.5T440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280Zm160 0q17 0 28.5-11.5T600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280ZM280-720v520-520Z\"\r\n\t\t\t/>\r\n\t\t</svg>\r\n\t</div>\r\n</div>\r\n"
         },
         {
             "name": "PureDirectoryTreeComponent",
@@ -4218,7 +4524,7 @@
         },
         {
             "name": "SelectableDirectoryListItemComponent",
-            "id": "component-SelectableDirectoryListItemComponent-0a347de7c584f6619e31fac397cf582d3f1419ca5b0a776d336fd754ad8f1044c2efe9fbbc8a3ec3d820cc9581204223d24a53b9dfe3da3ea3dea8bb4c836888",
+            "id": "component-SelectableDirectoryListItemComponent-88f106f81cefe3494eccc3915341b5a528674e2220eab80710dda661a496f778b82d42f9a7895821a750aa05d451443aa949680a8fecf1d13073aebd44ce5be0",
             "file": "src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component.ts",
             "encapsulation": [],
             "entryComponents": [],
@@ -4240,7 +4546,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "optional": false,
-                    "line": 56,
+                    "line": 60,
                     "type": "number",
                     "decorators": []
                 },
@@ -4249,7 +4555,7 @@
                     "defaultValue": "false",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 53,
+                    "line": 57,
                     "type": "boolean",
                     "decorators": []
                 },
@@ -4258,7 +4564,7 @@
                     "defaultValue": "false",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 49,
+                    "line": 53,
                     "type": "boolean",
                     "decorators": []
                 },
@@ -4268,18 +4574,26 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "optional": false,
-                    "line": 59,
+                    "line": 63,
                     "type": "DirectoryContentDirectory",
                     "decorators": []
                 }
             ],
             "outputsClass": [
                 {
+                    "name": "onOpen",
+                    "defaultValue": "new EventEmitter()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 72,
+                    "type": "EventEmitter<ListItemOpenEvent>"
+                },
+                {
                     "name": "onSelect",
                     "defaultValue": "new EventEmitter()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 62,
+                    "line": 66,
                     "type": "EventEmitter<ListItemSelectEvent>"
                 },
                 {
@@ -4287,7 +4601,7 @@
                     "defaultValue": "new EventEmitter()",
                     "deprecated": false,
                     "deprecationMessage": "",
-                    "line": 65,
+                    "line": 69,
                     "type": "EventEmitter<ListItemUnselectEvent>"
                 }
             ],
@@ -4306,7 +4620,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 67,
+                    "line": 74,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -4325,6 +4639,19 @@
                     ]
                 },
                 {
+                    "name": "onDblClick",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 82,
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "modifierKind": [
+                        125
+                    ]
+                },
+                {
                     "name": "onUncheck",
                     "args": [
                         {
@@ -4337,7 +4664,7 @@
                     "optional": false,
                     "returnType": "void",
                     "typeParameters": [],
-                    "line": 71,
+                    "line": 78,
                     "deprecated": false,
                     "deprecationMessage": "",
                     "modifierKind": [
@@ -4374,13 +4701,13 @@
             "description": "",
             "rawdescription": "\n",
             "type": "component",
-            "sourceCode": "import { animate, group, query, state, style, transition, trigger } from '@angular/animations';\r\nimport { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';\r\nimport { DirectoryContentDirectory } from 'generated';\r\nimport { CheckboxCheckEvent, CheckboxComponent, CheckboxUncheckEvent } from 'src/app/shared/components/checkbox/checkbox.component';\r\nimport { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';\r\n\r\nexport type ListItemSelectEvent = CheckboxCheckEvent & {\r\n\tid: number;\r\n};\r\n\r\nexport type ListItemUnselectEvent = CheckboxUncheckEvent & {\r\n\tid: number;\r\n};\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'selectable-directory-list-item',\r\n\ttemplateUrl: './selectable-directory-list-item.component.html',\r\n\tstyleUrl: './selectable-directory-list-item.component.css',\r\n\timports: [DirectoryListItemComponent, CheckboxComponent],\r\n\tanimations: [\r\n\t\ttrigger('isSelectable', [\r\n\t\t\tstate('true', style({})),\r\n\t\t\tstate('false', style({})),\r\n\t\t\ttransition('false => true', [\r\n\t\t\t\tquery('checkbox', [\r\n\t\t\t\t\tstyle({\r\n\t\t\t\t\t\tmarginLeft: '-2rem',\r\n\t\t\t\t\t\topacity: 0,\r\n\t\t\t\t\t}),\r\n\t\t\t\t\tgroup([animate('0.25s ease-out', style({ opacity: 1 })), animate('0.3s ease', style({ marginLeft: 0 }))]),\r\n\t\t\t\t]),\r\n\t\t\t]),\r\n\t\t\ttransition('true => false', [\r\n\t\t\t\tquery('checkbox', [\r\n\t\t\t\t\tstyle({\r\n\t\t\t\t\t\tmarginLeft: 0,\r\n\t\t\t\t\t\topacity: 1,\r\n\t\t\t\t\t}),\r\n\t\t\t\t\tgroup([animate('0.25s 0.05s ease', style({ opacity: 0 })), animate('0.3s ease', style({ marginLeft: '-2rem' }))]),\r\n\t\t\t\t]),\r\n\t\t\t]),\r\n\t\t]),\r\n\t],\r\n})\r\nexport class SelectableDirectoryListItemComponent {\r\n\t@HostBinding('class.selected')\r\n\t@Input('isSelected')\r\n\tpublic isSelected: boolean = false;\r\n\r\n\t@HostBinding('class.selectable')\r\n\t@Input('isSelectable')\r\n\tpublic isSelectable: boolean = false;\r\n\r\n\t@Input({ required: true })\r\n\tpublic id!: number;\r\n\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentDirectory;\r\n\r\n\t@Output()\r\n\tpublic onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselect: EventEmitter<ListItemUnselectEvent> = new EventEmitter();\r\n\r\n\tpublic onCheck(event: CheckboxCheckEvent) {\r\n\t\tthis.onSelect.emit({ id: this.id, ...event });\r\n\t}\r\n\r\n\tpublic onUncheck(event: CheckboxUncheckEvent) {\r\n\t\tthis.onUnselect.emit({ id: this.id, ...event });\r\n\t}\r\n}\r\n",
+            "sourceCode": "import { animate, group, query, state, style, transition, trigger } from '@angular/animations';\r\nimport { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';\r\nimport { DirectoryContentDirectory } from 'generated';\r\nimport { CheckboxCheckEvent, CheckboxComponent, CheckboxUncheckEvent } from 'src/app/shared/components/checkbox/checkbox.component';\r\nimport { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';\r\n\r\nexport type ListItemSelectEvent = CheckboxCheckEvent & {\r\n\tid: number;\r\n};\r\n\r\nexport type ListItemUnselectEvent = CheckboxUncheckEvent & {\r\n\tid: number;\r\n};\r\n\r\nexport type ListItemOpenEvent = {\r\n\tid: number;\r\n};\r\n\r\n@Component({\r\n\tstandalone: true,\r\n\tselector: 'selectable-directory-list-item',\r\n\ttemplateUrl: './selectable-directory-list-item.component.html',\r\n\tstyleUrl: './selectable-directory-list-item.component.css',\r\n\timports: [DirectoryListItemComponent, CheckboxComponent],\r\n\tanimations: [\r\n\t\ttrigger('isSelectable', [\r\n\t\t\tstate('true', style({})),\r\n\t\t\tstate('false', style({})),\r\n\t\t\ttransition('false => true', [\r\n\t\t\t\tquery('checkbox', [\r\n\t\t\t\t\tstyle({\r\n\t\t\t\t\t\tmarginLeft: '-2rem',\r\n\t\t\t\t\t\topacity: 0,\r\n\t\t\t\t\t}),\r\n\t\t\t\t\tgroup([animate('0.25s ease-out', style({ opacity: 1 })), animate('0.3s ease', style({ marginLeft: 0 }))]),\r\n\t\t\t\t]),\r\n\t\t\t]),\r\n\t\t\ttransition('true => false', [\r\n\t\t\t\tquery('checkbox', [\r\n\t\t\t\t\tstyle({\r\n\t\t\t\t\t\tmarginLeft: 0,\r\n\t\t\t\t\t\topacity: 1,\r\n\t\t\t\t\t}),\r\n\t\t\t\t\tgroup([animate('0.25s 0.05s ease', style({ opacity: 0 })), animate('0.3s ease', style({ marginLeft: '-2rem' }))]),\r\n\t\t\t\t]),\r\n\t\t\t]),\r\n\t\t]),\r\n\t],\r\n})\r\nexport class SelectableDirectoryListItemComponent {\r\n\t@HostBinding('class.selected')\r\n\t@Input('isSelected')\r\n\tpublic isSelected: boolean = false;\r\n\r\n\t@HostBinding('class.selectable')\r\n\t@Input('isSelectable')\r\n\tpublic isSelectable: boolean = false;\r\n\r\n\t@Input({ required: true })\r\n\tpublic id!: number;\r\n\r\n\t@Input({ required: true })\r\n\tpublic metadata!: DirectoryContentDirectory;\r\n\r\n\t@Output()\r\n\tpublic onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onUnselect: EventEmitter<ListItemUnselectEvent> = new EventEmitter();\r\n\r\n\t@Output()\r\n\tpublic onOpen: EventEmitter<ListItemOpenEvent> = new EventEmitter();\r\n\r\n\tpublic onCheck(event: CheckboxCheckEvent) {\r\n\t\tthis.onSelect.emit({ id: this.id, ...event });\r\n\t}\r\n\r\n\tpublic onUncheck(event: CheckboxUncheckEvent) {\r\n\t\tthis.onUnselect.emit({ id: this.id, ...event });\r\n\t}\r\n\r\n\tpublic onDblClick() {\r\n\t\tthis.onOpen.emit({ id: this.id });\r\n\t}\r\n}\r\n",
             "styleUrl": "./selectable-directory-list-item.component.css",
             "assetsDirs": [],
             "styleUrlsData": "",
             "stylesData": "",
             "extends": [],
-            "templateData": "<label [@isSelectable]=\"this.isSelectable\">\r\n\t<checkbox [isSelected]=\"this.isSelected\" (onCheck)=\"this.onCheck($event)\" (onUncheck)=\"this.onUncheck($event)\"></checkbox>\r\n\t<directory-list-item [isSelected]=\"this.isSelected\" [metadata]=\"this.metadata\"></directory-list-item>\r\n</label>\r\n"
+            "templateData": "<label (dblclick)=\"onDblClick()\" [@isSelectable]=\"this.isSelectable\">\r\n\t<checkbox [isSelected]=\"this.isSelected\" (onCheck)=\"this.onCheck($event)\" (onUncheck)=\"this.onUncheck($event)\"></checkbox>\r\n\t<directory-list-item [isSelected]=\"this.isSelected\" [metadata]=\"this.metadata\"></directory-list-item>\r\n</label>\r\n"
         },
         {
             "name": "SelectableFileListItemComponent",
@@ -4560,7 +4887,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "ApplicationConfig",
-                "defaultValue": "{\r\n\tproviders: [\r\n\t\tprovideAnimationsAsync(),\r\n\t\tprovideRouter(routes),\r\n\t\tprovideHttpClient(),\r\n\t\timportProvidersFrom(NgxsModule.forRoot([ContentListState, DirectoryTreeState]), NgxsLoggerPluginModule.forRoot()),\r\n\t],\r\n}"
+                "defaultValue": "{\r\n\tproviders: [\r\n\t\tprovideAnimationsAsync(),\r\n\t\tprovideRouter(routes),\r\n\t\tprovideHttpClient(),\r\n\t\timportProvidersFrom(NgxsModule.forRoot([ContentListState, DirectoryTreeState]), NgxsRouterPluginModule.forRoot()),\r\n\t],\r\n}"
             },
             {
                 "name": "DirectoryTreeStateToken",
@@ -4571,16 +4898,6 @@
                 "deprecationMessage": "",
                 "type": "string",
                 "defaultValue": "'directory_tree'"
-            },
-            {
-                "name": "routes",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
-                "file": "src/app/app.routes.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "[]",
-                "defaultValue": "[]"
             },
             {
                 "name": "ThicknessMap",
@@ -4771,6 +5088,17 @@
                 "kind": 187
             },
             {
+                "name": "ListItemOpenEvent",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "literal type",
+                "file": "src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 187
+            },
+            {
                 "name": "ListItemSelectEvent",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
@@ -4935,7 +5263,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "ApplicationConfig",
-                    "defaultValue": "{\r\n\tproviders: [\r\n\t\tprovideAnimationsAsync(),\r\n\t\tprovideRouter(routes),\r\n\t\tprovideHttpClient(),\r\n\t\timportProvidersFrom(NgxsModule.forRoot([ContentListState, DirectoryTreeState]), NgxsLoggerPluginModule.forRoot()),\r\n\t],\r\n}"
+                    "defaultValue": "{\r\n\tproviders: [\r\n\t\tprovideAnimationsAsync(),\r\n\t\tprovideRouter(routes),\r\n\t\tprovideHttpClient(),\r\n\t\timportProvidersFrom(NgxsModule.forRoot([ContentListState, DirectoryTreeState]), NgxsRouterPluginModule.forRoot()),\r\n\t],\r\n}"
                 }
             ],
             "src/app/features/directory-tree/state/directory-tree.state.ts": [
@@ -4948,18 +5276,6 @@
                     "deprecationMessage": "",
                     "type": "string",
                     "defaultValue": "'directory_tree'"
-                }
-            ],
-            "src/app/app.routes.ts": [
-                {
-                    "name": "routes",
-                    "ctype": "miscellaneous",
-                    "subtype": "variable",
-                    "file": "src/app/app.routes.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "type": "[]",
-                    "defaultValue": "[]"
                 }
             ],
             "src/app/shared/components/loading-spinner/loading-spinner.component.ts": [
@@ -5289,6 +5605,17 @@
             ],
             "src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component.ts": [
                 {
+                    "name": "ListItemOpenEvent",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "literal type",
+                    "file": "src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 187
+                },
+                {
                     "name": "ListItemSelectEvent",
                     "ctype": "miscellaneous",
                     "subtype": "typealias",
@@ -5351,11 +5678,10 @@
                 "status": "low"
             },
             {
-                "filePath": "src/app/app.routes.ts",
-                "type": "variable",
-                "linktype": "miscellaneous",
-                "linksubtype": "variable",
-                "name": "routes",
+                "filePath": "src/app/core/components/explorer/explorer.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ExplorerComponent",
                 "coveragePercent": 0,
                 "coverageCount": "0/1",
                 "status": "low"
@@ -5366,7 +5692,7 @@
                 "linktype": "component",
                 "name": "SelectableDirectoryListItemComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/9",
+                "coverageCount": "0/11",
                 "status": "low"
             },
             {
@@ -5384,7 +5710,7 @@
                 "linktype": "component",
                 "name": "PureContentListComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/13",
+                "coverageCount": "0/14",
                 "status": "low"
             },
             {
@@ -5393,7 +5719,7 @@
                 "linktype": "component",
                 "name": "ContentListComponent",
                 "coveragePercent": 0,
-                "coverageCount": "0/14",
+                "coverageCount": "0/15",
                 "status": "low"
             },
             {
@@ -5402,7 +5728,7 @@
                 "linktype": "injectable",
                 "name": "ContentListService",
                 "coveragePercent": 0,
-                "coverageCount": "0/9",
+                "coverageCount": "0/10",
                 "status": "low"
             },
             {
@@ -5419,6 +5745,15 @@
                 "type": "class",
                 "linktype": "classe",
                 "name": "CtrlUnselect",
+                "coveragePercent": 0,
+                "coverageCount": "0/4",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/features/content-list/state/content-list.actions.ts",
+                "type": "class",
+                "linktype": "classe",
+                "name": "Open",
                 "coveragePercent": 0,
                 "coverageCount": "0/4",
                 "status": "low"
@@ -5483,7 +5818,7 @@
                 "linktype": "injectable",
                 "name": "ContentListState",
                 "coveragePercent": 0,
-                "coverageCount": "0/12",
+                "coverageCount": "0/16",
                 "status": "low"
             },
             {

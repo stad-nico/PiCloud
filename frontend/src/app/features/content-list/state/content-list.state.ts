@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
+import { Navigate } from '@ngxs/router-plugin';
 import { Action, Selector, State, StateContext } from '@ngxs/store';
 import { patch, updateItem } from '@ngxs/store/operators';
-import { ContentType, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
+import { DirectoryService } from 'generated';
+import { tap } from 'rxjs';
+import { ContentType, Directory, File, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
 import { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';
 
 export interface ContentListStateModel {
@@ -12,151 +15,52 @@ export interface ContentListStateModel {
 @State<ContentListStateModel>({
 	name: 'content_list',
 	defaults: {
-		items: [
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 0,
-				isSelected: false,
-			},
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 1,
-				isSelected: false,
-			},
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 2,
-				isSelected: false,
-			},
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 3,
-				isSelected: false,
-			},
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 4,
-				isSelected: false,
-			},
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 5,
-				isSelected: false,
-			},
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 6,
-				isSelected: false,
-			},
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 7,
-				isSelected: false,
-			},
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 8,
-				isSelected: false,
-			},
-			{
-				type: Type.Directory,
-				name: 'element',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 9,
-				isSelected: false,
-			},
-			{
-				type: Type.File,
-				name: 'element',
-				mimeType: 'text/plain',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 10,
-				isSelected: false,
-			},
-			{
-				type: Type.File,
-				name: 'element',
-				mimeType: 'text/plain',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 11,
-				isSelected: false,
-			},
-			{
-				type: Type.File,
-				name: 'element',
-				mimeType: 'text/plain',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 12,
-				isSelected: false,
-			},
-			{
-				type: Type.File,
-				name: 'element',
-				mimeType: 'text/plain',
-				size: 239,
-				createdAt: new Date(Date.now()).toISOString(),
-				updatedAt: new Date(Date.now()).toISOString(),
-				id: 13,
-				isSelected: false,
-			},
-		],
 		lastInteractedId: undefined,
+		items: [],
 	},
 })
 @Injectable()
 export class ContentListState {
+	private directoryService: DirectoryService;
+
+	constructor(directoryService: DirectoryService) {
+		this.directoryService = directoryService;
+	}
+
 	@Selector()
-	public static getContent(state: ContentListStateModel) {
+	public static selectContent(state: ContentListStateModel) {
 		return state.items;
 	}
 
 	@Selector()
 	public static isAtLeastOneSelected(state: ContentListStateModel) {
 		return state.items.some((item) => item.isSelected);
+	}
+
+	@Action(ContentListActions.FetchContent)
+	public fetchContent(ctx: StateContext<ContentListStateModel>, action: ContentListActions.FetchContent) {
+		return this.directoryService.getDirectoryContent(action.path).pipe(
+			tap((content) => {
+				ctx.setState({
+					items: [
+						...(content.directories.map((directory) => ({ isSelected: false, type: Type.Directory, ...directory })) as Omit<Directory, 'id'>[]),
+						...(content.files.map((file) => ({ isSelected: false, type: Type.File, ...file })) as Omit<File, 'id'>[]),
+					].map((element, index) => ({ id: index, ...element })),
+					lastInteractedId: undefined,
+				});
+			})
+		);
+	}
+
+	@Action(ContentListActions.Open)
+	public open(ctx: StateContext<ContentListStateModel>, action: ContentListActions.Open) {
+		const name = ctx.getState().items.find((item) => item.id === action.id)?.name;
+
+		if (!name) {
+			return;
+		}
+
+		ctx.dispatch(new Navigate([name], {}, { relativeTo: action.route }));
 	}
 
 	@Action(ContentListActions.SelectSingle)

@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { filter, Observable, Subscription } from 'rxjs';
 import {
+	ListItemOpenEvent,
 	ListItemSelectEvent,
 	ListItemUnselectEvent,
 } from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';
@@ -17,6 +19,10 @@ import { ContentListService } from 'src/app/features/content-list/content-list.s
 export class ContentListComponent {
 	private readonly service: ContentListService;
 
+	private readonly router: Router;
+
+	private readonly route: ActivatedRoute;
+
 	private readonly content$: Observable<Array<ContentType>>;
 
 	private readonly isInSelectMode$: Observable<boolean>;
@@ -27,14 +33,24 @@ export class ContentListComponent {
 
 	public content: Array<ContentType> = [];
 
-	constructor(service: ContentListService) {
+	constructor(service: ContentListService, route: ActivatedRoute, router: Router) {
 		this.service = service;
+		this.route = route;
+		this.router = router;
 
-		this.content$ = service.getContent();
+		this.content$ = service.selectContent();
 		this.isInSelectMode$ = service.isAtLeastOneSelected();
 	}
 
 	ngOnInit() {
+		this.service.fetchContent(this.route.snapshot.url.join('/'));
+
+		this.subscriptions.add(
+			this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+				this.service.fetchContent(event.urlAfterRedirects.replace('/', ''));
+			})
+		);
+
 		this.subscriptions.add(
 			this.content$.subscribe((content) => {
 				this.content = content;
@@ -58,6 +74,10 @@ export class ContentListComponent {
 
 	onUnselect(event: ListItemUnselectEvent) {
 		this.service.unselect(event);
+	}
+
+	onOpen(event: ListItemOpenEvent) {
+		this.service.open(event, this.route);
 	}
 
 	selectAll() {

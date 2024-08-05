@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, 
 import { DirectoryContentDirectory, DirectoryContentFile } from 'generated';
 import { SelectableFileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-file-list-item/selectable-file-list-item.component';
 import {
+	ListItemOpenEvent,
 	ListItemSelectEvent,
 	ListItemUnselectEvent,
 	SelectableDirectoryListItemComponent,
@@ -57,6 +58,9 @@ export class PureContentListComponent {
 
 	@Output()
 	public onUnselectAll: EventEmitter<void> = new EventEmitter();
+
+	@Output()
+	public onOpen: EventEmitter<ListItemOpenEvent> = new EventEmitter();
 
 	constructor(ref: ElementRef) {
 		this.ref = ref;

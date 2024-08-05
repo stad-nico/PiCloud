@@ -1,3 +1,5 @@
+import { ActivatedRoute } from '@angular/router';
+
 export namespace ContentListActions {
 	export class SelectSingle {
 		public static readonly type = '[Content List] Select Single';
@@ -64,6 +66,29 @@ export namespace ContentListActions {
 
 		constructor(id: number) {
 			this.id = id;
+		}
+	}
+
+	export class Open {
+		public static readonly type = '[Content List] Open';
+
+		public readonly id: number;
+
+		public readonly route: ActivatedRoute;
+
+		constructor(id: number, route: ActivatedRoute) {
+			this.id = id;
+			this.route = route;
+		}
+	}
+
+	export class FetchContent {
+		public static readonly type = '[Content List] Fetch Content';
+
+		public readonly path: string;
+
+		constructor(path: string) {
+			this.path = path;
 		}
 	}
 }
