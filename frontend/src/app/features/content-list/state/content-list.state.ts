@@ -1,30 +1,42 @@
 import { Injectable } from '@angular/core';
-import { Navigate } from '@ngxs/router-plugin';
-import { Action, Selector, State, StateContext } from '@ngxs/store';
-import { patch, updateItem } from '@ngxs/store/operators';
-import { DirectoryService } from 'generated';
-import { tap } from 'rxjs';
-import { ContentType, Directory, File, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
+import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
+import { append, patch, updateItem } from '@ngxs/store/operators';
+import { DirectoriesService, FilesService } from 'generated';
+import { catchError, defaultIfEmpty, forkJoin, ignoreElements, map, merge, switchMap, take, tap, timer } from 'rxjs';
+import { ROOT_ID } from 'src/app/core/components/explorer/state/explorer.state';
+import { ContentType, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
 import { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';
 
+const AlphabeticallyDirectoriesFirstSort = (a: ContentType, b: ContentType) => {
+	return a.type !== b.type ? a.type - b.type : a.name.localeCompare(b.name);
+};
+
 export interface ContentListStateModel {
+	isLoading: boolean;
 	items: ContentType[];
-	lastInteractedId: number | undefined;
+	lastInteractedId: string | undefined;
 }
 
 @State<ContentListStateModel>({
 	name: 'content_list',
 	defaults: {
+		isLoading: true,
 		lastInteractedId: undefined,
 		items: [],
 	},
 })
 @Injectable()
 export class ContentListState {
-	private directoryService: DirectoryService;
+	private readonly directoriesService: DirectoriesService;
 
-	constructor(directoryService: DirectoryService) {
-		this.directoryService = directoryService;
+	private readonly filesService: FilesService;
+
+	private readonly store: Store;
+
+	constructor(directoriesService: DirectoriesService, filesService: FilesService, store: Store) {
+		this.directoriesService = directoriesService;
+		this.filesService = filesService;
+		this.store = store;
 	}
 
 	@Selector()
@@ -37,30 +49,68 @@ export class ContentListState {
 		return state.items.some((item) => item.isSelected);
 	}
 
-	@Action(ContentListActions.FetchContent)
-	public fetchContent(ctx: StateContext<ContentListStateModel>, action: ContentListActions.FetchContent) {
-		return this.directoryService.getDirectoryContent(action.path).pipe(
-			tap((content) => {
-				ctx.setState({
-					items: [
-						...(content.directories.map((directory) => ({ isSelected: false, type: Type.Directory, ...directory })) as Omit<Directory, 'id'>[]),
-						...(content.files.map((file) => ({ isSelected: false, type: Type.File, ...file })) as Omit<File, 'id'>[]),
-					].map((element, index) => ({ id: index, ...element })),
-					lastInteractedId: undefined,
-				});
+	@Selector()
+	public static selectIsLoading(state: ContentListStateModel) {
+		return state.isLoading;
+	}
+
+	@Action(ContentListActions.AddDirectory)
+	public addDirectory(ctx: StateContext<ContentListStateModel>, action: ContentListActions.AddDirectory) {
+		ctx.setState(
+			patch({
+				items: append([action.directory]),
 			})
 		);
 	}
 
-	@Action(ContentListActions.Open)
-	public open(ctx: StateContext<ContentListStateModel>, action: ContentListActions.Open) {
-		const name = ctx.getState().items.find((item) => item.id === action.id)?.name;
-
-		if (!name) {
+	@Action(ContentListActions.FetchContent)
+	public fetchContent(ctx: StateContext<ContentListStateModel>, action: ContentListActions.FetchContent) {
+		if (!action.id || action.id === ROOT_ID) {
+			ctx.setState(patch({ isLoading: false }));
 			return;
 		}
 
-		ctx.dispatch(new Navigate([name], {}, { relativeTo: action.route }));
+		return merge(
+			this.directoriesService.getContents(action.id).pipe(
+				switchMap((response) => {
+					const items = [
+						...response.files.map((file) => ({ type: Type.File as Type.File, ...file })),
+						...response.directories.map((directory) => ({ type: Type.Directory as Type.Directory, ...directory })),
+					];
+
+					return forkJoin(
+						items.map((item) =>
+							item.type === Type.File
+								? this.filesService.getFileMetadata(action.id!, item.id).pipe(
+										catchError((error) => {
+											throw new Error(error);
+										}),
+										map((response) => ({ ...item, ...response, id: item.id }))
+									)
+								: this.directoriesService.getMetadata(item.id).pipe(
+										catchError((error) => {
+											throw new Error(error);
+										}),
+										map((response) => ({ ...item, ...response, id: item.id }))
+									)
+						)
+					);
+				}),
+				defaultIfEmpty([]),
+				tap((items) => {
+					ctx.setState(
+						patch({
+							items: items.map((item) => ({ ...item, isSelected: false, isBeingProcessed: false })).sort(AlphabeticallyDirectoriesFirstSort),
+							isLoading: false,
+						})
+					);
+				})
+			),
+			timer(200).pipe(
+				tap(() => ctx.setState(patch({ isLoading: true }))),
+				ignoreElements()
+			)
+		).pipe(take(1));
 	}
 
 	@Action(ContentListActions.SelectSingle)
@@ -86,76 +136,96 @@ export class ContentListState {
 	@Action([ContentListActions.ShiftSelect, ContentListActions.CtrlSelect])
 	public rangeSelect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftSelect | ContentListActions.CtrlSelect) {
 		const lastInteractedId = ctx.getState().lastInteractedId;
+		const items = ctx.getState().items;
 
-		if (lastInteractedId === undefined) {
+		if (!lastInteractedId) {
 			ctx.dispatch(new ContentListActions.SelectSingle(action.id));
 			return;
 		}
 
-		const start = Math.min(lastInteractedId, action.id);
-		const end = Math.max(lastInteractedId, action.id);
+		const selectedIndex = items.findIndex((item) => item.id === action.id);
+		const lastInteractedIndex = items.findIndex((item) => item.id === lastInteractedId);
 
-		if (end - start <= 2 || this.isUnselectedInRange(ctx, start, end)) {
-			this.selectRange(ctx, start, end);
+		const rangeStart = Math.min(selectedIndex, lastInteractedIndex);
+		const rangeEnd = Math.max(selectedIndex, lastInteractedIndex) + 1;
+
+		const itemsToUpdate = items.slice(rangeStart, rangeEnd);
+
+		if (itemsToUpdate.length <= 2 || itemsToUpdate.some((item) => !item.isSelected)) {
+			ctx.setState(
+				patch({
+					items: items.map((item) => ({ ...item, isSelected: itemsToUpdate.includes(item) ? true : item.isSelected })),
+					lastInteractedId: rangeStart === selectedIndex ? itemsToUpdate.at(0)?.id : itemsToUpdate.at(-1)?.id,
+				})
+			);
 		} else {
-			this.unselectRange(ctx, start, end);
+			ctx.setState(
+				patch({
+					items: items.map((item) => ({ ...item, isSelected: itemsToUpdate.includes(item) ? false : item.isSelected })),
+					lastInteractedId: rangeStart === selectedIndex ? itemsToUpdate.at(0)?.id : itemsToUpdate.at(-1)?.id,
+				})
+			);
 		}
 	}
 
 	@Action([ContentListActions.ShiftUnselect, ContentListActions.CtrlUnselect])
 	public rangeUnselect(ctx: StateContext<ContentListStateModel>, action: ContentListActions.ShiftUnselect | ContentListActions.CtrlUnselect) {
 		const lastInteractedId = ctx.getState().lastInteractedId;
+		const items = ctx.getState().items;
 
-		if (lastInteractedId === undefined) {
+		if (!lastInteractedId) {
 			ctx.dispatch(new ContentListActions.SelectSingle(action.id));
 			return;
 		}
 
-		const start = Math.min(lastInteractedId, action.id);
-		const end = Math.max(lastInteractedId, action.id);
+		const selectedIndex = items.findIndex((item) => item.id === action.id);
+		const lastInteractedIndex = items.findIndex((item) => item.id === lastInteractedId);
 
-		this.unselectRange(ctx, start === action.id ? start + 1 : start, end);
+		const rangeStart = Math.min(selectedIndex, lastInteractedIndex);
+		const rangeEnd = Math.max(selectedIndex, lastInteractedIndex) + 1;
 
-		ctx.dispatch(new ContentListActions.SelectSingle(action.id));
+		const itemsToUpdate = items.slice(rangeStart, rangeEnd);
+
+		if (itemsToUpdate.some((item) => !item.isSelected)) {
+			ctx.setState(
+				patch({
+					items: items.map((item) => ({ ...item, isSelected: itemsToUpdate.includes(item) ? true : item.isSelected })),
+					lastInteractedId: action.id,
+				})
+			);
+		} else {
+			const slice = rangeStart === selectedIndex ? itemsToUpdate.slice(1) : itemsToUpdate.slice(0, -1);
+
+			ctx.setState(
+				patch({
+					items: items.map((item) => ({ ...item, isSelected: slice.includes(item) ? false : item.isSelected })),
+					lastInteractedId: action.id,
+				})
+			);
+		}
 	}
 
 	@Action(ContentListActions.SelectAll)
 	public selectAll(ctx: StateContext<ContentListStateModel>) {
 		const items = ctx.getState().items;
 
-		ctx.setState({
-			items: items.map((item) => ({ ...item, isSelected: true })),
-			lastInteractedId: items.at(-1)?.id,
-		});
+		ctx.setState(
+			patch({
+				items: items.map((item) => ({ ...item, isSelected: true })),
+				lastInteractedId: items.at(-1)?.id,
+			})
+		);
 	}
 
 	@Action(ContentListActions.UnselectAll)
 	public unselectAll(ctx: StateContext<ContentListStateModel>) {
 		const items = ctx.getState().items;
 
-		ctx.setState({
-			items: items.map((item) => ({ ...item, isSelected: false })),
-			lastInteractedId: items.at(0)?.id,
-		});
-	}
-
-	private selectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {
-		for (let i = start; i <= end; i++) {
-			ctx.dispatch(new ContentListActions.SelectSingle(i));
-		}
-	}
-
-	private unselectRange(ctx: StateContext<ContentListStateModel>, start: number, end: number) {
-		for (let i = start; i <= end; i++) {
-			ctx.dispatch(new ContentListActions.UnselectSingle(i));
-		}
-	}
-
-	private isUnselectedInRange(ctx: StateContext<ContentListStateModel>, from: number, to: number): boolean {
-		if (from > to) {
-			[from, to] = [to, from];
-		}
-
-		return ctx.getState().items.find((item) => item.id >= from && item.id <= to && !item.isSelected) !== undefined;
+		ctx.setState(
+			patch({
+				items: items.map((item) => ({ ...item, isSelected: false })),
+				lastInteractedId: items.at(0)?.id,
+			})
+		);
 	}
 }

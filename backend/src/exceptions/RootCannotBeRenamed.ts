@@ -6,8 +6,8 @@
  *-------------------------------------------------------------------------*/
 import { BadRequestException } from '@nestjs/common';
 
-export class InvalidDirectoryPathException extends BadRequestException {
-	public constructor(path: string) {
-		super(`${path} is not a valid directory path`);
+export class RootCannotBeRenamedException extends BadRequestException {
+	public constructor() {
+		super(`the root directory cannot be renamed`);
 	}
 }

@@ -1,106 +1,250 @@
 import { Injectable } from '@angular/core';
-import { Action, State, StateContext } from '@ngxs/store';
-import { compose, StateOperator } from '@ngxs/store/operators';
+import { Action, Selector, State, StateContext } from '@ngxs/store';
+import { append, compose, iif, patch, updateItem } from '@ngxs/store/operators';
+import { DirectoriesService, DirectoryContentResponse } from 'generated';
+import { concatMap, from, ignoreElements, merge, switchMap, take, takeWhile, tap, timer, toArray } from 'rxjs';
+import { ExplorerActions } from 'src/app/core/components/explorer/state/explorer.actions';
+import { ROOT_ID } from 'src/app/core/components/explorer/state/explorer.state';
+import { BreadcrumbsActions } from 'src/app/features/breadcrumbs/state/breadcrumbs.actions';
 import { DirectoryTreeActions } from 'src/app/features/directory-tree/state/directory-tree.actions';
 
-export type Leaf = { name: string; hasChildren: false; isSelected: boolean; id: number };
+interface DirectoryTreeStateModel {
+	isLoading: boolean;
+	lastSelectedId: string | undefined;
+	root: Node;
+	tree: TreeModel;
+}
 
-export type Node = { name: string; hasChildren: true; isCollapsed: boolean; children: Array<Node | Leaf>; isSelected: boolean; id: number };
+export interface TreeModel {
+	[id: string]: Array<Node>;
+}
 
-export type DirectoryTreeItemMetadata = { name: string; hasChildren: boolean; isCollapsed: boolean; children: Array<DirectoryTreeItemMetadata> };
-
-export const DirectoryTreeStateToken = 'directory_tree';
-
-export type DirectoryTreeStateModel = Node | Leaf;
+export interface Node {
+	id: string;
+	name: string;
+	isCollapsed: boolean;
+	hasChildren: boolean;
+	isSelected: boolean;
+}
 
 @State<DirectoryTreeStateModel>({
-	name: DirectoryTreeStateToken,
+	name: 'directory_tree',
 	defaults: {
-		name: 'root',
-		hasChildren: true,
-		isCollapsed: false,
-		isSelected: false,
-		id: 0,
-		children: [
-			{ name: 'example1', hasChildren: false, isSelected: false, id: 1 },
-			{ name: 'example2', hasChildren: false, isSelected: false, id: 2 },
-			{
-				name: 'example3',
-				hasChildren: true,
-				isCollapsed: false,
-				isSelected: false,
-				id: 3,
-				children: [
-					{
-						name: 'test',
-						hasChildren: true,
-						isCollapsed: false,
-						isSelected: false,
-						id: 4,
-						children: [
-							{
-								name: 'test',
-								hasChildren: false,
-								isSelected: false,
-								id: 5,
-							},
-						],
-					},
-				],
-			},
-		],
+		isLoading: true,
+		lastSelectedId: undefined,
+		tree: {},
+		root: {
+			name: 'root',
+			id: ROOT_ID,
+			isCollapsed: false,
+			isSelected: false,
+			hasChildren: true,
+		},
 	},
 })
 @Injectable()
 export class DirectoryTreeState {
-	@Action(DirectoryTreeActions.Select)
-	public select(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.Select) {
+	private directoriesService: DirectoriesService;
+
+	constructor(directoriesService: DirectoriesService) {
+		this.directoriesService = directoriesService;
+	}
+
+	@Selector()
+	public static getRoot(state: DirectoryTreeStateModel) {
+		return state.root;
+	}
+
+	@Selector()
+	public static getTree(state: DirectoryTreeStateModel) {
+		return state.tree;
+	}
+
+	@Selector()
+	public static getIsLoading(state: DirectoryTreeStateModel) {
+		return state.isLoading;
+	}
+
+	@Action(DirectoryTreeActions.AddDirectory)
+	public addDirectory(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.AddDirectory) {
+		const parentId = action.directory.parentId;
+		const grandparentId = this.getParentId(ctx, action.directory.parentId);
+
+		if (!grandparentId) {
+			throw new Error('NO GRANDPARENT');
+		}
+
 		ctx.setState(
-			compose(
-				patchRecursive((n) => true, { isSelected: false }, false),
-				patchRecursive((n) => n.id === action.id, { isSelected: true })
-			)
+			patch({
+				tree: iif(
+					grandparentId in ctx.getState().tree,
+					patch({
+						[grandparentId]: updateItem(
+							(item) => item.id === parentId,
+							patch({
+								hasChildren: (ctx.getState().tree[parentId]?.length || 1) > 0,
+								isCollapsed: (ctx.getState().tree[parentId]?.length || 1) <= 0,
+							})
+						),
+						[parentId]: append([{ isCollapsed: true, isSelected: false, hasChildren: false, ...action.directory }]),
+					}),
+					patch({
+						[parentId]: append([{ isCollapsed: true, isSelected: false, hasChildren: false, ...action.directory }]),
+					})
+				),
+			})
 		);
+	}
+
+	@Action(DirectoryTreeActions.FetchInitialContent)
+	public fetchInitialContent(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.FetchInitialContent) {
+		const updateState = (contents: DirectoryContentResponse) => {
+			ctx.setState(
+				patch({
+					tree: patch({
+						[currentId]: contents.directories.map((directory) => ({
+							...directory,
+							isCollapsed: directory.name !== name,
+							isSelected: directory.id === action.id,
+						})),
+					}),
+				})
+			);
+		};
+
+		let currentId = action.id;
+		let name = '';
+
+		return merge(
+			from(currentId).pipe(
+				concatMap(() => {
+					return this.directoriesService.getContents(currentId).pipe(
+						tap(updateState),
+						switchMap(() =>
+							this.directoriesService.getMetadata(currentId).pipe(
+								tap((metadata) => {
+									ctx.dispatch(new BreadcrumbsActions.Add(metadata.name, currentId));
+									currentId = metadata.parentId;
+									name = metadata.name;
+								})
+							)
+						)
+					);
+				}),
+				takeWhile((metadata) => metadata.parentId !== null),
+				tap(() => ctx.setState(patch({ lastSelectedId: action.id }))),
+				toArray()
+			),
+			timer(200).pipe(
+				tap(() => alert('LOADING')),
+				ignoreElements()
+			)
+		).pipe(take(1));
+	}
+
+	@Action(DirectoryTreeActions.FetchContent)
+	public fetchContent(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.FetchContent) {
+		if (action.id in ctx.getState().tree) {
+			return;
+		}
+
+		const updateState = (contents: DirectoryContentResponse) => {
+			ctx.setState(
+				patch({
+					tree: patch({
+						[action.id]: contents.directories.map((directory) => ({
+							...directory,
+							isCollapsed: true,
+							isSelected: directory.id === action.id,
+						})),
+					}),
+				})
+			);
+		};
+
+		return this.directoriesService.getContents(action.id).pipe(tap(updateState));
 	}
 
 	@Action(DirectoryTreeActions.Collapse)
 	public collapse(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.Collapse) {
-		ctx.setState(patchRecursive((n) => n.id === action.id, { isCollapsed: true }));
+		const parentId = this.getParentId(ctx, action.id);
+
+		if (!parentId) {
+			throw new Error('parentId not defined');
+		}
+
+		ctx.setState(
+			patch({
+				tree: patch({
+					[parentId]: updateItem((item) => item.id === action.id, patch({ isCollapsed: true })),
+				}),
+			})
+		);
 	}
 
 	@Action(DirectoryTreeActions.Expand)
 	public expand(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.Expand) {
-		ctx.setState(patchRecursive((n) => n.id === action.id, { isCollapsed: false }));
-	}
-}
+		const parentId = this.getParentId(ctx, action.id);
 
-function patchRecursive(selector: (n: Node | Leaf) => boolean, obj: Object, stopOnMatch: boolean = true): StateOperator<Node | Leaf> {
-	function recursive(nodeOrLeaf: Node | Leaf): Node | Leaf {
-		if (selector(nodeOrLeaf)) {
-			if (stopOnMatch) {
-				return { ...nodeOrLeaf, ...obj };
-			} else {
-				if (isLeaf(nodeOrLeaf)) {
-					return { ...nodeOrLeaf, ...obj };
-				} else {
-					return { ...nodeOrLeaf, ...obj, children: nodeOrLeaf.children.map((child) => recursive(child)) };
-				}
-			}
+		if (!parentId) {
+			throw new Error('parentId not defined');
 		}
 
-		if (isLeaf(nodeOrLeaf)) {
-			return nodeOrLeaf;
-		}
-
-		return {
-			...nodeOrLeaf,
-			children: nodeOrLeaf.children.map((child) => recursive(child)),
-		};
+		ctx.setState(
+			patch({
+				tree: patch({
+					[parentId]: updateItem((item) => item.id === action.id, patch({ isCollapsed: false })),
+				}),
+			})
+		);
 	}
 
-	return (state: Node | Leaf) => recursive(state);
-}
+	@Action(DirectoryTreeActions.Open)
+	public open(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.Open) {
+		const lastSelectedId = ctx.getState().lastSelectedId;
 
-function isLeaf(leafOrNode: Leaf | Node): leafOrNode is Leaf {
-	return !('children' in leafOrNode);
+		const parentId = this.getParentId(ctx, action.id);
+		const lastSelectedParentId = this.getParentId(ctx, lastSelectedId);
+
+		if (!parentId) {
+			throw new Error('parentId undefined');
+		}
+
+		const patchObj = { isSelected: true, isCollapsed: false };
+
+		ctx.setState(
+			patch({
+				tree: iif(
+					!lastSelectedParentId,
+					patch({
+						[parentId]: updateItem((directory) => directory.id === action.id, patch(patchObj)),
+					}),
+					iif(
+						lastSelectedParentId !== parentId,
+						patch({
+							[lastSelectedParentId!]: updateItem((directory) => directory.id === lastSelectedId, patch({ isSelected: false })),
+							[parentId]: updateItem((directory) => directory.id === action.id, patch(patchObj)),
+						}),
+						patch({
+							[parentId]: compose(
+								updateItem((directory) => directory.id === lastSelectedId, patch({ isSelected: false })),
+								updateItem((directory) => directory.id === action.id, patch(patchObj))
+							),
+						})
+					)
+				),
+				lastSelectedId: action.id,
+			})
+		);
+
+		ctx.dispatch(new ExplorerActions.Open(action.id));
+	}
+
+	private getParentId(ctx: StateContext<DirectoryTreeStateModel>, id: string | undefined) {
+		const tree = ctx.getState().tree;
+
+		const parentId = Object.keys(tree).find((key) => tree[key].some((directory) => directory.id === id));
+
+		return parentId;
+	}
 }

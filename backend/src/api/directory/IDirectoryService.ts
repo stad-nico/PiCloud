@@ -9,26 +9,30 @@ import { DirectoryCreateDto, DirectoryCreateResponse } from 'src/api/directory/m
 import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete';
 import { DirectoryDownloadDto, DirectoryDownloadResponse } from 'src/api/directory/mapping/download';
 import { DirectoryMetadataDto, DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata';
-import { DirectoryRenameDto, DirectoryRenameResponse } from 'src/api/directory/mapping/rename';
+import { DirectoryRenameDto } from 'src/api/directory/mapping/rename';
+import { DirectoryNotFoundException } from 'src/exceptions/DirectoryNotFoundException';
+import { ParentDirectoryNotFoundException } from 'src/exceptions/ParentDirectoryNotFoundExceptions';
+import { RootCannotBeDeletedException } from 'src/exceptions/RootCannotBeDeletedException';
+import { RootCannotBeRenamedException } from 'src/exceptions/RootCannotBeRenamed';
 
 export const IDirectoryService = Symbol('IDirectoryService');
 
 export interface IDirectoryService {
 	/**
-	 * Creates a directory by its path.
-	 * Throws if a directory at that path already exists or destination parent does not exist.
+	 * Creates a directory with given name under given parent id.
+	 * Throws if a directory with that name already exists or parent does not exist.
 	 * @async
 	 *
 	 * @throws  {ParentDirectoryNotFoundException} if parent directory does not exist
 	 * @throws  {DirectoryAlreadyExistsException}  if directory already exists
 	 *
 	 * @param   {DirectoryCreateDto}               directoryCreateDto the dto for creating a new directory
-	 * @returns {Promise<DirectoryCreateResponse>}                    the path of the created directory
+	 * @returns {Promise<DirectoryCreateResponse>}                    the id of the directory
 	 */
 	create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse>;
 
 	/**
-	 * Returns the first level subdirectories and files of a directory.
+	 * Returns the files and subdirectories of a directory.
 	 * Throws if directory does not exist.
 	 * @async
 	 *
@@ -37,11 +41,11 @@ export interface IDirectoryService {
 	 * @param   {DirectoryContentDto}               directoryContentDto the dto for getting the contents of a directory
 	 * @returns {Promise<DirectoryContentResponse>}                     the contents of the directory
 	 */
-	content(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse>;
+	contents(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse>;
 
 	/**
-	 * Returns the metadata of a directory by its path.
-	 * Throws if directory at the given path does not exist.
+	 * Returns the metadata of the directory with the given id.
+	 * Throws if the directory does not exist.
 	 * @async
 	 *
 	 * @throws  {DirectoryNotFoundException} if directory does not exist
@@ -53,7 +57,7 @@ export interface IDirectoryService {
 
 	/**
 	 * Returns a stream of a ZIP archive of the contents of a directory as well as mime type and directory name.
-	 * Throws if the directory at the given path does not exist.
+	 * Throws if the directory at the given id does not exist.
 	 * @async
 	 *
 	 * @throws  {DirectoryNotFoundException} if directory does not exist
@@ -64,25 +68,27 @@ export interface IDirectoryService {
 	download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse>;
 
 	/**
-	 * Renames or moves a directory.
-	 * Throws if directory does not exist, destination already exists or destination parent no exists.
+	 * Renames a directory.
+	 * Throws if trying to rename root, parent directory does not exist,
+	 * directory does not exist or a directory with same name and parent already exists.
 	 * @async
 	 *
-	 * @throws  {DirectoryNotFoundException}       if source directory does not exist
+	 * @throws  {RootCannotBeRenamedException}     if directory to rename is root
+	 * @throws  {ParentDirectoryNotFoundException} if the parent directory does not exist
+	 * @throws  {DirectoryNotFoundException}       if directory does not exist
 	 * @throws  {DirectoryAlreadyExistsException}  if destination directory already exists
-	 * @throws  {ParentDirectoryNotFoundException} if destination parent does not exist
 	 *
 	 * @param   {DirectoryRenameDto}               directoryRenameDto the dto for renaming a directory
-	 * @returns {Promise<DirectoryRenameResponse>}                    the path of the renamed directory
 	 */
-	rename(directoryRenameDto: DirectoryRenameDto): Promise<DirectoryRenameResponse>;
+	rename(directoryRenameDto: DirectoryRenameDto): Promise<void>;
 
 	/**
 	 * Deletes a directory by its path.
-	 * Throws if directory at given path does not exist.
+	 * Throws if trying to delete root or directory at given path does not exist.
 	 * @async
 	 *
-	 * @throws {DirectoryNotFoundException} if directory does not exist
+	 * @throws {RootCannotBeDeletedException} if trying to delete root
+	 * @throws {DirectoryNotFoundException}   if directory does not exist
 	 *
 	 * @param {DirectoryDeleteDto} directoryDeleteDto the dto for deleting the directory
 	 */

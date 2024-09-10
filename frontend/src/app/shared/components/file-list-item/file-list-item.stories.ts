@@ -26,9 +26,33 @@ export const Default: StoryObj<FileListItemComponent> = {
 	},
 };
 
+export const Hovered: StoryObj<FileListItemComponent> = {
+	args: {
+		metadata: defaultMetadata,
+	},
+	parameters: {
+		pseudo: {
+			hover: ['file-list-item'],
+		},
+	},
+};
+
 export const Selected: StoryObj<FileListItemComponent> = {
 	args: {
 		metadata: defaultMetadata,
 		isSelected: true,
 	},
+};
+
+export const SelectedHovered: StoryObj<FileListItemComponent> = {
+	args: {
+		metadata: defaultMetadata,
+		isSelected: true,
+	},
+	parameters: {
+		pseudo: {
+			hover: ['file-list-item'],
+		},
+	},
+	name: 'Selected Hovered',
 };

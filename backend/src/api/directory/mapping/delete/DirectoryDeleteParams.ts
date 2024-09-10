@@ -12,20 +12,25 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 export class DirectoryDeleteParams {
 	/**
-	 * The path of the directory to delete.
+	 * The id of the directory to delete.
 	 * @type {string}
 	 */
-	@ApiProperty({ example: '/path/to/directory', description: 'The path of the directory to delete' })
-	readonly path: string;
+	@ApiProperty({
+		examples: {
+			uuid: { value: '133a8736-111a-4cf7-ae84-dbe040ad4382', summary: 'Any directory id' },
+		},
+		description: 'The id of the directory to delete',
+	})
+	readonly id: string;
 
 	/**
 	 * Creates a new DirectoryDeleteParams instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}                path the path of the directory
-	 * @returns {DirectoryDeleteParams}      the DirectoryDeleteParams instance
+	 * @param   {string}                id the id of the directory
+	 * @returns {DirectoryDeleteParams}    the DirectoryDeleteParams instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 }

@@ -1,5 +1,5 @@
-import { Component, HostBinding, Input } from '@angular/core';
-import { DirectoryContentFile } from 'generated';
+import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
+import { FileMetadataResponse } from 'generated';
 import { IDeletable } from 'src/app/shared/models/IDeletable';
 import { IDownloadable } from 'src/app/shared/models/IDownloadable';
 import { IRenamable } from 'src/app/shared/models/IRenamable';
@@ -13,11 +13,14 @@ import { ISelectable } from 'src/app/shared/models/ISelectable';
 })
 export class FileListItemComponent implements ISelectable, IDownloadable, IRenamable, IDeletable {
 	@Input({ required: true })
-	public metadata!: DirectoryContentFile;
+	public metadata!: FileMetadataResponse;
 
 	@HostBinding('class.selected')
 	@Input('isSelected')
 	public isSelected: boolean = false;
+
+	@Output()
+	public onDelete: EventEmitter<void> = new EventEmitter();
 
 	select(): void {
 		this.isSelected = true;
@@ -33,6 +36,8 @@ export class FileListItemComponent implements ISelectable, IDownloadable, IRenam
 
 	public delete(event?: Event): void {
 		event?.preventDefault();
+
+		this.onDelete.emit();
 	}
 
 	public download(event?: Event): void {

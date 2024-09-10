@@ -5,7 +5,6 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { DirectoryContentParams } from 'src/api/directory/mapping/content/DirectoryContentParams';
-import { PathUtils } from 'src/util/PathUtils';
 
 /**
  * DTO for bundling the http request data.
@@ -13,20 +12,20 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class DirectoryContentDto {
 	/**
-	 * The path of the directory to get the contents from.
+	 * The id of the directory to get the contents from.
 	 * @type {string}
 	 */
-	readonly path: string;
+	readonly id: string;
 
 	/**
 	 * Creates a new DirectoryContentDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}              path the path of the directory
-	 * @returns {DirectoryContentDto}      the DirectoryContentDto instance
+	 * @param   {string}              id the id of the directory
+	 * @returns {DirectoryContentDto}    the DirectoryContentDto instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
 	/**
@@ -37,8 +36,6 @@ export class DirectoryContentDto {
 	 * @returns {DirectoryContentDto}                           the DirectoryContentDto instance
 	 */
 	public static from(directoryContentParams: DirectoryContentParams) {
-		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryContentParams.path);
-
-		return new DirectoryContentDto(normalizedPath);
+		return new DirectoryContentDto(directoryContentParams.id);
 	}
 }

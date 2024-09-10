@@ -26,17 +26,48 @@
 	opacity: 1;
 }
 
+:host.is-being-processed > :is(.name, .size, .date) {
+	color: var(--color-text-tertiary);
+}
+
+:host.is-being-processed:hover > :is(.name, .size, .date) {
+	color: var(--color-text-tertiary);
+}
+
+:host.is-being-processed > .icon {
+	filter: grayscale(30%);
+}
+
+:host.is-being-processed > .loading {
+	grid-area: f;
+	justify-self: end;
+
+	width: 6rem;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+:host.is-being-processed > .loading > loading-spinner {
+	width: 1.357rem;
+}
+
 :host.selected {
 	background-color: var(--color-bg-selected);
 }
 
 :host:hover > :is(.name, .size, .date) {
-	color: var(--color-text-hover);
+	color: var(--color-text-secondary-hover);
 }
 
 :host > :is(.name, .size, .date) {
+	text-overflow: ellipsis;
+	overflow: hidden;
 	white-space: nowrap;
 	color: var(--color-text-secondary);
+
+	transition: all 0.2s ease;
 }
 
 :host > .icon {
@@ -45,6 +76,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+
+	transition: all 0.2s ease;
 }
 
 :host > .size {
@@ -60,7 +93,7 @@
 	display: flex;
 	opacity: 0;
 
-	gap: 3px;
+	gap: 0.188rem;
 
 	transition: opacity 0.2s ease;
 }
@@ -68,7 +101,7 @@
 :host > .actions > .icon {
 	width: 1.375rem;
 
-	padding: 4px;
+	padding: 0.25rem;
 
 	border-radius: 0.5rem;
 

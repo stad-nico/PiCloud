@@ -4,12 +4,11 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import * as path from 'path';
 
 import { DirectoryRenameBody } from 'src/api/directory/mapping/rename/DirectoryRenameBody';
 import { DirectoryRenameParams } from 'src/api/directory/mapping/rename/DirectoryRenameParams';
 import { DirectoryNameTooLongException } from 'src/exceptions/DirectoryNameTooLongException';
-import { InvalidDirectoryPathException } from 'src/exceptions/InvalidDirectoryPathException';
+import { InvalidDirectoryNameException } from 'src/exceptions/InvalidDirectoryNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**
@@ -18,36 +17,36 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class DirectoryRenameDto {
 	/**
-	 * The path of the directory to rename.
+	 * The id of the directory to rename.
 	 * @type {string}
 	 */
-	readonly sourcePath: string;
+	readonly id: string;
 
 	/**
-	 * The path to rename the directory to.
+	 * The new name of the directory.
 	 * @type {string}
 	 */
-	readonly destinationPath: string;
+	readonly name: string;
 
 	/**
 	 * Creates a new DirectoryRenameDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}             sourcePath      the path of the directory to rename
-	 * @param   {string}             destinationPath the path to rename the directory to
-	 * @returns {DirectoryRenameDto}                 the DirectoryRenameDto instance
+	 * @param   {string}             id   the id of the directory to rename
+	 * @param   {string}             name the new name of the directory
+	 * @returns {DirectoryRenameDto}      the DirectoryRenameDto instance
 	 */
-	private constructor(sourcePath: string, destinationPath: string) {
-		this.sourcePath = sourcePath;
-		this.destinationPath = destinationPath;
+	private constructor(id: string, name: string) {
+		this.id = id;
+		this.name = name;
 	}
 
 	/**
-	 * Creates a new DirectoryRenameDto instance from the http params.
-	 * Throws if the path is not valid or the directory name is too long.
+	 * Creates a new DirectoryRenameDto instance from the http params and boty.
+	 * Throws if the name is not valid or the name is too long.
 	 * @public @static
 	 *
-	 * @throws  {InvalidDirectoryPathException} if the directory path is invalid
+	 * @throws  {InvalidDirectoryNameException} if the directory name is invalid
 	 * @throws  {DirectoryNameTooLongException} if the directory name is too long
 	 *
 	 * @param   {DirectoryRenameParams} directoryRenameParams the http params
@@ -55,18 +54,14 @@ export class DirectoryRenameDto {
 	 * @returns {DirectoryRenameDto}                          the DirectoryRenameDto instance
 	 */
 	public static from(directoryRenameParams: DirectoryRenameParams, directoryRenameBody: DirectoryRenameBody): DirectoryRenameDto {
-		const sourcePath = PathUtils.normalizeDirectoryPath(directoryRenameParams.path);
-
-		const destPath = PathUtils.normalizeDirectoryPath(directoryRenameBody.newPath);
-
-		if (!PathUtils.isDirectoryPathValid(destPath)) {
-			throw new InvalidDirectoryPathException(directoryRenameBody.newPath);
+		if (!PathUtils.isDirectoryNameValid(directoryRenameBody.name)) {
+			throw new InvalidDirectoryNameException(directoryRenameBody.name);
 		}
 
-		if (path.basename(destPath).length > PathUtils.MaxDirectoryNameLength) {
-			throw new DirectoryNameTooLongException(path.basename(directoryRenameBody.newPath));
+		if (!PathUtils.isDirectoryNameLengthValid(directoryRenameBody.name)) {
+			throw new DirectoryNameTooLongException(directoryRenameBody.name);
 		}
 
-		return new DirectoryRenameDto(sourcePath, destPath);
+		return new DirectoryRenameDto(directoryRenameParams.id, directoryRenameBody.name);
 	}
 }

@@ -5,7 +5,6 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { DirectoryDownloadParams } from 'src/api/directory/mapping/download/DirectoryDownloadParams';
-import { PathUtils } from 'src/util/PathUtils';
 
 /**
  * DTO for bundling the http request data.
@@ -13,20 +12,20 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class DirectoryDownloadDto {
 	/**
-	 * The path of the directory to download.
+	 * The id of the directory to download.
 	 * @type {string}
 	 */
-	readonly path: string;
+	readonly id: string;
 
 	/**
 	 * Creates a new DirectoryDownloadDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}               path the path of the directory
-	 * @returns {DirectoryDownloadDto}      the DirectoryDownloadDto instance
+	 * @param   {string}               id the id of the directory
+	 * @returns {DirectoryDownloadDto}    the DirectoryDownloadDto instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
 	/**
@@ -37,8 +36,6 @@ export class DirectoryDownloadDto {
 	 * @returns {DirectoryDownloadDto}                            the DirectoryDownloadDto instance
 	 */
 	public static from(directoryDownloadParams: DirectoryDownloadParams) {
-		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryDownloadParams.path);
-
-		return new DirectoryDownloadDto(normalizedPath);
+		return new DirectoryDownloadDto(directoryDownloadParams.id);
 	}
 }

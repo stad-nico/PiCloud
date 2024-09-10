@@ -5,7 +5,6 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { createReadStream } from 'fs';
-import * as path from 'path';
 
 import { EntityManager } from '@mikro-orm/mariadb';
 import { Inject, Injectable } from '@nestjs/common';
@@ -17,14 +16,11 @@ import { IFileService } from 'src/api/file/IFileService';
 import { FileDeleteDto } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/mapping/download';
 import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/mapping/metadata';
-import { FileRenameDto, FileRenameResponse } from 'src/api/file/mapping/rename';
-import { FileReplaceDto } from 'src/api/file/mapping/replace/FileReplaceDto';
-import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceResponse';
+import { FileRenameDto } from 'src/api/file/mapping/rename';
+import { FileReplaceDto, FileReplaceResponse } from 'src/api/file/mapping/replace';
 import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
 import { StoragePath } from 'src/disk/DiskService';
-import { FileAlreadyExistsException } from 'src/exceptions/FileAlreadyExistsException';
-import { FileNotFoundException } from 'src/exceptions/FileNotFoundException';
-import { ParentDirectoryNotFoundException } from 'src/exceptions/ParentDirectoryNotFoundExceptions';
+import { FileAlreadyExistsException, FileNotFoundException, ParentDirectoryNotFoundException } from 'src/exceptions';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 
@@ -80,203 +76,109 @@ export class FileService implements IFileService {
 		this.directoryRepository = directoryRepository;
 	}
 
-	/**
-	 * Uploads a file.
-	 * Throws if it already exists or destination parent does not exist.
-	 * @async
-	 *
-	 * @throws  {FileAlreadyExistsException}       if file already exists
-	 * @throws  {ParentDirectoryNotFoundException} if parent directory does not exist
-	 *
-	 * @param   {FileUploadDto}               fileUploadDto the dto for uploading a new file
-	 * @returns {Promise<FileUploadResponse>}               the path of the uploaded file
-	 */
 	public async upload(fileUploadDto: FileUploadDto): Promise<FileUploadResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (await this.fileRepository.exists(entityManager, fileUploadDto.path)) {
-				throw new FileAlreadyExistsException(fileUploadDto.path);
+			if (await this.fileRepository.exists(entityManager, fileUploadDto.parentId, fileUploadDto.name)) {
+				throw new FileAlreadyExistsException(fileUploadDto.name);
 			}
 
-			const parentPath = path.dirname(fileUploadDto.path);
-			const hasRootAsParent = path.relative('.', parentPath) === '';
-
-			const parent = await this.directoryRepository.select(entityManager, parentPath);
-
-			if (!parent && !hasRootAsParent) {
-				throw new ParentDirectoryNotFoundException(parentPath);
+			if (!(await this.directoryRepository.exists(entityManager, fileUploadDto.parentId))) {
+				throw new ParentDirectoryNotFoundException(fileUploadDto.parentId);
 			}
 
-			const parentId = hasRootAsParent ? 'root' : parent!.id;
-
-			const fileName = path.basename(fileUploadDto.path);
-			const result = await this.fileRepository.insertReturningId(entityManager, fileName, fileUploadDto.mimeType, fileUploadDto.size, parentId);
-
-			const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(result.id));
-			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
-
-			return FileUploadResponse.from(fileUploadDto.path);
-		});
-	}
-
-	/**
-	 * Uploads a file or replace if it already exists.
-	 * Throws if the destination parent does not exist.
-	 * @async
-	 *
-	 * @throws  {ParentDirectoryNotFoundException} if parent directory does not exist
-	 *
-	 * @param   {FileReplaceDto}               fileReplaceDto the dto for uploading or replacing a file
-	 * @returns {Promise<FileReplaceResponse>}                the path of the created file
-	 */
-	public async replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse> {
-		return await this.entityManager.transactional(async (entityManager) => {
-			const parentPath = path.dirname(fileReplaceDto.path);
-			const parentDirectory = await this.directoryRepository.select(entityManager, parentPath);
-
-			if (!parentDirectory) {
-				throw new ParentDirectoryNotFoundException(parentPath);
-			}
-
-			if (await this.fileRepository.exists(entityManager, fileReplaceDto.path)) {
-				await this.fileRepository.deleteByPath(entityManager, fileReplaceDto.path);
-			}
-
-			const fileName = path.basename(fileReplaceDto.path);
-			const result = await this.fileRepository.insertReturningId(
+			const id = await this.fileRepository.insertReturningId(
 				entityManager,
-				fileName,
-				fileReplaceDto.mimeType,
-				fileReplaceDto.size,
-				parentDirectory.id
+				fileUploadDto.parentId,
+				fileUploadDto.name,
+				fileUploadDto.mimeType,
+				fileUploadDto.size
 			);
 
-			const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(result.id));
+			const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(id));
+			await FileUtils.writeFile(resolvedPath, fileUploadDto.buffer);
+
+			return FileUploadResponse.from(id);
+		});
+	}
+
+	public async replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse> {
+		return await this.entityManager.transactional(async (entityManager) => {
+			if (!(await this.directoryRepository.exists(entityManager, fileReplaceDto.parentId))) {
+				throw new ParentDirectoryNotFoundException(fileReplaceDto.parentId);
+			}
+
+			if (await this.fileRepository.exists(entityManager, fileReplaceDto.parentId, fileReplaceDto.name)) {
+				await this.fileRepository.delete(entityManager, fileReplaceDto.parentId, fileReplaceDto.name);
+			}
+
+			const id = await this.fileRepository.insertReturningId(
+				entityManager,
+				fileReplaceDto.parentId,
+				fileReplaceDto.name,
+				fileReplaceDto.mimeType,
+				fileReplaceDto.size
+			);
+
+			const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(id));
 			await FileUtils.writeFile(resolvedPath, fileReplaceDto.buffer);
 
-			return FileReplaceResponse.from(fileReplaceDto.path);
+			return FileUploadResponse.from(id);
 		});
 	}
 
-	/**
-	 * Returns the metadata of a file.
-	 * Throws if the file does not exists.
-	 * @async
-	 *
-	 * @throws  {FileNotFoundException} if file does not exist
-	 *
-	 * @param   {FileMetadataDto}               fileMetadataDto the dto for getting the metadata of a file
-	 * @returns {Promise<FileMetadataResponse>}                 the metadata
-	 */
 	public async metadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const metadata = await this.fileRepository.getMetadata(entityManager, fileMetadataDto.path);
+			const metadata = await this.fileRepository.getMetadata(entityManager, fileMetadataDto.id);
 
 			if (!metadata) {
-				throw new FileNotFoundException(fileMetadataDto.path);
+				throw new FileNotFoundException(fileMetadataDto.id);
 			}
 
-			return FileMetadataResponse.from({ path: fileMetadataDto.path, ...metadata });
+			return FileMetadataResponse.from(metadata);
 		});
 	}
 
-	/**
-	 * Returns a stream of the content of a file as well as mime type and filename.
-	 * Throws if the file does not exist.
-	 * @async
-	 *
-	 * @throws  {FileNotFoundException} if file does not exist
-	 *
-	 * @param   {FileDownloadDto}               fileDownloadDto the dto for downloading a file
-	 * @returns {Promise<FileDownloadResponse>}                 the response
-	 */
 	public async download(fileDownloadDto: FileDownloadDto): Promise<FileDownloadResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const fileToDownload = await this.fileRepository.select(entityManager, fileDownloadDto.path);
+			const { name, mimeType } = (await this.fileRepository.getNameAndMimeType(entityManager, fileDownloadDto.id)) || {};
 
-			if (!fileToDownload) {
-				throw new FileNotFoundException(fileDownloadDto.path);
+			if (!name || !mimeType) {
+				throw new FileNotFoundException(fileDownloadDto.id);
 			}
 
-			const diskPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(fileToDownload.id));
+			const diskPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(fileDownloadDto.id));
 
-			return FileDownloadResponse.from(fileToDownload.name, fileToDownload.mimeType, createReadStream(diskPath));
+			return FileDownloadResponse.from(name, mimeType, createReadStream(diskPath));
 		});
 	}
 
-	/**
-	 * Renames or moves a file.
-	 * Throws if file does not exist, destination already exists or destination parent not exists.
-	 * @async
-	 *
-	 * @throws  {FileNotFoundException}            if file does not exist
-	 * @throws  {FileAlreadyExistsException}       if destination file already exists
-	 * @throws  {ParentDirectoryNotFoundException} if destination parent directory does not exist
-	 *
-	 * @param   {FileRenameDto}               fileRenameDto the dto for renaming a file
-	 * @returns {Promise<FileRenameResponse>}               the path of the renamed file
-	 */
-	public async rename(fileRenameDto: FileRenameDto): Promise<FileRenameResponse> {
+	public async rename(fileRenameDto: FileRenameDto): Promise<void> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (await this.fileRepository.exists(entityManager, fileRenameDto.destinationPath)) {
-				throw new FileAlreadyExistsException(fileRenameDto.destinationPath);
+			if (!(await this.fileRepository.exists(entityManager, fileRenameDto.id))) {
+				throw new FileNotFoundException(fileRenameDto.id);
 			}
 
-			if (!(await this.fileRepository.exists(entityManager, fileRenameDto.sourcePath))) {
-				throw new FileNotFoundException(fileRenameDto.sourcePath);
+			const parentId = await this.fileRepository.getParentId(entityManager, fileRenameDto.id);
+
+			if (!parentId) {
+				throw new ParentDirectoryNotFoundException(fileRenameDto.id);
 			}
 
-			const willFileNameChange = path.basename(fileRenameDto.destinationPath) !== path.basename(fileRenameDto.sourcePath);
-			let updateOptions: {
-				name?: string;
-				parentId?: string;
-			} = willFileNameChange ? { name: path.basename(fileRenameDto.destinationPath) } : {};
-
-			if (path.dirname(fileRenameDto.sourcePath) === path.dirname(fileRenameDto.destinationPath)) {
-				if (willFileNameChange) {
-					await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
-				}
-
-				return FileRenameResponse.from(fileRenameDto.destinationPath);
+			if (await this.fileRepository.exists(entityManager, parentId, fileRenameDto.name)) {
+				throw new FileAlreadyExistsException(fileRenameDto.name);
 			}
 
-			const destParentPath = path.dirname(fileRenameDto.destinationPath);
-			const hasRootAsParent = path.relative('.', destParentPath) === '';
-
-			const destinationParent = hasRootAsParent ? { id: 'root' } : await this.directoryRepository.select(entityManager, destParentPath);
-
-			if (!destinationParent) {
-				throw new ParentDirectoryNotFoundException(destParentPath);
-			}
-
-			updateOptions = {
-				...updateOptions,
-				parentId: destinationParent.id,
-			};
-
-			await this.fileRepository.update(entityManager, fileRenameDto.sourcePath, updateOptions);
-
-			return FileRenameResponse.from(fileRenameDto.destinationPath);
+			await this.fileRepository.update(entityManager, fileRenameDto.id, { name: fileRenameDto.name });
 		});
 	}
 
-	/**
-	 * Deletes a file by its path.
-	 * Throws if file at given path does not exist.
-	 * @async
-	 *
-	 * @throws {FileNotFoundException} if file does not exist
-	 *
-	 * @param {FileDeleteDto} fileDeleteDto the dto for soft deleting the file
-	 */
 	public async delete(fileDeleteDto: FileDeleteDto): Promise<void> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			const file = await this.fileRepository.select(entityManager, fileDeleteDto.path);
-
-			if (!file) {
-				throw new FileNotFoundException(fileDeleteDto.path);
+			if (!(await this.fileRepository.exists(entityManager, fileDeleteDto.id))) {
+				throw new FileNotFoundException(fileDeleteDto.id);
 			}
 
-			await this.fileRepository.deleteById(entityManager, file.id);
+			await this.fileRepository.delete(entityManager, fileDeleteDto.id);
 		});
 	}
 }

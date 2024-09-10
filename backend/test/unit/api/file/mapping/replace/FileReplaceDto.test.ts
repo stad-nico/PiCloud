@@ -1,6 +1,6 @@
 import { FileReplaceDto } from 'src/api/file/mapping/replace';
 import { FileNameTooLongException } from 'src/exceptions/FileNameTooLongException';
-import { InvalidFilePathException } from 'src/exceptions/InvalidFilePathException';
+import { InvalidFilePathException } from 'src/exceptions/InvalidFileNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('FileReplaceDto', () => {

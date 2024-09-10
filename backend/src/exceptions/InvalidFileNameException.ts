@@ -6,8 +6,8 @@
  *-------------------------------------------------------------------------*/
 import { BadRequestException } from '@nestjs/common';
 
-export class InvalidFilePathException extends BadRequestException {
+export class InvalidFileNameException extends BadRequestException {
 	public constructor(path: string) {
-		super(`${path} is not a valid file path`);
+		super(`${path} is not a valid file name`);
 	}
 }

@@ -1,0 +1,57 @@
+:host {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+
+	height: 100%;
+	width: 100%;
+}
+
+:host > * {
+	transition: 0.2s ease all;
+}
+
+:host > :is(.home, .arrow) {
+	fill: var(--color-icon);
+}
+
+:host > :is(.crumb, .home) {
+	border-radius: 1.25rem;
+	margin-bottom: 0.125rem;
+}
+
+:host > .crumb {
+	padding: 0.125rem 0.5rem;
+
+	color: var(--color-text-secondary);
+
+	user-select: none;
+}
+
+:host > .home {
+	padding: 0.125rem 0.375rem;
+
+	width: 1.4rem;
+}
+
+:host > .home:hover {
+	cursor: pointer;
+
+	fill: var(--color-icon-hover);
+}
+
+:host > .crumb:hover {
+	background-color: var(--color-bg-hover);
+
+	color: var(--color-text-secondary-hover);
+
+	cursor: pointer;
+}
+
+:host > .arrow {
+	width: 1.25rem;
+
+	margin: 0 -0.125rem;
+
+	rotate: 270deg;
+}

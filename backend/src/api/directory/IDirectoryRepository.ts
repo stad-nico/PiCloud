@@ -8,12 +8,17 @@ import { EntityManager } from '@mikro-orm/mariadb';
 import { DirectoryContentResponse } from 'src/api/directory/mapping/content';
 
 import { Directory } from 'src/db/entities/Directory';
-import { File } from 'src/db/entities/File';
 
 export type DirectoryGetMetadataDBResult = Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & {
+	parentId: string;
 	size: number;
 	files: number;
 	directories: number;
+};
+
+export type DirectoryRecursiveContentResponse = {
+	files: Array<{ id: string; name: string; parentId: string }>;
+	directories: Array<{ id: string; name: string; parentId: string | null }>;
 };
 
 export const IDirectoryRepository = Symbol('IDirectoryRepository');
@@ -24,79 +29,99 @@ export const IDirectoryRepository = Symbol('IDirectoryRepository');
  */
 export interface IDirectoryRepository {
 	/**
-	 * Inserts a new directory into the db.
+	 * Inserts a new directory into the db and returns its id.
 	 * Throws if entity with same name and parent already exists.
 	 * @async
 	 *
 	 * @throws entity must not already exist
 	 *
 	 * @param   {EntityManager} entityManager the entityManager
+	 * @param   {string}        parentId      the parentId of the directory
 	 * @param   {string}        name          the name of the directory
-	 * @param   {string}        parent        the parent of the directory
 	 */
-	insert(entityManager: EntityManager, name: string, parent: string): Promise<void>;
+	insertReturningId(entityManager: EntityManager, parentId: string, name: string): Promise<string>;
 
 	/**
-	 * Checks if a non recycled directory at the given path exists.
+	 * Checks if a directory with given parent and name exists.
 	 * @async
 	 *
 	 * @param   {EntityManager}    entityManager the entityManager
-	 * @param   {string}           path          the path of the directory
-	 * @returns {Promise<boolean>}               whether a directory at the path exists
+	 * @param   {string}           parentId      the id of the parent directory
+	 * @param   {string}           name          the name of the directory
+	 * @returns {Promise<boolean>}               whether a directory with that parent and name exists
 	 */
-	exists(entityManager: EntityManager, path: string): Promise<boolean>;
+	exists(entityManager: EntityManager, parentId: string, name: string): Promise<boolean>;
 
 	/**
-	 * Selects name and id of the first non recycled directory with the given path.
+	 * Checks if a directory with given id exists.
+	 * @async
+	 *
+	 * @param   {EntityManager}    entityManager the entityManager
+	 * @param   {string}           id            the id of the directory
+	 * @returns {Promise<boolean>}               whether a directory with that id exists
+	 */
+	exists(entityManager: EntityManager, id: string): Promise<boolean>;
+
+	/**
+	 * Selects the name of the directory with the given id.
 	 * Returns null if no directory was found.
 	 * @async
 	 *
-	 * @param   {EntityManager} entityManager                    the entityManager
-	 * @param   {string}        path                             the path of the directory
-	 * @returns {Promise<Pick<Directory, 'id' | 'name'> | null>} the name and id of the directory
+	 * @param   {EntityManager}          entityManager  the entityManager
+	 * @param   {string}                 id             the id of the directory
+	 * @returns {Promise<string | null>}                the name and id of the directory
 	 */
-	select(entityManager: EntityManager, path: string): Promise<Pick<Directory, 'id' | 'name'> | null>;
+	getName(entityManager: EntityManager, path: string): Promise<string | null>;
 
 	/**
-	 * Selects the metadata of a non recycled directory by its path.
+	 * Selects the parent id of the directory with the given id.
+	 * @async
+	 *
+	 * @param   {EntityManager}   entityManager the entityManager
+	 * @param   {string}          id            the id of the directory
+	 * @returns {Promise<string | null>}               the parentId of the directory
+	 */
+	getParentId(entityManager: EntityManager, id: string): Promise<string | null>;
+
+	/**
+	 * Selects the metadata of the directory with given id.
 	 * @async
 	 *
 	 * @param   {EntityManager}                                entityManager the entityManager
-	 * @param   {string}                                       path          the path of the directory
+	 * @param   {string}                                       id            the id of the directory
 	 * @returns {Promise<DirectoryGetMetadataDBResult | null>}               the metadata
 	 */
 	getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null>;
 
 	/**
-	 * Selects the first level non deleted subdirectories and files of a non deleted directory by its path.
+	 * Selects the files and subdirectory of the directory with the given id.
 	 * @async
 	 *
 	 * @param   {EntityManager}                               entityManager the entityManager
-	 * @param   {string}                                      path          the path of the directory
+	 * @param   {string}                                      id            the id of the directory
 	 * @returns {Promise<DirectoryGetContentDBResult | null>}               the result
 	 */
-	getContent(entityManager: EntityManager, path: string): Promise<DirectoryContentResponse>;
+	getContents(entityManager: EntityManager, id: string): Promise<DirectoryContentResponse>;
 
 	/**
-	 * Selects the path and id of all non deleted files inside a non deleted directory by the path of the root directory.
-	 * All file paths are relative to the path of the root directory.
+	 * Selects the files and subdirectory of the directory with the given id recursively.
 	 * @async
 	 *
-	 * @param   {EntityManager} entityManager the entityManager
-	 * @param   {string}        path          the path of the root directory
-	 * @returns {Promise<Array<Pick<File, 'uuid'> & { path: string }>>} the files
+	 * @param   {EntityManager}                               entityManager the entityManager
+	 * @param   {string}                                      id            the id of the directory
+	 * @returns {Promise<DirectoryGetContentDBResult | null>}               the result
 	 */
-	getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<Pick<File, 'id'> & { path: string }>>;
+	getContentsRecursive(entityManager: EntityManager, id: string): Promise<DirectoryRecursiveContentResponse>;
 
 	/**
 	 * Updates a directory.
 	 * @async
 	 *
-	 * @param {EntityManager}                               entityManager the entityManager
-	 * @param {string}                                      path          the path of the directory to update
+	 * @param {EntityManager}                        entityManager the entityManager
+	 * @param {string}                               id            the id of the directory to update
 	 * @param {{ name?: string; parentId?: string }} partial       the partial directory to update
 	 */
-	update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string }): Promise<void>;
+	update(entityManager: EntityManager, id: string, partial: { name?: string; parentId?: string }): Promise<void>;
 
 	/**
 	 * Deletes a directory tree by the root id.

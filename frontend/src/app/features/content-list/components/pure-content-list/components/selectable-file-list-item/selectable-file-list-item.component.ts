@@ -1,7 +1,8 @@
 import { animate, group, query, state, style, transition, trigger } from '@angular/animations';
 import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
-import { DirectoryContentFile } from 'generated';
+import { FileMetadataResponse } from 'generated';
 import {
+	ListItemDeleteEvent,
 	ListItemSelectEvent,
 	ListItemUnselectEvent,
 } from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';
@@ -49,16 +50,19 @@ export class SelectableFileListItemComponent {
 	public isSelectable: boolean = false;
 
 	@Input({ required: true })
-	public id!: number;
+	public id!: string;
 
 	@Input({ required: true })
-	public metadata!: DirectoryContentFile;
+	public metadata!: FileMetadataResponse;
 
 	@Output()
 	public onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();
 
 	@Output()
 	public onUnselect: EventEmitter<ListItemUnselectEvent> = new EventEmitter();
+
+	@Output()
+	public onDelete: EventEmitter<ListItemDeleteEvent> = new EventEmitter();
 
 	public onCheck(event: CheckboxCheckEvent) {
 		this.onSelect.emit({ id: this.id, ...event });

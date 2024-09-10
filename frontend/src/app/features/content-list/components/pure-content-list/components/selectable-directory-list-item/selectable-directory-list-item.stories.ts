@@ -2,7 +2,7 @@ import { StoryObj, type Meta } from '@storybook/angular';
 import { SelectableDirectoryListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';
 
 const meta: Meta<SelectableDirectoryListItemComponent> = {
-	title: 'Features/Content List/Selectable Directory List Item',
+	title: 'Features/Content List/Components/Selectable Directory List Item',
 	component: SelectableDirectoryListItemComponent,
 };
 

@@ -13,6 +13,8 @@ const config: StorybookConfig = {
 		'@storybook/addon-themes',
 		'@storybook/addon-docs',
 		'@storybook/addon-styling-webpack',
+		'@storybook/addon-backgrounds',
+		'storybook-addon-pseudo-states',
 	],
 	framework: {
 		name: '@storybook/angular',

@@ -5,16 +5,7 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { ApiProperty } from '@nestjs/swagger';
-
-import { Directory } from 'src/db/entities/Directory';
-import { PathUtils } from 'src/util/PathUtils';
-
-export type DirectoryMetadataResponseType = Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & {
-	size: number;
-	files: number;
-	directories: number;
-	path: string;
-};
+import { DirectoryGetMetadataDBResult } from 'src/api/directory/IDirectoryRepository';
 
 /**
  * Class representing the json http response.
@@ -22,11 +13,11 @@ export type DirectoryMetadataResponseType = Pick<Directory, 'name' | 'createdAt'
  */
 export class DirectoryMetadataResponse {
 	/**
-	 * The path of the directory.
+	 * The parentId of the directory.
 	 * @type {string}
 	 */
-	@ApiProperty({ description: 'The path of the directory', type: 'string', example: '/path/to/directory' })
-	readonly path: string;
+	@ApiProperty({ description: 'The parentId of the directory', type: 'string', example: '024eb278-6ebf-11ef-9656-98fc84e066e5' })
+	readonly parentId: string;
 
 	/**
 	 * The name of the directory.
@@ -74,7 +65,7 @@ export class DirectoryMetadataResponse {
 	 * Creates a new DirectoryMetadataResponse instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}                    path        the path
+	 * @param   {string}                    parentId    the parentId
 	 * @param   {string}                    name        the name
 	 * @param   {number}                    size        the size
 	 * @param   {number}                    files       the amount of files
@@ -83,8 +74,8 @@ export class DirectoryMetadataResponse {
 	 * @param   {string}                    updatedAt   the last updated date
 	 * @returns {DirectoryMetadataResponse}             the DirectoryMetadataResponse instance
 	 */
-	private constructor(path: string, name: string, size: number, files: number, directories: number, createdAt: string, updatedAt: string) {
-		this.path = path;
+	private constructor(parentId: string, name: string, size: number, files: number, directories: number, createdAt: string, updatedAt: string) {
+		this.parentId = parentId;
 		this.name = name;
 		this.size = size;
 		this.files = files;
@@ -97,12 +88,12 @@ export class DirectoryMetadataResponse {
 	 * Creates a new DirectoryMetadataResponse instance from the metadata.
 	 * @public @static
 	 *
-	 * @param   {DirectoryMetadataResponseType} obj the metadata of the directory
+	 * @param   {DirectoryGetMetadataDBResult} obj the metadata of the directory
 	 * @returns {DirectoryMetadataResponse}         the DirectoryMetadataResponse instance
 	 */
-	public static from(obj: DirectoryMetadataResponseType): DirectoryMetadataResponse {
+	public static from(obj: DirectoryGetMetadataDBResult): DirectoryMetadataResponse {
 		return new DirectoryMetadataResponse(
-			PathUtils.normalizeDirectoryPath(obj.path),
+			obj.parentId,
 			obj.name,
 			obj.size,
 			obj.files,

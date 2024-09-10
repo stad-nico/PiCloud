@@ -2,7 +2,7 @@ import { StoryObj, type Meta } from '@storybook/angular';
 import { SelectableFileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-file-list-item/selectable-file-list-item.component';
 
 const meta: Meta<SelectableFileListItemComponent> = {
-	title: 'Features/Content List/Selectable File List Item',
+	title: 'Features/Content List/Components/Selectable File List Item',
 	component: SelectableFileListItemComponent,
 };
 

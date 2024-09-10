@@ -4,12 +4,10 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import * as path from 'path';
-import { Readable } from 'stream';
 
 import { FileUploadParams } from 'src/api/file/mapping/upload/FileUploadParams';
 import { FileNameTooLongException } from 'src/exceptions/FileNameTooLongException';
-import { InvalidFilePathException } from 'src/exceptions/InvalidFilePathException';
+import { InvalidFileNameException } from 'src/exceptions/InvalidFileNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**
@@ -18,10 +16,16 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class FileReplaceDto {
 	/**
-	 * The path of the file.
+	 * The id of the parent directory where the file will be stored.
 	 * @type {string}
 	 */
-	readonly path: string;
+	readonly parentId: string;
+
+	/**
+	 * The name of the file.
+	 * @type {string}
+	 */
+	readonly name: string;
 
 	/**
 	 * The mime type of the file.
@@ -36,7 +40,7 @@ export class FileReplaceDto {
 	readonly size: number;
 
 	/**
-	 * The content of the file.
+	 * The file content.
 	 * @type {Buffer}
 	 */
 	readonly buffer: Buffer;
@@ -45,41 +49,42 @@ export class FileReplaceDto {
 	 * Creates a new FileReplaceDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}         path     the path of the file
-	 * @param   {string}         mimeType the mime type of the file
-	 * @param   {number}         size     the size of the file in bytes
-	 * @param   {Readable}       buffer   the content of the file
-	 * @returns {FileReplaceDto}          the FileReplaceDto instance
+	 * @param   {string}        parentId the parent id of the file
+	 * @param   {string}        name     the name of the file
+	 * @param   {string}        mimeType the mime type of the file
+	 * @param   {number}        size     the size of the file in bytes
+	 * @param   {Buffer}        buffer   the content of the file
+	 * @returns {FileReplaceDto}         the FileReplaceDto instance
 	 */
-	private constructor(path: string, mimeType: string, size: number, buffer: Buffer) {
-		this.path = path;
+	private constructor(parentId: string, name: string, mimeType: string, size: number, buffer: Buffer) {
+		this.parentId = parentId;
+		this.name = name;
 		this.mimeType = mimeType;
 		this.buffer = buffer;
 		this.size = size;
 	}
 
 	/**
-	 * Creates a new FileReplaceDto instance from the http params.
-	 * Throws if the path is not valid or the file name is too long.
+	 * Creates a new FileReplaceDto instance from the http params and file.
+	 * Throws if the file name is not valid or too long.
 	 * @public @static
 	 *
-	 * @throws  {InvalidFilePathException} if the path is invalid
+	 * @throws  {InvalidFileNameException} if the file name is invalid
 	 * @throws  {FileNameTooLongException} if the file name is too long
 	 *
-	 * @param   {FileUploadParams} fileUploadParams the http params
-	 * @returns {FileReplaceDto}                    the FileReplaceDto instance
+	 * @param   {FileUploadParams}    fileUploadParams the http request params
+	 * @param   {Express.Multer.File} file             the uploaded file
+	 * @returns {FileReplaceDto}                       the FileReplaceDto instance
 	 */
 	public static from(fileUploadParams: FileUploadParams, file: Express.Multer.File): FileReplaceDto {
-		const normalizedPath = PathUtils.normalizeFilePath(fileUploadParams.path);
-
-		if (!PathUtils.isFilePathValid(normalizedPath)) {
-			throw new InvalidFilePathException(fileUploadParams.path);
+		if (!PathUtils.isFileNameValid(file.originalname)) {
+			throw new InvalidFileNameException(file.originalname);
 		}
 
-		if (path.basename(normalizedPath).length > PathUtils.MaxFileNameLength) {
-			throw new FileNameTooLongException(path.basename(fileUploadParams.path));
+		if (!PathUtils.isFileNameLengthValid(file.originalname)) {
+			throw new FileNameTooLongException(file.originalname);
 		}
 
-		return new FileReplaceDto(normalizedPath, file.mimetype, file.size, file.buffer);
+		return new FileReplaceDto(fileUploadParams.id, file.originalname, file.mimetype, file.size, file.buffer);
 	}
 }

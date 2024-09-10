@@ -1,6 +1,8 @@
 :host {
 	display: block;
+}
 
+:host:not(:last-of-type) {
 	margin-bottom: 0.125rem;
 }
 
@@ -40,14 +42,15 @@
 }
 
 :host > header:hover + main {
-	background-color: var(--color-bg-hover-secondary);
+	background-color: var(--color-bg-secondary-hover);
 }
 
 :host > header:hover > .name {
-	color: var(--color-text-hover);
+	color: var(--color-text-secondary-hover);
 }
 
 :host > header > .icon {
+	flex-shrink: 0;
 	width: 1.5rem;
 
 	display: flex;
@@ -56,6 +59,8 @@
 }
 
 :host > header > .arrow {
+	flex-shrink: 0;
+
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -64,19 +69,23 @@
 
 	width: 1.375rem;
 
-	padding: 2px;
+	padding: 0.125rem;
 
 	margin-right: -0.25rem;
 
 	border-radius: 0.5rem;
 
-	transition: all 0.2s ease;
+	transition: background-color 0.2s ease;
+
+	pointer-events: none;
 }
 
 :host > header > .arrow > svg {
 	fill: var(--color-icon);
 
-	transition: all 0.2s ease;
+	transition:
+		fill 0.2s ease,
+		transform 0.2s ease;
 }
 
 :host > header > .arrow:hover {
@@ -97,10 +106,15 @@
 
 :host.has-children > header > .arrow {
 	opacity: 1;
+
+	pointer-events: all;
 }
 
 :host > header > .name {
 	color: var(--color-text-secondary);
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 :host > main {
@@ -110,20 +124,50 @@
 
 	height: auto;
 
-	padding-left: 20px;
+	padding-left: 1.875rem;
 
 	overflow: hidden;
 
-	margin-top: -20px;
-	padding-top: calc(20px + 0.125rem);
+	margin-top: -1.25rem;
+	padding-top: calc(1.25rem + 0.125rem);
 
 	transition: background-color 0.2s ease;
 
 	border-radius: 0 0 0.9rem 0.9rem;
 }
 
-:host.is-collapsed > main {
+:host:is(.is-collapsed, :not(.has-children)) > main {
 	height: 0;
 	padding: 0;
 	margin: 0;
+}
+
+:host.is-loading > main > .loading-item {
+	height: 2.5rem;
+	padding: 0 0.9rem;
+	padding-bottom: 0.125rem;
+	margin-top: -0.125rem;
+
+	display: flex;
+	align-items: center;
+	justify-content: left;
+	gap: 0.5rem;
+}
+
+:host.is-loading > main > .loading-item > loading-spinner {
+	margin-left: 1.875rem;
+	width: 1.6rem;
+}
+
+:host.is-loading > main > .loading-item > .text {
+	color: var(--color-text-tertiary);
+
+	font-size: 0.9rem;
+	font-family: Montserrat Regular;
+
+	user-select: none;
+}
+
+:host.is-loading > .loading-item > .text {
+	user-select: none;
 }

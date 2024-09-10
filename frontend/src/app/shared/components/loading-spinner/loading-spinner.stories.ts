@@ -1,4 +1,4 @@
-import { StoryObj, type Meta } from '@storybook/angular';
+import { argsToTemplate, StoryObj, type Meta } from '@storybook/angular';
 
 import { LoadingSpinnerComponent, Thickness, Type } from 'src/app/shared/components/loading-spinner/loading-spinner.component';
 
@@ -8,6 +8,10 @@ const meta: Meta<LoadingSpinnerComponent> = {
 	parameters: {
 		layout: 'fullscreen',
 	},
+	render: (args: any) => ({
+		props: args,
+		template: `<div style="resize:both;overflow:hidden"><loading-spinner ${argsToTemplate(args)}></loading-spinner></div>`,
+	}),
 };
 
 export default meta;

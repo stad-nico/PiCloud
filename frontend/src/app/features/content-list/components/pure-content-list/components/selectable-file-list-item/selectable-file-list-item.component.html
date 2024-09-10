@@ -1,4 +1,4 @@
 <label [@isSelectable]="this.isSelectable">
 	<checkbox [isSelected]="this.isSelected" (onCheck)="this.onCheck($event)" (onUncheck)="this.onUncheck($event)"></checkbox>
-	<file-list-item [isSelected]="this.isSelected" [metadata]="this.metadata"></file-list-item>
+	<file-list-item [isSelected]="this.isSelected" [metadata]="this.metadata" (onDelete)="onDelete.emit({ id: id })"></file-list-item>
 </label>

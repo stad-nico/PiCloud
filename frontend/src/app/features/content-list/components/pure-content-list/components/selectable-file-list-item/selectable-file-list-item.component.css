@@ -17,6 +17,8 @@
 }
 
 :host > label > checkbox {
+	flex-shrink: 0;
+
 	width: 1.5rem;
 
 	margin-top: 0.5rem;

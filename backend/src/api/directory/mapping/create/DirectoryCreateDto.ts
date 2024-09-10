@@ -4,11 +4,10 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import * as path from 'path';
 
-import { DirectoryCreateParams } from 'src/api/directory/mapping/create/DirectoryCreateParams';
+import { DirectoryCreateBody, DirectoryCreateParams } from 'src/api/directory/mapping/create';
 import { DirectoryNameTooLongException } from 'src/exceptions/DirectoryNameTooLongException';
-import { InvalidDirectoryPathException } from 'src/exceptions/InvalidDirectoryPathException';
+import { InvalidDirectoryNameException } from 'src/exceptions/InvalidDirectoryNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**
@@ -17,44 +16,51 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class DirectoryCreateDto {
 	/**
-	 * The path of the directory to create.
+	 * The id of the parent directory where the new directory will be created.
 	 * @type {string}
 	 */
-	readonly path: string;
+	readonly id: string;
+
+	/**
+	 * The name of the new directory.
+	 * @type {string}
+	 */
+	readonly name: string;
 
 	/**
 	 * Creates a new DirectoryCreateDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}              path the path of the directory to create
-	 * @returns {DirectoryCreateDto}       the DirectoryCreateDto instance
+	 * @param   {string}             id   the id of the parent directory
+	 * @param   {string}             name the name of the new directory
+	 * @returns {DirectoryCreateDto}      the DirectoryCreateDto instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string, name: string) {
+		this.id = id;
+		this.name = name;
 	}
 
 	/**
-	 * Creates a new DirectoryCreateDto instance from the http params.
-	 * Throws if the path is not valid or the directory name is too long.
+	 * Creates a new DirectoryCreateDto instance from the http params and body.
+	 * Throws if the directory name is not valid or too long.
 	 * @public @static
 	 *
-	 * @throws  {InvalidDirectoryPathException} if the directory path is invalid
+	 * @throws  {InvalidDirectoryNameException} if the directory name is invalid
 	 * @throws  {DirectoryNameTooLongException} if the directory name is too long
 	 *
-	 * @param   {DirectoryCreateParams} directoryCreateParams the http params
+	 * @param   {DirectoryCreateParams} directoryCreateParams the http request params
+	 * @param   {DirectoryCreateBody}   directoryCreateBody   the http request body
 	 * @returns {DirectoryCreateDto}                          the DirectoryCreateDto instance
 	 */
-	public static from(directoryCreateParams: DirectoryCreateParams): DirectoryCreateDto {
-		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryCreateParams.path);
-
-		if (!PathUtils.isDirectoryPathValid(normalizedPath)) {
-			throw new InvalidDirectoryPathException(directoryCreateParams.path);
+	public static from(directoryCreateParams: DirectoryCreateParams, directoryCreateBody: DirectoryCreateBody): DirectoryCreateDto {
+		if (!PathUtils.isDirectoryNameValid(directoryCreateBody.name)) {
+			throw new InvalidDirectoryNameException(directoryCreateBody.name);
 		}
 
-		if (path.basename(normalizedPath).length > PathUtils.MaxDirectoryNameLength) {
-			throw new DirectoryNameTooLongException(path.basename(directoryCreateParams.path));
+		if (!PathUtils.isDirectoryNameLengthValid(directoryCreateBody.name)) {
+			throw new DirectoryNameTooLongException(directoryCreateBody.name);
 		}
 
-		return new DirectoryCreateDto(normalizedPath);
+		return new DirectoryCreateDto(directoryCreateParams.id, directoryCreateBody.name);
 	}
 }

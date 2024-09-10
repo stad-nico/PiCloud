@@ -1,4 +1,4 @@
-:host {
+/* :host {
 	display: flex;
 
 	align-items: center;
@@ -8,14 +8,29 @@
 	height: 100%;
 
 	margin-top: -1.875rem;
+} */
+
+:host {
+	height: 100%;
+	width: 100%;
+
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	flex-flow: column;
+}
+
+:host > header {
+	height: 2.5rem;
+	width: 100%;
 }
 
 :host > main {
-	height: 70%;
-	width: 70%;
+	height: calc(100% - 2.5rem);
+	width: 100%;
 
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	justify-content: center;
 }
 

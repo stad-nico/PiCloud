@@ -1,0 +1,44 @@
+:host {
+	display: grid;
+	grid-template-columns: auto repeat(4, 1fr) auto;
+	grid-template-rows: 2.5rem;
+	grid-column-gap: 0.5rem;
+	grid-template-areas: 'a b c d e f';
+	align-items: center;
+	justify-content: left;
+
+	padding: 0 0.9rem;
+
+	border-radius: 0.9rem;
+
+	user-select: none;
+
+	transition: background-color 0.2s ease;
+
+	background-color: var(--color-bg-hover);
+}
+
+:host > .icon {
+	width: 1.5rem;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	transition: all 0.2s ease;
+}
+
+:host > input {
+	caret-color: var(--color-caret);
+	white-space: nowrap;
+	color: var(--color-text-secondary);
+
+	transition: all 0.2s ease;
+
+	background-color: transparent;
+}
+
+:host.is-invalid > input {
+	color: red;
+	border: red;
+}

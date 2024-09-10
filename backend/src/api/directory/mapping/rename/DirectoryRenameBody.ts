@@ -16,24 +16,24 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class DirectoryRenameBody {
 	/**
-	 * The path to rename the directory to.
+	 * The new name of the directory.
 	 * @type {string}
 	 */
-	@Matches(PathUtils.ValidDirectoryPathRegExp)
+	@Matches(PathUtils.ValidDirectoryNameRegExp)
 	@ApiProperty({
-		example: '/new/path/to/directory',
-		description: 'The path to rename the directory to',
-		pattern: `${PathUtils.ValidDirectoryPathRegExp}`,
+		example: 'renamed',
+		description: 'The new name of the directory',
+		pattern: `${PathUtils.ValidDirectoryNameRegExp}`,
 	})
-	readonly newPath: string;
+	readonly name: string;
 
 	/**
 	 * Creates a new DirectoryRenameBody instance.
 	 *
-	 * @param   {string}              newPath the path to rename the directory to
-	 * @returns {DirectoryRenameBody}         the DirectoryRenameBody instance
+	 * @param   {string}              name the new name of the directory
+	 * @returns {DirectoryRenameBody}      the DirectoryRenameBody instance
 	 */
-	private constructor(newPath: string) {
-		this.newPath = newPath;
+	private constructor(name: string) {
+		this.name = name;
 	}
 }

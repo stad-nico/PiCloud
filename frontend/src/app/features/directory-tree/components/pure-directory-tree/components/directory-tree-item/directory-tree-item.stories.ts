@@ -2,7 +2,7 @@ import { argsToTemplate, StoryObj, type Meta } from '@storybook/angular';
 import { DirectoryTreeItemComponent } from 'src/app/features/directory-tree/components/pure-directory-tree/components/directory-tree-item/directory-tree-item.component';
 
 const meta: Meta<DirectoryTreeItemComponent> = {
-	title: 'Features/Directory Tree/Directory Tree Item',
+	title: 'Features/Directory Tree/Components/Directory Tree Item',
 	component: DirectoryTreeItemComponent,
 	render: (args: any) => ({
 		props: args,
@@ -12,200 +12,149 @@ const meta: Meta<DirectoryTreeItemComponent> = {
 
 export default meta;
 
+const defaultLeaf = { id: 0, name: 'example', path: '/example/', isCollapsed: true, hasChildren: false, isSelected: false };
+
 export const LeafDefault: StoryObj<DirectoryTreeItemComponent> = {
-	name: 'Leaf Default',
 	args: {
-		name: 'example',
-		hasChildren: false,
-		isSelected: false,
-		id: 1,
+		node: defaultLeaf,
+		tree: {},
+	},
+};
+
+export const LeafHovered: StoryObj<DirectoryTreeItemComponent> = {
+	args: {
+		node: defaultLeaf,
+		tree: {},
+	},
+	parameters: {
+		pseudo: {
+			hover: true,
+		},
 	},
 };
 
 export const LeafSelected: StoryObj<DirectoryTreeItemComponent> = {
-	name: 'Leaf Selected',
 	args: {
-		name: 'example',
-		hasChildren: false,
-		isSelected: true,
-		id: 1,
+		node: { ...defaultLeaf, isSelected: true },
+		tree: {},
 	},
 };
 
-export const NodeDefault: StoryObj<DirectoryTreeItemComponent> = {
-	name: 'Node Default',
+export const LeafSelectedHovered: StoryObj<DirectoryTreeItemComponent> = {
 	args: {
-		name: 'example',
-		hasChildren: true,
-		isSelected: false,
-		isCollapsed: true,
-		id: 1,
-		children: [
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 2,
-			},
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 3,
-			},
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 4,
-			},
-		],
+		node: { ...defaultLeaf, isSelected: true },
+		tree: {},
+	},
+	parameters: {
+		pseudo: {
+			hover: true,
+		},
 	},
 };
 
-export const NodeSelected: StoryObj<DirectoryTreeItemComponent> = {
-	name: 'Node Selected',
+const defaultNode = { id: 0, name: 'example', path: '/example/', isCollapsed: true, hasChildren: true, isSelected: false };
+
+export const NodeCollapsed: StoryObj<DirectoryTreeItemComponent> = {
 	args: {
-		name: 'example',
-		hasChildren: true,
-		isSelected: true,
-		isCollapsed: true,
-		id: 1,
-		children: [
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 2,
-			},
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 3,
-			},
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 4,
-			},
-		],
+		node: defaultNode,
+		tree: {},
+	},
+};
+
+export const NodeCollapsedHovered: StoryObj<DirectoryTreeItemComponent> = {
+	args: {
+		node: defaultNode,
+		tree: {},
+	},
+	parameters: {
+		pseudo: {
+			hover: ['directory-tree-item > header'],
+		},
 	},
 };
 
 export const NodeExpanded: StoryObj<DirectoryTreeItemComponent> = {
-	name: 'Node Expanded',
 	args: {
-		name: 'example',
-		hasChildren: true,
-		isCollapsed: false,
-		isSelected: false,
-		id: 1,
-		children: [
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 2,
-			},
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 3,
-			},
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 4,
-			},
-		],
+		node: { ...defaultNode, isCollapsed: false },
+		tree: {
+			'/example/': [
+				{ id: 1, name: 'child', path: '/child/', hasChildren: false, isCollapsed: true, isSelected: false },
+				{
+					id: 2,
+					name: 'child with long name and children',
+					path: '/child with long name and children/',
+					hasChildren: true,
+					isCollapsed: true,
+					isSelected: false,
+				},
+			],
+		},
+	},
+};
+
+export const NodeExpandedHovered: StoryObj<DirectoryTreeItemComponent> = {
+	args: {
+		node: { ...defaultNode, isCollapsed: false },
+		tree: {
+			'/example/': [
+				{ id: 1, name: 'child', path: '/child/', hasChildren: false, isCollapsed: true, isSelected: false },
+				{
+					id: 2,
+					name: 'child with long name and children',
+					path: '/child with long name and children/',
+					hasChildren: true,
+					isCollapsed: true,
+					isSelected: false,
+				},
+			],
+		},
+	},
+	parameters: {
+		pseudo: {
+			hover: ['div > directory-tree-item > header'],
+		},
 	},
 };
 
 export const NodeExpandedSelected: StoryObj<DirectoryTreeItemComponent> = {
-	name: 'Node Expanded Selected',
 	args: {
-		name: 'example',
-		hasChildren: true,
-		isCollapsed: false,
-		isSelected: true,
-		id: 1,
-		children: [
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 2,
-			},
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 3,
-			},
-			{
-				name: 'example',
-				hasChildren: false,
-				isSelected: false,
-				id: 4,
-			},
-		],
+		node: { ...defaultNode, isCollapsed: false, isSelected: true },
+		tree: {
+			'/example/': [
+				{ id: 1, name: 'child', path: '/child/', hasChildren: false, isCollapsed: true, isSelected: false },
+				{
+					id: 2,
+					name: 'child with long name and children',
+					path: '/child with long name and children/',
+					hasChildren: true,
+					isCollapsed: true,
+					isSelected: false,
+				},
+			],
+		},
 	},
 };
 
-// export const Selected: StoryObj<DirectoryTreeItemComponent> = {
-// 	name: 'Empty Selected',
-// 	args: {
-// 		name: 'example',
-// 		isSelected: true,
-// 		children: [],
-// 	},
-// };
-
-// export const CollapsedDefault: StoryObj<DirectoryTreeItemComponent> = {
-// 	name: 'Collapsed Default',
-// 	args: {
-// 		name: 'example',
-// 		children: [],
-// 	},
-// };
-
-// export const CollapsedSelected: StoryObj<DirectoryTreeItemComponent> = {
-// 	name: 'Collapsed Selected',
-// 	args: {
-// 		name: 'example',
-// 		isSelected: true,
-// 		children: [],
-// 	},
-// };
-
-// export const ExpandedLoading: StoryObj<DirectoryTreeItemComponent> = {
-// 	name: 'Expanded Loading',
-// 	args: {
-// 		name: 'example',
-// 		isSelected: true,
-// 		children: [],
-// 		isCollapsed: false,
-// 	},
-// };
-
-// export const ExpandedDefault: StoryObj<DirectoryTreeItemComponent> = {
-// 	name: 'Expanded Default',
-// 	args: {
-// 		name: 'example',
-// 		isSelected: true,
-// 		children: [],
-// 	},
-// };
-
-// export const ExpandedSelected: StoryObj<DirectoryTreeItemComponent> = {
-// 	name: 'Expanded Selected',
-// 	args: {
-// 		name: 'example',
-// 		isSelected: true,
-// 		children: [],
-// 	},
-// };
+export const NodeExpandedSelectedHovered: StoryObj<DirectoryTreeItemComponent> = {
+	args: {
+		node: { ...defaultNode, isCollapsed: false, isSelected: true },
+		tree: {
+			'/example/': [
+				{ id: 1, name: 'child', path: '/child/', hasChildren: false, isCollapsed: true, isSelected: false },
+				{
+					id: 2,
+					name: 'child with long name and children',
+					path: '/child with long name and children/',
+					hasChildren: true,
+					isCollapsed: true,
+					isSelected: false,
+				},
+			],
+		},
+	},
+	parameters: {
+		pseudo: {
+			hover: ['div > directory-tree-item > header'],
+		},
+	},
+};

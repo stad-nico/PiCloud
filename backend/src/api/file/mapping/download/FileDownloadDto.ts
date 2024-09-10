@@ -5,7 +5,6 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { FileDownloadParams } from 'src/api/file/mapping/download/FileDownloadParams';
-import { PathUtils } from 'src/util/PathUtils';
 
 /**
  * DTO for bundling the http request data.
@@ -13,20 +12,20 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class FileDownloadDto {
 	/**
-	 * The path of the file to download.
+	 * The id of the file to download
 	 * @type {string}
 	 */
-	readonly path: string;
+	readonly id: string;
 
 	/**
 	 * Creates a new FileDownloadDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}               path the path of the file
-	 * @returns {FileDownloadDto}           the FileDownloadDto instance
+	 * @param   {string}               id the id of the file
+	 * @returns {FileDownloadDto}         the FileDownloadDto instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
 	/**
@@ -37,8 +36,6 @@ export class FileDownloadDto {
 	 * @returns {FileDownloadDto}                       the FileDownloadDto instance
 	 */
 	public static from(fileDownloadParams: FileDownloadParams) {
-		const normalizedPath = PathUtils.normalizeFilePath(fileDownloadParams.path);
-
-		return new FileDownloadDto(normalizedPath);
+		return new FileDownloadDto(fileDownloadParams.id);
 	}
 }

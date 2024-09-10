@@ -5,7 +5,6 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { FileDeleteParams } from 'src/api/file/mapping/delete/FileDeleteParams';
-import { PathUtils } from 'src/util/PathUtils';
 
 /**
  * DTO for bundling the http request data.
@@ -13,20 +12,20 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class FileDeleteDto {
 	/**
-	 * The path of the file to delete.
+	 * The id of the file to delete.
 	 * @type {string}
 	 */
-	readonly path: string;
+	readonly id: string;
 
 	/**
 	 * Creates a new FileDeleteDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}             path the path of the file
-	 * @returns {FileDeleteDto}           the FileDeleteDto instance
+	 * @param   {string}             id the id of the file
+	 * @returns {FileDeleteDto}         the FileDeleteDto instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
 	/**
@@ -37,8 +36,6 @@ export class FileDeleteDto {
 	 * @returns {FileDeleteDto}                     the FileDeleteDto instance
 	 */
 	public static from(fileDeleteParams: FileDeleteParams) {
-		const normalizedPath = PathUtils.normalizeFilePath(fileDeleteParams.path);
-
-		return new FileDeleteDto(normalizedPath);
+		return new FileDeleteDto(fileDeleteParams.id);
 	}
 }

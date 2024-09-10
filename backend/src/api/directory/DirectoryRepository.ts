@@ -7,12 +7,11 @@
 import { EntityManager } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
 
-import { DirectoryGetMetadataDBResult, IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
+import { DirectoryGetMetadataDBResult, DirectoryRecursiveContentResponse, IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
 import { DirectoryContentResponse } from 'src/api/directory/mapping/content';
 import { DIRECTORY_TABLE_NAME, Directory } from 'src/db/entities/Directory';
 import { FILES_TABLE_NAME, File } from 'src/db/entities/File';
 import { TREE_TABLE_NAME } from 'src/db/entities/Tree';
-import { PathUtils } from 'src/util/PathUtils';
 
 type Additional = {
 	path: string;
@@ -21,74 +20,66 @@ type Additional = {
 	directories: number;
 	files: number;
 	mimeType: string;
+	parentId: string;
 };
 
 @Injectable()
 export class DirectoryRepository implements IDirectoryRepository {
-	public async insert(entityManager: EntityManager, name: string, parentId: string) {
-		await entityManager
-			.getKnex()
-			.raw(`INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId) VALUES (:name, :parentId)`, { name: name, parentId: parentId })
-			.transacting(entityManager.getTransactionContext()!);
+	public async insertReturningId(entityManager: EntityManager, parentId: string, name: string): Promise<string> {
+		const query = `INSERT INTO ${DIRECTORY_TABLE_NAME} (name, parentId) VALUES (:name, :parentId) RETURNING id`;
+		const params = { name: name, parentId: parentId };
+
+		const [rows] = await entityManager.getKnex().raw<[Pick<Directory, 'id'>[]]>(query, params).transacting(entityManager.getTransactionContext()!);
+
+		return rows![0]!.id;
 	}
 
-	public async exists(entityManager: EntityManager, path: string): Promise<boolean> {
-		const [rows] = await entityManager
-			.getKnex()
-			.raw<[Pick<Additional, 'count'>[]]>(
-				// prettier-ignore
-				`SELECT COUNT(*) as count FROM ${DIRECTORY_TABLE_NAME} WHERE id = GET_DIRECTORY_UUID(:path) LIMIT 1`,
-				{ path: PathUtils.normalizeDirectoryPath(path) }
-			)
-			.transacting(entityManager.getTransactionContext()!);
+	public async exists(entityManager: EntityManager, parentId: string, name: string): Promise<boolean>;
+	public async exists(entityManager: EntityManager, id: string): Promise<boolean>;
+	public async exists(entityManager: EntityManager, parentIdOrId: string, name?: string | undefined): Promise<boolean> {
+		const query = name
+			? `SELECT COUNT(*) as count FROM ${DIRECTORY_TABLE_NAME} WHERE parentId = :parentId AND name = :name LIMIT 1`
+			: `SELECT COUNT(*) as count FROM ${DIRECTORY_TABLE_NAME} WHERE id = :id LIMIT 1`;
+
+		const params = name ? { parentId: parentIdOrId, name: name } : { id: parentIdOrId };
+
+		const [rows] = await entityManager.getKnex().raw<[Pick<Additional, 'count'>[]]>(query, params).transacting(entityManager.getTransactionContext()!);
 
 		return rows![0]!.count > 0;
 	}
 
-	public async select(entityManager: EntityManager, path: string): Promise<Pick<Directory, 'id' | 'name'> | null> {
-		const [rows] = await entityManager
-			.getKnex()
-			.raw<[Pick<Directory, 'id' | 'name'>[]]>(
-				// prettier-ignore
-				`SELECT name, id FROM ${DIRECTORY_TABLE_NAME} WHERE id = GET_DIRECTORY_UUID(:path)`,
-				{ path: PathUtils.normalizeDirectoryPath(path) }
-			)
-			.transacting(entityManager.getTransactionContext()!);
+	public async getName(entityManager: EntityManager, id: string): Promise<string | null> {
+		const query = `SELECT name FROM ${DIRECTORY_TABLE_NAME} WHERE id = :id`;
+		const params = { id: id };
 
-		return rows![0] ?? null;
+		const [rows] = await entityManager.getKnex().raw<[Pick<Directory, 'name'>[]]>(query, params).transacting(entityManager.getTransactionContext()!);
+
+		return rows![0]?.name ?? null;
 	}
 
-	public async getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null> {
+	public async getParentId(entityManager: EntityManager, id: string): Promise<string | null> {
+		const query = `SELECT parentId FROM ${DIRECTORY_TABLE_NAME} WHERE id = :id`;
+		const params = { id: id };
+
+		const [rows] = await entityManager.getKnex().raw<[{ parentId: string }[]]>(query, params).transacting(entityManager.getTransactionContext()!);
+
+		return rows![0]?.parentId ?? null;
+	}
+
+	public async getMetadata(entityManager: EntityManager, id: string): Promise<DirectoryGetMetadataDBResult | null> {
+		const childQuery = `SELECT childId FROM ${TREE_TABLE_NAME} WHERE parentId = :id`;
+		const filesAmtQuery = `SELECT COUNT(*) as filesAmt FROM ${FILES_TABLE_NAME} WHERE parentId IN (${childQuery})`;
+		const directoriesAmtQuery = `SELECT COUNT(*) - 1 as directoriesAmt FROM ${DIRECTORY_TABLE_NAME} WHERE id IN (${childQuery})`;
+		const sizeQuery = `SELECT COALESCE(SUM(size), 0) as _size FROM ${FILES_TABLE_NAME} WHERE parentId IN (${childQuery})`;
+
+		const selectQuery = `name, parentId, _size as size, filesAmt as files, directoriesAmt as directories, createdAt, updatedAt`;
+
+		const query = `WITH filesAmt AS (${filesAmtQuery}), directoriesAmt AS (${directoriesAmtQuery}), _size AS (${sizeQuery}) SELECT ${selectQuery} FROM ${DIRECTORY_TABLE_NAME} INNER JOIN filesAmt INNER JOIN directoriesAmt INNER JOIN _size WHERE id = :id`;
+		const params = { id: id };
+
 		const [rows] = await entityManager
 			.getKnex()
-			.raw<[Pick<Directory & Additional, 'name' | 'size' | 'files' | 'directories' | 'createdAt' | 'updatedAt'>[]]>(
-				`WITH filesAmt AS (
-				 	 SELECT COUNT(*) as filesAmt
-				     FROM ${FILES_TABLE_NAME}
-					 WHERE parentId IN (
-						 SELECT childId
-						 FROM ${TREE_TABLE_NAME}
-						 WHERE parentId = GET_DIRECTORY_UUID(:path)
-					 )
-				  ),
-				  directoriesAmt AS (
-					 SELECT COUNT(*) - 1 as directoriesAmt
-					 FROM ${DIRECTORY_TABLE_NAME}
-					 WHERE id IN (
-						 SELECT childId
-						 FROM ${TREE_TABLE_NAME}
-						 WHERE parentId = GET_DIRECTORY_UUID(:path)
-					 )
-				 )
-				 SELECT name, GET_DIRECTORY_SIZE(id) AS size, 
-			    	    filesAmt as files, directoriesAmt as directories, createdAt, updatedAt
-				 FROM ${DIRECTORY_TABLE_NAME}
-				 INNER JOIN filesAmt
-				 INNER JOIN directoriesAmt
-				 WHERE id = GET_DIRECTORY_UUID(:path)
-				`,
-				{ path: PathUtils.normalizeDirectoryPath(path) }
-			)
+			.raw<[Pick<Directory & Additional, 'name' | 'size' | 'files' | 'directories' | 'createdAt' | 'updatedAt' | 'parentId'>[]]>(query, params)
 			.transacting(entityManager.getTransactionContext()!);
 
 		const metadata = rows![0];
@@ -104,69 +95,62 @@ export class DirectoryRepository implements IDirectoryRepository {
 		};
 	}
 
-	public async getContent(entityManager: EntityManager, path: string): Promise<DirectoryContentResponse> {
+	public async getContents(entityManager: EntityManager, id: string): Promise<DirectoryContentResponse> {
+		const fileQuery = `SELECT id, name FROM ${FILES_TABLE_NAME} WHERE parentId = :parentId`;
+		const fileParams = { parentId: id };
+
 		const [files] = await entityManager
 			.getKnex()
-			.raw<[(Pick<File, 'name' | 'mimeType' | 'size'> & { createdAt: string; updatedAt: string })[]]>(
-				// prettier-ignore
-				`SELECT name, mimeType, size, createdAt, updatedAt FROM ${FILES_TABLE_NAME} WHERE parentId = GET_DIRECTORY_UUID(:path)`,
-				{ path: PathUtils.normalizeDirectoryPath(path) }
-			)
+			.raw<[(Pick<File, 'id' | 'name'> & { createdAt: string; updatedAt: string })[]]>(fileQuery, fileParams)
 			.transacting(entityManager.getTransactionContext()!);
+
+		const existsChildQuery = `SELECT 1 FROM directories WHERE parentId = d.id`;
+		const hasChildrenQuery = `CASE WHEN EXISTS (${existsChildQuery}) THEN TRUE ELSE FALSE END`;
+
+		const directoryQuery = `SELECT id, name, (${hasChildrenQuery}) AS hasChildren FROM ${DIRECTORY_TABLE_NAME} d WHERE parentId = :parentId`;
+		const directoryParams = { parentId: id };
 
 		const [directories] = await entityManager
 			.getKnex()
-			.raw<[(Pick<Directory & Additional, 'name' | 'size'> & { createdAt: string; updatedAt: string })[]]>(
-				`SELECT name, GET_DIRECTORY_SIZE(id) AS size, createdAt, updatedAt
-				 FROM ${DIRECTORY_TABLE_NAME}
-				 WHERE parentId = GET_DIRECTORY_UUID(:path)
-				`,
-				{ path: PathUtils.normalizeDirectoryPath(path) }
-			)
+			.raw<[(Pick<Directory, 'id' | 'name'> & { hasChildren: boolean })[]]>(directoryQuery, directoryParams)
 			.transacting(entityManager.getTransactionContext()!);
 
 		return {
-			files: files!,
-			directories: directories!,
+			files: files ?? [],
+			directories: directories ?? [],
 		};
 	}
 
-	public async getFilesRelative(entityManager: EntityManager, path: string): Promise<Array<Pick<File, 'id'> & { path: string }>> {
+	public async getContentsRecursive(entityManager: EntityManager, id: string): Promise<DirectoryRecursiveContentResponse> {
+		const childQuery = `SELECT childId FROM ${TREE_TABLE_NAME} WHERE parentId = :id`;
+		const params = { id: id };
+
+		const filesQuery = `SELECT id, name, parentId FROM ${FILES_TABLE_NAME} WHERE parentId IN (${childQuery})`;
+
 		const [files] = await entityManager
 			.getKnex()
-			.raw<[Pick<File & Additional, 'id' | 'path'>[]]>(
-				`SELECT id, GET_FILE_PATH(id) AS path
-				 FROM ${FILES_TABLE_NAME}
-				 WHERE parentId IN (
-					 SELECT childId
-					 FROM ${TREE_TABLE_NAME}
-					 INNER JOIN ${DIRECTORY_TABLE_NAME} ON ${TREE_TABLE_NAME}.childId = ${DIRECTORY_TABLE_NAME}.id
-					 WHERE ${TREE_TABLE_NAME}.parentId = GET_DIRECTORY_UUID(:path)
-				 )
-				`,
-				{ path: PathUtils.normalizeDirectoryPath(path) }
-			)
+			.raw<[Array<Pick<File, 'id' | 'name'> & { parentId: string }>]>(filesQuery, params)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const mapped = files!.map((file) => ({
-			...file,
-			path: PathUtils.normalizeFilePath(file.path.replace(path, '')),
-		}));
+		const directoriesQuery = `SELECT id, name, parentId FROM ${DIRECTORY_TABLE_NAME} WHERE id IN (${childQuery})`;
 
-		return mapped;
+		const [directories] = await entityManager
+			.getKnex()
+			.raw<[Array<Pick<File, 'id' | 'name'> & { parentId: string }>]>(directoriesQuery, params)
+			.transacting(entityManager.getTransactionContext()!);
+
+		return {
+			files: files ?? [],
+			directories: directories ?? [],
+		};
 	}
 
-	public async update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string }): Promise<void> {
+	public async update(entityManager: EntityManager, id: string, partial: { name?: string; parentId?: string }): Promise<void> {
 		if (Object.keys(partial).length === 0) {
 			return;
 		}
 
-		await entityManager
-			.getKnex()
-			.table(DIRECTORY_TABLE_NAME)
-			.update(partial)
-			.whereRaw('id = GET_DIRECTORY_UUID(?)', [PathUtils.normalizeDirectoryPath(path)])
-			.transacting(entityManager.getTransactionContext()!);
+		await entityManager.getKnex().table(DIRECTORY_TABLE_NAME).update(partial).where('id', id).transacting(entityManager.getTransactionContext()!);
 	}
 
 	public async delete(entityManager: EntityManager, rootId: string): Promise<void> {

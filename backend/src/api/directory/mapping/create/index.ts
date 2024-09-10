@@ -4,8 +4,9 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { DirectoryCreateResponse } from 'src/api/directory/mapping/create/DirectoryCreateResponse';
+import { DirectoryCreateBody } from './DirectoryCreateBody';
 import { DirectoryCreateDto } from './DirectoryCreateDto';
 import { DirectoryCreateParams } from './DirectoryCreateParams';
+import { DirectoryCreateResponse } from './DirectoryCreateResponse';
 
-export { DirectoryCreateDto, DirectoryCreateParams, DirectoryCreateResponse };
+export { DirectoryCreateBody, DirectoryCreateDto, DirectoryCreateParams, DirectoryCreateResponse };

@@ -5,7 +5,6 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { FileMetadataParams } from 'src/api/file/mapping/metadata/FileMetadataParams';
-import { PathUtils } from 'src/util/PathUtils';
 
 /**
  * DTO for bundling the http request data.
@@ -13,20 +12,20 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class FileMetadataDto {
 	/**
-	 * The path of the file to get the metadata from.
+	 * The id of the file to get the metadata from
 	 * @type {string}
 	 */
-	readonly path: string;
+	readonly id: string;
 
 	/**
 	 * Creates a new FileMetadataDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}               path the path of the file
-	 * @returns {FileMetadataDto}           the FileMetadataDto instance
+	 * @param   {string}          id       the id of the file
+	 * @returns {FileMetadataDto}          the FileMetadataDto instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
 	/**
@@ -37,8 +36,6 @@ export class FileMetadataDto {
 	 * @returns {FileMetadataDto}                       the FileMetadataDto instance
 	 */
 	public static from(fileMetadataParams: FileMetadataParams): FileMetadataDto {
-		const normalizedPath = PathUtils.normalizeFilePath(fileMetadataParams.path);
-
-		return new FileMetadataDto(normalizedPath);
+		return new FileMetadataDto(fileMetadataParams.id);
 	}
 }

@@ -5,7 +5,6 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { DirectoryMetadataParams } from 'src/api/directory/mapping/metadata/DirectoryMetadataParams';
-import { PathUtils } from 'src/util/PathUtils';
 
 /**
  * DTO for bundling the http request data.
@@ -13,20 +12,20 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class DirectoryMetadataDto {
 	/**
-	 * The path of the directory to get the metadata from.
+	 * The id of the directory to get the metadata from.
 	 * @type {string}
 	 */
-	readonly path: string;
+	readonly id: string;
 
 	/**
 	 * Creates a new DirectoryMetadataDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}               path the path of the directory
-	 * @returns {DirectoryMetadataDto}      the DirectoryMetadataDto instance
+	 * @param   {string}               id the id of the directory
+	 * @returns {DirectoryMetadataDto}    the DirectoryMetadataDto instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
 	/**
@@ -37,8 +36,6 @@ export class DirectoryMetadataDto {
 	 * @returns {DirectoryMetadataDto}                            the DirectoryMetadataDto instance
 	 */
 	public static from(directoryMetadataParams: DirectoryMetadataParams): DirectoryMetadataDto {
-		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryMetadataParams.path);
-
-		return new DirectoryMetadataDto(normalizedPath);
+		return new DirectoryMetadataDto(directoryMetadataParams.id);
 	}
 }

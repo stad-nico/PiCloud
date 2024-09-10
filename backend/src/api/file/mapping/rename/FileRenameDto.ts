@@ -4,11 +4,10 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import * as path from 'path';
 
 import { FileRenameBody, FileRenameParams } from 'src/api/file/mapping/rename';
 import { FileNameTooLongException } from 'src/exceptions/FileNameTooLongException';
-import { InvalidFilePathException } from 'src/exceptions/InvalidFilePathException';
+import { InvalidFileNameException } from 'src/exceptions/InvalidFileNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**
@@ -17,36 +16,36 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class FileRenameDto {
 	/**
-	 * The path of the file to rename.
+	 * The id of the file to rename.
 	 * @type {string}
 	 */
-	readonly sourcePath: string;
+	readonly id: string;
 
 	/**
-	 * The path to rename the file to.
+	 * The name to rename the file to.
 	 * @type {string}
 	 */
-	readonly destinationPath: string;
+	readonly name: string;
 
 	/**
 	 * Creates a new FileRenameDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}             sourcePath      the path of the file to rename
-	 * @param   {string}             destinationPath the path to rename the file to
-	 * @returns {FileRenameDto}                      the FileRenameDto instance
+	 * @param   {string}        id   the id of the file to rename
+	 * @param   {string}        name the name to rename the file to
+	 * @returns {FileRenameDto}      the FileRenameDto instance
 	 */
-	private constructor(sourcePath: string, destinationPath: string) {
-		this.sourcePath = sourcePath;
-		this.destinationPath = destinationPath;
+	private constructor(id: string, name: string) {
+		this.id = id;
+		this.name = name;
 	}
 
 	/**
 	 * Creates a new FileRenameDto instance from the http params.
-	 * Throws if the path is not valid or the file name is too long.
+	 * Throws if the name file is not valid or too long.
 	 * @public @static
 	 *
-	 * @throws  {InvalidFilePathException} if the file path is invalid
+	 * @throws  {InvalidFileNameException} if the file name is invalid
 	 * @throws  {FileNameTooLongException} if the file name is too long
 	 *
 	 * @param   {FileRenameParams} fileRenameParams the http params
@@ -54,18 +53,14 @@ export class FileRenameDto {
 	 * @returns {FileRenameDto}                     the FileRenameDto instance
 	 */
 	public static from(fileRenameParams: FileRenameParams, fileRenameBody: FileRenameBody): FileRenameDto {
-		const sourcePath = PathUtils.normalizeFilePath(fileRenameParams.path);
-
-		const destPath = PathUtils.normalizeFilePath(fileRenameBody.newPath);
-
-		if (!PathUtils.isFilePathValid(destPath)) {
-			throw new InvalidFilePathException(fileRenameBody.newPath);
+		if (!PathUtils.isFileNameValid(fileRenameBody.name)) {
+			throw new InvalidFileNameException(fileRenameBody.name);
 		}
 
-		if (path.basename(destPath).length > PathUtils.MaxFileNameLength) {
-			throw new FileNameTooLongException(path.basename(fileRenameBody.newPath));
+		if (!PathUtils.isFileNameLengthValid(fileRenameBody.name)) {
+			throw new FileNameTooLongException(fileRenameBody.name);
 		}
 
-		return new FileRenameDto(sourcePath, destPath);
+		return new FileRenameDto(fileRenameParams.id, fileRenameBody.name);
 	}
 }

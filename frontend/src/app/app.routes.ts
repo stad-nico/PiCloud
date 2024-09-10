@@ -2,15 +2,12 @@ import { Routes } from '@angular/router';
 import { ExplorerComponent } from 'src/app/core/components/explorer/explorer.component';
 
 export const routes: Routes = [
-	{ path: '', pathMatch: 'full', redirectTo: 'root' },
+	{ path: '', pathMatch: 'full', redirectTo: 'explorer' },
 	{
-		path: '',
+		path: 'explorer',
 		children: [
-			{
-				path: '**',
-				component: ExplorerComponent,
-				pathMatch: 'full',
-			},
+			{ path: '', pathMatch: 'full', redirectTo: 'root' },
+			{ path: ':directoryId', component: ExplorerComponent },
 		],
 	},
 ];

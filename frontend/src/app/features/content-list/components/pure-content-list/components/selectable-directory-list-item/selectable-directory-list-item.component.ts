@@ -1,19 +1,23 @@
-import { animate, group, query, state, style, transition, trigger } from '@angular/animations';
+import { animate, group, query, style, transition, trigger } from '@angular/animations';
 import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
-import { DirectoryContentDirectory } from 'generated';
+import { DirectoryMetadataResponse } from 'generated';
 import { CheckboxCheckEvent, CheckboxComponent, CheckboxUncheckEvent } from 'src/app/shared/components/checkbox/checkbox.component';
 import { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';
 
 export type ListItemSelectEvent = CheckboxCheckEvent & {
-	id: number;
+	id: string;
 };
 
 export type ListItemUnselectEvent = CheckboxUncheckEvent & {
-	id: number;
+	id: string;
 };
 
 export type ListItemOpenEvent = {
-	id: number;
+	id: string;
+};
+
+export type ListItemDeleteEvent = {
+	id: string;
 };
 
 @Component({
@@ -24,8 +28,6 @@ export type ListItemOpenEvent = {
 	imports: [DirectoryListItemComponent, CheckboxComponent],
 	animations: [
 		trigger('isSelectable', [
-			state('true', style({})),
-			state('false', style({})),
 			transition('false => true', [
 				query('checkbox', [
 					style({
@@ -56,11 +58,14 @@ export class SelectableDirectoryListItemComponent {
 	@Input('isSelectable')
 	public isSelectable: boolean = false;
 
-	@Input({ required: true })
-	public id!: number;
+	@Input()
+	public isBeingProcessed: boolean = false;
 
 	@Input({ required: true })
-	public metadata!: DirectoryContentDirectory;
+	public id!: string;
+
+	@Input({ required: true })
+	public metadata!: DirectoryMetadataResponse;
 
 	@Output()
 	public onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();
@@ -71,6 +76,9 @@ export class SelectableDirectoryListItemComponent {
 	@Output()
 	public onOpen: EventEmitter<ListItemOpenEvent> = new EventEmitter();
 
+	@Output()
+	public onDelete: EventEmitter<ListItemDeleteEvent> = new EventEmitter();
+
 	public onCheck(event: CheckboxCheckEvent) {
 		this.onSelect.emit({ id: this.id, ...event });
 	}
@@ -79,7 +87,9 @@ export class SelectableDirectoryListItemComponent {
 		this.onUnselect.emit({ id: this.id, ...event });
 	}
 
-	public onDblClick() {
-		this.onOpen.emit({ id: this.id });
+	public onClick(event: MouseEvent) {
+		if (event.detail > 1) {
+			event.preventDefault();
+		}
 	}
 }

@@ -5,6 +5,7 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { ApiProperty } from '@nestjs/swagger';
+import { ROOT_ID } from 'src/db/entities/Directory';
 
 /**
  * Class representing the http request url params.
@@ -12,20 +13,26 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 export class DirectoryDownloadParams {
 	/**
-	 * The path of the directory to download.
+	 * The id of the directory to download.
 	 * @type {string}
 	 */
-	@ApiProperty({ example: '/path/to/directory', description: 'The path of the directory to download' })
-	readonly path: string;
+	@ApiProperty({
+		examples: {
+			root: { value: ROOT_ID, summary: 'Using the root id as parent id' },
+			uuid: { value: '133a8736-111a-4cf7-ae84-dbe040ad4382', summary: 'Any other directory id' },
+		},
+		description: 'The id of the directory to download',
+	})
+	readonly id: string;
 
 	/**
 	 * Creates a new DirectoryDownloadParams instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}                  path the path of the directory
-	 * @returns {DirectoryDownloadParams}      the DirectoryDownloadParams instance
+	 * @param   {string}                  id the id of the directory
+	 * @returns {DirectoryDownloadParams}    the DirectoryDownloadParams instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 }

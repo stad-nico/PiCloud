@@ -1,1 +1,10 @@
-<pure-directory-tree (onCollapse)="onCollapse($event)" (onExpand)="onExpand($event)" (onClick)="onClick($event)" [metadata]="metadata"></pure-directory-tree>
+<!-- <pure-directory-tree (onCollapse)="onCollapse($event)" (onExpand)="onExpand($event)" (onClick)="onClick($event)" [metadata]="metadata"></pure-directory-tree> -->
+
+<pure-directory-tree
+	(onCollapse)="onCollapse($event)"
+	(onExpand)="onExpand($event)"
+	(onLoadContent)="onLoadContent($event)"
+	(onSelect)="onSelect($event)"
+	[root]="root"
+	[tree]="tree"
+></pure-directory-tree>

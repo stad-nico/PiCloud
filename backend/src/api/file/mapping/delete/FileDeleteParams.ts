@@ -5,6 +5,7 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { ApiProperty } from '@nestjs/swagger';
+import { ROOT_ID } from 'src/db/entities/Directory';
 
 /**
  * Class representing the http request url params.
@@ -12,20 +13,35 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 export class FileDeleteParams {
 	/**
-	 * The path of the file to delete.
+	 * The id of the files directory
 	 * @type {string}
 	 */
-	@ApiProperty({ example: '/path/to/file.txt', description: 'The path of the file to delete' })
-	readonly path: string;
+	@ApiProperty({
+		examples: {
+			root: { value: ROOT_ID, summary: 'Using the root id as parent id' },
+			uuid: { value: '133a8736-111a-4cf7-ae84-dbe040ad4382', summary: 'Any other directory id' },
+		},
+		description: 'The id of the files directory',
+	})
+	readonly directoryId: string;
+
+	/**
+	 * The id of the file to delete.
+	 * @type {string}
+	 */
+	@ApiProperty({ example: '853d4b18-8d1a-426c-b53e-74027ce1644b', description: 'The id of the file to delete' })
+	readonly id: string;
 
 	/**
 	 * Creates a new FileDeleteParams instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}                path the path of the file
-	 * @returns {FileDeleteParams}           the FileDeleteParams instance
+	 * @param   {string}          directoryId the files directory id
+	 * @param   {string}                   id the id of the file
+	 * @returns {FileDeleteParams}            the FileDeleteParams instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(directoryId: string, id: string) {
+		this.directoryId = directoryId;
+		this.id = id;
 	}
 }

@@ -4,11 +4,9 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { Matches } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
-
-import { PathUtils } from 'src/util/PathUtils';
+import { ROOT_ID } from 'src/db/entities/Directory';
 
 /**
  * Class representing the http request url params.
@@ -16,25 +14,26 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class DirectoryCreateParams {
 	/**
-	 * The path of the directory to create.
+	 * The id of the parent directory where the new directory will be created.
 	 * @type {string}
 	 */
-	@Matches(PathUtils.ValidDirectoryPathRegExp)
 	@ApiProperty({
-		example: '/path/to/directory',
-		description: 'The path of the directory to create',
-		pattern: `${PathUtils.ValidDirectoryPathRegExp}`,
+		examples: {
+			root: { value: ROOT_ID, summary: 'Using the root id as parent id' },
+			uuid: { value: '133a8736-111a-4cf7-ae84-dbe040ad4382', summary: 'Any other directory id' },
+		},
+		description: 'The id of the parent directory where the new directory will be created',
 	})
-	readonly path: string;
+	readonly id: string;
 
 	/**
 	 * Creates a new DirectoryCreateParams instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}                 path the path of the directory
-	 * @returns {DirectoryCreateParams}       the DirectoryCreateParams instance
+	 * @param   {string}                id the id of the parent directory
+	 * @returns {DirectoryCreateParams}    the DirectoryCreateParams instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 }

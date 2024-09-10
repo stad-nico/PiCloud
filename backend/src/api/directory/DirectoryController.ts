@@ -6,26 +6,30 @@
  *-------------------------------------------------------------------------*/
 import { Response } from 'express';
 
-import { Body, Controller, Delete, Get, HttpException, Inject, Logger, Param, Patch, Post, Res, StreamableFile } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Inject, Logger, Param, Patch, Post, Res, StreamableFile } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { IDirectoryService } from 'src/api/directory/IDirectoryService';
 import { DirectoryContentDto, DirectoryContentParams, DirectoryContentResponse } from 'src/api/directory/mapping/content';
-import { DirectoryCreateDto, DirectoryCreateParams, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
+import { DirectoryCreateBody, DirectoryCreateDto, DirectoryCreateParams, DirectoryCreateResponse } from 'src/api/directory/mapping/create';
 import { DirectoryDeleteDto, DirectoryDeleteParams } from 'src/api/directory/mapping/delete';
 import { DirectoryDownloadDto, DirectoryDownloadParams } from 'src/api/directory/mapping/download';
 import { DirectoryMetadataDto, DirectoryMetadataParams, DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata';
-import { DirectoryRenameBody, DirectoryRenameDto, DirectoryRenameParams, DirectoryRenameResponse } from 'src/api/directory/mapping/rename';
-import { DirectoryAlreadyExistsException } from 'src/exceptions/DirectoryAlreadyExistsException';
-import { DirectoryNameTooLongException } from 'src/exceptions/DirectoryNameTooLongException';
-import { DirectoryNotFoundException } from 'src/exceptions/DirectoryNotFoundException';
-import { InvalidDirectoryPathException } from 'src/exceptions/InvalidDirectoryPathException';
-import { ParentDirectoryNotFoundException } from 'src/exceptions/ParentDirectoryNotFoundExceptions';
-import { SomethingWentWrongException } from 'src/exceptions/SomethingWentWrongException';
+import { DirectoryRenameBody, DirectoryRenameDto, DirectoryRenameParams } from 'src/api/directory/mapping/rename';
+import {
+	DirectoryAlreadyExistsException,
+	DirectoryNameTooLongException,
+	DirectoryNotFoundException,
+	InvalidDirectoryNameException,
+	ParentDirectoryNotFoundException,
+	RootCannotBeDeletedException,
+	RootCannotBeRenamedException,
+	SomethingWentWrongException,
+} from 'src/exceptions';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
 
-@Controller('directory')
-@ApiTags('directory')
+@Controller('directories')
+@ApiTags('directories')
 export class DirectoryController {
 	private readonly logger = new Logger(DirectoryController.name);
 
@@ -35,21 +39,31 @@ export class DirectoryController {
 		this.directoryService = directoryService;
 	}
 
-	@Post(':path(*)')
-	@ApiOperation({ operationId: 'createDirectory', summary: 'Create directory', description: 'Create a directory at the provided path' })
-	@ApiCreatedResponse({ type: DirectoryCreateResponse, description: 'Success' })
+	@Post(':id')
+	@HttpCode(HttpStatus.CREATED)
+	@ApiOperation({
+		operationId: 'create',
+		summary: 'Create directory',
+		description: 'Create a directory with the given name under the given parent id',
+	})
+	@ApiCreatedResponse({ description: 'The directory was created successfully' })
 	@TemplatedApiException(() => new DirectoryNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName'), {
 		description: 'The directory name is too long',
 	})
-	@TemplatedApiException(() => new InvalidDirectoryPathException('/invalid%/path&'), { description: 'The directory path is not valid' })
-	@TemplatedApiException(() => new ParentDirectoryNotFoundException('/path/to'), { description: 'The parent directory does not exist' })
-	@TemplatedApiException(() => new DirectoryAlreadyExistsException('/path/to/directory'), { description: 'The directory already exists' })
+	@TemplatedApiException(() => new InvalidDirectoryNameException('%&/("§.*'), { description: 'The directory name is not valid' })
+	@TemplatedApiException(() => new ParentDirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
+		description: 'The parent directory does not exist',
+	})
+	@TemplatedApiException(() => new DirectoryAlreadyExistsException('example'), { description: 'The directory already exists' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async create(@Param() directoryCreateParams: DirectoryCreateParams): Promise<DirectoryCreateResponse> {
-		this.logger.log(`[Post] ${directoryCreateParams.path}`);
+	public async create(
+		@Param() directoryCreateParams: DirectoryCreateParams,
+		@Body() directoryCreateBody: DirectoryCreateBody
+	): Promise<DirectoryCreateResponse> {
+		this.logger.log(`[Post] ${directoryCreateParams.id}`);
 
 		try {
-			const directoryCreateDto = DirectoryCreateDto.from(directoryCreateParams);
+			const directoryCreateDto = DirectoryCreateDto.from(directoryCreateParams, directoryCreateBody);
 
 			return await this.directoryService.create(directoryCreateDto);
 		} catch (e) {
@@ -63,18 +77,18 @@ export class DirectoryController {
 		}
 	}
 
-	@Get(':path(*)/content')
-	@ApiOperation({ operationId: 'getDirectoryContent', summary: 'Get directory contents', description: 'Get the files and subdirectories on the first level' })
-	@ApiOkResponse({ type: DirectoryContentResponse, description: 'Success' })
-	@TemplatedApiException(() => new DirectoryNotFoundException('/path/to/directory'), { description: 'The directory does not exist' })
+	@Get(':id/contents')
+	@ApiOperation({ operationId: 'getContents', summary: 'Get directory contents', description: 'Get the files and directories' })
+	@ApiOkResponse({ type: DirectoryContentResponse, description: 'The contents were retrieved successfully' })
+	@TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), { description: 'The directory does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async content(@Param() directoryContentParams: DirectoryContentParams): Promise<DirectoryContentResponse> {
-		this.logger.log(`[Get] ${directoryContentParams.path}/content`);
+	public async contents(@Param() directoryContentParams: DirectoryContentParams): Promise<DirectoryContentResponse> {
+		this.logger.log(`[Get] ${directoryContentParams.id}/content`);
 
 		try {
 			const directoryContentDto = DirectoryContentDto.from(directoryContentParams);
 
-			return await this.directoryService.content(directoryContentDto);
+			return await this.directoryService.contents(directoryContentDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -86,13 +100,13 @@ export class DirectoryController {
 		}
 	}
 
-	@Get(':path(*)/metadata')
-	@ApiOperation({ operationId: 'getDirectoryMetadata', summary: 'Get directory metadata', description: 'Get the detailed metadata of a directory' })
-	@ApiOkResponse({ type: DirectoryMetadataResponse, description: 'Success' })
-	@TemplatedApiException(() => new DirectoryNotFoundException('/path/to/directory'), { description: 'The directory does not exist' })
+	@Get(':id/metadata')
+	@ApiOperation({ operationId: 'getMetadata', summary: 'Get directory metadata', description: 'Get the metadata of a directory' })
+	@ApiOkResponse({ type: DirectoryMetadataResponse, description: 'The metadata was retrieved successfully' })
+	@TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), { description: 'The directory does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async metadata(@Param() directoryMetadataParams: DirectoryMetadataParams): Promise<DirectoryMetadataResponse> {
-		this.logger.log(`[Get] ${directoryMetadataParams.path}/metadata`);
+		this.logger.log(`[Get] ${directoryMetadataParams.id}/metadata`);
 
 		try {
 			const directoryMetadataDto = DirectoryMetadataDto.from(directoryMetadataParams);
@@ -109,13 +123,13 @@ export class DirectoryController {
 		}
 	}
 
-	@Get(':path(*)/download')
-	@ApiOperation({ operationId: 'downloadDirectory', summary: 'Download directory', description: 'Download the directory as a ZIP archive' })
-	@ApiOkResponse({ content: { '*/*': { schema: { type: 'string', format: 'binary' } } }, description: 'Success' })
-	@TemplatedApiException(() => new DirectoryNotFoundException('/path/to/directory'), { description: 'The directory does not exist' })
+	@Get(':id/download')
+	@ApiOperation({ operationId: 'download', summary: 'Download directory', description: 'Download the directory as a ZIP archive' })
+	@ApiOkResponse({ content: { '*/*': { schema: { type: 'string', format: 'binary' } } }, description: 'The directory was downloaded successfully' })
+	@TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), { description: 'The directory does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async download(@Param() directoryDownloadParams: DirectoryDownloadParams, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
-		this.logger.log(`[Get] ${directoryDownloadParams.path}/download`);
+		this.logger.log(`[Get] ${directoryDownloadParams.id}/download`);
 
 		try {
 			const directoryDownloadDto = DirectoryDownloadDto.from(directoryDownloadParams);
@@ -139,27 +153,28 @@ export class DirectoryController {
 		}
 	}
 
-	@Patch(':path(*)')
-	@ApiOperation({ operationId: 'renameDirectory', summary: 'Rename directory', description: 'Rename or move a directory' })
-	@ApiOkResponse({ type: DirectoryRenameResponse, description: 'Success' })
+	@Patch(':id/rename')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiOperation({ operationId: 'rename', summary: 'Rename directory', description: 'Rename or move a directory' })
+	@ApiNoContentResponse({ description: 'The directory was renamed successfully' })
+	@TemplatedApiException(() => new InvalidDirectoryNameException('%26path&'), { description: 'The directory name is not valid' })
 	@TemplatedApiException(() => new DirectoryNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName'), {
 		description: 'The directory name is too long',
 	})
-	@TemplatedApiException(() => new InvalidDirectoryPathException('/new/invalid%/path&'), { description: 'The directory path is not valid' })
-	@TemplatedApiException(() => new ParentDirectoryNotFoundException('/new/'), { description: 'The destination parent directory does not exist' })
-	@TemplatedApiException(() => new DirectoryNotFoundException('/path/to/directory'), { description: 'The directory does not exist' })
-	@TemplatedApiException(() => new DirectoryAlreadyExistsException('/new/'), { description: 'The destination directory already exists' })
+	@TemplatedApiException(() => RootCannotBeRenamedException, { description: 'The root directory cannot be renamed' })
+	@TemplatedApiException(() => new ParentDirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
+		description: 'The parent directory does not exist',
+	})
+	@TemplatedApiException(() => new DirectoryNotFoundException('9bb14df7-112b-486a-bd49-8261246ad256'), { description: 'The directory does not exist' })
+	@TemplatedApiException(() => new DirectoryAlreadyExistsException('renamed'), { description: 'The destination directory already exists' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async rename(
-		@Param() directoryRenameParams: DirectoryRenameParams,
-		@Body() directoryRenameBody: DirectoryRenameBody
-	): Promise<DirectoryRenameResponse> {
-		this.logger.log(`[Patch] ${directoryRenameParams.path} to ${directoryRenameBody.newPath}`);
+	public async rename(@Param() directoryRenameParams: DirectoryRenameParams, @Body() directoryRenameBody: DirectoryRenameBody): Promise<void> {
+		this.logger.log(`[Patch] Rename ${directoryRenameParams.id} to ${directoryRenameBody.name}`);
 
 		try {
 			const directoryRenameDto = DirectoryRenameDto.from(directoryRenameParams, directoryRenameBody);
 
-			return await this.directoryService.rename(directoryRenameDto);
+			await this.directoryService.rename(directoryRenameDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -171,17 +186,19 @@ export class DirectoryController {
 		}
 	}
 
-	@Delete(':path(*)')
+	@Delete(':id')
+	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiOperation({
-		operationId: 'deleteDirectory',
+		operationId: 'delete',
 		summary: 'Delete directory',
-		description: 'Delete the directory at the given path including all files and subdirectories',
+		description: 'Delete the directory with the given id including all files and subdirectories',
 	})
-	@ApiNoContentResponse({ description: 'Success' })
-	@TemplatedApiException(() => new DirectoryNotFoundException('/path/to/directory'), { description: 'The directory does not exist' })
+	@ApiNoContentResponse({ description: 'The directory was deleted successfully' })
+	@TemplatedApiException(() => RootCannotBeDeletedException, { description: 'The root directory cannot be deleted' })
+	@TemplatedApiException(() => new DirectoryNotFoundException('9bb14df7-112b-486a-bd49-8261246ad256'), { description: 'The directory does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async delete(@Param() directoryDeleteParams: DirectoryDeleteParams): Promise<void> {
-		this.logger.log(`[Delete] ${directoryDeleteParams.path}`);
+		this.logger.log(`[Delete] ${directoryDeleteParams.id}`);
 		try {
 			const directoryDeleteDto = DirectoryDeleteDto.from(directoryDeleteParams);
 

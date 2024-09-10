@@ -16,24 +16,24 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class FileRenameBody {
 	/**
-	 * The path to rename the file to.
+	 * The name to rename the file to.
 	 * @type {string}
 	 */
-	@Matches(PathUtils.ValidFilePathRegExp)
+	@Matches(PathUtils.ValidFileNameRegExp)
 	@ApiProperty({
-		example: '/new/path/to/file.txt',
-		description: 'The path to rename the file to',
-		pattern: `${PathUtils.ValidFilePathRegExp}`,
+		example: 'renamed.txt',
+		description: 'The name to rename the file to',
+		pattern: `${PathUtils.ValidFileNameRegExp}`,
 	})
-	readonly newPath: string;
+	readonly name: string;
 
 	/**
 	 * Creates a new FileRenameBody instance.
 	 *
-	 * @param   {string}              newPath the path to rename the file to
-	 * @returns {FileRenameBody}              the FileRenameBody instance
+	 * @param   {string}         name the name to rename the file to
+	 * @returns {FileRenameBody}      the FileRenameBody instance
 	 */
-	private constructor(newPath: string) {
-		this.newPath = newPath;
+	private constructor(name: string) {
+		this.name = name;
 	}
 }

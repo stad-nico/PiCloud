@@ -4,11 +4,9 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { Matches } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
-
-import { PathUtils } from 'src/util/PathUtils';
+import { ROOT_ID } from 'src/db/entities/Directory';
 
 /**
  * Class representing the http request url params.
@@ -16,25 +14,26 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class FileUploadParams {
 	/**
-	 * The path of the file to create.
+	 * The id of the parent directory where the file will be stored.
 	 * @type {string}
 	 */
-	@Matches(PathUtils.ValidFilePathRegExp)
 	@ApiProperty({
-		example: '/path/to/file.txt',
-		description: 'The path of the file to upload',
-		pattern: `${PathUtils.ValidFilePathRegExp}`,
+		examples: {
+			root: { value: ROOT_ID, summary: 'Using the root id as parent id' },
+			uuid: { value: '133a8736-111a-4cf7-ae84-dbe040ad4382', summary: 'Any other directory id' },
+		},
+		description: 'The id of the parent directory where the file will be stored',
 	})
-	readonly path: string;
+	readonly id: string;
 
 	/**
 	 * Creates a new FileUploadParams instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}                 path the path of the file
-	 * @returns {FileUploadParams}            the FileUploadParams instance
+	 * @param   {string}                id the id of the parent directory
+	 * @returns {FileUploadParams}         the FileUploadParams instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 }

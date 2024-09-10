@@ -1,12 +1,12 @@
-import { ActivatedRoute } from '@angular/router';
+import { ContentType } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
 
 export namespace ContentListActions {
 	export class SelectSingle {
 		public static readonly type = '[Content List] Select Single';
 
-		public readonly id: number;
+		public readonly id: string;
 
-		constructor(id: number) {
+		constructor(id: string) {
 			this.id = id;
 		}
 	}
@@ -14,9 +14,9 @@ export namespace ContentListActions {
 	export class UnselectSingle {
 		public static readonly type = '[Content List] Unselect Single';
 
-		public readonly id: number;
+		public readonly id: string;
 
-		constructor(id: number) {
+		constructor(id: string) {
 			this.id = id;
 		}
 	}
@@ -32,9 +32,9 @@ export namespace ContentListActions {
 	export class ShiftSelect {
 		public static readonly type = '[Content List] Shift Select';
 
-		public readonly id: number;
+		public readonly id: string;
 
-		constructor(id: number) {
+		constructor(id: string) {
 			this.id = id;
 		}
 	}
@@ -42,9 +42,9 @@ export namespace ContentListActions {
 	export class ShiftUnselect {
 		public static readonly type = '[Content List] Shift Unselect';
 
-		public readonly id: number;
+		public readonly id: string;
 
-		constructor(id: number) {
+		constructor(id: string) {
 			this.id = id;
 		}
 	}
@@ -52,9 +52,9 @@ export namespace ContentListActions {
 	export class CtrlSelect {
 		public static readonly type = '[Content List] Ctrl Select';
 
-		public readonly id: number;
+		public readonly id: string;
 
-		constructor(id: number) {
+		constructor(id: string) {
 			this.id = id;
 		}
 	}
@@ -62,33 +62,30 @@ export namespace ContentListActions {
 	export class CtrlUnselect {
 		public static readonly type = '[Content List] Ctrl Unselect';
 
-		public readonly id: number;
+		public readonly id: string;
 
-		constructor(id: number) {
+		constructor(id: string) {
 			this.id = id;
-		}
-	}
-
-	export class Open {
-		public static readonly type = '[Content List] Open';
-
-		public readonly id: number;
-
-		public readonly route: ActivatedRoute;
-
-		constructor(id: number, route: ActivatedRoute) {
-			this.id = id;
-			this.route = route;
 		}
 	}
 
 	export class FetchContent {
 		public static readonly type = '[Content List] Fetch Content';
 
-		public readonly path: string;
+		public readonly id: string;
 
-		constructor(path: string) {
-			this.path = path;
+		constructor(id: string) {
+			this.id = id;
+		}
+	}
+
+	export class AddDirectory {
+		public static readonly type = '[Content List] Add Directory';
+
+		public readonly directory: ContentType;
+
+		constructor(directory: ContentType) {
+			this.directory = directory;
 		}
 	}
 }

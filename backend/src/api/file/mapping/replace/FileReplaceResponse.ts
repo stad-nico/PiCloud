@@ -6,39 +6,37 @@
  *-------------------------------------------------------------------------*/
 import { ApiProperty } from '@nestjs/swagger';
 
-import { PathUtils } from 'src/util/PathUtils';
-
 /**
  * Class representing the json http response.
  * @class
  */
 export class FileReplaceResponse {
 	/**
-	 * The path of the replaced file.
+	 * The id of the replaced file.
 	 * @type {string}
 	 */
-	@ApiProperty({ example: '/path/to/file.txt', description: 'The path of the replaced file' })
-	readonly path: string;
+	@ApiProperty({ example: '3c356389-dd1a-4c77-bc1b-7ac75f34d04d', description: 'The id of the replaced file' })
+	readonly id: string;
 
 	/**
 	 * Creates a new FileReplaceResponse instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}                  path the path of the file
-	 * @returns {FileReplaceResponse}         the FileReplaceResponse instance
+	 * @param   {string}                  id the id of the file
+	 * @returns {FileReplaceResponse}        the FileReplaceResponse instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
 	/**
-	 * Creates a new FileReplaceResponse instance from the path.
+	 * Creates a new FileReplaceResponse instance from the id.
 	 * @public @static
 	 *
-	 * @param   {string}                  path the path of the replaced file
-	 * @returns {FileReplaceResponse}         the FileReplaceResponse instance
+	 * @param   {string}                  id the id of the replaced file
+	 * @returns {FileReplaceResponse}        the FileReplaceResponse instance
 	 */
-	public static from(path: string): FileReplaceResponse {
-		return new FileReplaceResponse(PathUtils.normalizeFilePath(path));
+	public static from(id: string): FileReplaceResponse {
+		return new FileReplaceResponse(id);
 	}
 }

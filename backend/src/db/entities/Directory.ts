@@ -6,6 +6,7 @@
  *-------------------------------------------------------------------------*/
 import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 
+export const ROOT_ID = 'root';
 export const DIRECTORY_TABLE_NAME = 'directories';
 
 @Entity({ tableName: DIRECTORY_TABLE_NAME })

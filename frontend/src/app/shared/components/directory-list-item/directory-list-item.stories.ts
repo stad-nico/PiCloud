@@ -25,9 +25,32 @@ export const Default: StoryObj<DirectoryListItemComponent> = {
 	},
 };
 
+export const Hovered: StoryObj<DirectoryListItemComponent> = {
+	args: {
+		metadata: defaultMetadata,
+	},
+	parameters: {
+		pseudo: {
+			hover: ['directory-list-item'],
+		},
+	},
+};
+
 export const Selected: StoryObj<DirectoryListItemComponent> = {
 	args: {
 		metadata: defaultMetadata,
 		isSelected: true,
+	},
+};
+
+export const SelectedHovered: StoryObj<DirectoryListItemComponent> = {
+	args: {
+		metadata: defaultMetadata,
+		isSelected: true,
+	},
+	parameters: {
+		pseudo: {
+			hover: ['directory-list-item'],
+		},
 	},
 };

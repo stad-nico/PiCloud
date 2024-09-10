@@ -15,8 +15,8 @@
 
 	border-radius: 50%;
 
-	width: 45px;
-	height: 45px;
+	width: 2.813rem;
+	height: 2.813rem;
 
 	transition: transform 0.2s;
 
@@ -32,7 +32,7 @@
 	position: absolute;
 
 	display: flex;
-	gap: 5px;
+	gap: 0.313rem;
 
 	height: 0;
 
@@ -42,7 +42,7 @@
 }
 
 :host.down > .wrapper > div.items {
-	padding-top: 20px;
+	padding-top: 1.25rem;
 
 	top: 0;
 	left: 50%;
@@ -62,7 +62,7 @@
 }
 
 :host.right > .wrapper > div.items {
-	padding-left: 20px;
+	padding-left: 1.25rem;
 
 	left: 0;
 	top: 50%;
@@ -82,7 +82,7 @@
 }
 
 :host.up > .wrapper > div.items {
-	padding-bottom: 20px;
+	padding-bottom: 1.25rem;
 
 	bottom: 0;
 	left: 50%;
@@ -102,7 +102,7 @@
 }
 
 :host.left > .wrapper > div.items {
-	padding-right: 20px;
+	padding-right: 1.25rem;
 
 	right: 0;
 	top: 50%;

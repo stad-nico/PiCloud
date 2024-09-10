@@ -1,5 +1,11 @@
 import { argsToTemplate, StoryObj, type Meta } from '@storybook/angular';
-import { ContentType, PureContentListComponent, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
+import {
+	ContentType,
+	Directory,
+	File,
+	PureContentListComponent,
+	Type,
+} from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
 
 const meta: Meta<PureContentListComponent> = {
 	title: 'Features/Content List/Pure Content List',
@@ -12,24 +18,28 @@ const meta: Meta<PureContentListComponent> = {
 
 export default meta;
 
-const exampleFile = {
+const exampleFile: Omit<File, 'id'> = {
 	type: Type.File,
 	name: 'element',
 	mimeType: 'text/plain',
 	size: 239,
 	createdAt: new Date(Date.now()).toISOString(),
 	updatedAt: new Date(Date.now()).toISOString(),
+	isBeingProcessed: false,
+	isSelected: false,
 };
 
-const exampleDirectory = {
+const exampleDirectory: Omit<Directory, 'id'> = {
 	type: Type.Directory,
 	name: 'element',
 	size: 239,
 	createdAt: new Date(Date.now()).toISOString(),
 	updatedAt: new Date(Date.now()).toISOString(),
+	isBeingProcessed: false,
+	isSelected: false,
 };
 
-const defaultContent: Array<Omit<ContentType, 'id' | 'isSelected'>> = [
+const defaultContent: Array<ContentType> = [
 	exampleDirectory,
 	exampleDirectory,
 	exampleDirectory,
@@ -42,17 +52,17 @@ const defaultContent: Array<Omit<ContentType, 'id' | 'isSelected'>> = [
 	exampleFile,
 	exampleFile,
 	exampleFile,
-];
+].map((item, index) => ({ ...item, id: index }));
 
 export const Default: StoryObj<PureContentListComponent> = {
 	args: {
-		content: defaultContent.map((item, index) => ({ ...item, id: index, isSelected: false }) as ContentType),
+		content: defaultContent.map((item) => ({ ...item, isSelected: false }) as ContentType),
 	},
 };
 
 export const Selected: StoryObj<PureContentListComponent> = {
 	args: {
 		isInSelectMode: true,
-		content: defaultContent.map((item, index) => ({ ...item, id: index, isSelected: Math.random() > 0.3 }) as ContentType),
+		content: defaultContent.map((item) => ({ ...item, isSelected: Math.random() > 0.3 }) as ContentType),
 	},
 };

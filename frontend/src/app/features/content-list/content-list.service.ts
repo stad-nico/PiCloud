@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import {
-	ListItemOpenEvent,
 	ListItemSelectEvent,
 	ListItemUnselectEvent,
 } from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';
@@ -21,12 +19,16 @@ export class ContentListService {
 		this.store = store;
 	}
 
-	public fetchContent(path: string): Observable<void> {
-		return this.store.dispatch(new ContentListActions.FetchContent(path));
+	public fetchContent(id: string): Observable<void> {
+		return this.store.dispatch(new ContentListActions.FetchContent(id));
 	}
 
 	public selectContent(): Observable<Array<ContentType>> {
 		return this.store.select(ContentListState.selectContent);
+	}
+
+	public selectIsLoading(): Observable<boolean> {
+		return this.store.select(ContentListState.selectIsLoading);
 	}
 
 	public isAtLeastOneSelected(): Observable<boolean> {
@@ -51,10 +53,6 @@ export class ContentListService {
 		} else {
 			this.store.dispatch(new ContentListActions.UnselectSingle(event.id));
 		}
-	}
-
-	public open(event: ListItemOpenEvent, route: ActivatedRoute) {
-		this.store.dispatch(new ContentListActions.Open(event.id, route));
 	}
 
 	public selectAll() {

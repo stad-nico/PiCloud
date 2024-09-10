@@ -23,63 +23,85 @@ export interface IFileRepository {
 	 * @throws entity must not already exist
 	 *
 	 * @param   {EntityManager}         entityManager the entityManager
+	 * @param   {string}                parentId      the parentId
 	 * @param   {string}                name          the filename
 	 * @param   {string}                mimeType      the mimeType
 	 * @param   {number}                size          the size
-	 * @param   {string}                parentId      the parentId
 	 * @returns {Promise<{id: string}>}               the id
 	 */
-	insertReturningId(entityManager: EntityManager, name: string, mimeType: string, size: number, parentId: string): Promise<Pick<File, 'id'>>;
+	insertReturningId(entityManager: EntityManager, parentId: string, name: string, mimeType: string, size: number): Promise<string>;
 
 	/**
-	 * Checks if the file at the given path exists.
+	 * Checks if the file with the given id exists.
 	 * @async
 	 *
 	 * @param   {EntityManager} entityManager the entityManager
-	 * @param   {string}        path          the path
+	 * @param   {string}        id            the id
 	 * @returns {boolean}                     whether the file exists
 	 */
-	exists(entityManager: EntityManager, path: string): Promise<boolean>;
+	exists(entityManager: EntityManager, id: string): Promise<boolean>;
 
 	/**
-	 * Selects id, name and mimeType of the file at the given path.
+	 * Checks if the file with the given parentId and name exists.
+	 * @async
+	 *
+	 * @param   {EntityManager} entityManager the entityManager
+	 * @param   {string}        parentId      the id of the parent directory
+	 * @param   {string}        name          the name
+	 * @returns {boolean}                     whether the file exists
+	 */
+	exists(entityManager: EntityManager, parentId: string, name: string): Promise<boolean>;
+
+	/**
+	 * Selects the parent id of the file with the given id.
+	 * @async
+	 *
+	 * @param   {EntityManager}   entityManager the entityManager
+	 * @param   {string}          id            the id of the file
+	 * @returns {Promise<string | null>}        the parentId of the file
+	 */
+	getParentId(entityManager: EntityManager, id: string): Promise<string | null>;
+
+	/**
+	 * Selects name and mimeType of the file with the given id.
 	 * Returns null if no file was found.
 	 * @async
 	 *
 	 * @param   {EntityManager} entityManager the entityManager
-	 * @param   {string}        path          the path
-	 * @returns {Promise<Pick<File, 'id' | 'name' | 'mimeType'> | null>} the id, name and mimeType
+	 * @param   {string}        id            the id
+	 * @returns {Promise<Pick<File, 'name' | 'mimeType'> | null>} the name and mimeType
 	 */
-	select(entityManager: EntityManager, path: string): Promise<Pick<File, 'id' | 'name' | 'mimeType'> | null>;
+	getNameAndMimeType(entityManager: EntityManager, path: string): Promise<Pick<File, 'name' | 'mimeType'> | null>;
 
 	/**
-	 * Selects the metadata of the file by its path.
-	 * Returns null if no file at that path exists.
+	 * Selects the metadata of the file with the given id.
+	 * Returns null if no file with that id exists.
 	 * @async
 	 *
 	 * @param   {EntityManager}      entityManager the entityManager
-	 * @param   {string}             path          the path of the file to get the metadata from
+	 * @param   {string}             id            the id of the file
 	 * @returns {Promise<File|null>}               the file
 	 */
-	getMetadata(entityManager: EntityManager, path: string): Promise<Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> | null>;
+	getMetadata(entityManager: EntityManager, id: string): Promise<Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> | null>;
 
 	/**
 	 * Updates a file.
 	 * @async
 	 *
 	 * @param {EntityManager}                      entityManager the entityManager
-	 * @param {string}                             path          the path of the file to update
+	 * @param {string}                             id            the id of the file to update
 	 * @param {{name?: string, parentId?: string}} partial       the properties to update
 	 */
-	update(entityManager: EntityManager, path: string, partial: { name?: string; parentId?: string }): Promise<void>;
+	update(entityManager: EntityManager, id: string, partial: { name?: string; parentId?: string }): Promise<void>;
 
 	/**
-	 * Deletes a file from the db by its path.
+	 * Deletes a file from the db by its parent id and name.
 	 *
 	 * @param {EntityManager} entityManager the entityManager
-	 * @param {string}        path          the path of the file to delete
+	 * @param {string}        parentId      the parentId of the file to delete
+	 * @param {string}        name          the name of the file to delete
 	 */
-	deleteByPath(entityManager: EntityManager, path: string): Promise<void>;
+	delete(entityManager: EntityManager, parentId: string, name: string): Promise<void>;
 
 	/**
 	 * Deletes a file from the db by its id.
@@ -87,5 +109,5 @@ export interface IFileRepository {
 	 * @param {EntityManager} entityManager the entityManager
 	 * @param {string}        id            the id of the file to delete
 	 */
-	deleteById(entityManager: EntityManager, id: string): Promise<void>;
+	delete(entityManager: EntityManager, id: string): Promise<void>;
 }

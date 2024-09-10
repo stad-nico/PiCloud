@@ -1,10 +1,18 @@
 <pure-content-list
 	[content]="content"
 	[isInSelectMode]="isInSelectMode"
+	[isRootOpened]="isRootOpened"
+	[isLoading]="isLoading"
 	(onClickOutside)="unselectAll()"
 	(onSelectAll)="selectAll()"
 	(onUnselectAll)="unselectAll()"
 	(onSelect)="onSelect($event)"
 	(onUnselect)="onUnselect($event)"
 	(onOpen)="onOpen($event)"
+	(onDelete)="onDelete($event)"
+	(onDeleteSelected)="onDeleteSelected()"
+	(onCreate)="onCreate($event)"
+	(onPlusClick)="onPlusClick()"
+	(onCancelCreation)="onCancelCreation()"
+	[showCreateDirectoryComponent]="showCreateDirectoryComponent"
 ></pure-content-list>

@@ -2,8 +2,6 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-
-	overflow: hidden;
 }
 
 .wrapper {
@@ -16,8 +14,6 @@
 	max-height: 100%;
 
 	aspect-ratio: 1 / 1;
-
-	overflow: hidden;
 
 	--background: var(--color-bg-spinner-secondary);
 

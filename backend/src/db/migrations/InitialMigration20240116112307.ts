@@ -23,16 +23,6 @@ const directoriesAfterInsertTrigger = `
 
 const directoriesAfterUpdateTrigger = `
 	CREATE OR REPLACE TRIGGER \`directories_AFTER_UPDATE\` AFTER UPDATE ON \`directories\` FOR EACH ROW BEGIN
-		IF OLD.id != NEW.id THEN
-			UPDATE tree
-			SET parentId = NEW.id
-			WHERE parentId = OLD.id;
-
-        	UPDATE tree
-			SET childId = NEW.id
-				WHERE childId = OLD.id;
-    	END IF;
-
     	IF OLD.parentId != NEW.parentId THEN
 			# remove all paths to subtree but not paths inside the subtree
 			DELETE FROM tree
@@ -47,13 +37,6 @@ const directoriesAfterUpdateTrigger = `
 				WHERE subtree.parentId = NEW.id AND supertree.childId = NEW.parentId
 			ON DUPLICATE KEY UPDATE parentId = supertree.parentId, childId = subtree.childId, depth = supertree.depth + subtree.depth + 1;
     	END IF;
-	END`;
-
-const directoriesAfterDeleteTrigger = `
-	CREATE OR REPLACE TRIGGER \`directories_AFTER_DELETE\` AFTER DELETE ON \`directories\` FOR EACH ROW BEGIN
-		DELETE FROM tree
-    	WHERE tree.childId IN
-			(SELECT childId FROM (SELECT * FROM tree) AS a WHERE a.parentId = OLD.id);
 	END`;
 
 export class Migration20240116112307 extends Migration {
@@ -89,22 +72,6 @@ export class Migration20240116112307 extends Migration {
 		// prettier-ignore
 		this.addSql('alter table `tree` add constraint `tree_childId_foreign` foreign key (`childId`) references `directories` (`id`) on update no action on delete cascade;');
 
-		// prettier-ignore
-		this.addSql('create or replace function `GET_UPMOST_DIRNAME`(`path` varchar(255)) returns varchar(255) deterministic begin if path = "" then return cast(null as varchar(255)); end if; if locate("/", path) = 0 then return path; end if; return substr(path, 1, locate("/", path) - 1); end');
-		// prettier-ignore
-		this.addSql('create or replace function `GET_PATH_AFTER_UPMOST_DIRNAME`(`path` varchar(255)) returns varchar(255) deterministic begin return insert(path, locate(GET_UPMOST_DIRNAME(path), path), char_length(GET_UPMOST_DIRNAME(path)) + 1, \'\'); end');
-		// prettier-ignore
-		this.addSql('CREATE OR REPLACE FUNCTION `GET_FILE_UUID`(`path` varchar(255)) RETURNS varchar(255) DETERMINISTIC BEGIN DECLARE nextPath varchar(255) DEFAULT TRIM(LEADING "/" FROM path); DECLARE nextUuid varchar(255) DEFAULT "root"; WHILE LOCATE("/", nextPath) != 0 DO SET nextUuid = (SELECT id FROM directories WHERE parentId = nextUuid AND name = GET_UPMOST_DIRNAME(nextPath)); SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath); END WHILE; RETURN (SELECT id FROM files WHERE name = nextPath AND parentId = nextUuid); END');
-		// prettier-ignore
-		this.addSql('CREATE OR REPLACE FUNCTION `GET_FILE_PATH`(`id` VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC BEGIN DECLARE path VARCHAR(255) DEFAULT (SELECT name FROM files WHERE files.id = id); DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parentId FROM files WHERE files.id = id); WHILE nextUuid IS NOT NULL DO SET path = CONCAT((SELECT name FROM directories WHERE directories.id = nextUuid), "/", path); SET nextUuid = (SELECT parentId FROM directories WHERE directories.id = nextUuid); END WHILE; SET path = TRIM(BOTH "/" FROM path); RETURN CONCAT(IF(LEFT(path, 1) = "/", "", "/"), PATH); END');
-		// prettier-ignore
-		this.addSql('CREATE OR REPLACE FUNCTION GET_DIRECTORY_UUID(path VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC BEGIN DECLARE nextPath VARCHAR(255) DEFAULT TRIM(BOTH "/" FROM path); DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT id FROM directories WHERE name = GET_UPMOST_DIRNAME(nextPath) AND parentId IS NULL); IF nextPath = "" THEN RETURN "root"; END IF; SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath); WHILE nextPath != "" DO SET nextUuid = (SELECT id FROM directories WHERE parentId = nextUuid AND name = GET_UPMOST_DIRNAME(nextPath)); SET nextPath = GET_PATH_AFTER_UPMOST_DIRNAME(nextPath); END WHILE; RETURN nextUuid; END');
-		// prettier-ignore
-		this.addSql('CREATE OR REPLACE FUNCTION GET_DIRECTORY_PATH(id VARCHAR(255)) RETURNS varchar(255) DETERMINISTIC BEGIN DECLARE path VARCHAR(255) DEFAULT (SELECT name FROM directories WHERE directories.id = id); DECLARE nextUuid VARCHAR(255) DEFAULT (SELECT parentId FROM directories WHERE directories.id = id); IF id IS NULL OR id = "root" THEN RETURN "root"; END IF; WHILE nextUuid IS NOT NULL DO SET path = CONCAT((SELECT name FROM directories WHERE directories.id = nextUuid), "/", path); SET nextUuid = (SELECT parentId FROM directories WHERE directories.id = nextUuid); END WHILE; IF path IS NULL THEN RETURN NULL; END IF; SET path = TRIM(BOTH "/" FROM path); RETURN CONCAT(IF(LEFT(path, 1) = "/", "", "/"), path, IF(RIGHT(path, 1) = "/", "", "/")); END');
-		// prettier-ignore
-		this.addSql('CREATE OR REPLACE FUNCTION GET_DIRECTORY_SIZE(id VARCHAR(255)) RETURNS bigint(20) DETERMINISTIC BEGIN RETURN (SELECT COALESCE(SUM(size), 0) FROM files WHERE parentId IN (SELECT childId FROM tree INNER JOIN directories ON tree.childId = directories.id WHERE tree.parentId = id)); END');
-
-		this.addSql(directoriesAfterDeleteTrigger);
 		this.addSql(directoriesAfterInsertTrigger);
 		this.addSql(directoriesAfterUpdateTrigger);
 	}
@@ -114,20 +81,12 @@ export class Migration20240116112307 extends Migration {
 		this.addSql('alter table `files` drop foreign key `files_parentId_foreign`;');
 		this.addSql('alter table `tree` drop foreign key `tree_parentId_foreign`;');
 		this.addSql('alter table `tree` drop foreign key `tree_childId_foreign`;');
+
 		this.addSql('drop table if exists `directories`;');
 		this.addSql('drop table if exists `files`;');
 		this.addSql('drop table if exists `tree`;');
 
-		this.addSql('drop function if exists `GET_UPMOST_DIRNAME`');
-		this.addSql('drop function if exists `GET_PATH_AFTER_UPMOST_DIRNAME`');
-		this.addSql('drop function if exists `GET_FILE_UUID`');
-		this.addSql('drop function if exists `GET_FILE_PATH`');
-		this.addSql('drop function if exists `GET_DIRECTORY_UUID`');
-		this.addSql('drop function if exists `GET_DIRECTORY_PATH`');
-		this.addSql('drop function if exists `GET_DIRECTORY_SIZE`');
-
 		this.addSql('drop trigger if exists `directories_AFTER_INSERT`');
 		this.addSql('drop trigger if exists `directories_AFTER_UPDATE`');
-		this.addSql('drop trigger if exists `directories_AFTER_DELETE`');
 	}
 }

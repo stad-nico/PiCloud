@@ -6,15 +6,17 @@ export enum Type {
 }
 
 export enum Thickness {
+	UltraThick = 'ultra-thick',
 	Thick = 'thick',
 	Regular = 'regular',
 	Thin = 'thin',
 }
 
 const ThicknessMap: Record<Thickness, number> = {
-	[Thickness.Thick]: 0.16,
-	[Thickness.Regular]: 0.08,
-	[Thickness.Thin]: 0.04,
+	[Thickness.UltraThick]: 0.24,
+	[Thickness.Thick]: 0.18,
+	[Thickness.Regular]: 0.09,
+	[Thickness.Thin]: 0.045,
 };
 
 @Component({
@@ -29,27 +31,20 @@ export class LoadingSpinnerComponent {
 	 * @type {Thickness}
 	 */
 	@Input()
-	public thickness: Thickness = Thickness.Regular;
+	public thickness!: Thickness;
 
 	/**
 	 * The type of the spinner.
 	 * @type {Type}
 	 */
 	@Input()
-	public type: Type = Type.Rounded;
+	public type!: Type;
 
 	/**
 	 * Reference to the host element.
 	 * @type {ElementRef<HTMLDivElement>}
 	 */
 	private readonly hostRef: ElementRef<HTMLDivElement>;
-
-	/**
-	 * Host binding for setting the thickness variable for CSS use.
-	 * @type {string}
-	 */
-	@HostBinding('style.--thickness')
-	private calculatedThickness!: string;
 
 	/**
 	 * Creates a new LoadingSpinnerComponent instance.
@@ -62,12 +57,19 @@ export class LoadingSpinnerComponent {
 		this.hostRef = hostRef;
 	}
 
-	public ngAfterViewInit() {
+	public apply() {
+		this.applyDefaults();
 		this.applyThickness();
 	}
 
+	public ngAfterContentInit() {
+		this.apply();
+
+		new ResizeObserver(() => this.applyThickness()).observe(this.hostRef.nativeElement);
+	}
+
 	public ngOnChanges() {
-		this.applyThickness();
+		this.apply();
 	}
 
 	@HostBinding('class')
@@ -76,8 +78,13 @@ export class LoadingSpinnerComponent {
 	}
 
 	@HostListener('window:resize')
-	private onResize() {
+	public onResize() {
 		this.applyThickness();
+	}
+
+	private applyDefaults() {
+		this.thickness = this.thickness || Thickness.Thick;
+		this.type = this.type || Type.Rounded;
 	}
 
 	/**
@@ -87,13 +94,15 @@ export class LoadingSpinnerComponent {
 	 * @returns {number}       the calculated thickness
 	 */
 	private calculateThickness(width: number) {
-		return width * ThicknessMap[this.thickness];
+		return Math.round(width * ThicknessMap[this.thickness]);
 	}
 
 	/**
 	 * Calculate the thickness, format for CSS and assign to host binding.
 	 */
 	private applyThickness() {
-		this.calculatedThickness = `${this.calculateThickness(this.hostRef.nativeElement.clientWidth)}px`;
+		let calculatedThickness = `${this.calculateThickness(this.hostRef.nativeElement.clientWidth)}px`;
+
+		this.hostRef.nativeElement.style.setProperty('--thickness', calculatedThickness);
 	}
 }

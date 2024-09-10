@@ -12,20 +12,25 @@ import { ApiProperty } from '@nestjs/swagger';
  */
 export class DirectoryRenameParams {
 	/**
-	 * The path of the directory to rename.
+	 * The id of the directory to rename.
 	 * @type {string}
 	 */
-	@ApiProperty({ example: '/path/to/directory', description: 'The path of the directory to rename' })
-	readonly path: string;
+	@ApiProperty({
+		examples: {
+			uuid: { value: '133a8736-111a-4cf7-ae84-dbe040ad4382', summary: 'Any directory id' },
+		},
+		description: 'The id of the directory to rename',
+	})
+	readonly id: string;
 
 	/**
 	 * Creates a new DirectoryRenameParams instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}                path the path of the directory
-	 * @returns {DirectoryRenameParams}      the DirectoryRenameParams instance
+	 * @param   {string}                id the id of the directory
+	 * @returns {DirectoryRenameParams}    the DirectoryRenameParams instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 }

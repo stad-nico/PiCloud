@@ -1,42 +1,59 @@
-import { Component, HostBinding, Input } from '@angular/core';
-import { DirectoryContentDirectory } from 'generated';
-import { IDeletable } from 'src/app/shared/models/IDeletable';
-import { IDownloadable } from 'src/app/shared/models/IDownloadable';
-import { IRenamable } from 'src/app/shared/models/IRenamable';
-import { ISelectable } from 'src/app/shared/models/ISelectable';
+import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
+import { DirectoryMetadataResponse } from 'generated';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 
 @Component({
 	selector: 'directory-list-item',
 	standalone: true,
 	templateUrl: './directory-list-item.component.html',
 	styleUrl: './directory-list-item.component.css',
+	imports: [LoadingSpinnerComponent],
 })
-export class DirectoryListItemComponent implements ISelectable, IDownloadable, IRenamable, IDeletable {
+export class DirectoryListItemComponent {
 	@Input({ required: true })
-	public metadata!: DirectoryContentDirectory;
+	public metadata!: DirectoryMetadataResponse;
 
 	@HostBinding('class.selected')
 	@Input('isSelected')
 	public isSelected: boolean = false;
 
-	select(): void {
-		this.isSelected = true;
+	@HostBinding('class.is-being-processed')
+	@Input()
+	public isBeingProcessed: boolean = false;
+
+	@Output()
+	public onRename: EventEmitter<void> = new EventEmitter();
+
+	@Output()
+	public onDelete: EventEmitter<void> = new EventEmitter();
+
+	@Output()
+	public onDownload: EventEmitter<void> = new EventEmitter();
+
+	@Output()
+	public onDblClick: EventEmitter<void> = new EventEmitter();
+
+	@HostListener('dblclick')
+	public dblClick() {
+		this.onDblClick.emit();
 	}
 
-	unselect(): void {
-		this.isSelected = false;
+	public rename(event: Event): void {
+		event.preventDefault();
+
+		this.onRename.emit();
 	}
 
-	public rename(event?: Event): void {
-		event?.preventDefault();
+	public delete(event: Event): void {
+		event.preventDefault();
+
+		this.onDelete.emit();
 	}
 
-	public delete(event?: Event): void {
-		event?.preventDefault();
-	}
+	public download(event: Event): void {
+		event.preventDefault();
 
-	public download(event?: Event): void {
-		event?.preventDefault();
+		this.onDownload.emit();
 	}
 
 	protected formatBytes(bytes: number, decimals: number = 2): string {

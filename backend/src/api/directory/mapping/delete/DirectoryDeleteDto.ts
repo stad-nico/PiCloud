@@ -5,7 +5,6 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { DirectoryDeleteParams } from 'src/api/directory/mapping/delete/DirectoryDeleteParams';
-import { PathUtils } from 'src/util/PathUtils';
 
 /**
  * DTO for bundling the http request data.
@@ -13,20 +12,20 @@ import { PathUtils } from 'src/util/PathUtils';
  */
 export class DirectoryDeleteDto {
 	/**
-	 * The path of the directory to delete.
+	 * The id of the directory to delete.
 	 * @type {string}
 	 */
-	readonly path: string;
+	readonly id: string;
 
 	/**
 	 * Creates a new DirectoryDeleteDto instance.
 	 * @private @constructor
 	 *
-	 * @param   {string}             path the path of the directory
-	 * @returns {DirectoryDeleteDto}      the DirectoryDeleteDto instance
+	 * @param   {string}             id the id of the directory
+	 * @returns {DirectoryDeleteDto}    the DirectoryDeleteDto instance
 	 */
-	private constructor(path: string) {
-		this.path = path;
+	private constructor(id: string) {
+		this.id = id;
 	}
 
 	/**
@@ -37,8 +36,6 @@ export class DirectoryDeleteDto {
 	 * @returns {DirectoryDeleteDto}                          the DirectoryDeleteDto instance
 	 */
 	public static from(directoryDeleteParams: DirectoryDeleteParams) {
-		const normalizedPath = PathUtils.normalizeDirectoryPath(directoryDeleteParams.path);
-
-		return new DirectoryDeleteDto(normalizedPath);
+		return new DirectoryDeleteDto(directoryDeleteParams.id);
 	}
 }

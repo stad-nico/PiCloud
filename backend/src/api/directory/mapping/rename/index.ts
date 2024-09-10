@@ -7,6 +7,5 @@
 import { DirectoryRenameBody } from './DirectoryRenameBody';
 import { DirectoryRenameDto } from './DirectoryRenameDto';
 import { DirectoryRenameParams } from './DirectoryRenameParams';
-import { DirectoryRenameResponse } from './DirectoryRenameResponse';
 
-export { DirectoryRenameBody, DirectoryRenameDto, DirectoryRenameParams, DirectoryRenameResponse };
+export { DirectoryRenameBody, DirectoryRenameDto, DirectoryRenameParams };

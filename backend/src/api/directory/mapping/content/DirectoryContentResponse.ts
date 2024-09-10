@@ -8,42 +8,28 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class DirectoryContentFile {
 	/**
+	 * The id of the file.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The id of the file', type: 'string', example: '133a8736-111a-4cf7-ae84-dbe040ad4382' })
+	readonly id!: string;
+
+	/**
 	 * The name of the file.
 	 * @type {string}
 	 */
 	@ApiProperty({ description: 'The name of the file', type: 'string', example: 'file.txt' })
 	readonly name!: string;
-
-	/**
-	 * The mime type of the file.
-	 * @type {string}
-	 */
-	@ApiProperty({ description: 'The mime type of the file', type: 'string', format: 'MimeType', example: 'text/plain' })
-	readonly mimeType!: string;
-
-	/**
-	 * The size of the file.
-	 * @type {number}
-	 */
-	@ApiProperty({ description: 'The size of the file in bytes', type: 'number', example: 1193982 })
-	readonly size!: number;
-
-	/**
-	 * The creation date of the file.
-	 * @type {string}
-	 */
-	@ApiProperty({ description: 'The date the file was created', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
-	readonly createdAt!: string;
-
-	/**
-	 * The date the file was last modified.
-	 * @type {string}
-	 */
-	@ApiProperty({ description: 'The date the file was last modified', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
-	readonly updatedAt!: string;
 }
 
 export class DirectoryContentDirectory {
+	/**
+	 * The id of the directory.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The id of the directory', type: 'string', example: '133a8736-111a-4cf7-ae84-dbe040ad4382' })
+	readonly id!: string;
+
 	/**
 	 * The name of the directory.
 	 * @type {string}
@@ -52,25 +38,11 @@ export class DirectoryContentDirectory {
 	readonly name!: string;
 
 	/**
-	 * The size of the directory.
-	 * @type {number}
+	 * Whether the directory has subdirectories.
+	 * @type {boolean}
 	 */
-	@ApiProperty({ description: 'The size of the directory in bytes', type: 'number', example: 1193982 })
-	readonly size!: number;
-
-	/**
-	 * The creation date of the directory.
-	 * @type {string}
-	 */
-	@ApiProperty({ description: 'The date the directory was created', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
-	readonly createdAt!: string;
-
-	/**
-	 * The date the directory was last modified.
-	 * @type {string}
-	 */
-	@ApiProperty({ description: 'The date the directory was last modified', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
-	readonly updatedAt!: string;
+	@ApiProperty({ description: 'Whether the directory has subdirectories', type: 'boolean', example: 'true' })
+	readonly hasChildren!: boolean;
 }
 
 /**

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DirectoryTreeItemComponent } from 'src/app/features/directory-tree/components/pure-directory-tree/components/directory-tree-item/directory-tree-item.component';
-import { Leaf, Node } from 'src/app/features/directory-tree/state/directory-tree.state';
+import { Node } from 'src/app/features/directory-tree/state/directory-tree.state';
 
 @Component({
 	standalone: true,
@@ -11,22 +11,22 @@ import { Leaf, Node } from 'src/app/features/directory-tree/state/directory-tree
 })
 export class PureDirectoryTreeComponent {
 	@Input({ required: true })
-	public metadata!: Node | Leaf;
+	public root!: Node;
+
+	@Input({ required: true })
+	public tree!: {
+		[path: string]: Array<Node>;
+	};
 
 	@Output()
-	public onClick: EventEmitter<number> = new EventEmitter();
+	public onLoadContent: EventEmitter<string> = new EventEmitter();
 
 	@Output()
-	public onExpand: EventEmitter<number> = new EventEmitter();
+	public onCollapse: EventEmitter<string> = new EventEmitter();
 
 	@Output()
-	public onCollapse: EventEmitter<number> = new EventEmitter();
+	public onExpand: EventEmitter<string> = new EventEmitter();
 
-	public isLeaf(metadata: Leaf | Node): metadata is Leaf {
-		return !('children' in metadata);
-	}
-
-	ngOnChange() {
-		console.log('CHANGFED HERE');
-	}
+	@Output()
+	public onSelect: EventEmitter<string> = new EventEmitter();
 }

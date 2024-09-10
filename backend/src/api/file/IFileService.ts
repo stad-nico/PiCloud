@@ -7,7 +7,7 @@
 import { FileDeleteDto } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadResponse } from 'src/api/file/mapping/download';
 import { FileMetadataDto, FileMetadataResponse } from 'src/api/file/mapping/metadata';
-import { FileRenameDto, FileRenameResponse } from 'src/api/file/mapping/rename';
+import { FileRenameDto } from 'src/api/file/mapping/rename';
 import { FileReplaceDto } from 'src/api/file/mapping/replace/FileReplaceDto';
 import { FileReplaceResponse } from 'src/api/file/mapping/replace/FileReplaceResponse';
 import { FileUploadDto, FileUploadResponse } from 'src/api/file/mapping/upload';
@@ -24,19 +24,19 @@ export interface IFileService {
 	 * @throws  {ParentDirectoryNotFoundException} if parent directory does not exist
 	 *
 	 * @param   {FileUploadDto}               fileUploadDto the dto for uploading a new file
-	 * @returns {Promise<FileUploadResponse>}               the path of the uploaded file
+	 * @returns {Promise<FileUploadResponse>}               the id of the uploaded file
 	 */
 	upload(fileUploadDto: FileUploadDto): Promise<FileUploadResponse>;
 
 	/**
-	 * Uploads a file or replace if it already exists.
+	 * Uploads a file or replaces it if it already exists.
 	 * Throws if the destination parent does not exist.
 	 * @async
 	 *
 	 * @throws  {ParentDirectoryNotFoundException} if parent directory does not exist
 	 *
 	 * @param   {FileReplaceDto}               fileReplaceDto the dto for uploading or replacing a file
-	 * @returns {Promise<FileReplaceResponse>}                the path of the created file
+	 * @returns {Promise<FileReplaceResponse>}                the id of the replaced file
 	 */
 	replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse>;
 
@@ -65,7 +65,7 @@ export interface IFileService {
 	download(fileDownloadDto: FileDownloadDto): Promise<FileDownloadResponse>;
 
 	/**
-	 * Renames or moves a file.
+	 * Renames a file.
 	 * Throws if file does not exist, destination already exists or destination parent not exists.
 	 * @async
 	 *
@@ -74,18 +74,17 @@ export interface IFileService {
 	 * @throws  {ParentDirectoryNotFoundException} if destination parent directory does not exist
 	 *
 	 * @param   {FileRenameDto}               fileRenameDto the dto for renaming a file
-	 * @returns {Promise<FileRenameResponse>}               the path of the renamed file
 	 */
-	rename(fileRenameDto: FileRenameDto): Promise<FileRenameResponse>;
+	rename(fileRenameDto: FileRenameDto): Promise<void>;
 
 	/**
-	 * Deletes a file by its path.
-	 * Throws if file at given path does not exist.
+	 * Deletes the file with the given id.
+	 * Throws if file does not exist.
 	 * @async
 	 *
 	 * @throws {FileNotFoundException} if file does not exist
 	 *
-	 * @param {FileDeleteDto} fileDeleteDto the dto for soft deleting the file
+	 * @param {FileDeleteDto} fileDeleteDto the dto for deleting the file
 	 */
 	delete(fileDeleteDto: FileDeleteDto): Promise<void>;
 }

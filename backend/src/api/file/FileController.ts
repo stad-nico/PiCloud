@@ -11,7 +11,9 @@ import {
 	Controller,
 	Delete,
 	Get,
+	HttpCode,
 	HttpException,
+	HttpStatus,
 	Inject,
 	Logger,
 	Param,
@@ -30,19 +32,21 @@ import { IFileService } from 'src/api/file/IFileService';
 import { FileDeleteDto, FileDeleteParams } from 'src/api/file/mapping/delete';
 import { FileDownloadDto, FileDownloadParams } from 'src/api/file/mapping/download';
 import { FileMetadataDto, FileMetadataParams, FileMetadataResponse } from 'src/api/file/mapping/metadata';
-import { FileRenameBody, FileRenameDto, FileRenameParams, FileRenameResponse } from 'src/api/file/mapping/rename';
+import { FileRenameBody, FileRenameDto, FileRenameParams } from 'src/api/file/mapping/rename';
 import { FileReplaceDto, FileReplaceParams, FileReplaceResponse } from 'src/api/file/mapping/replace';
 import { FileUploadDto, FileUploadParams, FileUploadResponse } from 'src/api/file/mapping/upload';
-import { FileAlreadyExistsException } from 'src/exceptions/FileAlreadyExistsException';
-import { FileNameTooLongException } from 'src/exceptions/FileNameTooLongException';
-import { FileNotFoundException } from 'src/exceptions/FileNotFoundException';
-import { InvalidFilePathException } from 'src/exceptions/InvalidFilePathException';
-import { ParentDirectoryNotFoundException } from 'src/exceptions/ParentDirectoryNotFoundExceptions';
-import { SomethingWentWrongException } from 'src/exceptions/SomethingWentWrongException';
+import {
+	FileAlreadyExistsException,
+	FileNameTooLongException,
+	FileNotFoundException,
+	InvalidFileNameException,
+	ParentDirectoryNotFoundException,
+	SomethingWentWrongException,
+} from 'src/exceptions';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
 
-@Controller('file')
-@ApiTags('file')
+@Controller('directories')
+@ApiTags('files')
 export class FileController {
 	private readonly logger = new Logger(FileController.name);
 
@@ -52,16 +56,18 @@ export class FileController {
 		this.fileService = fileService;
 	}
 
-	@Post(':path(*)')
+	@Post(':id/files')
 	@UseInterceptors(FileInterceptor('file'))
-	@ApiOperation({ operationId: 'uploadFile', summary: 'Upload file', description: 'Upload a file and store it under the provided path' })
-	@ApiCreatedResponse({ type: FileUploadResponse, description: 'Success' })
+	@ApiOperation({ operationId: 'upload', summary: 'Upload file', description: 'Upload a file and store it under the provided parent id' })
+	@ApiCreatedResponse({ type: FileUploadResponse, description: 'The file was created successfully' })
 	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
 		description: 'The file name is too long',
 	})
-	@TemplatedApiException(() => new InvalidFilePathException('/invalid%/file&.txt'), { description: 'The file path is not valid' })
-	@TemplatedApiException(() => new ParentDirectoryNotFoundException('/path/to'), { description: 'The parent directory does not exist' })
-	@TemplatedApiException(() => new FileAlreadyExistsException('/path/to/file.txt'), { description: 'The file already exists' })
+	@TemplatedApiException(() => new InvalidFileNameException('&/8892mf--+&.txt'), { description: 'The file path is not valid' })
+	@TemplatedApiException(() => new ParentDirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
+		description: 'The parent directory does not exist',
+	})
+	@TemplatedApiException(() => new FileAlreadyExistsException('example.txt'), { description: 'The file already exists' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async upload(@Param() params: FileUploadParams, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponse> {
 		try {
@@ -79,15 +85,17 @@ export class FileController {
 		}
 	}
 
-	@Put(':path(*)')
+	@Put(':id/files')
 	@UseInterceptors(FileInterceptor('file'))
-	@ApiOperation({ operationId: 'replaceFile', summary: 'Replace file', description: 'Replace the file at the given path with new file' })
-	@ApiCreatedResponse({ type: FileUploadResponse, description: 'Success' })
+	@ApiOperation({ operationId: 'replace', summary: 'Replace file', description: 'Upload a file and replace if it already exists' })
+	@ApiCreatedResponse({ type: FileUploadResponse, description: 'The file was replaced successfully' })
 	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
 		description: 'The file name is too long',
 	})
-	@TemplatedApiException(() => new InvalidFilePathException('/invalid%/file&.txt'), { description: 'The file path is not valid' })
-	@TemplatedApiException(() => new ParentDirectoryNotFoundException('/path/to'), { description: 'The parent directory does not exist' })
+	@TemplatedApiException(() => new InvalidFileNameException('+.-34/.'), { description: 'The file path is not valid' })
+	@TemplatedApiException(() => new ParentDirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
+		description: 'The parent directory does not exist',
+	})
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async replace(@Param() params: FileReplaceParams, @UploadedFile() file: Express.Multer.File): Promise<FileReplaceResponse> {
 		try {
@@ -105,10 +113,10 @@ export class FileController {
 		}
 	}
 
-	@Get(':path(*)/metadata')
-	@ApiOperation({ operationId: 'getFileMetadata', summary: 'Get file metadata', description: 'Get the detailed metadata of a file' })
-	@ApiOkResponse({ type: FileMetadataResponse, description: 'Success' })
-	@TemplatedApiException(() => new FileNotFoundException('/path/to/file.txt'), { description: 'The file does not exist' })
+	@Get(':directoryId/files/:id/metadata')
+	@ApiOperation({ operationId: 'getFileMetadata', summary: 'Get file metadata', description: 'Get the metadata of a file with the given id' })
+	@ApiOkResponse({ type: FileMetadataResponse, description: 'The metadata was retrieved successfully' })
+	@TemplatedApiException(() => new FileNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), { description: 'The file does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async metadata(@Param() params: FileMetadataParams): Promise<FileMetadataResponse> {
 		try {
@@ -126,10 +134,10 @@ export class FileController {
 		}
 	}
 
-	@Get(':path(*)/download')
-	@ApiOperation({ operationId: 'downloadFile', summary: 'Download file', description: 'Download the file at the given path' })
-	@ApiOkResponse({ content: { '*/*': { schema: { type: 'string', format: 'binary' } } }, description: 'Success' })
-	@TemplatedApiException(() => new FileNotFoundException('/path/to/file.txt'), { description: 'The file does not exist' })
+	@Get(':directoryId/files/:id/download')
+	@ApiOperation({ operationId: 'downloadFile', summary: 'Download file', description: 'Download a file with the given id' })
+	@ApiOkResponse({ content: { '*/*': { schema: { type: 'string', format: 'binary' } } }, description: 'The file was downloaded successfully' })
+	@TemplatedApiException(() => new FileNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), { description: 'The file does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async download(@Param() params: FileDownloadParams, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
 		try {
@@ -154,22 +162,25 @@ export class FileController {
 		}
 	}
 
-	@Patch(':path(*)')
-	@ApiOperation({ operationId: 'renameFile', summary: 'Rename file', description: 'Rename or move a file' })
-	@ApiOkResponse({ type: FileRenameResponse, description: 'Success' })
+	@Patch(':directoryId/files/:id/rename')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiOperation({ operationId: 'renameFile', summary: 'Rename file', description: 'Rename the file with the given id' })
+	@ApiNoContentResponse({ description: 'The file was renamed successfully' })
 	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
 		description: 'The file name is too long',
 	})
-	@TemplatedApiException(() => new InvalidFilePathException('/new/invalid%/path&.txt'), { description: 'The file path is not valid' })
-	@TemplatedApiException(() => new ParentDirectoryNotFoundException('/new/'), { description: 'The destination parent directory does not exist' })
-	@TemplatedApiException(() => new FileNotFoundException('/path/to/file.txt'), { description: 'The file does not exist' })
-	@TemplatedApiException(() => new FileAlreadyExistsException('/new/file.txt'), { description: 'The destination file already exists' })
+	@TemplatedApiException(() => new InvalidFileNameException('/$()§..fw'), { description: 'The file name is not valid' })
+	@TemplatedApiException(() => new ParentDirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
+		description: 'The parent directory does not exist',
+	})
+	@TemplatedApiException(() => new FileNotFoundException('853d4b18-8d1a-426c-b53e-74027ce1644b'), { description: 'The file does not exist' })
+	@TemplatedApiException(() => new FileAlreadyExistsException('example.txt'), { description: 'The file already exists' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async rename(@Param() params: FileRenameParams, @Body() body: FileRenameBody): Promise<FileRenameResponse> {
+	public async rename(@Param() params: FileRenameParams, @Body() body: FileRenameBody): Promise<void> {
 		try {
 			const fileRenameDto = FileRenameDto.from(params, body);
 
-			return await this.fileService.rename(fileRenameDto);
+			await this.fileService.rename(fileRenameDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -181,10 +192,11 @@ export class FileController {
 		}
 	}
 
-	@Delete(':path(*)')
-	@ApiOperation({ operationId: 'deleteFile', summary: 'Delete file', description: 'Delete the file at the given path' })
-	@ApiNoContentResponse({ description: 'Success' })
-	@TemplatedApiException(() => new FileNotFoundException('/path/to/file.txt'), { description: 'The file does not exist' })
+	@Delete(':directoryId/files/:id')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiOperation({ operationId: 'deleteFile', summary: 'Delete file', description: 'Delete the file with the given id' })
+	@ApiNoContentResponse({ description: 'The file was deleted successfully' })
+	@TemplatedApiException(() => new FileNotFoundException('853d4b18-8d1a-426c-b53e-74027ce1644b'), { description: 'The file does not exist' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async delete(@Param() params: FileDeleteParams): Promise<void> {
 		try {
