@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Action, Selector, State, StateContext } from '@ngxs/store';
-import { append, compose, iif, patch, updateItem } from '@ngxs/store/operators';
+import { append, compose, iif, patch, removeItem, updateItem } from '@ngxs/store/operators';
 import { DirectoriesService, DirectoryContentResponse } from 'generated';
 import { concatMap, from, ignoreElements, merge, switchMap, take, takeWhile, tap, timer, toArray } from 'rxjs';
-import { ExplorerActions } from 'src/app/core/components/explorer/state/explorer.actions';
 import { ROOT_ID } from 'src/app/core/components/explorer/state/explorer.state';
 import { BreadcrumbsActions } from 'src/app/features/breadcrumbs/state/breadcrumbs.actions';
 import { DirectoryTreeActions } from 'src/app/features/directory-tree/state/directory-tree.actions';
@@ -96,6 +95,29 @@ export class DirectoryTreeState {
 		);
 	}
 
+	@Action(DirectoryTreeActions.RemoveDirectory)
+	public removeDirectory(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.RemoveDirectory) {
+		const parentId = this.getParentId(ctx, action.id);
+		const grandparentId = this.getParentId(ctx, parentId);
+
+		if (!parentId) {
+			throw new Error('parentId not defined');
+		}
+
+		if (!grandparentId) {
+			throw new Error('NO GRANDPARENT');
+		}
+
+		ctx.setState(
+			patch({
+				tree: patch({
+					[parentId]: removeItem((item) => item.id === action.id),
+					[grandparentId]: updateItem((item) => item.id === parentId, patch({ hasChildren: ctx.getState().tree[parentId].length - 1 > 0 })),
+				}),
+			})
+		);
+	}
+
 	@Action(DirectoryTreeActions.FetchInitialContent)
 	public fetchInitialContent(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.FetchInitialContent) {
 		const updateState = (contents: DirectoryContentResponse) => {
@@ -104,6 +126,7 @@ export class DirectoryTreeState {
 					tree: patch({
 						[currentId]: contents.directories.map((directory) => ({
 							...directory,
+							hasChildren: directory.directories > 0,
 							isCollapsed: directory.name !== name,
 							isSelected: directory.id === action.id,
 						})),
@@ -123,7 +146,7 @@ export class DirectoryTreeState {
 						switchMap(() =>
 							this.directoriesService.getMetadata(currentId).pipe(
 								tap((metadata) => {
-									ctx.dispatch(new BreadcrumbsActions.Add(metadata.name, currentId));
+									ctx.dispatch(new BreadcrumbsActions.Add([{ name: metadata.name, id: currentId }]));
 									currentId = metadata.parentId;
 									name = metadata.name;
 								})
@@ -136,7 +159,7 @@ export class DirectoryTreeState {
 				toArray()
 			),
 			timer(200).pipe(
-				tap(() => alert('LOADING')),
+				// tap(() => alert('LOADING')),
 				ignoreElements()
 			)
 		).pipe(take(1));
@@ -154,6 +177,7 @@ export class DirectoryTreeState {
 					tree: patch({
 						[action.id]: contents.directories.map((directory) => ({
 							...directory,
+							hasChildren: directory.directories > 0,
 							isCollapsed: true,
 							isSelected: directory.id === action.id,
 						})),
@@ -199,14 +223,21 @@ export class DirectoryTreeState {
 		);
 	}
 
-	@Action(DirectoryTreeActions.Open)
-	public open(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.Open) {
+	@Action(DirectoryTreeActions.Select)
+	public select(ctx: StateContext<DirectoryTreeStateModel>, action: DirectoryTreeActions.Select) {
 		const lastSelectedId = ctx.getState().lastSelectedId;
 
 		const parentId = this.getParentId(ctx, action.id);
 		const lastSelectedParentId = this.getParentId(ctx, lastSelectedId);
 
 		if (!parentId) {
+			if (action.id === ROOT_ID) {
+				ctx.setState(
+					patch({ tree: patch({ [lastSelectedParentId!]: updateItem((item) => item.id === lastSelectedId, patch({ isSelected: false })) }) })
+				);
+				return;
+			}
+
 			throw new Error('parentId undefined');
 		}
 
@@ -236,8 +267,6 @@ export class DirectoryTreeState {
 				lastSelectedId: action.id,
 			})
 		);
-
-		ctx.dispatch(new ExplorerActions.Open(action.id));
 	}
 
 	private getParentId(ctx: StateContext<DirectoryTreeStateModel>, id: string | undefined) {

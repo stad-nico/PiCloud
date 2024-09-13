@@ -7,8 +7,12 @@
 import { EntityManager } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
 
-import { DirectoryGetMetadataDBResult, DirectoryRecursiveContentResponse, IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
-import { DirectoryContentResponse } from 'src/api/directory/mapping/content';
+import {
+	DirectoryGetContentsDBResult,
+	DirectoryGetMetadataDBResult,
+	DirectoryRecursiveContentResponse,
+	IDirectoryRepository,
+} from 'src/api/directory/IDirectoryRepository';
 import { DIRECTORY_TABLE_NAME, Directory } from 'src/db/entities/Directory';
 import { FILES_TABLE_NAME, File } from 'src/db/entities/File';
 import { TREE_TABLE_NAME } from 'src/db/entities/Tree';
@@ -95,29 +99,43 @@ export class DirectoryRepository implements IDirectoryRepository {
 		};
 	}
 
-	public async getContents(entityManager: EntityManager, id: string): Promise<DirectoryContentResponse> {
-		const fileQuery = `SELECT id, name FROM ${FILES_TABLE_NAME} WHERE parentId = :parentId`;
+	public async getContents(entityManager: EntityManager, id: string): Promise<DirectoryGetContentsDBResult> {
+		const fileQuery = `SELECT id, name, mimeType, size, createdAt, updatedAt FROM ${FILES_TABLE_NAME} WHERE parentId = :parentId`;
 		const fileParams = { parentId: id };
 
 		const [files] = await entityManager
 			.getKnex()
-			.raw<[(Pick<File, 'id' | 'name'> & { createdAt: string; updatedAt: string })[]]>(fileQuery, fileParams)
+			.raw<
+				[(Pick<File, 'id' | 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> & { createdAt: string; updatedAt: string })[]]
+			>(fileQuery, fileParams)
 			.transacting(entityManager.getTransactionContext()!);
 
-		const existsChildQuery = `SELECT 1 FROM directories WHERE parentId = d.id`;
-		const hasChildrenQuery = `CASE WHEN EXISTS (${existsChildQuery}) THEN TRUE ELSE FALSE END`;
+		const childQuery = `SELECT childId FROM ${TREE_TABLE_NAME} WHERE parentId = d.id`;
+		const filesQuery = `SELECT COUNT(*) as filesAmt FROM ${FILES_TABLE_NAME} WHERE parentId IN (${childQuery})`;
+		const directoriesQuery = `SELECT COUNT(*) - 1 FROM ${DIRECTORY_TABLE_NAME} WHERE id IN (${childQuery})`;
+		const sizeQuery = `SELECT COALESCE(SUM(size), 0) FROM ${FILES_TABLE_NAME} WHERE parentId IN (${childQuery})`;
 
-		const directoryQuery = `SELECT id, name, (${hasChildrenQuery}) AS hasChildren FROM ${DIRECTORY_TABLE_NAME} d WHERE parentId = :parentId`;
-		const directoryParams = { parentId: id };
+		const query = `SELECT id, name, updatedAt, createdAt, (${sizeQuery}) AS size, (${filesQuery}) AS files, (${directoriesQuery}) AS directories FROM ${DIRECTORY_TABLE_NAME} d WHERE parentId = :id`;
+		const params = { id: id };
 
 		const [directories] = await entityManager
 			.getKnex()
-			.raw<[(Pick<Directory, 'id' | 'name'> & { hasChildren: boolean })[]]>(directoryQuery, directoryParams)
+			.raw<[Pick<Directory & Additional, 'id' | 'name' | 'size' | 'files' | 'directories' | 'createdAt' | 'updatedAt'>[]]>(query, params)
 			.transacting(entityManager.getTransactionContext()!);
 
 		return {
-			files: files ?? [],
-			directories: directories ?? [],
+			files:
+				files?.map((file) => ({
+					...file,
+					createdAt: new Date(Date.parse(file.createdAt as unknown as string)),
+					updatedAt: new Date(Date.parse(file.updatedAt as unknown as string)),
+				})) ?? [],
+			directories:
+				directories?.map((directory) => ({
+					...directory,
+					createdAt: new Date(Date.parse(directory.createdAt as unknown as string)),
+					updatedAt: new Date(Date.parse(directory.updatedAt as unknown as string)),
+				})) ?? [],
 		};
 	}
 

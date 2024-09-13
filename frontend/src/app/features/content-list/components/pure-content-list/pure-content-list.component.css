@@ -36,6 +36,8 @@
 }
 
 :host.is-root-opened > p {
+	user-select: none;
+
 	margin-top: -6.25rem;
 
 	color: var(--color-text-secondary);
@@ -54,6 +56,7 @@
 	height: 60%;
 
 	pointer-events: none;
+	user-select: none;
 }
 
 :host > .items {
@@ -231,14 +234,12 @@
 	fill: var(--color-icon-danger-hover);
 }
 
-:host > .plus {
+:host > :is(.plus, .upload) {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 
 	position: absolute;
-
-	bottom: 1.875rem;
 	right: 1.875rem;
 
 	width: 2.875rem;
@@ -251,11 +252,19 @@
 	transition: 0.2s ease;
 }
 
-:host > .plus > svg {
+:host > :is(.plus, .upload) > svg {
 	width: 1.5rem;
 	fill: white;
 }
 
-:host > .plus:hover {
+:host > :is(.plus, .upload):hover {
 	cursor: pointer;
+}
+
+:host > .plus {
+	bottom: 1.875rem;
+}
+
+:host > .upload {
+	bottom: 5.5rem;
 }

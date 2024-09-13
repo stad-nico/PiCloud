@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostBinding, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostBinding, Input, Output, ViewChild } from '@angular/core';
 
 @Component({
 	standalone: true,
@@ -19,6 +19,9 @@ export class NameableDirectoryItemComponent {
 
 	@HostBinding('class.is-invalid')
 	public isNameInvalid: boolean = false;
+
+	@Input()
+	public isIndented: boolean = false;
 
 	@Output()
 	public onSuccess: EventEmitter<string> = new EventEmitter();

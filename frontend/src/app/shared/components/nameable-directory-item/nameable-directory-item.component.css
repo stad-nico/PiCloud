@@ -18,6 +18,10 @@
 	background-color: var(--color-bg-hover);
 }
 
+:host > .placeholder {
+	width: 3.025rem;
+}
+
 :host > .icon {
 	width: 1.5rem;
 

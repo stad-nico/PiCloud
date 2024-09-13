@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
-import { append, patch, updateItem } from '@ngxs/store/operators';
+import { Action, Selector, State, StateContext } from '@ngxs/store';
+import { append, patch, removeItem, updateItem } from '@ngxs/store/operators';
 import { DirectoriesService, FilesService } from 'generated';
-import { catchError, defaultIfEmpty, forkJoin, ignoreElements, map, merge, switchMap, take, tap, timer } from 'rxjs';
+import { from, ignoreElements, merge, switchMap, take, tap, timer } from 'rxjs';
+import { ExplorerActions } from 'src/app/core/components/explorer/state/explorer.actions';
 import { ROOT_ID } from 'src/app/core/components/explorer/state/explorer.state';
 import { ContentType, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
 import { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';
 
 const AlphabeticallyDirectoriesFirstSort = (a: ContentType, b: ContentType) => {
-	return a.type !== b.type ? a.type - b.type : a.name.localeCompare(b.name);
+	return a.type !== b.type ? b.type - a.type : a.name.localeCompare(b.name);
 };
 
 export interface ContentListStateModel {
@@ -31,12 +32,9 @@ export class ContentListState {
 
 	private readonly filesService: FilesService;
 
-	private readonly store: Store;
-
-	constructor(directoriesService: DirectoriesService, filesService: FilesService, store: Store) {
+	constructor(directoriesService: DirectoriesService, filesService: FilesService) {
 		this.directoriesService = directoriesService;
 		this.filesService = filesService;
-		this.store = store;
 	}
 
 	@Selector()
@@ -54,13 +52,18 @@ export class ContentListState {
 		return state.isLoading;
 	}
 
-	@Action(ContentListActions.AddDirectory)
-	public addDirectory(ctx: StateContext<ContentListStateModel>, action: ContentListActions.AddDirectory) {
+	@Action(ContentListActions.AddItem)
+	public addItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.AddItem) {
 		ctx.setState(
 			patch({
-				items: append([action.directory]),
+				items: append([action.item]),
 			})
 		);
+	}
+
+	@Action(ContentListActions.RemoveItem)
+	public removeDirectory(ctx: StateContext<ContentListStateModel>, action: ContentListActions.RemoveItem) {
+		ctx.setState(patch({ items: removeItem((item) => item.id === action.id) }));
 	}
 
 	@Action(ContentListActions.FetchContent)
@@ -72,35 +75,18 @@ export class ContentListState {
 
 		return merge(
 			this.directoriesService.getContents(action.id).pipe(
-				switchMap((response) => {
-					const items = [
-						...response.files.map((file) => ({ type: Type.File as Type.File, ...file })),
-						...response.directories.map((directory) => ({ type: Type.Directory as Type.Directory, ...directory })),
-					];
-
-					return forkJoin(
-						items.map((item) =>
-							item.type === Type.File
-								? this.filesService.getFileMetadata(action.id!, item.id).pipe(
-										catchError((error) => {
-											throw new Error(error);
-										}),
-										map((response) => ({ ...item, ...response, id: item.id }))
-									)
-								: this.directoriesService.getMetadata(item.id).pipe(
-										catchError((error) => {
-											throw new Error(error);
-										}),
-										map((response) => ({ ...item, ...response, id: item.id }))
-									)
-						)
-					);
-				}),
-				defaultIfEmpty([]),
-				tap((items) => {
+				tap((contents) => {
 					ctx.setState(
 						patch({
-							items: items.map((item) => ({ ...item, isSelected: false, isBeingProcessed: false })).sort(AlphabeticallyDirectoriesFirstSort),
+							items: [
+								...contents.directories.map((directory) => ({
+									...directory,
+									type: Type.Directory as Type.Directory,
+									isSelected: false,
+									isBeingProcessed: false,
+								})),
+								...contents.files.map((file) => ({ ...file, type: Type.File, isSelected: false, isBeingProcessed: false })),
+							].sort(AlphabeticallyDirectoriesFirstSort),
 							isLoading: false,
 						})
 					);
@@ -226,6 +212,17 @@ export class ContentListState {
 				items: items.map((item) => ({ ...item, isSelected: false })),
 				lastInteractedId: items.at(0)?.id,
 			})
+		);
+	}
+
+	@Action(ContentListActions.DeleteSelected)
+	public deleteSelected(ctx: StateContext<ContentListStateModel>) {
+		const itemsToDelete = ctx.getState().items.filter((item) => item.isSelected);
+
+		return from(itemsToDelete).pipe(
+			switchMap((item) =>
+				ctx.dispatch(item.type === Type.Directory ? new ExplorerActions.DeleteDirectory(item.id) : new ExplorerActions.DeleteFile(item.id))
+			)
 		);
 	}
 }

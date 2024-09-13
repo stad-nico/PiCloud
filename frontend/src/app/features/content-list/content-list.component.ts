@@ -8,7 +8,7 @@ import {
 	ListItemSelectEvent,
 	ListItemUnselectEvent,
 } from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';
-import { ContentType, PureContentListComponent } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
+import { ContentType, PureContentListComponent, Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
 import { ContentListService } from 'src/app/features/content-list/content-list.service';
 
 @Component({
@@ -93,7 +93,11 @@ export class ContentListComponent {
 		const confirmation = confirm(`Sicher, dass du ${this.content.find((x) => x.id === event.id)?.name} löschen willst?`);
 
 		if (confirmation) {
-			// this.service.delete(event);
+			if (this.content.find((x) => x.id === event.id)?.type === Type.Directory) {
+				this.explorerService.deleteDirectory(event.id);
+			} else {
+				this.explorerService.deleteFile(event.id);
+			}
 		}
 	}
 
@@ -101,12 +105,32 @@ export class ContentListComponent {
 		const confirmation = confirm(`Sicher, dass du die ausgewählten Elemente löschen willst?`);
 
 		if (confirmation) {
-			// this.service.deleteSelected();
+			this.service.deleteSelected();
 		}
 	}
 
 	onPlusClick() {
 		this.explorerService.showCreateDirectoryComponent();
+	}
+
+	onUploadClick() {
+		const input = document.createElement('input');
+		input.setAttribute('type', 'file');
+		input.setAttribute('multiple', '');
+
+		input.addEventListener('change', () => {
+			const files = input.files;
+
+			if (!files) {
+				return;
+			}
+
+			for (const file of files) {
+				this.explorerService.upload(file);
+			}
+		});
+
+		input.click();
 	}
 
 	onCreate(name: string) {

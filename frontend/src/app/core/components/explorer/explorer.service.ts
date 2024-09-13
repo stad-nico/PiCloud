@@ -44,4 +44,16 @@ export class ExplorerService {
 	public createDirectory(name: string) {
 		this.store.dispatch(new ExplorerActions.CreateDirectory(name));
 	}
+
+	public deleteDirectory(id: string) {
+		this.store.dispatch(new ExplorerActions.DeleteDirectory(id));
+	}
+
+	public deleteFile(id: string) {
+		this.store.dispatch(new ExplorerActions.DeleteFile(id));
+	}
+
+	public upload(file: File) {
+		this.store.dispatch(new ExplorerActions.Upload(file));
+	}
 }

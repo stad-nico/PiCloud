@@ -21,26 +21,6 @@ export namespace DirectoryTreeActions {
 		}
 	}
 
-	export class Open {
-		public static readonly type = '[Directory Tree] Open';
-
-		public readonly id: string;
-
-		constructor(id: string) {
-			this.id = id;
-		}
-	}
-
-	export class Unselect {
-		public static readonly type = '[Directory Tree] Unselect';
-
-		public readonly id: string;
-
-		constructor(id: string) {
-			this.id = id;
-		}
-	}
-
 	export class Select {
 		public static readonly type = '[Directory Tree] Select';
 
@@ -71,16 +51,6 @@ export namespace DirectoryTreeActions {
 		}
 	}
 
-	export class Remove {
-		public static readonly type = '[Directory Tree] Remove';
-
-		public readonly id: string;
-
-		constructor(id: string) {
-			this.id = id;
-		}
-	}
-
 	export class AddDirectory {
 		public static readonly type = '[Directory Tree] Add Directory';
 
@@ -88,6 +58,16 @@ export namespace DirectoryTreeActions {
 
 		constructor(directory: DirectoryMetadataResponse & { id: string }) {
 			this.directory = directory;
+		}
+	}
+
+	export class RemoveDirectory {
+		public static readonly type = '[Directory Tree] Remove Directory';
+
+		public readonly id: string;
+
+		constructor(id: string) {
+			this.id = id;
 		}
 	}
 }

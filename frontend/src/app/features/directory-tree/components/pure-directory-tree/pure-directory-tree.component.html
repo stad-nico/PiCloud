@@ -7,3 +7,6 @@
 	[tree]="tree"
 	[isRoot]="true"
 ></directory-tree-item>
+@if (showCreateDirectoryComponent) {
+	<nameable-directory-item [isIndented]="true"></nameable-directory-item>
+}

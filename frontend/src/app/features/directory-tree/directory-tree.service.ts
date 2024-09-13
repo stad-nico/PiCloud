@@ -35,7 +35,7 @@ export class DirectoryTreeService {
 		this.store.dispatch(new DirectoryTreeActions.FetchContent(id));
 	}
 
-	public open(id: string) {
-		this.store.dispatch(new DirectoryTreeActions.Open(id));
+	public select(id: string) {
+		this.store.dispatch(new DirectoryTreeActions.Select(id));
 	}
 }

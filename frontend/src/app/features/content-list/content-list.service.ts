@@ -62,4 +62,8 @@ export class ContentListService {
 	public unselectAll() {
 		this.store.dispatch(new ContentListActions.UnselectAll());
 	}
+
+	public deleteSelected() {
+		this.store.dispatch(new ContentListActions.DeleteSelected());
+	}
 }

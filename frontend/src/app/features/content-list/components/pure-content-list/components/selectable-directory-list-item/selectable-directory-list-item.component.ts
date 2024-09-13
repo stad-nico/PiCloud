@@ -1,6 +1,6 @@
 import { animate, group, query, style, transition, trigger } from '@angular/animations';
 import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
-import { DirectoryMetadataResponse } from 'generated';
+import { Directory } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
 import { CheckboxCheckEvent, CheckboxComponent, CheckboxUncheckEvent } from 'src/app/shared/components/checkbox/checkbox.component';
 import { DirectoryListItemComponent } from 'src/app/shared/components/directory-list-item/directory-list-item.component';
 
@@ -65,7 +65,7 @@ export class SelectableDirectoryListItemComponent {
 	public id!: string;
 
 	@Input({ required: true })
-	public metadata!: DirectoryMetadataResponse;
+	public metadata!: Directory;
 
 	@Output()
 	public onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();

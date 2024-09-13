@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Navigate } from '@ngxs/router-plugin';
 import { Action, Selector, State, StateContext } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
-import { DirectoriesService } from 'generated';
+import { DirectoriesService, FilesService } from 'generated';
 import { map, switchMap, tap } from 'rxjs';
 import { ExplorerActions } from 'src/app/core/components/explorer/state/explorer.actions';
 import { Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
@@ -20,7 +20,7 @@ export interface ExplorerStateModel {
 @State<ExplorerStateModel>({
 	name: 'explorer',
 	defaults: {
-		directory: ROOT_ID,
+		directory: '',
 		showCreateDirectoryComponent: false,
 		isRoot: false,
 	},
@@ -29,8 +29,11 @@ export interface ExplorerStateModel {
 export class ExplorerState {
 	private readonly directoriesService: DirectoriesService;
 
-	public constructor(directoriesService: DirectoriesService) {
+	private readonly filesService: FilesService;
+
+	public constructor(directoriesService: DirectoriesService, filesService: FilesService) {
 		this.directoriesService = directoriesService;
+		this.filesService = filesService;
 	}
 
 	@Selector()
@@ -91,10 +94,32 @@ export class ExplorerState {
 			tap((directory) =>
 				ctx.dispatch([
 					new ExplorerActions.HideCreateDirectoryComponent(),
-					new ContentListActions.AddDirectory({ type: Type.Directory, isBeingProcessed: false, isSelected: false, ...directory }),
+					new ContentListActions.AddItem({ type: Type.Directory, isBeingProcessed: false, isSelected: false, ...directory }),
 					new DirectoryTreeActions.AddDirectory(directory),
 				])
 			)
+		);
+	}
+
+	@Action(ExplorerActions.DeleteDirectory)
+	public deleteDirectory(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.DeleteDirectory) {
+		return this.directoriesService
+			._delete(action.id)
+			.pipe(tap(() => ctx.dispatch([new ContentListActions.RemoveItem(action.id), new DirectoryTreeActions.RemoveDirectory(action.id)])));
+	}
+
+	@Action(ExplorerActions.DeleteFile)
+	public deleteFile(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.DeleteFile) {
+		return this.filesService.deleteFile(ctx.getState().directory, action.id).pipe(tap(() => ctx.dispatch([new ContentListActions.RemoveItem(action.id)])));
+	}
+
+	@Action(ExplorerActions.Upload)
+	public upload(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.Upload) {
+		const directoryId = ctx.getState().directory;
+
+		return this.filesService.upload(directoryId, action.file).pipe(
+			switchMap((body) => this.filesService.getFileMetadata(directoryId, body.id).pipe(map((metadata) => ({ id: body.id, ...metadata })))),
+			tap((file) => ctx.dispatch([new ContentListActions.AddItem({ type: Type.File, isBeingProcessed: false, isSelected: false, ...file })]))
 		);
 	}
 }

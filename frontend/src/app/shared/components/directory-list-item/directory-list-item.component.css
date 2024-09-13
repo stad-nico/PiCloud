@@ -1,6 +1,6 @@
 :host {
 	display: grid;
-	grid-template-columns: auto repeat(4, 1fr) auto;
+	grid-template-columns: auto 1fr 0.5fr 1fr 1fr auto;
 	grid-template-rows: 2.5rem;
 	grid-column-gap: 0.5rem;
 	grid-template-areas: 'a b c d e f';
@@ -26,11 +26,11 @@
 	opacity: 1;
 }
 
-:host.is-being-processed > :is(.name, .size, .date) {
+:host.is-being-processed > :is(.name, .type, .size, .date) {
 	color: var(--color-text-tertiary);
 }
 
-:host.is-being-processed:hover > :is(.name, .size, .date) {
+:host.is-being-processed:hover > :is(.name, .type, .size, .date) {
 	color: var(--color-text-tertiary);
 }
 
@@ -57,11 +57,11 @@
 	background-color: var(--color-bg-selected);
 }
 
-:host:hover > :is(.name, .size, .date) {
+:host:hover > :is(.name, .type, .size, .date) {
 	color: var(--color-text-secondary-hover);
 }
 
-:host > :is(.name, .size, .date) {
+:host > :is(.name, .type, .size, .date) {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;

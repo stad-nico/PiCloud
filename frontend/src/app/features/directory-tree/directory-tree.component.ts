@@ -15,6 +15,8 @@ import { Node, TreeModel } from 'src/app/features/directory-tree/state/directory
 export class DirectoryTreeComponent {
 	private readonly service: DirectoryTreeService;
 
+	private readonly explorerService: ExplorerService;
+
 	private readonly showCreateDirectoryInfo$: Observable<CreateDirectoryInfo>;
 
 	private readonly directoryId$: Observable<string>;
@@ -31,6 +33,7 @@ export class DirectoryTreeComponent {
 
 	public constructor(service: DirectoryTreeService, explorerService: ExplorerService) {
 		this.service = service;
+		this.explorerService = explorerService;
 
 		this.showCreateDirectoryInfo$ = explorerService.getCreateDirectoryInfo();
 		this.directoryId$ = explorerService.getDirectory();
@@ -43,7 +46,7 @@ export class DirectoryTreeComponent {
 
 		this.directoryId$.pipe(take(1)).subscribe((id) => this.service.fetchInitialContent(id));
 
-		this.directoryId$.pipe(skip(1)).subscribe((id) => this.service.open(id));
+		this.directoryId$.pipe(skip(1)).subscribe((id) => this.service.select(id));
 
 		this.root$.subscribe((node) => (this.root = node));
 
@@ -63,6 +66,6 @@ export class DirectoryTreeComponent {
 	}
 
 	public onSelect(id: string) {
-		this.service.open(id);
+		this.explorerService.open(id);
 	}
 }

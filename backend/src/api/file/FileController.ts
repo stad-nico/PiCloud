@@ -26,7 +26,7 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { IFileService } from 'src/api/file/IFileService';
 import { FileDeleteDto, FileDeleteParams } from 'src/api/file/mapping/delete';
@@ -34,7 +34,7 @@ import { FileDownloadDto, FileDownloadParams } from 'src/api/file/mapping/downlo
 import { FileMetadataDto, FileMetadataParams, FileMetadataResponse } from 'src/api/file/mapping/metadata';
 import { FileRenameBody, FileRenameDto, FileRenameParams } from 'src/api/file/mapping/rename';
 import { FileReplaceDto, FileReplaceParams, FileReplaceResponse } from 'src/api/file/mapping/replace';
-import { FileUploadDto, FileUploadParams, FileUploadResponse } from 'src/api/file/mapping/upload';
+import { FileUploadBody, FileUploadDto, FileUploadParams, FileUploadResponse } from 'src/api/file/mapping/upload';
 import {
 	FileAlreadyExistsException,
 	FileNameTooLongException,
@@ -58,6 +58,8 @@ export class FileController {
 
 	@Post(':id/files')
 	@UseInterceptors(FileInterceptor('file'))
+	@ApiConsumes('multipart/form-data')
+	@ApiBody({ description: 'File to upload', type: FileUploadBody })
 	@ApiOperation({ operationId: 'upload', summary: 'Upload file', description: 'Upload a file and store it under the provided parent id' })
 	@ApiCreatedResponse({ type: FileUploadResponse, description: 'The file was created successfully' })
 	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
@@ -70,6 +72,8 @@ export class FileController {
 	@TemplatedApiException(() => new FileAlreadyExistsException('example.txt'), { description: 'The file already exists' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async upload(@Param() params: FileUploadParams, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponse> {
+		this.logger.log(`[Upload File] ${params.id}`);
+
 		try {
 			const fileUploadDto = FileUploadDto.from(params, file);
 

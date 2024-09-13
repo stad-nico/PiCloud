@@ -79,13 +79,27 @@ export namespace ContentListActions {
 		}
 	}
 
-	export class AddDirectory {
-		public static readonly type = '[Content List] Add Directory';
+	export class AddItem {
+		public static readonly type = '[Content List] Add Item';
 
-		public readonly directory: ContentType;
+		public readonly item: ContentType;
 
-		constructor(directory: ContentType) {
-			this.directory = directory;
+		constructor(item: ContentType) {
+			this.item = item;
 		}
+	}
+
+	export class RemoveItem {
+		public static readonly type = '[Content List] Remove Item';
+
+		public readonly id: string;
+
+		constructor(id: string) {
+			this.id = id;
+		}
+	}
+
+	export class DeleteSelected {
+		public static readonly type = '[Content List] Delete Selected';
 	}
 }

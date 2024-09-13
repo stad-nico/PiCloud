@@ -1,5 +1,4 @@
 import { Component, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
-import { DirectoryMetadataResponse } from 'generated';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 
 @Component({
@@ -11,7 +10,7 @@ import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.comp
 })
 export class DirectoryListItemComponent {
 	@Input({ required: true })
-	public metadata!: DirectoryMetadataResponse;
+	public metadata!: { name: string; size: number; updatedAt: string };
 
 	@HostBinding('class.selected')
 	@Input('isSelected')
@@ -56,8 +55,8 @@ export class DirectoryListItemComponent {
 		this.onDownload.emit();
 	}
 
-	protected formatBytes(bytes: number, decimals: number = 2): string {
-		if (!+bytes) return '0 B';
+	protected formatBytes(bytes: number, decimals: number = 0): string {
+		if (!+bytes) return '';
 
 		const k = 1024;
 		const dm = decimals < 0 ? 0 : decimals;
@@ -65,11 +64,27 @@ export class DirectoryListItemComponent {
 
 		const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-		return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+		const size = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+
+		return `${size} ${sizes[i]}`;
 	}
 
 	protected formatDate(dateOrString: Date | string): string {
 		const date = dateOrString instanceof Date ? dateOrString : new Date(Date.parse(dateOrString));
+
+		const dateWithoutTime = new Date(date).setHours(0, 0, 0, 0);
+		const todaysDateWithoutTime = new Date().setHours(0, 0, 0, 0);
+
+		if (dateWithoutTime === todaysDateWithoutTime) {
+			return 'Heute';
+		}
+
+		const yesterdaysDate = new Date().setDate(new Date().getDate() - 1);
+		const yesterdaysDateWithoutTime = new Date(yesterdaysDate).setHours(0, 0, 0, 0);
+
+		if (dateWithoutTime === yesterdaysDateWithoutTime) {
+			return 'Gestern';
+		}
 
 		const day = date.toLocaleDateString('de-DE', { day: 'numeric' });
 		const month = date.toLocaleDateString('de-DE', { month: 'short' });

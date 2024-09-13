@@ -77,14 +77,16 @@ export class FileUploadDto {
 	 * @returns {FileUploadDto}                        the FileUploadDto instance
 	 */
 	public static from(fileUploadParams: FileUploadParams, file: Express.Multer.File): FileUploadDto {
-		if (!PathUtils.isFileNameValid(file.originalname)) {
-			throw new InvalidFileNameException(file.originalname);
+		const filename = Buffer.from(file.originalname, 'latin1').toString('utf8');
+
+		if (!PathUtils.isFileNameValid(filename)) {
+			throw new InvalidFileNameException(filename);
 		}
 
-		if (!PathUtils.isFileNameLengthValid(file.originalname)) {
-			throw new FileNameTooLongException(file.originalname);
+		if (!PathUtils.isFileNameLengthValid(filename)) {
+			throw new FileNameTooLongException(filename);
 		}
 
-		return new FileUploadDto(fileUploadParams.id, file.originalname, file.mimetype, file.size, file.buffer);
+		return new FileUploadDto(fileUploadParams.id, filename, file.mimetype, file.size, file.buffer);
 	}
 }

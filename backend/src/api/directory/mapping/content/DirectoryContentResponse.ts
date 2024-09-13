@@ -5,6 +5,7 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { ApiProperty } from '@nestjs/swagger';
+import { DirectoryGetContentsDBResult } from 'src/api/directory/IDirectoryRepository';
 
 export class DirectoryContentFile {
 	/**
@@ -20,6 +21,34 @@ export class DirectoryContentFile {
 	 */
 	@ApiProperty({ description: 'The name of the file', type: 'string', example: 'file.txt' })
 	readonly name!: string;
+
+	/**
+	 * The mime type of the file.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The mime type of the file', type: 'string', example: 'file.txt' })
+	readonly mimeType!: string;
+
+	/**
+	 * The size of the file in bytes.
+	 * @type {number}
+	 */
+	@ApiProperty({ description: 'The size of the file in bytes', type: 'number', example: 1193982 })
+	readonly size!: number;
+
+	/**
+	 * The creation date of the file.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The date the file was created', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
+	readonly createdAt!: string;
+
+	/**
+	 * The date the file was last modified.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The date the file was last modified', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
+	readonly updatedAt!: string;
 }
 
 export class DirectoryContentDirectory {
@@ -38,11 +67,39 @@ export class DirectoryContentDirectory {
 	readonly name!: string;
 
 	/**
-	 * Whether the directory has subdirectories.
-	 * @type {boolean}
+	 * The size of the directory in bytes.
+	 * @type {number}
 	 */
-	@ApiProperty({ description: 'Whether the directory has subdirectories', type: 'boolean', example: 'true' })
-	readonly hasChildren!: boolean;
+	@ApiProperty({ description: 'The size of the directory in bytes', type: 'number', example: 1193982 })
+	readonly size!: number;
+
+	/**
+	 * The amount of files this directory and each subdirectory contains in total.
+	 * @type {number}
+	 */
+	@ApiProperty({ description: 'The amount of files this directory and each subdirectory contains in total', type: 'number', example: 42 })
+	readonly files!: number;
+
+	/**
+	 * The amount of subdirectory this directory contains in total.
+	 * @type {number}
+	 */
+	@ApiProperty({ description: 'The amount of subdirectories this directory contains in total', type: 'number', example: 9 })
+	readonly directories!: number;
+
+	/**
+	 * The creation date of the directory.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The date the directory was created', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
+	readonly createdAt!: string;
+
+	/**
+	 * The date the directory was last modified.
+	 * @type {string}
+	 */
+	@ApiProperty({ description: 'The date the directory was last modified', type: 'string', format: 'Date', example: '2024-05-05 17:37:33' })
+	readonly updatedAt!: string;
 }
 
 /**
@@ -84,7 +141,14 @@ export class DirectoryContentResponse {
 	 * @param   {DirectoryContentResponse} content the files and subdirectories
 	 * @returns {DirectoryContentResponse}             the DirectoryContentResponse instance
 	 */
-	public static from(content: DirectoryContentResponse) {
-		return new DirectoryContentResponse(content.files, content.directories);
+	public static from(content: DirectoryGetContentsDBResult) {
+		return new DirectoryContentResponse(
+			content.files.map((file) => ({ ...file, createdAt: file.createdAt.toISOString(), updatedAt: file.updatedAt.toISOString() })),
+			content.directories.map((directory) => ({
+				...directory,
+				createdAt: directory.createdAt.toISOString(),
+				updatedAt: directory.updatedAt.toISOString(),
+			}))
+		);
 	}
 }

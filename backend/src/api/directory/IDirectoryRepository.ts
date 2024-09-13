@@ -5,15 +5,26 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { EntityManager } from '@mikro-orm/mariadb';
-import { DirectoryContentResponse } from 'src/api/directory/mapping/content';
 
 import { Directory } from 'src/db/entities/Directory';
+import { File } from 'src/db/entities/File';
 
 export type DirectoryGetMetadataDBResult = Pick<Directory, 'name' | 'createdAt' | 'updatedAt'> & {
 	parentId: string;
 	size: number;
 	files: number;
 	directories: number;
+};
+
+export type DirectoryGetContentsDBResult = {
+	files: Array<Pick<File, 'id' | 'name' | 'mimeType' | 'createdAt' | 'updatedAt' | 'size'>>;
+	directories: Array<
+		Pick<Directory, 'id' | 'name' | 'createdAt' | 'updatedAt'> & {
+			size: number;
+			files: number;
+			directories: number;
+		}
+	>;
 };
 
 export type DirectoryRecursiveContentResponse = {
@@ -94,14 +105,14 @@ export interface IDirectoryRepository {
 	getMetadata(entityManager: EntityManager, path: string): Promise<DirectoryGetMetadataDBResult | null>;
 
 	/**
-	 * Selects the files and subdirectory of the directory with the given id.
+	 * Selects the files and subdirectories of the directory with the given id.
 	 * @async
 	 *
 	 * @param   {EntityManager}                               entityManager the entityManager
 	 * @param   {string}                                      id            the id of the directory
 	 * @returns {Promise<DirectoryGetContentDBResult | null>}               the result
 	 */
-	getContents(entityManager: EntityManager, id: string): Promise<DirectoryContentResponse>;
+	getContents(entityManager: EntityManager, id: string): Promise<DirectoryGetContentsDBResult>;
 
 	/**
 	 * Selects the files and subdirectory of the directory with the given id recursively.

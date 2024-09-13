@@ -6,6 +6,7 @@
 </div>
 <p class="name">{{ metadata.name }}</p>
 <p class="date">{{ formatDate(metadata.updatedAt) }}</p>
+<p class="type">Ordner</p>
 <p class="size">{{ formatBytes(metadata.size) }}</p>
 @if (isBeingProcessed) {
 	<div class="loading">

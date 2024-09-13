@@ -1,9 +1,9 @@
+import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output, ViewChild } from '@angular/core';
-import { DirectoryMetadataResponse, FileMetadataResponse } from 'generated';
 import { SelectableFileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-file-list-item/selectable-file-list-item.component';
 import { Direction, ExpandingMenuButtonComponent } from 'src/app/shared/components/expanding-menu-button/expanding-menu-button.component';
-import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
-import { NameableDirectoryItemComponent } from '../../../../shared/components/nameable-directory-item/nameable-directory-item.component';
+import { LoadingSpinnerComponent } from 'src/app/shared/components/loading-spinner/loading-spinner.component';
+import { NameableDirectoryItemComponent } from 'src/app/shared/components/nameable-directory-item/nameable-directory-item.component';
 import {
 	ListItemDeleteEvent,
 	ListItemOpenEvent,
@@ -13,20 +13,29 @@ import {
 } from './components/selectable-directory-list-item/selectable-directory-list-item.component';
 
 export enum Type {
-	Directory,
 	File,
+	Directory,
 }
 
-export type Directory = DirectoryMetadataResponse & {
+export type Directory = {
 	type: Type.Directory;
 	id: string;
+	name: string;
+	size: number;
+	createdAt: string;
+	updatedAt: string;
 	isSelected: boolean;
 	isBeingProcessed: boolean;
 };
 
-export type File = FileMetadataResponse & {
+export type File = {
 	type: Type.File;
 	id: string;
+	name: string;
+	mimeType: string;
+	size: number;
+	createdAt: string;
+	updatedAt: string;
 	isSelected: boolean;
 	isBeingProcessed: boolean;
 };
@@ -45,6 +54,7 @@ export type ContentType = File | Directory;
 		NameableDirectoryItemComponent,
 		LoadingSpinnerComponent,
 	],
+	animations: [trigger('imageFadeTrigger', [transition(':enter', [style({ opacity: 0 }), animate('0.3s', style({ opacity: 1 }))])])],
 })
 export class PureContentListComponent {
 	private readonly ref: ElementRef;
@@ -98,6 +108,9 @@ export class PureContentListComponent {
 
 	@Output()
 	public onPlusClick: EventEmitter<void> = new EventEmitter();
+
+	@Output()
+	public onUploadClick: EventEmitter<void> = new EventEmitter();
 
 	@Output()
 	public onCancelCreation: EventEmitter<void> = new EventEmitter();
