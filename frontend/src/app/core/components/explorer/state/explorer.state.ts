@@ -1,21 +1,63 @@
 import { Injectable } from '@angular/core';
 import { Navigate } from '@ngxs/router-plugin';
 import { Action, Selector, State, StateContext } from '@ngxs/store';
-import { patch } from '@ngxs/store/operators';
+import { append, patch, removeItem } from '@ngxs/store/operators';
 import { DirectoriesService, FilesService } from 'generated';
-import { map, switchMap, tap } from 'rxjs';
+import { EMPTY, expand, map, of, switchMap, takeLast, tap } from 'rxjs';
 import { ExplorerActions } from 'src/app/core/components/explorer/state/explorer.actions';
-import { Type } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
+import { BreadcrumbsActions } from 'src/app/features/breadcrumbs/state/breadcrumbs.actions';
 import { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';
 import { DirectoryTreeActions } from 'src/app/features/directory-tree/state/directory-tree.actions';
 
 export const ROOT_ID = 'root';
 
+interface Common {
+	id: string;
+	name: string;
+	size: number;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export enum Type {
+	File,
+	Directory,
+}
+
+export interface File extends Common {
+	type: Type.File;
+	mimeType: string;
+}
+
+export interface Directory extends Common {
+	type: Type.Directory;
+	files: number;
+	directories: number;
+}
+
+export interface Tree {
+	[id: string]: Array<File | Directory>;
+}
+
+export interface DirectoriesOnlyTree {
+	[id: string]: Array<Directory>;
+}
+
+export interface TreeRoot {
+	id: string;
+	name: string;
+}
+
 export interface ExplorerStateModel {
 	directory: string;
 	showCreateDirectoryComponent: boolean;
 	isRoot: boolean;
+	tree: Tree;
 }
+
+const SortDirectoriesFirstThenAlphabetically = (a: File | Directory, b: File | Directory) => {
+	return a.type !== b.type ? b.type - a.type : a.name.localeCompare(b.name);
+};
 
 @State<ExplorerStateModel>({
 	name: 'explorer',
@@ -23,6 +65,7 @@ export interface ExplorerStateModel {
 		directory: '',
 		showCreateDirectoryComponent: false,
 		isRoot: false,
+		tree: {},
 	},
 })
 @Injectable()
@@ -49,8 +92,35 @@ export class ExplorerState {
 		};
 	}
 
+	@Selector()
+	public static getTree(state: ExplorerStateModel) {
+		return state.tree;
+	}
+
 	@Action(ExplorerActions.Open)
 	public open(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.Open) {
+		if (action.type === Type.File) {
+			const item = ctx.getState().tree[ctx.getState().directory].find((item) => item.id === action.id);
+
+			if (!item || item.type === Type.Directory) {
+				return;
+			}
+
+			return this.filesService.downloadFile(ctx.getState().directory, action.id).pipe(
+				tap((body) => {
+					const tab = window.open(URL.createObjectURL(body));
+
+					if (!tab) {
+						return;
+					}
+
+					tab.addEventListener('load', () => {
+						tab.document.title = item.name;
+					});
+				})
+			);
+		}
+
 		if (ctx.getState().directory === action.id) {
 			return;
 		}
@@ -62,7 +132,133 @@ export class ExplorerState {
 			})
 		);
 
-		ctx.dispatch(new Navigate(['explorer', action.id]));
+		return ctx.dispatch([new ContentListActions.UnselectAll(), new Navigate(['explorer', action.id])]);
+	}
+
+	@Action(ExplorerActions.LoadInitialContent)
+	public loadInitialContent(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.LoadInitialContent) {
+		const mergeTrees = (a: Tree, b: Tree) => ({ ...a, ...b });
+
+		return of({ tree: {}, crumbs: [], id: action.id }).pipe(
+			expand((d) =>
+				!d.id
+					? EMPTY
+					: this.directoriesService.getMetadata(d.id).pipe(
+							switchMap((metadata) =>
+								this.directoriesService.getContents(d.id).pipe(
+									map((contents) => ({
+										[d.id]: [
+											...contents.directories.map((directory) => ({ type: Type.Directory as Type.Directory, ...directory })),
+											...contents.files.map((file) => ({ type: Type.File as Type.File, ...file })),
+										].sort(SortDirectoriesFirstThenAlphabetically),
+									})),
+									map((contents) => ({
+										tree: mergeTrees(d.tree, contents),
+										crumbs: [{ id: d.id, name: metadata.name }, ...d.crumbs],
+										id: metadata.parentId,
+									}))
+								)
+							)
+						)
+			),
+			takeLast(1),
+			tap(({ tree }) => ctx.setState(patch({ tree: patch(tree) }))),
+			tap(({ tree, crumbs }) => ctx.dispatch([new BreadcrumbsActions.Set(crumbs), ...Object.keys(tree).map((id) => new DirectoryTreeActions.Expand(id))]))
+		);
+	}
+
+	@Action(ExplorerActions.LoadContent)
+	public loadContent(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.LoadContent) {
+		if (action.id in ctx.getState().tree) {
+			return;
+		}
+
+		return this.directoriesService.getContents(action.id).pipe(
+			map((contents) =>
+				[
+					...contents.directories.map((directory) => ({ type: Type.Directory as Type.Directory, ...directory })),
+					...contents.files.map((file) => ({ type: Type.File as Type.File, ...file })),
+				].sort(SortDirectoriesFirstThenAlphabetically)
+			),
+			tap((contents) =>
+				ctx.setState(
+					patch({
+						tree: patch({
+							[action.id]: contents,
+						}),
+					})
+				)
+			)
+		);
+	}
+
+	@Action(ExplorerActions.CreateDirectory)
+	public createDirectory(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.CreateDirectory) {
+		const parentId = ctx.getState().directory;
+
+		return this.directoriesService.create(parentId, action).pipe(
+			switchMap((body) =>
+				this.directoriesService.getMetadata(body.id).pipe(
+					map((metadata) => ({ id: body.id, ...metadata })),
+					tap((metadata) => ctx.setState(patch({ tree: patch({ [parentId]: append([{ type: Type.Directory, ...metadata }]) }) })))
+				)
+			),
+			tap(() => ctx.dispatch(new ExplorerActions.HideCreateDirectoryComponent()))
+		);
+	}
+
+	@Action(ExplorerActions.DeleteDirectory)
+	public deleteDirectory(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.DeleteDirectory) {
+		return this.directoriesService._delete(action.id).pipe(
+			tap(() =>
+				ctx.setState(
+					patch({
+						tree: patch({
+							[ctx.getState().directory]: removeItem((item) => item.id === action.id),
+						}),
+					})
+				)
+			)
+		);
+	}
+
+	@Action(ExplorerActions.UploadFile)
+	public uploadFile(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.UploadFile) {
+		const directoryId = ctx.getState().directory;
+
+		return this.filesService.upload(directoryId, action.file).pipe(
+			switchMap((body) =>
+				this.filesService.getFileMetadata(directoryId, body.id).pipe(
+					map((metadata) => ({ id: body.id, ...metadata })),
+					tap((metadata) =>
+						ctx.setState(
+							patch({
+								tree: patch({
+									[directoryId]: append([{ type: Type.File, ...metadata }]),
+								}),
+							})
+						)
+					)
+				)
+			)
+		);
+	}
+
+	@Action(ExplorerActions.DeleteFile)
+	public deleteFile(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.DeleteFile) {
+		const directoryId = ctx.getState().directory;
+
+		return this.filesService.deleteFile(directoryId, action.id).pipe(
+			tap(() =>
+				ctx.setState(
+					patch({
+						tree: patch({
+							[directoryId]: removeItem((item) => item.id === action.id),
+						}),
+					})
+				)
+			)
+		);
 	}
 
 	@Action(ExplorerActions.ShowCreateDirectoryComponent)
@@ -84,42 +280,6 @@ export class ExplorerState {
 			patch({
 				showCreateDirectoryComponent: false,
 			})
-		);
-	}
-
-	@Action(ExplorerActions.CreateDirectory)
-	public createDirectory(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.CreateDirectory) {
-		return this.directoriesService.create(ctx.getState().directory, { name: action.name }).pipe(
-			switchMap((body) => this.directoriesService.getMetadata(body.id).pipe(map((metadata) => ({ id: body.id, ...metadata })))),
-			tap((directory) =>
-				ctx.dispatch([
-					new ExplorerActions.HideCreateDirectoryComponent(),
-					new ContentListActions.AddItem({ type: Type.Directory, isBeingProcessed: false, isSelected: false, ...directory }),
-					new DirectoryTreeActions.AddDirectory(directory),
-				])
-			)
-		);
-	}
-
-	@Action(ExplorerActions.DeleteDirectory)
-	public deleteDirectory(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.DeleteDirectory) {
-		return this.directoriesService
-			._delete(action.id)
-			.pipe(tap(() => ctx.dispatch([new ContentListActions.RemoveItem(action.id), new DirectoryTreeActions.RemoveDirectory(action.id)])));
-	}
-
-	@Action(ExplorerActions.DeleteFile)
-	public deleteFile(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.DeleteFile) {
-		return this.filesService.deleteFile(ctx.getState().directory, action.id).pipe(tap(() => ctx.dispatch([new ContentListActions.RemoveItem(action.id)])));
-	}
-
-	@Action(ExplorerActions.Upload)
-	public upload(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.Upload) {
-		const directoryId = ctx.getState().directory;
-
-		return this.filesService.upload(directoryId, action.file).pipe(
-			switchMap((body) => this.filesService.getFileMetadata(directoryId, body.id).pipe(map((metadata) => ({ id: body.id, ...metadata })))),
-			tap((file) => ctx.dispatch([new ContentListActions.AddItem({ type: Type.File, isBeingProcessed: false, isSelected: false, ...file })]))
 		);
 	}
 }

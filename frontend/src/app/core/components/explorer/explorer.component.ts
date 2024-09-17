@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { map, skip, take } from 'rxjs';
 import { ExplorerService } from 'src/app/core/components/explorer/explorer.service';
+import { Type } from 'src/app/core/components/explorer/state/explorer.state';
 import { BreadcrumbsComponent } from 'src/app/features/breadcrumbs/breadcrumbs.component';
 import { ContentListComponent } from 'src/app/features/content-list/content-list.component';
 import { DirectoryTreeComponent } from 'src/app/features/directory-tree/directory-tree.component';
@@ -23,12 +25,25 @@ export class ExplorerComponent {
 	}
 
 	ngOnInit() {
-		const directoryId = this.route.snapshot.paramMap.get("directoryId");
+		const directoryId$ = this.route.paramMap.pipe(
+			map((params) => {
+				const id = params.get('directoryId');
 
-		if (!directoryId) {
-			throw new Error("No directory id")
-		}
+				if (!id) {
+					throw new Error('ID not defined');
+				}
 
-		this.service.open(directoryId);
+				return id;
+			})
+		);
+
+		directoryId$.pipe(take(1)).subscribe((id) => {
+			this.service.open(id, Type.Directory);
+			this.service.loadInitialContent(id);
+		});
+
+		directoryId$.pipe(skip(1)).subscribe((id) => {
+			this.service.open(id, Type.Directory);
+		});
 	}
 }

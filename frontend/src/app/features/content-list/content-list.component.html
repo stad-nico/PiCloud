@@ -2,7 +2,8 @@
 	[content]="content"
 	[isInSelectMode]="isInSelectMode"
 	[isRootOpened]="isRootOpened"
-	[isLoading]="isLoading"
+	[isLoading]="false"
+	[selectedIds]="selectedIds"
 	(onClickOutside)="unselectAll()"
 	(onSelectAll)="selectAll()"
 	(onUnselectAll)="unselectAll()"
@@ -14,6 +15,7 @@
 	(onCreate)="onCreate($event)"
 	(onUploadClick)="onUploadClick()"
 	(onPlusClick)="onPlusClick()"
+	(onDownload)="onDownload($event)"
 	(onCancelCreation)="onCancelCreation()"
 	[showCreateDirectoryComponent]="showCreateDirectoryComponent"
 ></pure-content-list>

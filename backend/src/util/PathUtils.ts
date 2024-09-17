@@ -183,8 +183,11 @@ export class PathUtils {
 			}
 
 			if (directoryPathMap.has(fileOrDirectory.parentId)) {
-				const path = directoryPathMap.get(fileOrDirectory.parentId) + '/' + fileOrDirectory.name;
+				const parentPath = directoryPathMap.get(fileOrDirectory.parentId) === '/' ? '' : directoryPathMap.get(fileOrDirectory.parentId);
+				const path = parentPath + '/' + fileOrDirectory.name;
+
 				directoryPathMap.set(fileOrDirectory.id, path);
+
 				return path;
 			}
 

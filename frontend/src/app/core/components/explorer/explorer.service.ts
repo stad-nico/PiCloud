@@ -1,10 +1,10 @@
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 import { Store } from '@ngxs/store';
 
 import { Injectable } from '@angular/core';
 import { ExplorerActions } from 'src/app/core/components/explorer/state/explorer.actions';
-import { ExplorerState } from 'src/app/core/components/explorer/state/explorer.state';
+import { DirectoriesOnlyTree, Directory, ExplorerState, Tree, Type } from 'src/app/core/components/explorer/state/explorer.state';
 
 export type CreateDirectoryInfo = {
 	showCreateDirectoryComponent: boolean;
@@ -29,31 +29,55 @@ export class ExplorerService {
 		return this.store.select(ExplorerState.getDirectory);
 	}
 
-	public open(directoryId: string) {
-		this.store.dispatch(new ExplorerActions.Open(directoryId));
+	public getDirectoriesOnlyTree(): Observable<DirectoriesOnlyTree> {
+		return this.store
+			.select(ExplorerState.getTree)
+			.pipe(
+				map((tree) =>
+					Object.fromEntries(
+						Object.entries(tree).map(([key, value]) => [key, value.filter((item): item is Directory => item.type === Type.Directory)])
+					)
+				)
+			);
 	}
 
-	public showCreateDirectoryComponent() {
-		this.store.dispatch(new ExplorerActions.ShowCreateDirectoryComponent());
+	public getTree(): Observable<Tree> {
+		return this.store.select(ExplorerState.getTree);
 	}
 
-	public hideCreateDirectoryComponent() {
-		this.store.dispatch(new ExplorerActions.HideCreateDirectoryComponent());
+	public open(directoryId: string, itemType: Type, name?: string) {
+		return this.store.dispatch(new ExplorerActions.Open(directoryId, itemType, name));
+	}
+
+	public loadInitialContent(directoryId: string) {
+		return this.store.dispatch(new ExplorerActions.LoadInitialContent(directoryId));
+	}
+
+	public loadContent(directoryId: string) {
+		return this.store.dispatch(new ExplorerActions.LoadContent(directoryId));
 	}
 
 	public createDirectory(name: string) {
-		this.store.dispatch(new ExplorerActions.CreateDirectory(name));
+		return this.store.dispatch(new ExplorerActions.CreateDirectory(name));
 	}
 
 	public deleteDirectory(id: string) {
-		this.store.dispatch(new ExplorerActions.DeleteDirectory(id));
+		return this.store.dispatch(new ExplorerActions.DeleteDirectory(id));
+	}
+
+	public uploadFile(file: File) {
+		return this.store.dispatch(new ExplorerActions.UploadFile(file));
 	}
 
 	public deleteFile(id: string) {
-		this.store.dispatch(new ExplorerActions.DeleteFile(id));
+		return this.store.dispatch(new ExplorerActions.DeleteFile(id));
 	}
 
-	public upload(file: File) {
-		this.store.dispatch(new ExplorerActions.Upload(file));
+	public showCreateDirectoryComponent() {
+		return this.store.dispatch(new ExplorerActions.ShowCreateDirectoryComponent());
+	}
+
+	public hideCreateDirectoryComponent() {
+		return this.store.dispatch(new ExplorerActions.HideCreateDirectoryComponent());
 	}
 }

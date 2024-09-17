@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
+import { ExplorerActions } from 'src/app/core/components/explorer/state/explorer.actions';
 import { DirectoryTreeActions } from 'src/app/features/directory-tree/state/directory-tree.actions';
 import { DirectoryTreeState } from 'src/app/features/directory-tree/state/directory-tree.state';
 
@@ -15,9 +16,17 @@ export class DirectoryTreeService {
 		return this.store.select(DirectoryTreeState.getRoot);
 	}
 
-	public getTree() {
-		return this.store.select(DirectoryTreeState.getTree);
+	public getExpandedIds() {
+		return this.store.select(DirectoryTreeState.getExpandedIds);
 	}
+
+	public getSelectedId() {
+		return this.store.select(DirectoryTreeState.getSelectedId);
+	}
+
+	// public getTree() {
+	// 	return this.store.select(DirectoryTreeState.getTree);
+	// }
 
 	public expand(id: string) {
 		this.store.dispatch(new DirectoryTreeActions.Expand(id));
@@ -32,7 +41,7 @@ export class DirectoryTreeService {
 	}
 
 	public fetchContent(id: string) {
-		this.store.dispatch(new DirectoryTreeActions.FetchContent(id));
+		this.store.dispatch(new ExplorerActions.LoadContent(id));
 	}
 
 	public select(id: string) {

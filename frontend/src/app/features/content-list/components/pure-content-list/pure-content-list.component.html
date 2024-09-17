@@ -5,31 +5,19 @@
 } @else {
 	<div #itemContainer class="items" [class.empty]="content.length === 0 && !showCreateDirectoryComponent">
 		@for (item of content; track item.id) {
-			@if (isFile(item)) {
-				<selectable-file-list-item
-					class="selectable-list-item"
-					(onSelect)="onSelect.emit($event)"
-					(onUnselect)="onUnselect.emit($event)"
-					(onDelete)="onDelete.emit($event)"
-					[id]="item.id"
-					[metadata]="item"
-					[isSelectable]="isInSelectMode"
-					[isSelected]="item.isSelected"
-				></selectable-file-list-item>
-			} @else {
-				<selectable-directory-list-item
-					class="selectable-list-item"
-					(onSelect)="onSelect.emit($event)"
-					(onUnselect)="onUnselect.emit($event)"
-					(onOpen)="onOpen.emit($event)"
-					(onDelete)="onDelete.emit($event)"
-					[id]="item.id"
-					[metadata]="item"
-					[isSelectable]="isInSelectMode"
-					[isBeingProcessed]="item.isBeingProcessed"
-					[isSelected]="item.isSelected"
-				></selectable-directory-list-item>
-			}
+			<selectable-list-item
+				class="selectable-list-item"
+				(onSelect)="onSelect.emit($event)"
+				(onUnselect)="onUnselect.emit($event)"
+				(onOpen)="onOpen.emit($event)"
+				(onDownload)="onDownload.emit($event)"
+				(onDelete)="onDelete.emit($event)"
+				[id]="item.id"
+				[data]="item"
+				[isSelectable]="isInSelectMode"
+				[isBeingProcessed]="false"
+				[isSelected]="selectedIds.includes(item.id)"
+			></selectable-list-item>
 		} @empty {
 			@if (!showCreateDirectoryComponent) {
 				<img @imageFadeTrigger src="/assets/illustrations/content-list-empty.svg" alt="directory is empty" />

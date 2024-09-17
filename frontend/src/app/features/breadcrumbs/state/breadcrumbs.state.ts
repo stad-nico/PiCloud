@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Action, Selector, State, StateContext, Store } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
-import { ROOT_ID } from 'src/app/core/components/explorer/state/explorer.state';
+import { ExplorerState, ROOT_ID } from 'src/app/core/components/explorer/state/explorer.state';
 import { Crumb } from 'src/app/features/breadcrumbs/components/pure-breadcrumbs/pure-breadcrumbs.component';
 import { BreadcrumbsActions } from 'src/app/features/breadcrumbs/state/breadcrumbs.actions';
-import { DirectoryTreeState } from 'src/app/features/directory-tree/state/directory-tree.state';
 
 interface BreadcrumbsStateModel {
 	crumbs: Array<Crumb>;
@@ -13,7 +12,7 @@ interface BreadcrumbsStateModel {
 @State<BreadcrumbsStateModel>({
 	name: 'breadcrumbs',
 	defaults: {
-		crumbs: [],
+		crumbs: [{ id: ROOT_ID, name: 'root' }],
 	},
 })
 @Injectable()
@@ -41,7 +40,7 @@ export class BreadcrumbsState {
 
 	@Action(BreadcrumbsActions.BuildCrumbs)
 	public buildCrumbs(ctx: StateContext<BreadcrumbsStateModel>, action: BreadcrumbsActions.BuildCrumbs) {
-		const tree = this.store.selectSnapshot(DirectoryTreeState.getTree);
+		const tree = this.store.selectSnapshot(ExplorerState.getTree);
 
 		let currentId: string | null = action.id;
 		let crumbs: Array<Crumb> = [];

@@ -1,19 +1,21 @@
 import { animate, group, query, state, style, transition, trigger } from '@angular/animations';
 import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
-import { FileMetadataResponse } from 'generated';
+import { Directory, File } from 'src/app/core/components/explorer/state/explorer.state';
 import {
 	ListItemDeleteEvent,
+	ListItemDownloadEvent,
+	ListItemOpenEvent,
 	ListItemSelectEvent,
 	ListItemUnselectEvent,
-} from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';
+} from 'src/app/features/content-list/content-list.component';
 import { CheckboxCheckEvent, CheckboxComponent, CheckboxUncheckEvent } from 'src/app/shared/components/checkbox/checkbox.component';
 import { FileListItemComponent } from 'src/app/shared/components/file-list-item/file-list-item.component';
 
 @Component({
 	standalone: true,
-	selector: 'selectable-file-list-item',
-	templateUrl: './selectable-file-list-item.component.html',
-	styleUrl: './selectable-file-list-item.component.css',
+	selector: 'selectable-list-item',
+	templateUrl: './selectable-list-item.component.html',
+	styleUrl: './selectable-list-item.component.css',
 	imports: [FileListItemComponent, CheckboxComponent],
 	animations: [
 		trigger('isSelectable', [
@@ -40,7 +42,7 @@ import { FileListItemComponent } from 'src/app/shared/components/file-list-item/
 		]),
 	],
 })
-export class SelectableFileListItemComponent {
+export class SelectableListItemComponent {
 	@HostBinding('class.selected')
 	@Input('isSelected')
 	public isSelected: boolean = false;
@@ -50,10 +52,10 @@ export class SelectableFileListItemComponent {
 	public isSelectable: boolean = false;
 
 	@Input({ required: true })
-	public id!: string;
+	public data!: File | Directory;
 
-	@Input({ required: true })
-	public metadata!: FileMetadataResponse;
+	@Input()
+	public isBeingProcessed: boolean = false;
 
 	@Output()
 	public onSelect: EventEmitter<ListItemSelectEvent> = new EventEmitter();
@@ -64,11 +66,27 @@ export class SelectableFileListItemComponent {
 	@Output()
 	public onDelete: EventEmitter<ListItemDeleteEvent> = new EventEmitter();
 
+	@Output()
+	public onDownload: EventEmitter<ListItemDownloadEvent> = new EventEmitter();
+
+	@Output()
+	public onOpen: EventEmitter<ListItemOpenEvent> = new EventEmitter();
+
 	public onCheck(event: CheckboxCheckEvent) {
-		this.onSelect.emit({ id: this.id, ...event });
+		this.onSelect.emit({ id: this.data.id, ...event });
 	}
 
 	public onUncheck(event: CheckboxUncheckEvent) {
-		this.onUnselect.emit({ id: this.id, ...event });
+		this.onUnselect.emit({ id: this.data.id, ...event });
+	}
+
+	public download() {
+		this.onDownload.emit({ id: this.data.id, name: this.data.name, type: this.data.type });
+	}
+
+	public onClick(event: MouseEvent) {
+		if (event.detail > 1) {
+			event.preventDefault();
+		}
 	}
 }

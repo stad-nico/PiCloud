@@ -2,6 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { Observable, skip } from 'rxjs';
 import { ExplorerService } from 'src/app/core/components/explorer/explorer.service';
+import { Type } from 'src/app/core/components/explorer/state/explorer.state';
 import { BreadcrumbsService } from 'src/app/features/breadcrumbs/breadcrumbs.service';
 import { Crumb, PureBreadcrumbsComponent } from './components/pure-breadcrumbs/pure-breadcrumbs.component';
 
@@ -38,6 +39,6 @@ export class BreadcrumbsComponent {
 	}
 
 	public onClick(crumb: Crumb) {
-		this.explorerService.open(crumb.id);
+		this.explorerService.open(crumb.id, Type.Directory);
 	}
 }

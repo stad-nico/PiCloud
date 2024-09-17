@@ -1,6 +1,6 @@
 :host {
 	display: grid;
-	grid-template-columns: auto 1fr 0.5fr 1fr 1fr auto;
+	grid-template-columns: auto 1.5fr 0.5fr 0.5fr 0.25fr auto;
 	grid-template-rows: 2.5rem;
 	grid-column-gap: 0.5rem;
 	grid-template-areas: 'a b c d e f';
@@ -30,11 +30,11 @@
 	background-color: var(--color-bg-selected);
 }
 
-:host:hover > :is(.name, .size, .date, .mime-type) {
+:host:hover > :is(.name, .size, .date, .type) {
 	color: var(--color-text-secondary-hover);
 }
 
-:host > :is(.name, .size, .date, .mime-type) {
+:host > :is(.name, .size, .date, .type) {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
@@ -43,8 +43,12 @@
 	transition: all 0.2s ease;
 }
 
-:host > .icon {
+:host > .file.icon {
 	width: 1.375rem;
+}
+
+:host > .icon {
+	width: 1.5rem;
 
 	display: flex;
 	align-items: center;

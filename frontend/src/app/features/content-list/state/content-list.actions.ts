@@ -1,5 +1,3 @@
-import { ContentType } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
-
 export namespace ContentListActions {
 	export class SelectSingle {
 		public static readonly type = '[Content List] Select Single';
@@ -69,37 +67,33 @@ export namespace ContentListActions {
 		}
 	}
 
-	export class FetchContent {
-		public static readonly type = '[Content List] Fetch Content';
-
-		public readonly id: string;
-
-		constructor(id: string) {
-			this.id = id;
-		}
-	}
-
-	export class AddItem {
-		public static readonly type = '[Content List] Add Item';
-
-		public readonly item: ContentType;
-
-		constructor(item: ContentType) {
-			this.item = item;
-		}
-	}
-
-	export class RemoveItem {
-		public static readonly type = '[Content List] Remove Item';
-
-		public readonly id: string;
-
-		constructor(id: string) {
-			this.id = id;
-		}
-	}
-
 	export class DeleteSelected {
 		public static readonly type = '[Content List] Delete Selected';
+	}
+
+	export class DownloadFile {
+		public static readonly type = '[Content List] Download File';
+
+		public readonly id: string;
+
+		public readonly name: string;
+
+		constructor(id: string, name: string) {
+			this.id = id;
+			this.name = name;
+		}
+	}
+
+	export class DownloadDirectory {
+		public static readonly type = '[Content List] Download Directory';
+
+		public readonly id: string;
+
+		public readonly name: string;
+
+		constructor(id: string, name: string) {
+			this.id = id;
+			this.name = name;
+		}
 	}
 }

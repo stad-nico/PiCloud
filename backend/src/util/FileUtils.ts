@@ -4,14 +4,14 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { Archiver, ArchiverError, create as createArchiver } from 'archiver';
-import { createReadStream } from 'fs';
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 import { Readable } from 'stream';
 
 import { ConfigService } from '@nestjs/config';
 
+import { createReadStream } from 'fs';
+import JSZip from 'jszip';
 import { StoragePath } from 'src/disk/DiskService';
 import { PathUtils } from 'src/util/PathUtils';
 
@@ -109,23 +109,14 @@ export class FileUtils {
 	 * @returns {Readable}                                          readable stream
 	 */
 	public static async createZIPArchive(configService: ConfigService, files: Array<{ id: string; relativePath: string }>): Promise<Readable> {
-		return new Promise<Archiver>((resolve, reject) => {
-			const archive = createArchiver('zip');
+		const zip = new JSZip();
 
-			const errorHandler = (error: ArchiverError) => reject(error);
-			const successHandler = () => resolve(archive);
+		for (const file of files) {
+			const filepath = PathUtils.join(configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
 
-			archive.on('error', errorHandler);
-			archive.on('close', successHandler);
-			archive.on('end', successHandler);
-			archive.on('finish', successHandler);
+			zip.file(file.relativePath.replace('/', ''), createReadStream(filepath));
+		}
 
-			for (const file of files) {
-				const dirPath = PathUtils.join(configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
-				archive.append(createReadStream(dirPath), { name: file.relativePath });
-			}
-
-			archive.finalize();
-		});
+		return new Readable().wrap(zip.generateNodeStream());
 	}
 }

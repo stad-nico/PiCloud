@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { Observable, skip, take } from 'rxjs';
+import { Observable } from 'rxjs';
 import { CreateDirectoryInfo, ExplorerService } from 'src/app/core/components/explorer/explorer.service';
+import { DirectoriesOnlyTree, ROOT_ID, TreeRoot, Type } from 'src/app/core/components/explorer/state/explorer.state';
 import { PureDirectoryTreeComponent } from 'src/app/features/directory-tree/components/pure-directory-tree/pure-directory-tree.component';
 import { DirectoryTreeService } from 'src/app/features/directory-tree/directory-tree.service';
-import { Node, TreeModel } from 'src/app/features/directory-tree/state/directory-tree.state';
 
 @Component({
 	standalone: true,
@@ -21,15 +21,23 @@ export class DirectoryTreeComponent {
 
 	private readonly directoryId$: Observable<string>;
 
-	private readonly root$: Observable<Node>;
+	private readonly root$: Observable<TreeRoot>;
 
-	private readonly tree$: Observable<TreeModel>;
+	private readonly tree$: Observable<DirectoriesOnlyTree>;
 
-	public root!: Node;
+	private readonly expandedIds$: Observable<Array<string>>;
 
-	public tree!: TreeModel;
+	private readonly selectedId$: Observable<string>;
+
+	public root!: TreeRoot;
+
+	public tree!: DirectoriesOnlyTree;
+
+	public expandedIds!: Array<string>;
 
 	public showCreateDirectoryComponent: boolean = false;
+
+	public selectedId: string = ROOT_ID;
 
 	public constructor(service: DirectoryTreeService, explorerService: ExplorerService) {
 		this.service = service;
@@ -38,19 +46,25 @@ export class DirectoryTreeComponent {
 		this.showCreateDirectoryInfo$ = explorerService.getCreateDirectoryInfo();
 		this.directoryId$ = explorerService.getDirectory();
 		this.root$ = service.getRoot();
-		this.tree$ = service.getTree();
+		this.tree$ = explorerService.getDirectoriesOnlyTree();
+		this.expandedIds$ = service.getExpandedIds();
+		this.selectedId$ = service.getSelectedId();
 	}
 
 	ngOnInit() {
 		this.showCreateDirectoryInfo$.subscribe((info) => (this.showCreateDirectoryComponent = info.showCreateDirectoryComponent && info.isRoot));
 
-		this.directoryId$.pipe(take(1)).subscribe((id) => this.service.fetchInitialContent(id));
+		// this.directoryId$.pipe(take(1)).subscribe((id) => this.service.fetchInitialContent(id));
 
-		this.directoryId$.pipe(skip(1)).subscribe((id) => this.service.select(id));
+		this.expandedIds$.subscribe((ids) => (this.expandedIds = ids));
+
+		this.directoryId$.subscribe((id) => this.service.select(id));
 
 		this.root$.subscribe((node) => (this.root = node));
 
 		this.tree$.subscribe((tree) => (this.tree = tree));
+
+		this.selectedId$.subscribe((id) => (this.selectedId = id));
 	}
 
 	public onExpand(id: string) {
@@ -66,6 +80,6 @@ export class DirectoryTreeComponent {
 	}
 
 	public onSelect(id: string) {
-		this.explorerService.open(id);
+		this.explorerService.open(id, Type.Directory);
 	}
 }

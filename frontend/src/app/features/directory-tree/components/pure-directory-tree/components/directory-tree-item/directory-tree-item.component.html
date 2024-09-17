@@ -1,20 +1,26 @@
 @if (isRoot) {
-	@if (!node.isCollapsed) {
+	@if (!isCollapsed) {
 		@if (isLoading) {
 			<div class="loading-item">
 				<loading-spinner [thickness]="loadingSpinnerThickness"></loading-spinner>
 				<p class="text">Loading</p>
 			</div>
-		}
-		@for (child of tree[node.id]; track child.id) {
-			<directory-tree-item
-				(onCollapse)="onCollapse.emit($event)"
-				(onExpand)="onExpand.emit($event)"
-				(onLoadContent)="onLoadContent.emit($event)"
-				(onSelect)="onSelect.emit($event)"
-				[node]="child"
-				[tree]="tree"
-			></directory-tree-item>
+		} @else {
+			@for (directory of tree[root.id]; track directory.id) {
+				<directory-tree-item
+					(onCollapse)="onCollapse.emit($event)"
+					(onExpand)="onExpand.emit($event)"
+					(onLoadContent)="onLoadContent.emit($event)"
+					(onSelect)="onSelect.emit($event)"
+					[data]="directory"
+					[hasChildren]="directory.directories > 0"
+					[isCollapsed]="!expandedIds.includes(directory.id)"
+					[tree]="tree"
+					[expandedIds]="expandedIds"
+					[selectedId]="selectedId"
+					[isSelected]="directory.id === selectedId"
+				></directory-tree-item>
+			}
 		}
 	}
 } @else {
@@ -33,25 +39,30 @@
 			</svg>
 		</div>
 		<p class="name">
-			{{ node.name }}
+			{{ data.name }}
 		</p>
 	</header>
 	<main>
-		@if (!node.isCollapsed) {
+		@if (!isCollapsed) {
 			@if (isLoading) {
 				<div class="loading-item">
 					<loading-spinner [thickness]="loadingSpinnerThickness"></loading-spinner>
 					<p class="text">Loading</p>
 				</div>
 			}
-			@for (child of tree[node.id]; track child.id) {
+			@for (directory of tree[data.id]; track directory.id) {
 				<directory-tree-item
 					(onCollapse)="onCollapse.emit($event)"
 					(onExpand)="onExpand.emit($event)"
 					(onLoadContent)="onLoadContent.emit($event)"
 					(onSelect)="onSelect.emit($event)"
-					[node]="child"
+					[data]="directory"
 					[tree]="tree"
+					[expandedIds]="expandedIds"
+					[hasChildren]="directory.directories > 0"
+					[isCollapsed]="!expandedIds.includes(directory.id)"
+					[selectedId]="selectedId"
+					[isSelected]="directory.id === selectedId"
 				></directory-tree-item>
 			}
 		}

@@ -3,8 +3,13 @@
 	(onExpand)="onExpand.emit($event)"
 	(onLoadContent)="onLoadContent.emit($event)"
 	(onSelect)="onSelect.emit($event)"
-	[node]="root"
+	[root]="root"
 	[tree]="tree"
+	[isCollapsed]="false"
+	[hasChildren]="true"
+	[isSelected]="selectedId === root.id"
+	[selectedId]="selectedId"
+	[expandedIds]="expandedIds"
 	[isRoot]="true"
 ></directory-tree-item>
 @if (showCreateDirectoryComponent) {

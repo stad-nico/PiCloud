@@ -1,16 +1,24 @@
+import { Type } from 'src/app/core/components/explorer/state/explorer.state';
+
 export namespace ExplorerActions {
 	export class Open {
 		public static readonly type = '[Explorer] Open';
 
 		public readonly id: string;
 
-		constructor(id: string) {
+		public readonly type: Type;
+
+		public readonly name?: string;
+
+		constructor(id: string, type: Type, name?: string) {
 			this.id = id;
+			this.type = type;
+			this.name = name;
 		}
 	}
 
-	export class DeleteDirectory {
-		public static readonly type = '[Explorer] Delete Directory';
+	export class LoadInitialContent {
+		public static readonly type = '[Explorer] Load Initial Content';
 
 		public readonly id: string;
 
@@ -19,8 +27,8 @@ export namespace ExplorerActions {
 		}
 	}
 
-	export class DeleteFile {
-		public static readonly type = '[Explorer] Delete File';
+	export class LoadContent {
+		public static readonly type = '[Explorer] Load Content';
 
 		public readonly id: string;
 
@@ -39,21 +47,41 @@ export namespace ExplorerActions {
 		}
 	}
 
-	export class ShowCreateDirectoryComponent {
-		public static readonly type = '[Explorer] Show Create Directory Component';
+	export class DeleteDirectory {
+		public static readonly type = '[Explorer] Delete Directory';
+
+		public readonly id: string;
+
+		constructor(id: string) {
+			this.id = id;
+		}
 	}
 
-	export class HideCreateDirectoryComponent {
-		public static readonly type = '[Explorer] Hide Create Directory Component';
-	}
-
-	export class Upload {
-		public static readonly type = '[Explorer] Upload';
+	export class UploadFile {
+		public static readonly type = '[Explorer] Upload File';
 
 		public readonly file: File;
 
 		constructor(file: File) {
 			this.file = file;
 		}
+	}
+
+	export class DeleteFile {
+		public static readonly type = '[Explorer] Delete File';
+
+		public readonly id: string;
+
+		constructor(id: string) {
+			this.id = id;
+		}
+	}
+
+	export class ShowCreateDirectoryComponent {
+		public static readonly type = '[Explorer] Show Create Directory Component';
+	}
+
+	export class HideCreateDirectoryComponent {
+		public static readonly type = '[Explorer] Hide Create Directory Component';
 	}
 }

@@ -7,11 +7,11 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   viewBox="0 0 19 22"
-   version="1.1"
-   id="svg837"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
    sodipodi:docname="txt.svg"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
+   id="svg837"
+   version="1.1"
+   viewBox="0 0 19 22">
   <metadata
      id="metadata843">
     <rdf:RDF>
@@ -27,73 +27,97 @@
   <defs
      id="defs841" />
   <sodipodi:namedview
-     inkscape:document-rotation="0"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     id="namedview839"
-     showgrid="false"
-     inkscape:snap-bbox="true"
-     inkscape:snap-object-midpoints="true"
-     inkscape:snap-text-baseline="true"
-     inkscape:snap-bbox-midpoints="true"
-     inkscape:bbox-nodes="true"
-     inkscape:snap-bbox-edge-midpoints="true"
-     inkscape:object-paths="true"
-     inkscape:bbox-paths="true"
-     showguides="true"
-     inkscape:guide-bbox="true"
-     inkscape:zoom="16"
-     inkscape:cx="0.9063145"
-     inkscape:cy="7.758308"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:current-layer="svg837"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg837">
-    <sodipodi:guide
-       id="guide906"
-       orientation="1,0"
-       position="9.5,22" />
-  </sodipodi:namedview>
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:cy="7.758308"
+     inkscape:cx="0.9063145"
+     inkscape:zoom="16"
+     inkscape:guide-bbox="true"
+     showguides="true"
+     inkscape:bbox-paths="true"
+     inkscape:object-paths="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:snap-text-baseline="true"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-bbox="true"
+     showgrid="false"
+     id="namedview839"
+     inkscape:window-height="1017"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     inkscape:document-rotation="0" />
   <path
-     fill="rgb(57, 97, 237)"
-     d="m 2,0 h 9 v 1 l 7,7 h 1 v 10 c 0,2 -2,4 -4,4 H 4 C 2,22 0,20 0,18 V 4 C 0,2 2,0 4,0"
+     d="M 17.856769,7.3301949 C 18.566389,8.0856259 19,9.1036609 19,10.226696 v 7.546608 C 19,20.114894 17.114889,22 14.773299,22 H 4.2266999 C 1.8851103,22 2.5e-7,20.114894 2.5e-7,17.773304 V 4.2266972 C 2.5e-7,1.8851072 1.8851103,2.5e-7 4.2266999,2.5e-7 h 4.5466 c 1.2185497,0 2.3134891,0.510511 3.0834691,1.33019495"
+     style="fill:#b3b3b3;fill-opacity:1;stroke-width:1.31901;paint-order:stroke fill markers"
+     id="rect849-7"
+     sodipodi:nodetypes="cssssssssc" />
+  <path
+     style="fill:#b3b3b3;fill-opacity:1"
      id="path833"
-     style="fill:#b3b3b3;fill-opacity:1" />
+     d="m -17,1.25e-7 h 9.0000002 V 1.0000001 l 7.00000005,7 h 1 V 18 c 0,2 -2.00000005,4 -4.00000005,4 H -15 c -2,0 -4,-2 -4,-4 V 4.0000001 c 0,-2 2,-3.999999975 4,-3.999999975"
+     fill="rgb(57, 97, 237)" />
   <path
-     fill="rgb(106,136,242)"
-     d="M11 0 19 8 13 8C12 8 11 7 11 6Z"
+     style="fill:#cccccc;fill-opacity:1"
      id="path835"
-     style="fill:#cccccc;fill-opacity:1" />
+     d="M -7.9999998,1.25e-7 2.5e-7,8.0000001 H -5.9999998 c -1,0 -2,-1 -2,-2 z"
+     fill="rgb(106,136,242)" />
+  <rect
+     ry="1.016466"
+     y="13.070213"
+     x="4.2788715"
+     height="2.032932"
+     width="10.442257"
+     id="rect853-0"
+     style="fill:#666666;stroke-width:1.46837;paint-order:stroke fill markers" />
+  <rect
+     style="fill:#666666;stroke-width:1.20875;paint-order:stroke fill markers"
+     id="rect853-0-7"
+     width="7.0761924"
+     height="2.032932"
+     x="4.2788715"
+     y="9.5125818"
+     ry="1.016466" />
   <rect
      style="fill:#666666;stroke-width:1.46837;paint-order:stroke fill markers"
-     id="rect853-0"
+     id="rect853-0-0"
      width="10.442257"
      height="2.032932"
      x="4.2788715"
-     y="13.070213"
+     y="16.627844"
      ry="1.016466" />
   <rect
      ry="1.016466"
      y="9.5125818"
-     x="4.2788715"
+     x="-14.721128"
      height="2.032932"
      width="7.0761924"
-     id="rect853-0-7"
+     id="rect3300"
      style="fill:#666666;stroke-width:1.20875;paint-order:stroke fill markers" />
+  <rect
+     style="fill:#666666;stroke-width:1.46837;paint-order:stroke fill markers"
+     id="rect3302"
+     width="10.442257"
+     height="2.032932"
+     x="-14.721128"
+     y="13.070213"
+     ry="1.016466" />
   <rect
      ry="1.016466"
      y="16.627844"
-     x="4.2788715"
+     x="-14.721128"
      height="2.032932"
      width="10.442257"
-     id="rect853-0-0"
+     id="rect3304"
      style="fill:#666666;stroke-width:1.46837;paint-order:stroke fill markers" />
 </svg>

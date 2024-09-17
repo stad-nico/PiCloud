@@ -1,11 +1,9 @@
+import { Observable } from 'rxjs';
+
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
-import { Observable } from 'rxjs';
-import {
-	ListItemSelectEvent,
-	ListItemUnselectEvent,
-} from 'src/app/features/content-list/components/pure-content-list/components/selectable-directory-list-item/selectable-directory-list-item.component';
-import { ContentType } from 'src/app/features/content-list/components/pure-content-list/pure-content-list.component';
+
+import { ListItemSelectEvent, ListItemUnselectEvent } from 'src/app/features/content-list/content-list.component';
 import { ContentListActions } from 'src/app/features/content-list/state/content-list.actions';
 import { ContentListState } from 'src/app/features/content-list/state/content-list.state';
 
@@ -19,20 +17,8 @@ export class ContentListService {
 		this.store = store;
 	}
 
-	public fetchContent(id: string): Observable<void> {
-		return this.store.dispatch(new ContentListActions.FetchContent(id));
-	}
-
-	public selectContent(): Observable<Array<ContentType>> {
-		return this.store.select(ContentListState.selectContent);
-	}
-
-	public selectIsLoading(): Observable<boolean> {
-		return this.store.select(ContentListState.selectIsLoading);
-	}
-
-	public isAtLeastOneSelected(): Observable<boolean> {
-		return this.store.select(ContentListState.isAtLeastOneSelected);
+	public getSelectedIds(): Observable<Array<string>> {
+		return this.store.select(ContentListState.getSelectedIds);
 	}
 
 	public select(event: ListItemSelectEvent) {
@@ -65,5 +51,13 @@ export class ContentListService {
 
 	public deleteSelected() {
 		this.store.dispatch(new ContentListActions.DeleteSelected());
+	}
+
+	public downloadFile(id: string, name: string) {
+		this.store.dispatch(new ContentListActions.DownloadFile(id, name));
+	}
+
+	public downloadDirectory(id: string, name: string) {
+		this.store.dispatch(new ContentListActions.DownloadFile(id, name));
 	}
 }

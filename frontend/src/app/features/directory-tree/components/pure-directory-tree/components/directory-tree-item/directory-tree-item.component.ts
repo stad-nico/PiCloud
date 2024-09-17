@@ -1,5 +1,5 @@
 import { Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
-import { Node } from 'src/app/features/directory-tree/state/directory-tree.state';
+import { DirectoriesOnlyTree, Directory, ROOT_ID, TreeRoot } from 'src/app/core/components/explorer/state/explorer.state';
 import { LoadingSpinnerComponent, Thickness } from 'src/app/shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
@@ -10,28 +10,38 @@ import { LoadingSpinnerComponent, Thickness } from 'src/app/shared/components/lo
 	imports: [LoadingSpinnerComponent],
 })
 export class DirectoryTreeItemComponent {
-	@Input({ required: true })
-	public node!: Node;
-
-	@Input({ required: true })
-	public tree!: {
-		[path: string]: Array<Node>;
-	};
+	@Input()
+	public tree: DirectoriesOnlyTree = {};
 
 	@Input()
 	public isRoot: boolean = false;
 
-	@HostBinding('class.is-collapsed')
-	public isCollapsed!: boolean;
+	@Input()
+	public expandedIds: Array<string> = [];
 
+	@Input()
+	public root!: TreeRoot;
+
+	@Input()
+	public data!: Directory;
+
+	@Input()
+	@HostBinding('class.is-collapsed')
+	public isCollapsed: boolean = true;
+
+	@Input()
 	@HostBinding('class.has-children')
-	public hasChildren!: boolean;
+	public hasChildren: boolean = false;
 
 	@HostBinding('class.is-loading')
-	public isLoading!: boolean;
+	public isLoading: boolean = false;
 
+	@Input()
 	@HostBinding('class.is-selected')
-	public isSelected!: boolean;
+	public isSelected: boolean = false;
+
+	@Input()
+	public selectedId: string = ROOT_ID;
 
 	@Output()
 	public onLoadContent: EventEmitter<string> = new EventEmitter();
@@ -48,32 +58,28 @@ export class DirectoryTreeItemComponent {
 	public loadingSpinnerThickness = Thickness.Thick;
 
 	ngOnInit() {
-		this.isCollapsed = this.node.isCollapsed;
-		this.hasChildren = this.node.hasChildren;
-		this.isSelected = this.node.isSelected;
-
-		this.isLoading = this.hasChildren && !this.tree[this.node.id];
+		if (this.data) {
+			this.isLoading = this.hasChildren && !this.tree[this.data.id];
+		}
 	}
 
 	ngOnChanges() {
-		this.isCollapsed = this.node.isCollapsed;
-		this.hasChildren = this.node.hasChildren;
-		this.isSelected = this.node.isSelected;
-
-		this.isLoading = this.hasChildren && !this.tree[this.node.id];
+		if (this.data) {
+			this.isLoading = this.hasChildren && !this.tree[this.data.id];
+		}
 	}
 
 	public onArrowClick(event: MouseEvent | PointerEvent) {
 		event.stopPropagation();
 
 		if (this.isLoading) {
-			this.onLoadContent.emit(this.node.id);
+			this.onLoadContent.emit(this.data.id);
 		}
 
 		if (this.isCollapsed) {
-			this.onExpand.emit(this.node.id);
+			this.onExpand.emit(this.data.id);
 		} else {
-			this.onCollapse.emit(this.node.id);
+			this.onCollapse.emit(this.data.id);
 		}
 	}
 
@@ -84,7 +90,7 @@ export class DirectoryTreeItemComponent {
 
 		event.stopPropagation();
 
-		this.onSelect.emit(this.node.id);
-		this.onLoadContent.emit(this.node.id);
+		this.onSelect.emit(this.data.id);
+		this.onLoadContent.emit(this.data.id);
 	}
 }

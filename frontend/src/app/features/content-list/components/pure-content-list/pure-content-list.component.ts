@@ -1,59 +1,24 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, Output, ViewChild } from '@angular/core';
-import { SelectableFileListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-file-list-item/selectable-file-list-item.component';
-import { Direction, ExpandingMenuButtonComponent } from 'src/app/shared/components/expanding-menu-button/expanding-menu-button.component';
-import { LoadingSpinnerComponent } from 'src/app/shared/components/loading-spinner/loading-spinner.component';
-import { NameableDirectoryItemComponent } from 'src/app/shared/components/nameable-directory-item/nameable-directory-item.component';
+import { Directory, File, Type } from 'src/app/core/components/explorer/state/explorer.state';
+import { SelectableListItemComponent } from 'src/app/features/content-list/components/pure-content-list/components/selectable-list-item/selectable-list-item.component';
 import {
 	ListItemDeleteEvent,
+	ListItemDownloadEvent,
 	ListItemOpenEvent,
 	ListItemSelectEvent,
 	ListItemUnselectEvent,
-	SelectableDirectoryListItemComponent,
-} from './components/selectable-directory-list-item/selectable-directory-list-item.component';
-
-export enum Type {
-	File,
-	Directory,
-}
-
-export type Directory = {
-	type: Type.Directory;
-	id: string;
-	name: string;
-	size: number;
-	createdAt: string;
-	updatedAt: string;
-	isSelected: boolean;
-	isBeingProcessed: boolean;
-};
-
-export type File = {
-	type: Type.File;
-	id: string;
-	name: string;
-	mimeType: string;
-	size: number;
-	createdAt: string;
-	updatedAt: string;
-	isSelected: boolean;
-	isBeingProcessed: boolean;
-};
-
-export type ContentType = File | Directory;
+} from 'src/app/features/content-list/content-list.component';
+import { Direction, ExpandingMenuButtonComponent } from 'src/app/shared/components/expanding-menu-button/expanding-menu-button.component';
+import { LoadingSpinnerComponent } from 'src/app/shared/components/loading-spinner/loading-spinner.component';
+import { NameableDirectoryItemComponent } from 'src/app/shared/components/nameable-directory-item/nameable-directory-item.component';
 
 @Component({
 	selector: 'pure-content-list',
 	standalone: true,
 	templateUrl: './pure-content-list.component.html',
 	styleUrl: './pure-content-list.component.css',
-	imports: [
-		SelectableDirectoryListItemComponent,
-		SelectableFileListItemComponent,
-		ExpandingMenuButtonComponent,
-		NameableDirectoryItemComponent,
-		LoadingSpinnerComponent,
-	],
+	imports: [SelectableListItemComponent, ExpandingMenuButtonComponent, NameableDirectoryItemComponent, LoadingSpinnerComponent],
 	animations: [trigger('imageFadeTrigger', [transition(':enter', [style({ opacity: 0 }), animate('0.3s', style({ opacity: 1 }))])])],
 })
 export class PureContentListComponent {
@@ -68,8 +33,11 @@ export class PureContentListComponent {
 	@HostBinding('class.in-select-mode')
 	public isInSelectMode!: boolean;
 
-	@Input({ required: true })
-	public content!: Array<ContentType>;
+	@Input()
+	public content: Array<File | Directory> = [];
+
+	@Input()
+	public selectedIds: Array<string> = [];
 
 	@Input()
 	@HostBinding('class.is-root-opened')
@@ -118,6 +86,9 @@ export class PureContentListComponent {
 	@Output()
 	public onDeleteSelected: EventEmitter<void> = new EventEmitter();
 
+	@Output()
+	public onDownload: EventEmitter<ListItemDownloadEvent> = new EventEmitter();
+
 	constructor(ref: ElementRef) {
 		this.ref = ref;
 	}
@@ -129,7 +100,7 @@ export class PureContentListComponent {
 		}
 	}
 
-	public isFile(content: ContentType): content is File {
-		return content.type === Type.File;
+	public isFile(item: File | Directory): item is File {
+		return item.type === Type.File;
 	}
 }
