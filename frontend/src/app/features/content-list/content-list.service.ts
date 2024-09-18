@@ -58,6 +58,6 @@ export class ContentListService {
 	}
 
 	public downloadDirectory(id: string, name: string) {
-		this.store.dispatch(new ContentListActions.DownloadFile(id, name));
+		this.store.dispatch(new ContentListActions.DownloadDirectory(id, name));
 	}
 }

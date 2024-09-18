@@ -59,6 +59,6 @@ export class BreadcrumbsState {
 
 		crumbs.unshift({ name: 'root', id: ROOT_ID });
 
-		ctx.dispatch(new BreadcrumbsActions.Set(crumbs));
+		ctx.setState(patch({ crumbs: [...crumbs] }));
 	}
 }

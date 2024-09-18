@@ -4,7 +4,7 @@ import { Store } from '@ngxs/store';
 
 import { Injectable } from '@angular/core';
 import { ExplorerActions } from 'src/app/core/components/explorer/state/explorer.actions';
-import { DirectoriesOnlyTree, Directory, ExplorerState, Tree, Type } from 'src/app/core/components/explorer/state/explorer.state';
+import { DirectoriesOnlyTree, Directory, ExplorerState, Tree, File as TreeFile, Type } from 'src/app/core/components/explorer/state/explorer.state';
 
 export type CreateDirectoryInfo = {
 	showCreateDirectoryComponent: boolean;
@@ -29,6 +29,10 @@ export class ExplorerService {
 		return this.store.select(ExplorerState.getDirectory);
 	}
 
+	public getContent(): Observable<Array<TreeFile | Directory>> {
+		return this.store.select(ExplorerState.getContent);
+	}
+
 	public getDirectoriesOnlyTree(): Observable<DirectoriesOnlyTree> {
 		return this.store
 			.select(ExplorerState.getTree)
@@ -49,8 +53,8 @@ export class ExplorerService {
 		return this.store.dispatch(new ExplorerActions.Open(directoryId, itemType, name));
 	}
 
-	public loadInitialContent(directoryId: string) {
-		return this.store.dispatch(new ExplorerActions.LoadInitialContent(directoryId));
+	public loadInitialContent() {
+		return this.store.dispatch(new ExplorerActions.LoadInitialContent());
 	}
 
 	public loadContent(directoryId: string) {
@@ -79,5 +83,9 @@ export class ExplorerService {
 
 	public hideCreateDirectoryComponent() {
 		return this.store.dispatch(new ExplorerActions.HideCreateDirectoryComponent());
+	}
+
+	public setDirectory(id: string) {
+		return this.store.dispatch(new ExplorerActions.SetDirectory(id));
 	}
 }

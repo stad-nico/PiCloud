@@ -18,6 +18,7 @@ import { DirectoryDownloadDto, DirectoryDownloadResponse } from 'src/api/directo
 import { DirectoryMetadataDto, DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata';
 import { DirectoryRenameDto } from 'src/api/directory/mapping/rename';
 import { ROOT_ID } from 'src/db/entities/Directory';
+import { StoragePath } from 'src/disk/DiskService';
 import { DirectoryAlreadyExistsException } from 'src/exceptions/DirectoryAlreadyExistsException';
 import { DirectoryNotFoundException } from 'src/exceptions/DirectoryNotFoundException';
 import { ParentDirectoryNotFoundException } from 'src/exceptions/ParentDirectoryNotFoundExceptions';
@@ -157,7 +158,15 @@ export class DirectoryService implements IDirectoryService {
 				throw new DirectoryNotFoundException(directoryDeleteDto.id);
 			}
 
+			const { files } = await this.directoryRepository.getContentsRecursive(entityManager, directoryDeleteDto.id);
+
 			await this.directoryRepository.delete(entityManager, directoryDeleteDto.id);
+
+			for (const file of files) {
+				const filepath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
+
+				await FileUtils.deleteFile(filepath);
+			}
 		});
 	}
 }

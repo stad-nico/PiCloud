@@ -33,7 +33,7 @@ export class DirectoryTreeComponent {
 
 	public tree!: DirectoriesOnlyTree;
 
-	public expandedIds!: Array<string>;
+	public expandedIds: Array<string> = [];
 
 	public showCreateDirectoryComponent: boolean = false;
 

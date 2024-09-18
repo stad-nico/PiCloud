@@ -42,7 +42,7 @@ export class ContentListComponent {
 
 	private readonly explorerService: ExplorerService;
 
-	private readonly tree$: Observable<Tree>;
+	private readonly content$: Observable<Array<Directory | File>>;
 
 	private readonly directoryId$: Observable<string>;
 
@@ -58,8 +58,6 @@ export class ContentListComponent {
 
 	public content: Array<File | Directory> = [];
 
-	public directoryId: string = ROOT_ID;
-
 	public selectedIds: Array<string> = [];
 
 	public tree: Tree = {};
@@ -70,24 +68,16 @@ export class ContentListComponent {
 
 		this.directoryId$ = explorerService.getDirectory();
 		this.showCreateDirectoryInfo$ = explorerService.getCreateDirectoryInfo();
-		this.tree$ = explorerService.getTree();
+		this.content$ = explorerService.getContent();
 		this.selectedIds$ = service.getSelectedIds();
 	}
 
 	ngOnInit() {
 		this.showCreateDirectoryInfo$.subscribe((info) => (this.showCreateDirectoryComponent = info.showCreateDirectoryComponent && !info.isRoot));
 
-		this.directoryId$.subscribe((id) => {
-			this.directoryId = id;
-			this.content = this.tree[this.directoryId] ?? [];
-			// this.service.fetchContent(id);
-			this.isRootOpened = id === ROOT_ID;
-		});
+		this.directoryId$.subscribe((id) => (this.isRootOpened = id === ROOT_ID));
 
-		this.tree$.subscribe((tree) => {
-			this.content = tree[this.directoryId] ?? [];
-			this.tree = tree;
-		});
+		this.content$.subscribe((content) => (this.content = content));
 
 		this.selectedIds$.subscribe((ids) => {
 			this.selectedIds = ids;

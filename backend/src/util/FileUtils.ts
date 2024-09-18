@@ -67,6 +67,10 @@ export class FileUtils {
 		await fsPromises.writeFile(normalizedPath, buffer);
 	}
 
+	public static async deleteFile(absolutePath: string): Promise<void> {
+		await fsPromises.rm(absolutePath);
+	}
+
 	/**
 	 * Copies a file.
 	 *

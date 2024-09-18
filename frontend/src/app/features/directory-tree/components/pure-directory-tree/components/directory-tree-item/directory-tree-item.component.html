@@ -43,28 +43,26 @@
 		</p>
 	</header>
 	<main>
-		@if (!isCollapsed) {
-			@if (isLoading) {
-				<div class="loading-item">
-					<loading-spinner [thickness]="loadingSpinnerThickness"></loading-spinner>
-					<p class="text">Loading</p>
-				</div>
-			}
-			@for (directory of tree[data.id]; track directory.id) {
-				<directory-tree-item
-					(onCollapse)="onCollapse.emit($event)"
-					(onExpand)="onExpand.emit($event)"
-					(onLoadContent)="onLoadContent.emit($event)"
-					(onSelect)="onSelect.emit($event)"
-					[data]="directory"
-					[tree]="tree"
-					[expandedIds]="expandedIds"
-					[hasChildren]="directory.directories > 0"
-					[isCollapsed]="!expandedIds.includes(directory.id)"
-					[selectedId]="selectedId"
-					[isSelected]="directory.id === selectedId"
-				></directory-tree-item>
-			}
+		@if (isLoading) {
+			<div class="loading-item">
+				<loading-spinner [thickness]="loadingSpinnerThickness"></loading-spinner>
+				<p class="text">Loading</p>
+			</div>
+		}
+		@for (directory of tree[data.id]; track directory.id) {
+			<directory-tree-item
+				(onCollapse)="onCollapse.emit($event)"
+				(onExpand)="onExpand.emit($event)"
+				(onLoadContent)="onLoadContent.emit($event)"
+				(onSelect)="onSelect.emit($event)"
+				[data]="directory"
+				[tree]="tree"
+				[expandedIds]="expandedIds"
+				[hasChildren]="directory.directories > 0"
+				[isCollapsed]="!expandedIds.includes(directory.id)"
+				[selectedId]="selectedId"
+				[isSelected]="directory.id === selectedId"
+			></directory-tree-item>
 		}
 	</main>
 }

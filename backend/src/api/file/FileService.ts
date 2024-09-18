@@ -179,6 +179,10 @@ export class FileService implements IFileService {
 			}
 
 			await this.fileRepository.delete(entityManager, fileDeleteDto.id);
+
+			const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(fileDeleteDto.id));
+
+			await FileUtils.deleteFile(resolvedPath);
 		});
 	}
 }

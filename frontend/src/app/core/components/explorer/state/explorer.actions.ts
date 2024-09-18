@@ -17,14 +17,18 @@ export namespace ExplorerActions {
 		}
 	}
 
-	export class LoadInitialContent {
-		public static readonly type = '[Explorer] Load Initial Content';
+	export class SetDirectory {
+		public static readonly type = '[Explorer] Set Directory';
 
 		public readonly id: string;
 
 		constructor(id: string) {
 			this.id = id;
 		}
+	}
+
+	export class LoadInitialContent {
+		public static readonly type = '[Explorer] Load Initial Content';
 	}
 
 	export class LoadContent {

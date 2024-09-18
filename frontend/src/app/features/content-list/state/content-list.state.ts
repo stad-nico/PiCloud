@@ -34,6 +34,10 @@ export class ContentListState {
 
 	@Action(ContentListActions.SelectSingle)
 	public selectItem(ctx: StateContext<ContentListStateModel>, action: ContentListActions.SelectSingle) {
+		if (ctx.getState().selectedIds.includes(action.id)) {
+			return ctx.setState(patch({ lastInteractedId: action.id }));
+		}
+
 		ctx.setState(
 			patch({
 				selectedIds: append([action.id]),
@@ -73,7 +77,7 @@ export class ContentListState {
 		if (idsToUpdate.length <= 2 || idsToUpdate.some((id) => !ctx.getState().selectedIds.includes(id))) {
 			ctx.setState(
 				patch({
-					selectedIds: append(idsToUpdate),
+					selectedIds: append(idsToUpdate.filter((id) => !ctx.getState().selectedIds.includes(id))),
 					lastInteractedId: rangeStart === selectedIndex ? idsToUpdate.at(0) : idsToUpdate.at(-1),
 				})
 			);
@@ -108,7 +112,7 @@ export class ContentListState {
 		if (idsToUpdate.some((id) => !ctx.getState().selectedIds.includes(id))) {
 			ctx.setState(
 				patch({
-					selectedIds: append(idsToUpdate),
+					selectedIds: append(idsToUpdate.filter((id) => !ctx.getState().selectedIds.includes(id))),
 					lastInteractedId: action.id,
 				})
 			);
@@ -117,7 +121,7 @@ export class ContentListState {
 
 			ctx.setState(
 				patch({
-					selectedIds: ctx.getState().selectedIds.filter((id) => !idsToUpdate.includes(id)),
+					selectedIds: ctx.getState().selectedIds.filter((id) => !slice.includes(id)),
 					lastInteractedId: action.id,
 				})
 			);
