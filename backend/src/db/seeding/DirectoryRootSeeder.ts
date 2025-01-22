@@ -6,7 +6,7 @@
  *-------------------------------------------------------------------------*/
 import { type EntityManager } from '@mikro-orm/core';
 import { Seeder } from '@mikro-orm/seeder';
-import { Directory, ROOT_ID } from 'src/db/entities/Directory';
+import { Directory, ROOT_ID } from 'src/db/entities/directory.entity';
 
 export class DirectoryRootSeeder extends Seeder {
 	async run(em: EntityManager): Promise<void> {

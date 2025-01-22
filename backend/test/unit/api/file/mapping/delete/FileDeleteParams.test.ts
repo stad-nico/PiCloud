@@ -1,4 +1,4 @@
-import { FileDeleteParams } from 'src/api/file/mapping/delete';
+import { FileDeleteParams } from 'src/modules/files/mapping/delete';
 
 describe('FileDeleteParams', () => {
 	it('should create instance', () => {

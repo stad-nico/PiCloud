@@ -8,10 +8,10 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { DirectoryModule } from 'src/api/directory/DirectoryModule';
-import { FileModule } from 'src/api/file/FileModule';
-import { validate } from 'src/config/EnvConfig';
-import { DiskModule } from 'src/disk/DiskModule';
+import { validate } from 'src/config/env.config';
+import { DirectoriesModule } from 'src/modules/directories/directories.module';
+import { DiskModule } from 'src/modules/disk/DiskModule';
+import { FilesModule } from 'src/modules/files/files.module';
 
 export const AppModuleConfig = {
 	imports: [
@@ -26,8 +26,8 @@ export const AppModuleConfig = {
 
 		DiskModule.forRootAsync(),
 
-		FileModule,
-		DirectoryModule,
+		FilesModule,
+		DirectoriesModule,
 	],
 };
 

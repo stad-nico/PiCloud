@@ -1,4 +1,4 @@
-import { FileDeleteDto } from 'src/api/file/mapping/delete';
+import { FileDeleteDto } from 'src/modules/files/mapping/delete';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('FileDeleteDto', () => {

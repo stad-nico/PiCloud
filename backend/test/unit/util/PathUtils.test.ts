@@ -4,7 +4,7 @@ import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { StoragePath } from 'src/disk/DiskService';
+import { StoragePath } from 'src/modules/disk/DiskService';
 import { PathUtils } from 'src/util/PathUtils';
 
 jest.mock('fs/promises');

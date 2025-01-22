@@ -1,4 +1,4 @@
-import { DirectoryDeleteParams } from 'src/api/directory/mapping/delete';
+import { DirectoryDeleteParams } from 'src/modules/directories/mapping/delete';
 
 describe('DirectoryDeleteParams', () => {
 	it('should create instance', () => {

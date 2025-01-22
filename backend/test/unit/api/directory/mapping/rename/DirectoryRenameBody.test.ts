@@ -1,4 +1,4 @@
-import { DirectoryRenameBody } from 'src/api/directory/mapping/rename';
+import { DirectoryRenameBody } from 'src/modules/directories/mapping/rename';
 
 describe('DirectoryRenameBody', () => {
 	it('should create instance', () => {

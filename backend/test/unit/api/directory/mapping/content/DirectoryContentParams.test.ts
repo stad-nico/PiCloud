@@ -1,4 +1,4 @@
-import { DirectoryContentParams } from 'src/api/directory/mapping/content';
+import { DirectoryContentParams } from 'src/modules/directories/mapping/content';
 
 describe('DirectoryContentParams', () => {
 	it('should create instance', () => {

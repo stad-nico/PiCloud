@@ -2,12 +2,12 @@ import { EntityManager } from '@mikro-orm/mariadb';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { DirectoryRepository } from 'src/api/directory/DirectoryRepository';
-import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
-import config from 'src/config/MikroORMConfig';
-import { DIRECTORY_TABLE_NAME, Directory } from 'src/db/entities/Directory';
-import { FILES_TABLE_NAME } from 'src/db/entities/File';
+import config from 'src/config/mikro-orm.config';
+import { DIRECTORY_TABLE_NAME, Directory } from 'src/db/entities/directory.entity';
+import { FILES_TABLE_NAME } from 'src/db/entities/file.entity';
 import { TREE_TABLE_NAME } from 'src/db/entities/Tree';
+import { DirectoryRepository } from 'src/modules/directories/directories.repository';
+import { IDirectoryRepository } from 'src/modules/directories/IDirectoriesRepository';
 
 describe('DirectoryRepository', () => {
 	let repository: DirectoryRepository;
@@ -70,7 +70,7 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
 							(id,        name,   parentId)
 					 VALUES ('testId', 'test',  'root'    )`
 				)
@@ -88,7 +88,7 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
 					        (id,          name,     parentId )
 					 VALUES ('parentId', 'parent', 'root'    ),
 					        ('child1Id', 'child1', 'parentId'),
@@ -128,7 +128,7 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
 							 (id,          name,     parentId )
 					  VALUES ('parentId', 'parent', 'root'    ),
 					         ('child1Id', 'child1', 'parentId'),
@@ -150,7 +150,7 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
 						    (id,          name,     parentId )
 					 VALUES ('parentId', 'parent', 'root'    ),
 					        ('child1Id', 'child1', 'parentId'),
@@ -159,8 +159,8 @@ describe('DirectoryRepository', () => {
 							('child4Id', 'child4', 'child1Id'),
 							('child5Id', 'child5', 'child2Id'),
 							('child6Id', 'child6', 'child2Id');
-					  
-					INSERT INTO ${FILES_TABLE_NAME} 
+
+					INSERT INTO ${FILES_TABLE_NAME}
 						   (name,     parentId,  size)
 					VALUES ('file0', 'parentId', 11  ),
 						   ('file1', 'child1Id', 12  ),
@@ -213,8 +213,8 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME}  
-						    (id,         name,   parentId) 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
+						    (id,         name,   parentId)
 				     VALUES ('test1Id', 'test1', 'root'   )`
 				)
 				.transacting(entityManager.getTransactionContext()!);
@@ -231,9 +231,9 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
-						     (id,          name,     parentId ) 
-				      VALUES ('parentId', 'parent', 'root'    ), 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
+						     (id,          name,     parentId )
+				      VALUES ('parentId', 'parent', 'root'    ),
 					         ('child1Id', 'child1', 'parentId'),
 							 ('child2Id', 'child2', 'child1Id')`
 				)
@@ -347,8 +347,8 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
-				            (id,          name,     parentId) 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
+				            (id,          name,     parentId)
 					 VALUES ('parentId', 'parent', 'root'),
 					        ('nestedId', 'nested', 'parentId')`
 				)
@@ -423,7 +423,7 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
 						    (id,          name,     parentId )
 					 VALUES ('parentId', 'parent', 'root'    ),
 					        ('child1Id', 'child1', 'parentId'),
@@ -432,8 +432,8 @@ describe('DirectoryRepository', () => {
 							('child4Id', 'child4', 'child1Id'),
 							('child5Id', 'child5', 'child2Id'),
 							('child6Id', 'child6', 'child2Id');
-					  
-					INSERT INTO ${FILES_TABLE_NAME} 
+
+					INSERT INTO ${FILES_TABLE_NAME}
 						   (name,     parentId,  size)
 					VALUES ('file0', 'parentId', 11  ),
 						   ('file1', 'child1Id', 12  ),
@@ -487,8 +487,8 @@ describe('DirectoryRepository', () => {
 					 VALUES ('parentId', 'parent', 'root'    ),
 					        ('child1Id', 'child1', 'parentId'),
 					        ('child2Id', 'child2', 'parentId');
-					  
-					INSERT INTO ${FILES_TABLE_NAME} 
+
+					INSERT INTO ${FILES_TABLE_NAME}
 						   (id,          name,   parentId,   mimeType,    size)
 					VALUES ('file0Id', 'file0', 'parentId', 'text/plain', 11),
 						   ('file1Id', 'file1', 'child1Id', 'text/csv', 12),
@@ -523,7 +523,7 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
 							(id,          name,     parentId)
 					 VALUES ('parentId', 'parent', 'root'     ),
 					        ('child1Id', 'child1', 'parentId'),
@@ -532,8 +532,8 @@ describe('DirectoryRepository', () => {
 							('child4Id', 'child4', 'child1Id'),
 							('child5Id', 'child5', 'child2Id'),
 							('child6Id', 'child6', 'child2Id');
-					  
-					INSERT INTO ${FILES_TABLE_NAME} 
+
+					INSERT INTO ${FILES_TABLE_NAME}
 						   (id,         name,    parentId,  size)
 					VALUES ('file0Id', 'file0', 'parentId', 12),
 						   ('file1Id', 'file1', 'child1Id', 16),
@@ -608,12 +608,12 @@ describe('DirectoryRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
-						    (id,          name,     parentId) 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
+						    (id,          name,     parentId)
 					 VALUES ('parentId', 'parent', 'root'),
 					        ('child1Id', 'child1', 'parentId'),
 						    ('child2Id', 'child2', 'child1Id');
-							
+
 					 INSERT INTO ${FILES_TABLE_NAME}
 					        (id,         name,    parentId)
 					 VALUES ('file1Id', 'file1', 'parentId'),

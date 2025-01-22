@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { DirectoryController } from 'src/api/directory/DirectoryController';
-import { IDirectoryService } from 'src/api/directory/IDirectoryService';
-import { DirectoryContentDto } from 'src/api/directory/mapping/content';
-import { DirectoryCreateDto } from 'src/api/directory/mapping/create';
-import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete';
-import { DirectoryDownloadDto } from 'src/api/directory/mapping/download';
-import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata';
-import { DirectoryRenameDto } from 'src/api/directory/mapping/rename';
-import { DirectoryAlreadyExistsException } from 'src/exceptions/DirectoryAlreadyExistsException';
-import { DirectoryNameTooLongException } from 'src/exceptions/DirectoryNameTooLongException';
-import { DirectoryNotFoundException } from 'src/exceptions/DirectoryNotFoundException';
-import { FileNotFoundException } from 'src/exceptions/FileNotFoundException';
-import { SomethingWentWrongException } from 'src/exceptions/SomethingWentWrongException';
+import { DirectoryController } from 'src/modules/directories/directories.controller';
+import { IDirectoryService } from 'src/modules/directories/IDirectoriesService';
+import { DirectoryContentDto } from 'src/modules/directories/mapping/content';
+import { DirectoryCreateDto } from 'src/modules/directories/mapping/create';
+import { DirectoryDeleteDto } from 'src/modules/directories/mapping/delete';
+import { DirectoryDownloadDto } from 'src/modules/directories/mapping/download';
+import { DirectoryMetadataDto } from 'src/modules/directories/mapping/metadata';
+import { DirectoryRenameDto } from 'src/modules/directories/mapping/rename';
+import { DirectoryAlreadyExistsException } from 'src/shared/exceptions/DirectoryAlreadyExistsException';
+import { DirectoryNameTooLongException } from 'src/shared/exceptions/DirectoryNameTooLongException';
+import { DirectoryNotFoundException } from 'src/shared/exceptions/DirectoryNotFoundException';
+import { FileNotFoundException } from 'src/shared/exceptions/FileNotFoundException';
+import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 
 describe('DirectoryController', () => {
 	let controller: DirectoryController;

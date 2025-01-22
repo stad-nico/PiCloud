@@ -1,4 +1,4 @@
-import { FileDownloadParams } from 'src/api/file/mapping/download';
+import { FileDownloadParams } from 'src/modules/files/mapping/download';
 
 describe('FileDownloadParams', () => {
 	it('should create instance', () => {

@@ -1,4 +1,4 @@
-import { DirectoryMetadataParams } from 'src/api/directory/mapping/metadata';
+import { DirectoryMetadataParams } from 'src/modules/directories/mapping/metadata';
 
 describe('DirectoryMetadataParams', () => {
 	it('should create instance', () => {

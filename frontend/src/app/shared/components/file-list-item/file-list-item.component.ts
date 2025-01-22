@@ -114,11 +114,11 @@ export class FileListItemComponent {
 			return 'Gestern';
 		}
 
-		const day = date.toLocaleDateString('de-DE', { day: 'numeric' });
+		const day = date.toLocaleDateString('de-DE', { day: '2-digit' });
 		const month = date.toLocaleDateString('de-DE', { month: 'short' });
 		const year = date.toLocaleDateString('de-DE', { year: '2-digit' });
 
-		return `${day} ${month} ${year}`;
+		return `${day}. ${month} ${year}`;
 	}
 
 	public formatType() {

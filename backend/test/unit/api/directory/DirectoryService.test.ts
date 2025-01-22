@@ -4,17 +4,17 @@ import { EntityManager } from '@mikro-orm/mariadb';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { DirectoryService } from 'src/api/directory/DirectoryService';
-import { IDirectoryRepository } from 'src/api/directory/IDirectoryRepository';
-import { IDirectoryService } from 'src/api/directory/IDirectoryService';
-import { DirectoryContentResponse } from 'src/api/directory/mapping/content';
-import { DirectoryCreateResponse } from 'src/api/directory/mapping/create';
-import { DirectoryDownloadResponse } from 'src/api/directory/mapping/download';
-import { DirectoryMetadataResponse } from 'src/api/directory/mapping/metadata';
-import { DirectoryRenameResponse } from 'src/api/directory/mapping/rename';
-import { DirectoryAlreadyExistsException } from 'src/exceptions/DirectoryAlreadyExistsException';
-import { DirectoryNotFoundException } from 'src/exceptions/DirectoryNotFoundException';
-import { ParentDirectoryNotFoundException } from 'src/exceptions/ParentDirectoryNotFoundExceptions';
+import { DirectoryService } from 'src/modules/directories/DirectoryService';
+import { IDirectoryRepository } from 'src/modules/directories/IDirectoriesRepository';
+import { IDirectoryService } from 'src/modules/directories/IDirectoriesService';
+import { DirectoryContentResponse } from 'src/modules/directories/mapping/content';
+import { DirectoryCreateResponse } from 'src/modules/directories/mapping/create';
+import { DirectoryDownloadResponse } from 'src/modules/directories/mapping/download';
+import { DirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata';
+import { DirectoryRenameResponse } from 'src/modules/directories/mapping/rename';
+import { DirectoryAlreadyExistsException } from 'src/shared/exceptions/DirectoryAlreadyExistsException';
+import { DirectoryNotFoundException } from 'src/shared/exceptions/DirectoryNotFoundException';
+import { ParentDirectoryNotFoundException } from 'src/shared/exceptions/ParentDirectoryNotFoundExceptions';
 import { FileUtils } from 'src/util/FileUtils';
 
 describe('DirectoryService', () => {

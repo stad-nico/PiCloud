@@ -1,4 +1,4 @@
-import { DirectoryDownloadDto } from 'src/api/directory/mapping/download';
+import { DirectoryDownloadDto } from 'src/modules/directories/mapping/download';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('DirectoryDownloadDto', () => {

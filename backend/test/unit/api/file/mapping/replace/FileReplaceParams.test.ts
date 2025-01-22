@@ -1,4 +1,4 @@
-import { FileReplaceParams } from 'src/api/file/mapping/replace';
+import { FileReplaceParams } from 'src/modules/files/mapping/replace';
 
 describe('FileReplaceParams', () => {
 	it('should create instance', () => {

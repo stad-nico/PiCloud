@@ -1,4 +1,4 @@
-import { DirectoryMetadataDto } from 'src/api/directory/mapping/metadata';
+import { DirectoryMetadataDto } from 'src/modules/directories/mapping/metadata';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('DirectoryMetadataDto', () => {

@@ -1,6 +1,6 @@
-import { FileRenameDto } from 'src/api/file/mapping/rename';
-import { FileNameTooLongException } from 'src/exceptions/FileNameTooLongException';
-import { InvalidFilePathException } from 'src/exceptions/InvalidFileNameException';
+import { FileRenameDto } from 'src/modules/files/mapping/rename';
+import { FileNameTooLongException } from 'src/shared/exceptions/FileNameTooLongException';
+import { InvalidFilePathException } from 'src/shared/exceptions/InvalidFileNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('FileRenameDto', () => {

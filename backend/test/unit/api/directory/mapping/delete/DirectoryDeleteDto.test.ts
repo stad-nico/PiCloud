@@ -1,4 +1,4 @@
-import { DirectoryDeleteDto } from 'src/api/directory/mapping/delete';
+import { DirectoryDeleteDto } from 'src/modules/directories/mapping/delete';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('DirectoryDeleteDto', () => {

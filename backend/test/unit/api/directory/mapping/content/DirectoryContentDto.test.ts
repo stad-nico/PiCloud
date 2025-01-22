@@ -1,4 +1,4 @@
-import { DirectoryContentDto } from 'src/api/directory/mapping/content';
+import { DirectoryContentDto } from 'src/modules/directories/mapping/content';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('DirectoryContentDto', () => {

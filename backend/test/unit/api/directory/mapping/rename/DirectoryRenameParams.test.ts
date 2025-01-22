@@ -1,4 +1,4 @@
-import { DirectoryRenameParams } from 'src/api/directory/mapping/rename';
+import { DirectoryRenameParams } from 'src/modules/directories/mapping/rename';
 
 describe('DirectoryRenameParams', () => {
 	it('should create instance', () => {

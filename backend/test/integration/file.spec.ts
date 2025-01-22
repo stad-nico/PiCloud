@@ -4,13 +4,13 @@ import { Test } from '@nestjs/testing';
 import { DataSource, QueryRunner } from 'typeorm';
 
 import { AppModuleConfig } from 'src/AppModule';
-import { File } from 'src/api/file/entities/file.entity';
 import { configureApplication } from 'src/config/AppConfig';
-import { Environment } from 'src/config/EnvConfig';
+import { Environment } from 'src/config/env.config';
+import { File } from 'src/modules/files/entities/file.entity';
 import { FileUtils } from 'src/util/FileUtils';
 
 import * as fsPromises from 'fs/promises';
-import { TestValidationPipe } from 'src/api/TestValidationPipe';
+import { TestValidationPipe } from 'src/config/TestValidationPipe';
 import * as request from 'supertest';
 import { mockedQueryRunner } from 'test/mocks/mockedQueryRunner.spec';
 import { v4 as generateUuid } from 'uuid';
@@ -236,14 +236,10 @@ describe('/file/', () => {
 
 				await runner.manager.save(File, existingFile);
 
-				const response = await request(app.getHttpServer())
-					.post(`${apiPath}${existingFile.fullPath}?overwrite=false`)
-					.attach('file', __filename);
+				const response = await request(app.getHttpServer()).post(`${apiPath}${existingFile.fullPath}?overwrite=false`).attach('file', __filename);
 
 				const existingFoundFile = await runner.manager.findOne(File, { where: { fullPath: existingFile.fullPath } });
-				const pathExists = await FileUtils.pathExists(
-					FileUtils.join(configService, existingFile.fullPath, Environment.DiskStoragePath)
-				);
+				const pathExists = await FileUtils.pathExists(FileUtils.join(configService, existingFile.fullPath, Environment.DiskStoragePath));
 
 				expect(response.statusCode).toStrictEqual(409);
 				expect(response.body).toStrictEqual(error);
@@ -260,9 +256,7 @@ describe('/file/', () => {
 				const response = await request(app.getHttpServer()).post(`${apiPath}${existingFile.fullPath}`).attach('file', __filename);
 
 				const existingFoundFile = await runner.manager.findOne(File, { where: { fullPath: existingFile.fullPath } });
-				const pathExists = await FileUtils.pathExists(
-					FileUtils.join(configService, existingFile.fullPath, Environment.DiskStoragePath)
-				);
+				const pathExists = await FileUtils.pathExists(FileUtils.join(configService, existingFile.fullPath, Environment.DiskStoragePath));
 
 				expect(response.statusCode).toStrictEqual(409);
 				expect(response.body).toStrictEqual(error);
@@ -625,9 +619,7 @@ describe('/file/', () => {
 
 				await runner.manager.save(File, fileToRename);
 
-				const response = await request(app.getHttpServer())
-					.patch(`${apiPath}${fileToRename.fullPath}`)
-					.send({ newPath: renamedFile.fullPath });
+				const response = await request(app.getHttpServer()).patch(`${apiPath}${fileToRename.fullPath}`).send({ newPath: renamedFile.fullPath });
 
 				const foundFile = await runner.manager.findOne(File, { where: { uuid: fileToRename.uuid } });
 
@@ -799,9 +791,7 @@ describe('/file/', () => {
 				await runner.manager.save(File, fileToRename);
 				await runner.manager.save(File, existingFile);
 
-				const response = await request(app.getHttpServer())
-					.patch(`${apiPath}${fileToRename.fullPath}`)
-					.send({ newPath: existingFile.fullPath });
+				const response = await request(app.getHttpServer()).patch(`${apiPath}${fileToRename.fullPath}`).send({ newPath: existingFile.fullPath });
 
 				const foundFile = await runner.manager.findOne(File, { where: { uuid: fileToRename.uuid } });
 				const foundExistingFile = await runner.manager.findOne(File, { where: { uuid: existingFile.uuid } });
@@ -845,10 +835,7 @@ describe('/file/', () => {
 				const fileDestinationPath = FileUtils.join(configService, file.getUuidAsDirPath(), Environment.DiskRecyclePath);
 
 				await runner.manager.save(File, file);
-				await FileUtils.writeFile(
-					FileUtils.join(configService, file.getUuidAsDirPath(), Environment.DiskStoragePath),
-					Buffer.from('test')
-				);
+				await FileUtils.writeFile(FileUtils.join(configService, file.getUuidAsDirPath(), Environment.DiskStoragePath), Buffer.from('test'));
 
 				const response = await request(app.getHttpServer()).delete(`${apiPath}${path}`);
 

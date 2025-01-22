@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { Archiver } from 'archiver';
-import { StoragePath } from 'src/disk/DiskService';
+import { StoragePath } from 'src/modules/disk/DiskService';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 

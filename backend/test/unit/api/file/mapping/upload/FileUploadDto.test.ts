@@ -1,6 +1,6 @@
-import { FileUploadDto } from 'src/api/file/mapping/upload';
-import { FileNameTooLongException } from 'src/exceptions/FileNameTooLongException';
-import { InvalidFilePathException } from 'src/exceptions/InvalidFileNameException';
+import { FileUploadDto } from 'src/modules/files/mapping/upload';
+import { FileNameTooLongException } from 'src/shared/exceptions/FileNameTooLongException';
+import { InvalidFilePathException } from 'src/shared/exceptions/InvalidFileNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('FileUploadDto', () => {

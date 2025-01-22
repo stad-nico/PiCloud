@@ -1,12 +1,12 @@
 import { EntityManager } from '@mikro-orm/mariadb';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { FileRepository } from 'src/api/file/FileRepository';
-import { IFileRepository } from 'src/api/file/IFileRepository';
+import { FileRepository } from 'src/modules/files/files.repository';
+import { IFileRepository } from 'src/modules/files/IFilesRepository';
 
-import config from 'src/config/MikroORMConfig';
-import { DIRECTORY_TABLE_NAME } from 'src/db/entities/Directory';
-import { FILES_TABLE_NAME } from 'src/db/entities/File';
+import config from 'src/config/mikro-orm.config';
+import { DIRECTORY_TABLE_NAME } from 'src/db/entities/directory.entity';
+import { FILES_TABLE_NAME } from 'src/db/entities/file.entity';
 
 describe('FileRepository', () => {
 	let repository: FileRepository;
@@ -86,13 +86,13 @@ describe('FileRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
                             (id,          name,     parentId)
 					 VALUES ('parentId', 'parent', 'root'),
 					        ('child1Id', 'child1', 'parentId'),
 							('child2Id', 'child2', 'child1Id');
-                            
-                     INSERT INTO ${FILES_TABLE_NAME} 
+
+                     INSERT INTO ${FILES_TABLE_NAME}
                             (id,        name,       parentId)
                      VALUES ('fileId', 'file.txt', 'child2Id');`
 				)
@@ -148,8 +148,8 @@ describe('FileRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${FILES_TABLE_NAME} (id, name, parentId) 
-				      VALUES ('file1Id', 'test1.txt', 'root'), 
+					`INSERT INTO ${FILES_TABLE_NAME} (id, name, parentId)
+				      VALUES ('file1Id', 'test1.txt', 'root'),
 					         ('file2Id', 'test2.txt', 'root')`
 				)
 				.transacting(entityManager.getTransactionContext()!);
@@ -166,13 +166,13 @@ describe('FileRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
-                             (id,          name,     parentId ) 
-				      VALUES ('parentId', 'parent', 'root'    ), 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
+                             (id,          name,     parentId )
+				      VALUES ('parentId', 'parent', 'root'    ),
 					         ('child1Id', 'child1', 'parentId'),
 							 ('child2Id', 'child2', 'child1Id');
-                             
-                     INSERT INTO ${FILES_TABLE_NAME} 
+
+                     INSERT INTO ${FILES_TABLE_NAME}
                             (id,        name,       parentId )
                      VALUES ('fileId', 'file.txt', 'child2Id')`
 				)
@@ -400,10 +400,10 @@ describe('FileRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} 
-				            (id,          name,     parentId) 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME}
+				            (id,          name,     parentId)
 					 VALUES ('parentId', 'parent', 'root');
-					 
+
 					 INSERT INTO ${FILES_TABLE_NAME}
 					        (name,        parentId)
 					 VALUES ('file.txt', 'parentId');`
@@ -485,7 +485,7 @@ describe('FileRepository', () => {
 			await entityManager
 				.getKnex()
 				.raw(
-					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId) VALUES ('parentId', 'parent', 'root'); 
+					`INSERT INTO ${DIRECTORY_TABLE_NAME} (id, name, parentId) VALUES ('parentId', 'parent', 'root');
 					 INSERT INTO ${FILES_TABLE_NAME} (name, mimeType, size, parentId) VALUES ('file.txt', 'text/plain', 129, 'parentId')`
 				)
 				.transacting(entityManager.getTransactionContext()!);

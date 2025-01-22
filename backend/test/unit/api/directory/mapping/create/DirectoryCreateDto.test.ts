@@ -1,6 +1,6 @@
-import { DirectoryCreateDto } from 'src/api/directory/mapping/create';
-import { DirectoryNameTooLongException } from 'src/exceptions/DirectoryNameTooLongException';
-import { InvalidDirectoryPathException } from 'src/exceptions/InvalidDirectoryNameException';
+import { DirectoryCreateDto } from 'src/modules/directories/mapping/create';
+import { DirectoryNameTooLongException } from 'src/shared/exceptions/DirectoryNameTooLongException';
+import { InvalidDirectoryPathException } from 'src/shared/exceptions/InvalidDirectoryNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('DirectoryCreateDto', () => {

@@ -1,4 +1,4 @@
-import { FileMetadataDto } from 'src/api/file/mapping/metadata';
+import { FileMetadataDto } from 'src/modules/files/mapping/metadata';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('FileMetadataDto', () => {

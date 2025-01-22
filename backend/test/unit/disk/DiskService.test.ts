@@ -4,8 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import path from 'path';
-import { Environment, NodeEnv } from 'src/config/EnvConfig';
-import { DiskService, StoragePath } from 'src/disk/DiskService';
+import { Environment, NodeEnv } from 'src/config/env.config';
+import { DiskService, StoragePath } from 'src/modules/disk/DiskService';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 

@@ -7,8 +7,8 @@
 import { NestFactory } from '@nestjs/core';
 
 import { ConfigService } from '@nestjs/config';
-import { configureApplication } from 'src/config/AppConfig';
-import { Environment } from 'src/config/EnvConfig';
+import { configureApplication } from 'src/config/app.config';
+import { Environment } from 'src/config/env.config';
 import { AppModule } from './AppModule';
 
 async function bootstrap() {

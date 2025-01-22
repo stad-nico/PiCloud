@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { createReadStream } from 'fs';
 import JSZip from 'jszip';
-import { StoragePath } from 'src/disk/DiskService';
+import { StoragePath } from 'src/modules/disk/DiskService';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**

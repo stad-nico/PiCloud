@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { FileController } from 'src/api/file/FileController';
-import { IFileService } from 'src/api/file/IFileService';
-import { FileDeleteDto } from 'src/api/file/mapping/delete';
-import { FileDownloadDto } from 'src/api/file/mapping/download';
-import { FileMetadataDto } from 'src/api/file/mapping/metadata';
-import { FileRenameDto } from 'src/api/file/mapping/rename';
-import { FileReplaceDto } from 'src/api/file/mapping/replace';
-import { FileUploadDto } from 'src/api/file/mapping/upload';
-import { FileNameTooLongException } from 'src/exceptions/FileNameTooLongException';
-import { FileNotFoundException } from 'src/exceptions/FileNotFoundException';
-import { ParentDirectoryNotFoundException } from 'src/exceptions/ParentDirectoryNotFoundExceptions';
-import { SomethingWentWrongException } from 'src/exceptions/SomethingWentWrongException';
+import { FileController } from 'src/modules/files/FileController';
+import { IFileService } from 'src/modules/files/IFilesService';
+import { FileDeleteDto } from 'src/modules/files/mapping/delete';
+import { FileDownloadDto } from 'src/modules/files/mapping/download';
+import { FileMetadataDto } from 'src/modules/files/mapping/metadata';
+import { FileRenameDto } from 'src/modules/files/mapping/rename';
+import { FileReplaceDto } from 'src/modules/files/mapping/replace';
+import { FileUploadDto } from 'src/modules/files/mapping/upload';
+import { FileNameTooLongException } from 'src/shared/exceptions/FileNameTooLongException';
+import { FileNotFoundException } from 'src/shared/exceptions/FileNotFoundException';
+import { ParentDirectoryNotFoundException } from 'src/shared/exceptions/ParentDirectoryNotFoundExceptions';
+import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 
 describe('FileController', () => {
 	let controller: FileController;

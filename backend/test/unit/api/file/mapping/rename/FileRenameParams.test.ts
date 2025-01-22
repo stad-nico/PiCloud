@@ -1,4 +1,4 @@
-import { FileRenameParams } from 'src/api/file/mapping/rename';
+import { FileRenameParams } from 'src/modules/files/mapping/rename';
 
 describe('FileRenameParams', () => {
 	it('should create instance', () => {

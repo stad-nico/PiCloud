@@ -9,8 +9,8 @@ import * as path from 'path';
 
 import { ConfigService } from '@nestjs/config';
 
-import { Environment } from 'src/config/EnvConfig';
-import { StoragePath } from 'src/disk/DiskService';
+import { Environment } from 'src/config/env.config';
+import { StoragePath } from 'src/modules/disk/DiskService';
 
 type File = { id: string; name: string; parentId: string };
 type Directory = { id: string; name: string; parentId: string | null };

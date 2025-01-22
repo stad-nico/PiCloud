@@ -1,4 +1,4 @@
-import { FileMetadataParams } from 'src/api/file/mapping/metadata';
+import { FileMetadataParams } from 'src/modules/files/mapping/metadata';
 
 describe('FileMetadataParams', () => {
 	it('should create instance', () => {

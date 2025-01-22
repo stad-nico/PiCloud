@@ -1,4 +1,4 @@
-import { FileUploadParams } from 'src/api/file/mapping/upload';
+import { FileUploadParams } from 'src/modules/files/mapping/upload';
 
 describe('FileUploadParams', () => {
 	it('should create instance', () => {

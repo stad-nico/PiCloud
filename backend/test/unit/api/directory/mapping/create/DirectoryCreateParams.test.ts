@@ -1,4 +1,4 @@
-import { DirectoryCreateParams } from 'src/api/directory/mapping/create';
+import { DirectoryCreateParams } from 'src/modules/directories/mapping/create';
 
 describe('DirectoryCreateParams', () => {
 	it('should create instance', () => {
