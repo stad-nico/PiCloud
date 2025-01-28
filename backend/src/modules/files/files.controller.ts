@@ -35,15 +35,13 @@ import { FileDeleteDto, FileDeleteParams } from 'src/modules/files/mapping/delet
 import { FileMetadataDto, FileMetadataParams, FileMetadataResponse } from 'src/modules/files/mapping/metadata';
 import { FileReplaceBody, FileReplaceDto, FileReplaceResponse } from 'src/modules/files/mapping/replace';
 import { FileUploadBody, FileUploadDto, FileUploadResponse } from 'src/modules/files/mapping/upload';
-import {
-	FileAlreadyExistsException,
-	FileNameTooLongException,
-	FileNotFoundException,
-	InvalidFileNameException,
-	ParentDirectoryNotFoundException,
-	SomethingWentWrongException,
-} from 'src/shared/exceptions';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
+import { FileNameTooLongException } from 'src/modules/files/exceptions/FileNameTooLongException';
+import { InvalidFileNameException } from 'src/modules/files/exceptions/InvalidFileNameException';
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
+import { FileAlreadyExistsException } from 'src/modules/files/exceptions/FileAlreadyExistsException';
+import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
+import { FileNotFoundException } from 'src/modules/files/exceptions/FileNotFoundException';
 
 @Controller('files')
 @ApiTags('files')

@@ -13,9 +13,9 @@ import { FileMetadataResponse } from 'src/modules/files/mapping/metadata';
 import { FileRenameResponse } from 'src/modules/files/mapping/rename';
 import { FileReplaceResponse } from 'src/modules/files/mapping/replace';
 import { FileUploadResponse } from 'src/modules/files/mapping/upload';
-import { FileAlreadyExistsException } from 'src/shared/exceptions/FileAlreadyExistsException';
-import { FileNotFoundException } from 'src/shared/exceptions/FileNotFoundException';
-import { ParentDirectoryNotFoundException } from 'src/shared/exceptions/ParentDirectoryNotFoundExceptions';
+import { FileAlreadyExistsException } from 'src/modules/files/exceptions/FileAlreadyExistsException';
+import { FileNotFoundException } from 'src/modules/files/exceptions/FileNotFoundException';
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 

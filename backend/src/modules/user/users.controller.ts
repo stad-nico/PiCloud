@@ -1,9 +1,9 @@
 import { Body, Controller, Get, HttpException, Logger, Param, Post } from '@nestjs/common';
 import { User } from 'src/db/entities/user.entitiy';
-import { SomethingWentWrongException } from 'src/shared/exceptions';
 import { Public } from 'src/shared/public.decorator';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { UsersService } from './users.service';
+import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 
 @Controller('users')
 export class UsersController {

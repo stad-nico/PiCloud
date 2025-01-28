@@ -8,9 +8,9 @@ import { FileMetadataDto } from 'src/modules/files/mapping/metadata';
 import { FileRenameDto } from 'src/modules/files/mapping/rename';
 import { FileReplaceDto } from 'src/modules/files/mapping/replace';
 import { FileUploadDto } from 'src/modules/files/mapping/upload';
-import { FileNameTooLongException } from 'src/shared/exceptions/FileNameTooLongException';
-import { FileNotFoundException } from 'src/shared/exceptions/FileNotFoundException';
-import { ParentDirectoryNotFoundException } from 'src/shared/exceptions/ParentDirectoryNotFoundExceptions';
+import { FileNameTooLongException } from 'src/modules/files/exceptions/FileNameTooLongException';
+import { FileNotFoundException } from 'src/modules/files/exceptions/FileNotFoundException';
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 
 describe('FileController', () => {

@@ -1,6 +1,6 @@
 import { DirectoryRenameDto } from 'src/modules/directories/mapping/rename';
-import { DirectoryNameTooLongException } from 'src/shared/exceptions/DirectoryNameTooLongException';
-import { InvalidDirectoryPathException } from 'src/shared/exceptions/InvalidDirectoryNameException';
+import { DirectoryNameTooLongException } from 'src/modules/directories/exceptions/DirectoryNameTooLongException';
+import { InvalidDirectoryPathException } from 'src/modules/directories/exceptions/InvalidDirectoryNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 describe('DirectoryRenameDto', () => {

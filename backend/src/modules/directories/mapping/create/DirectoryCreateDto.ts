@@ -6,8 +6,8 @@
  *-------------------------------------------------------------------------*/
 
 import { DirectoryCreateBody, DirectoryCreateParams } from 'src/modules/directories/mapping/create';
-import { DirectoryNameTooLongException } from 'src/shared/exceptions/DirectoryNameTooLongException';
-import { InvalidDirectoryNameException } from 'src/shared/exceptions/InvalidDirectoryNameException';
+import { DirectoryNameTooLongException } from 'src/modules/directories/exceptions/DirectoryNameTooLongException';
+import { InvalidDirectoryNameException } from 'src/modules/directories/exceptions/InvalidDirectoryNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**

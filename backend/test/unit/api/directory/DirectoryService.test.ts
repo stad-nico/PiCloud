@@ -12,9 +12,9 @@ import { DirectoryCreateResponse } from 'src/modules/directories/mapping/create'
 import { DirectoryDownloadResponse } from 'src/modules/directories/mapping/download';
 import { DirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata';
 import { DirectoryRenameResponse } from 'src/modules/directories/mapping/rename';
-import { DirectoryAlreadyExistsException } from 'src/shared/exceptions/DirectoryAlreadyExistsException';
-import { DirectoryNotFoundException } from 'src/shared/exceptions/DirectoryNotFoundException';
-import { ParentDirectoryNotFoundException } from 'src/shared/exceptions/ParentDirectoryNotFoundExceptions';
+import { DirectoryAlreadyExistsException } from 'src/modules/directories/exceptions/DirectoryAlreadyExistsException';
+import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/DirectoryNotFoundException';
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
 import { FileUtils } from 'src/util/FileUtils';
 
 describe('DirectoryService', () => {

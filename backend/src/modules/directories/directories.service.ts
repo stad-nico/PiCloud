@@ -19,11 +19,11 @@ import { DirectoryDownloadDto, DirectoryDownloadResponse } from 'src/modules/dir
 import { DirectoryMetadataDto, DirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata';
 import { DirectoryRenameDto } from 'src/modules/directories/mapping/rename';
 import { StoragePath } from 'src/modules/disk/DiskService';
-import { DirectoryAlreadyExistsException } from 'src/shared/exceptions/DirectoryAlreadyExistsException';
-import { DirectoryNotFoundException } from 'src/shared/exceptions/DirectoryNotFoundException';
-import { ParentDirectoryNotFoundException } from 'src/shared/exceptions/ParentDirectoryNotFoundExceptions';
-import { RootCannotBeDeletedException } from 'src/shared/exceptions/RootCannotBeDeletedException';
-import { RootCannotBeRenamedException } from 'src/shared/exceptions/RootCannotBeRenamed';
+import { DirectoryAlreadyExistsException } from 'src/modules/directories/exceptions/DirectoryAlreadyExistsException';
+import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/DirectoryNotFoundException';
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
+import { RootCannotBeDeletedException } from 'src/modules/directories/exceptions/RootCannotBeDeletedException';
+import { RootCannotBeRenamedException } from 'src/modules/directories/exceptions/RootCannotBeRenamed';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 

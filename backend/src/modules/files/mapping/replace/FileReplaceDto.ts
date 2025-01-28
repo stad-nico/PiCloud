@@ -5,8 +5,8 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { FileUploadBody } from 'src/modules/files/mapping/upload';
-import { FileNameTooLongException } from 'src/shared/exceptions/FileNameTooLongException';
-import { InvalidFileNameException } from 'src/shared/exceptions/InvalidFileNameException';
+import { FileNameTooLongException } from 'src/modules/files/exceptions/FileNameTooLongException';
+import { InvalidFileNameException } from 'src/modules/files/exceptions/InvalidFileNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**

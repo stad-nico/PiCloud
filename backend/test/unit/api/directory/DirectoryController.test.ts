@@ -8,10 +8,10 @@ import { DirectoryDeleteDto } from 'src/modules/directories/mapping/delete';
 import { DirectoryDownloadDto } from 'src/modules/directories/mapping/download';
 import { DirectoryMetadataDto } from 'src/modules/directories/mapping/metadata';
 import { DirectoryRenameDto } from 'src/modules/directories/mapping/rename';
-import { DirectoryAlreadyExistsException } from 'src/shared/exceptions/DirectoryAlreadyExistsException';
-import { DirectoryNameTooLongException } from 'src/shared/exceptions/DirectoryNameTooLongException';
-import { DirectoryNotFoundException } from 'src/shared/exceptions/DirectoryNotFoundException';
-import { FileNotFoundException } from 'src/shared/exceptions/FileNotFoundException';
+import { DirectoryAlreadyExistsException } from 'src/modules/directories/exceptions/DirectoryAlreadyExistsException';
+import { DirectoryNameTooLongException } from 'src/modules/directories/exceptions/DirectoryNameTooLongException';
+import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/DirectoryNotFoundException';
+import { FileNotFoundException } from 'src/modules/files/exceptions/FileNotFoundException';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 
 describe('DirectoryController', () => {

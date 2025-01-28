@@ -20,9 +20,11 @@ import { FileDownloadDto, FileDownloadResponse } from 'src/modules/files/mapping
 import { FileMetadataDto, FileMetadataResponse } from 'src/modules/files/mapping/metadata';
 import { FileReplaceDto, FileReplaceResponse } from 'src/modules/files/mapping/replace';
 import { FileUploadDto, FileUploadResponse } from 'src/modules/files/mapping/upload';
-import { FileAlreadyExistsException, FileNotFoundException, ParentDirectoryNotFoundException } from 'src/shared/exceptions';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
+import { FileAlreadyExistsException } from 'src/modules/files/exceptions/FileAlreadyExistsException';
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
+import { FileNotFoundException } from 'src/modules/files/exceptions/FileNotFoundException';
 
 /**
  * Service for CRUD operations on file entities.

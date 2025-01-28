@@ -10,10 +10,10 @@ import { DirectoryDeleteDto } from 'src/modules/directories/mapping/delete';
 import { DirectoryDownloadDto, DirectoryDownloadResponse } from 'src/modules/directories/mapping/download';
 import { DirectoryMetadataDto, DirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata';
 import { DirectoryRenameDto } from 'src/modules/directories/mapping/rename';
-import { DirectoryNotFoundException } from 'src/shared/exceptions/DirectoryNotFoundException';
-import { ParentDirectoryNotFoundException } from 'src/shared/exceptions/ParentDirectoryNotFoundExceptions';
-import { RootCannotBeDeletedException } from 'src/shared/exceptions/RootCannotBeDeletedException';
-import { RootCannotBeRenamedException } from 'src/shared/exceptions/RootCannotBeRenamed';
+import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/DirectoryNotFoundException';
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
+import { RootCannotBeDeletedException } from 'src/modules/directories/exceptions/RootCannotBeDeletedException';
+import { RootCannotBeRenamedException } from 'src/modules/directories/exceptions/RootCannotBeRenamed';
 
 export const IDirectoriesService = Symbol('IDirectoryService');
 

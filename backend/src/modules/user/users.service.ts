@@ -7,9 +7,11 @@
 import { EntityManager, Transactional } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/db/entities/user.entitiy';
-import { UserNotFoundException } from 'src/shared/exceptions/UserNotFoundException';
+import { UserNotFoundException } from 'src/modules/user/exceptions/UserNotFoundException';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { UsersRepository } from './users.repository';
+import { UserAlreadyExistsException } from 'src/modules/user/exceptions/UserAlreadyExistsException';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -32,17 +34,19 @@ export class UsersService {
 
 	@Transactional()
 	public async createUser(createUserDto: CreateUserDto): Promise<void> {
-		// return await this.entityManager.transactional(async (entityManager: EntityManager) => {
-		// const existingUser = await this.usersRepository.findOneByUsername(entityManager, createUserDto.username);
-		this.entityManager.create(User, { username: createUserDto.username, password: 'password' });
+		const existingUser = await this.usersRepository.findOneByUsername(this.entityManager, createUserDto.username);
 
-		// if (existingUser) {
-		// throw new UserAlreadyExistsException(existingUser.username);
-		// }
+		if (existingUser) {
+			throw new UserAlreadyExistsException(existingUser.username);
+		}
 
-		// const cryptedPassword = await bcrypt.hash(createUserDto.password, 10);
+		const cryptedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-		const user = Object.assign(new User(), { username: createUserDto.username, password: 'password' });
-		// });
+		const user = this.entityManager.create(User, {
+			username: createUserDto.username,
+			password: cryptedPassword
+		});
+	
+		await this.entityManager.persistAndFlush(user);
 	}
 }

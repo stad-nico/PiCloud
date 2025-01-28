@@ -16,17 +16,15 @@ import { DirectoryDeleteDto, DirectoryDeleteParams } from 'src/modules/directori
 import { DirectoryDownloadDto, DirectoryDownloadParams } from 'src/modules/directories/mapping/download';
 import { DirectoryMetadataDto, DirectoryMetadataParams, DirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata';
 import { DirectoryRenameBody, DirectoryRenameDto, DirectoryRenameParams } from 'src/modules/directories/mapping/rename';
-import {
-	DirectoryAlreadyExistsException,
-	DirectoryNameTooLongException,
-	DirectoryNotFoundException,
-	InvalidDirectoryNameException,
-	ParentDirectoryNotFoundException,
-	RootCannotBeDeletedException,
-	RootCannotBeRenamedException,
-	SomethingWentWrongException,
-} from 'src/shared/exceptions';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
+import { DirectoryNameTooLongException } from 'src/modules/directories/exceptions/DirectoryNameTooLongException';
+import { InvalidDirectoryNameException } from 'src/modules/directories/exceptions/InvalidDirectoryNameException';
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
+import { DirectoryAlreadyExistsException } from 'src/modules/directories/exceptions/DirectoryAlreadyExistsException';
+import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
+import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/DirectoryNotFoundException';
+import { RootCannotBeRenamedException } from 'src/modules/directories/exceptions/RootCannotBeRenamed';
+import { RootCannotBeDeletedException } from 'src/modules/directories/exceptions/RootCannotBeDeletedException';
 
 @Controller('directories')
 @ApiTags('directories')

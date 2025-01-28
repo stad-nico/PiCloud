@@ -16,6 +16,7 @@ import { DirectoriesModule } from 'src/modules/directories/directories.module';
 import { DiskModule } from 'src/modules/disk/DiskModule';
 import { FilesModule } from 'src/modules/files/files.module';
 import { UsersModule } from './modules/user/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 export const AppModuleConfig = {
 	imports: [
@@ -35,6 +36,7 @@ export const AppModuleConfig = {
 		FilesModule,
 		DirectoriesModule,
 		UsersModule,
+		AuthModule
 	],
 	providers: [{ provide: APP_GUARD, useClass: JwtGuard }],
 };

@@ -7,8 +7,8 @@
 
 import { DirectoryRenameBody } from 'src/modules/directories/mapping/rename/DirectoryRenameBody';
 import { DirectoryRenameParams } from 'src/modules/directories/mapping/rename/DirectoryRenameParams';
-import { DirectoryNameTooLongException } from 'src/shared/exceptions/DirectoryNameTooLongException';
-import { InvalidDirectoryNameException } from 'src/shared/exceptions/InvalidDirectoryNameException';
+import { DirectoryNameTooLongException } from 'src/modules/directories/exceptions/DirectoryNameTooLongException';
+import { InvalidDirectoryNameException } from 'src/modules/directories/exceptions/InvalidDirectoryNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
 /**

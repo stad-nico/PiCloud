@@ -2,14 +2,20 @@ import { EntityManager } from '@mikro-orm/mariadb';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from 'src/modules/user/users.repository';
-import { JwtService } from './jwt/jwt.service';
+import { ConfigService } from '@nestjs/config';
+import { Environment } from 'src/config/env.config';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
+
+	private static ACCESS_TOKEN_EXPIRATION: string = '15m';
+	private static REFRESH_TOKEN_EXPIRATION: string = '7d';
+
 	constructor(
-		private usersRepository: UsersRepository,
-		private jwtService: JwtService,
-		private entityManager: EntityManager
+		private readonly usersRepository: UsersRepository,
+		private readonly entityManager: EntityManager,
+		private readonly configService: ConfigService,
 	) {}
 
 	public async login(username: string, pass: string) {
@@ -25,9 +31,18 @@ export class AuthService {
 		}
 
 		const { password, ...result } = user;
+		const payload = { user: result };
 
-		const accessToken = this.jwtService.generateAccessToken(result);
-		const refreshToken = this.jwtService.generateRefreshToken(result);
+		const accessSecret = this.configService.getOrThrow(Environment.JwtAccessSecret);
+		const refreshSecret = this.configService.getOrThrow(Environment.JwtRefreshSecret);
+
+		const accessToken = jwt.sign(payload, accessSecret, {
+			expiresIn: AuthService.ACCESS_TOKEN_EXPIRATION,
+		});
+
+		const refreshToken = jwt.sign(payload, refreshSecret, {
+			expiresIn: AuthService.REFRESH_TOKEN_EXPIRATION,
+		})
 
 		return { accessToken, refreshToken };
 	}

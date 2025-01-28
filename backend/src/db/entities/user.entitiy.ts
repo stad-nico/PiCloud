@@ -6,13 +6,14 @@
  *-------------------------------------------------------------------------*/
 
 import { Entity, OptionalProps, PrimaryKey, Property } from '@mikro-orm/core';
+import { v4 } from 'uuid';
 
 @Entity({ tableName: 'users' })
 export class User {
 	[OptionalProps]?: 'id' | 'createdAt';
 
 	@PrimaryKey({ type: 'uuid', nullable: false, unique: true, defaultRaw: 'UUID()' })
-	readonly id!: string;
+	readonly id: string = v4();
 
 	@Property({ type: 'varchar', unique: true, nullable: false })
 	readonly username!: string;
@@ -22,4 +23,5 @@ export class User {
 
 	@Property({ type: 'datetime', defaultRaw: 'current_timestamp()' })
 	readonly createdAt!: Date;
+
 }
