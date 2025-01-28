@@ -9,12 +9,15 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { configureApplication } from 'src/config/app.config';
 import { Environment } from 'src/config/env.config';
-import { AppModule } from './AppModule';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
 	const application = await NestFactory.create(AppModule, {
 		bufferLogs: true,
 	});
+
+	application.useGlobalPipes(new ValidationPipe());
 
 	configureApplication(application);
 

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { DataSource, QueryRunner } from 'typeorm';
 
-import { AppModuleConfig } from 'src/AppModule';
+import { AppModuleConfig } from 'src/app.module';
 import { configureApplication } from 'src/config/AppConfig';
 import { Environment } from 'src/config/env.config';
 import { File } from 'src/modules/files/entities/file.entity';

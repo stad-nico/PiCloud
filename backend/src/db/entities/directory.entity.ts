@@ -5,6 +5,7 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { User } from './user.entitiy';
 
 export const ROOT_ID = 'root';
 export const DIRECTORY_TABLE_NAME = 'directories';
@@ -28,4 +29,7 @@ export class Directory {
 
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()', extra: 'on update current_timestamp()' })
 	readonly updatedAt!: Date;
+
+	@ManyToOne(() => User, { nullable: false })
+	directory_owner!: User;
 }

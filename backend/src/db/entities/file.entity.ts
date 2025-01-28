@@ -7,6 +7,7 @@
 import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 
 import { Directory } from 'src/db/entities/directory.entity';
+import { User } from './user.entitiy';
 
 export const FILES_TABLE_NAME = 'files';
 
@@ -35,4 +36,7 @@ export class File {
 
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()', extra: 'on update current_timestamp()' })
 	readonly updatedAt!: Date;
+
+	@ManyToOne(() => User, { nullable: false })
+	file_owner!: User;
 }

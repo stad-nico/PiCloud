@@ -10,6 +10,9 @@ import { Directory, ROOT_ID } from 'src/db/entities/directory.entity';
 
 export class DirectoryRootSeeder extends Seeder {
 	async run(em: EntityManager): Promise<void> {
-		em.insert(Directory, { parent: null, name: ROOT_ID, id: ROOT_ID });
+		em.insert(Directory, {
+			parent: null, name: ROOT_ID, id: ROOT_ID,
+			directory_owner: ''
+		});
 	}
 }
