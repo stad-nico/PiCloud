@@ -1,10 +1,12 @@
 import { EntityManager } from '@mikro-orm/mariadb';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from 'src/modules/user/users.repository';
 import { ConfigService } from '@nestjs/config';
 import { Environment } from 'src/config/env.config';
 import * as jwt from 'jsonwebtoken';
+import { InvalidUsernameException } from './exceptions/InvalidUsername.exception';
+import { InvalidPasswordException } from './exceptions/InvalidPassword.exception';
 
 @Injectable()
 export class AuthService {
@@ -22,12 +24,12 @@ export class AuthService {
 		const user = await this.usersRepository.findOneByUsername(this.entityManager, username);
 
 		if (!user) {
-			throw new UnauthorizedException('Invalid username or password');
+			throw new InvalidUsernameException();
 		}
 
 		const isPasswordValid = await bcrypt.compare(pass, user.password);
 		if (!isPasswordValid) {
-			throw new UnauthorizedException('Invalid username or password');
+			throw new InvalidPasswordException();
 		}
 
 		const { password, ...result } = user;
