@@ -32,6 +32,12 @@ export class EnvVariables {
 
 	@IsString()
 	DB_URL!: string;
+
+	@IsString()
+	JWT_REFRESH_SECRET!: string;
+
+	@IsString()
+	JWT_ACCESS_SECRET!: string;
 }
 
 export enum Environment {
@@ -41,6 +47,8 @@ export enum Environment {
 	DBName = 'DB_NAME',
 	DBPassword = 'DB_PASSWORD',
 	DBUrl = 'DB_URL',
+	JwtRefreshSecret = 'JWT_REFRESH_SECRET',
+	JwtAccessSecret = 'JWT_ACCESS_SECRET',
 }
 
 export function validate(config: Record<string, unknown>) {

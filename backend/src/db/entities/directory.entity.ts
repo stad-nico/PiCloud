@@ -30,6 +30,6 @@ export class Directory {
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()', extra: 'on update current_timestamp()' })
 	readonly updatedAt!: Date;
 
-	@ManyToOne(() => User, { nullable: false })
-	directory_owner!: User;
+	@ManyToOne({ entity: () => User, nullable: false, name: 'userId' })
+	readonly user!: User;
 }

@@ -8,7 +8,10 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { APP_GUARD } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
 import { validate } from 'src/config/env.config';
+import { JwtGuard } from 'src/modules/auth/jwt.guard';
 import { DirectoriesModule } from 'src/modules/directories/directories.module';
 import { DiskModule } from 'src/modules/disk/DiskModule';
 import { FilesModule } from 'src/modules/files/files.module';
@@ -23,16 +26,17 @@ export const AppModuleConfig = {
 			validate: validate,
 		}),
 
-		MikroOrmModule.forRootAsync({
-			useFactory: () => import('./config/mikro-orm.config').then(c => c.default),
-		}),
+		JwtModule.register({ global: true }),
+
+		MikroOrmModule.forRoot(),
 
 		DiskModule.forRootAsync(),
 
 		FilesModule,
 		DirectoriesModule,
-		UsersModule
+		UsersModule,
 	],
+	providers: [{ provide: APP_GUARD, useClass: JwtGuard }],
 };
 
 @Module(AppModuleConfig)

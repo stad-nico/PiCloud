@@ -4,44 +4,45 @@
  *
  * @author Samuel Steger
  *-------------------------------------------------------------------------*/
-
+import { EntityManager, Transactional } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/core';
-import * as bcrypt from 'bcrypt';
 import { User } from 'src/db/entities/user.entitiy';
+import { UserNotFoundException } from 'src/shared/exceptions/UserNotFoundException';
 import { CreateUserDto } from './dtos/createUser.dto';
+import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
-    
-    constructor(
-        private readonly entityManager: EntityManager
-    ) {}
+	constructor(
+		private readonly entityManager: EntityManager,
+		private readonly usersRepository: UsersRepository
+	) {}
 
-    async createUser(createUserDto: CreateUserDto) {
+	public async getUser(userId: string): Promise<User> {
+		return await this.entityManager.transactional(async (entityManager: EntityManager) => {
+			const user = await this.usersRepository.findOneById(entityManager, userId);
 
-        const existingUser = await this.findOneByUsername(createUserDto.username);
-        if (existingUser) {
-            throw new Error('Username already exists');
-        }
+			if (!user) {
+				throw new UserNotFoundException(userId);
+			}
 
-        const cryptedPassword = await bcrypt.hash(createUserDto.password, 10);
+			return user;
+		});
+	}
 
-        const user = new User();
-        user.username = createUserDto.username;
-        user.password = cryptedPassword;
+	@Transactional()
+	public async createUser(createUserDto: CreateUserDto): Promise<void> {
+		// return await this.entityManager.transactional(async (entityManager: EntityManager) => {
+		// const existingUser = await this.usersRepository.findOneByUsername(entityManager, createUserDto.username);
+		this.entityManager.create(User, { username: createUserDto.username, password: 'password' });
 
-        console.log(user);
-        await this.entityManager.persistAndFlush(user);
-        return user;
-    }
+		// if (existingUser) {
+		// throw new UserAlreadyExistsException(existingUser.username);
+		// }
 
-    async findOneByUsername(username: string) {
-        return await this.entityManager.findOne(User, { username });
-    }
+		// const cryptedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    async findOneById(id: string) {
-        return await this.entityManager.findOne(User, { id });
-    }
+		const user = Object.assign(new User(), { username: createUserDto.username, password: 'password' });
+		// });
+	}
 }
-

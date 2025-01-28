@@ -1,28 +1,48 @@
-import { Controller, Get, UseGuards, Post, Body, Request } from "@nestjs/common";
-import { AuthGuard } from "src/auth/auth.guard";
-import { UsersService } from "./users.service";
-import { CreateUserDto } from "./dtos/createUser.dto";
-import { Request as ExpressRequest } from 'express';
-
-interface RequestWithUser extends ExpressRequest {
-  user: {
-    id: string;
-  }
-}
+import { Body, Controller, Get, HttpException, Logger, Param, Post } from '@nestjs/common';
+import { User } from 'src/db/entities/user.entitiy';
+import { SomethingWentWrongException } from 'src/shared/exceptions';
+import { Public } from 'src/shared/public.decorator';
+import { CreateUserDto } from './dtos/createUser.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
-    constructor(private usersService: UsersService) {}
+	private readonly logger = new Logger(UsersController.name);
 
-    @Get()
-    @UseGuards(AuthGuard)
-    async getUser(@Request() req: RequestWithUser) {
-        const userId = req.user.id;
-        return await this.usersService.findOneById(userId);
-    }
+	constructor(private usersService: UsersService) {}
 
-    @Post()
-    async createUser(@Body() createUserDto: CreateUserDto) {
-        return await this.usersService.createUser(createUserDto);
-    }
+	@Get(':id')
+	public async getUser(@Param('id') userId: string): Promise<User> {
+		this.logger.log(`[Get] ${userId}`);
+
+		try {
+			return await this.usersService.getUser(userId);
+		} catch (e) {
+			this.logger.error(e);
+
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new SomethingWentWrongException();
+		}
+	}
+
+	@Post()
+	@Public()
+	public async createUser(@Body() createUserDto: CreateUserDto): Promise<void> {
+		this.logger.log(`[Post] ${createUserDto.username}`);
+
+		try {
+			return await this.usersService.createUser(createUserDto);
+		} catch (e) {
+			this.logger.error(e);
+
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new SomethingWentWrongException();
+		}
+	}
 }

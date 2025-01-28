@@ -37,6 +37,6 @@ export class File {
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()', extra: 'on update current_timestamp()' })
 	readonly updatedAt!: Date;
 
-	@ManyToOne(() => User, { nullable: false })
-	file_owner!: User;
+	@ManyToOne({ entity: () => User, nullable: false, name: 'userId' })
+	readonly user!: User;
 }
