@@ -4,14 +4,11 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-
-import { EntityManager } from '@mikro-orm/mariadb';
-import { Inject, Injectable } from '@nestjs/common';
+import { Transactional } from '@mikro-orm/mariadb';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { ROOT_ID } from 'src/db/entities/directory.entity';
-import { IDirectoriesRepository } from 'src/modules/directories/IDirectoriesRepository';
-import { IDirectoriesService } from 'src/modules/directories/IDirectoriesService';
+import { DirectoriesRepository } from 'src/modules/directories/directories.repository';
 import { DirectoryContentDto, DirectoryContentResponse } from 'src/modules/directories/mapping/content';
 import { DirectoryCreateDto, DirectoryCreateResponse } from 'src/modules/directories/mapping/create';
 import { DirectoryDeleteDto } from 'src/modules/directories/mapping/delete';
@@ -21,156 +18,176 @@ import { DirectoryRenameDto } from 'src/modules/directories/mapping/rename';
 import { StoragePath } from 'src/modules/disk/DiskService';
 import { DirectoryAlreadyExistsException } from 'src/shared/exceptions/DirectoryAlreadyExistsException';
 import { DirectoryNotFoundException } from 'src/shared/exceptions/DirectoryNotFoundException';
-import { ParentDirectoryNotFoundException } from 'src/shared/exceptions/ParentDirectoryNotFoundExceptions';
 import { RootCannotBeDeletedException } from 'src/shared/exceptions/RootCannotBeDeletedException';
 import { RootCannotBeRenamedException } from 'src/shared/exceptions/RootCannotBeRenamed';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 
-/**
- * Service for CRUD operations on directory entities.
- * @class
- */
 @Injectable()
-export class DirectoriesService implements IDirectoriesService {
-	/**
-	 * The entity manager for executing transactions on repositories.
-	 * @type {EntityManager}
-	 */
-	private readonly entityManager: EntityManager;
-
-	/**
-	 * The config service for using environment variables.
-	 * @type {ConfigService}
-	 */
+export class DirectoriesService {
 	private readonly configService: ConfigService;
 
-	/**
-	 * The repository for executing directory operations on the db.
-	 * @type {IDirectoriesRepository}
-	 */
-	private readonly directoriesRepository: IDirectoriesRepository;
+	private readonly directoriesRepository: DirectoriesRepository;
 
-	/**
-	 * Creates a new DirectoryService instance.
-	 * @constructor
-	 *
-	 * @param   {EntityManager}          entityManager         the entityManager
-	 * @param   {ConfigService}          configService         the configService
-	 * @param   {IDirectoriesRepository} directoriesRepository the directoriesRepository
-	 * @returns {DirectoryService}                             the DirectoryService instance
-	 */
-	public constructor(
-		entityManager: EntityManager,
-		configService: ConfigService,
-		@Inject(IDirectoriesRepository) directoriesRepository: IDirectoriesRepository
-	) {
-		this.entityManager = entityManager;
+	public constructor(configService: ConfigService, directoriesRepository: DirectoriesRepository) {
 		this.configService = configService;
 		this.directoriesRepository = directoriesRepository;
 	}
 
+	@Transactional()
+	public async getRoot(userId: string): Promise<{ id: string }> {
+		const rootDirectory = await this.directoriesRepository.findOne({ parent: null, user: userId });
+
+		if (!rootDirectory) {
+			throw new NotFoundException();
+		}
+
+		return { id: rootDirectory.id };
+	}
+
+	@Transactional()
 	public async create(directoryCreateDto: DirectoryCreateDto): Promise<DirectoryCreateResponse> {
-		return await this.entityManager.transactional(async (entityManager) => {
-			if (await this.directoriesRepository.exists(entityManager, directoryCreateDto.id, directoryCreateDto.name)) {
-				throw new DirectoryAlreadyExistsException(directoryCreateDto.name);
-			}
+		const parentDirectory = await this.directoriesRepository.findOne({ id: directoryCreateDto.parentId });
 
-			if (!(await this.directoriesRepository.exists(entityManager, directoryCreateDto.id))) {
-				throw new DirectoryNotFoundException(directoryCreateDto.id);
-			}
+		if (!parentDirectory || parentDirectory.user.id !== directoryCreateDto.userId) {
+			throw new UnauthorizedException();
+		}
 
-			const id = await this.directoriesRepository.insertReturningId(entityManager, directoryCreateDto.id, directoryCreateDto.name);
-
-			return DirectoryCreateResponse.from(id);
+		const existingDirectory = await this.directoriesRepository.findOne({
+			parent: directoryCreateDto.parentId,
+			name: directoryCreateDto.name,
+			user: directoryCreateDto.userId,
 		});
+
+		if (existingDirectory) {
+			throw new DirectoryAlreadyExistsException(directoryCreateDto.name);
+		}
+
+		const directory = this.directoriesRepository.create({
+			parent: directoryCreateDto.parentId,
+			name: directoryCreateDto.name,
+			user: directoryCreateDto.userId,
+		});
+
+		return DirectoryCreateResponse.from(directory.id);
 	}
 
+	@Transactional()
 	public async contents(directoryContentDto: DirectoryContentDto): Promise<DirectoryContentResponse> {
-		return await this.entityManager.transactional(async (entityManager) => {
-			if (!(await this.directoriesRepository.exists(entityManager, directoryContentDto.id))) {
-				throw new DirectoryNotFoundException(directoryContentDto.id);
-			}
+		const directory = await this.directoriesRepository.findOne({ id: directoryContentDto.directoryId });
 
-			const content = await this.directoriesRepository.getContents(entityManager, directoryContentDto.id);
+		if (directory?.user.id !== directoryContentDto.userId) {
+			throw new UnauthorizedException();
+		}
 
-			return DirectoryContentResponse.from(content);
-		});
+		if (!directory.user.id) {
+			throw new DirectoryNotFoundException(directoryContentDto.directoryId);
+		}
+
+		const content = await this.directoriesRepository.getContents(directory.id, directory.user.id);
+
+		return DirectoryContentResponse.from(content);
 	}
 
+	@Transactional()
 	public async metadata(directoryMetadataDto: DirectoryMetadataDto): Promise<DirectoryMetadataResponse> {
-		return await this.entityManager.transactional(async (entityManager) => {
-			const metadata = await this.directoriesRepository.getMetadata(entityManager, directoryMetadataDto.id);
+		const directory = await this.directoriesRepository.findOne({ id: directoryMetadataDto.directoryId });
 
-			if (!metadata) {
-				throw new DirectoryNotFoundException(directoryMetadataDto.id);
-			}
+		if (directory?.user.id !== directoryMetadataDto.userId) {
+			throw new UnauthorizedException();
+		}
 
-			return DirectoryMetadataResponse.from(metadata);
-		});
+		if (!directory.id) {
+			throw new DirectoryNotFoundException(directoryMetadataDto.directoryId);
+		}
+
+		const metadata = await this.directoriesRepository.getMetadata(directoryMetadataDto.directoryId, directoryMetadataDto.userId);
+
+		if (!metadata) {
+			throw new DirectoryNotFoundException(directoryMetadataDto.directoryId);
+		}
+
+		return DirectoryMetadataResponse.from(metadata);
 	}
 
+	@Transactional()
 	public async download(directoryDownloadDto: DirectoryDownloadDto): Promise<DirectoryDownloadResponse> {
-		return this.entityManager.transactional(async (entityManager) => {
-			const name = await this.directoriesRepository.getName(entityManager, directoryDownloadDto.id);
+		const directory = await this.directoriesRepository.findOne({ id: directoryDownloadDto.directoryId });
 
-			if (!name) {
-				throw new DirectoryNotFoundException(directoryDownloadDto.id);
-			}
+		if (directory?.user.id !== directoryDownloadDto.userId) {
+			throw new UnauthorizedException();
+		}
 
-			const { files, directories } = await this.directoriesRepository.getContentsRecursive(entityManager, directoryDownloadDto.id);
+		if (!directory.id) {
+			throw new DirectoryNotFoundException(directoryDownloadDto.directoryId);
+		}
 
-			const relativePathFiles = PathUtils.buildFilePaths(directoryDownloadDto.id, files, directories);
+		const { files, directories } = await this.directoriesRepository.getContentsRecursive(directoryDownloadDto.directoryId);
 
-			const readable = await FileUtils.createZIPArchive(this.configService, relativePathFiles);
+		const relativeFilePaths = PathUtils.buildFilePaths(directory.id, files, directories);
 
-			return DirectoryDownloadResponse.from(name + '.zip', 'application/zip', readable);
-		});
+		const readable = await FileUtils.createZIPArchive(this.configService, relativeFilePaths);
+
+		return DirectoryDownloadResponse.from(directory.name + '.zip', 'application/zip', readable);
 	}
 
+	@Transactional()
 	public async rename(directoryRenameDto: DirectoryRenameDto): Promise<void> {
-		return await this.entityManager.transactional(async (entityManager) => {
-			if (directoryRenameDto.id === ROOT_ID) {
-				throw new RootCannotBeRenamedException();
-			}
+		const directory = await this.directoriesRepository.findOne({ id: directoryRenameDto.directoryId });
 
-			const parentId = await this.directoriesRepository.getParentId(entityManager, directoryRenameDto.id);
+		if (directory?.user.id !== directoryRenameDto.userId) {
+			throw new UnauthorizedException();
+		}
 
-			if (!parentId) {
-				throw new ParentDirectoryNotFoundException(directoryRenameDto.id);
-			}
+		if (!directory.id) {
+			throw new DirectoryNotFoundException(directoryRenameDto.directoryId);
+		}
 
-			if (await this.directoriesRepository.exists(entityManager, parentId, directoryRenameDto.name)) {
-				throw new DirectoryAlreadyExistsException(directoryRenameDto.name);
-			}
+		const root = await this.getRoot(directoryRenameDto.userId);
 
-			if (!(await this.directoriesRepository.exists(entityManager, directoryRenameDto.id))) {
-				throw new DirectoryNotFoundException(directoryRenameDto.id);
-			}
+		if (directory.id === root.id) {
+			throw new RootCannotBeRenamedException();
+		}
 
-			await this.directoriesRepository.update(entityManager, directoryRenameDto.id, { name: directoryRenameDto.name });
+		const existingDirectory = await this.directoriesRepository.findOne({
+			parent: directory.parent,
+			name: directoryRenameDto.name,
+			user: directoryRenameDto.userId,
 		});
+
+		if (existingDirectory) {
+			throw new DirectoryAlreadyExistsException(directoryRenameDto.name);
+		}
+
+		await this.directoriesRepository.upsert({ id: directory.id, parent: directory.parent, name: directoryRenameDto.name });
 	}
 
+	@Transactional()
 	public async delete(directoryDeleteDto: DirectoryDeleteDto): Promise<void> {
-		return await this.entityManager.transactional(async (entityManager) => {
-			if (directoryDeleteDto.id === ROOT_ID) {
-				throw new RootCannotBeDeletedException();
-			}
+		const directory = await this.directoriesRepository.findOne({ id: directoryDeleteDto.directoryId });
 
-			if (!(await this.directoriesRepository.exists(entityManager, directoryDeleteDto.id))) {
-				throw new DirectoryNotFoundException(directoryDeleteDto.id);
-			}
+		if (directory?.user.id !== directoryDeleteDto.userId) {
+			throw new UnauthorizedException();
+		}
 
-			const { files } = await this.directoriesRepository.getContentsRecursive(entityManager, directoryDeleteDto.id);
+		if (!directory.id) {
+			throw new DirectoryNotFoundException(directoryDeleteDto.directoryId);
+		}
 
-			await this.directoriesRepository.delete(entityManager, directoryDeleteDto.id);
+		const root = await this.getRoot(directoryDeleteDto.userId);
 
-			for (const file of files) {
-				const filepath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
+		if (directory.id === root.id) {
+			throw new RootCannotBeDeletedException();
+		}
 
-				await FileUtils.deleteFile(filepath);
-			}
-		});
+		await this.directoriesRepository.nativeDelete({ id: directoryDeleteDto.directoryId });
+
+		const { files } = await this.directoriesRepository.getContentsRecursive(directoryDeleteDto.directoryId);
+
+		for (const file of files) {
+			const filepath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
+
+			await FileUtils.deleteFile(filepath);
+		}
 	}
 }

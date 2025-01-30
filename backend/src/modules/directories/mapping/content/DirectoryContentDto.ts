@@ -4,38 +4,20 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
+import { JwtPayload } from 'src/modules/auth/jwt.guard';
 import { DirectoryContentParams } from 'src/modules/directories/mapping/content/DirectoryContentParams';
 
-/**
- * DTO for bundling the http request data.
- * @class
- */
 export class DirectoryContentDto {
-	/**
-	 * The id of the directory to get the contents from.
-	 * @type {string}
-	 */
-	readonly id: string;
+	readonly directoryId: string;
 
-	/**
-	 * Creates a new DirectoryContentDto instance.
-	 * @private @constructor
-	 *
-	 * @param   {string}              id the id of the directory
-	 * @returns {DirectoryContentDto}    the DirectoryContentDto instance
-	 */
-	private constructor(id: string) {
-		this.id = id;
+	readonly userId: string;
+
+	private constructor(directoryId: string, userId: string) {
+		this.directoryId = directoryId;
+		this.userId = userId;
 	}
 
-	/**
-	 * Creates a new DirectoryContentDto instance from the http params.
-	 * @public @static
-	 *
-	 * @param   {DirectoryContentParams} directoryContentParams the http params
-	 * @returns {DirectoryContentDto}                           the DirectoryContentDto instance
-	 */
-	public static from(directoryContentParams: DirectoryContentParams) {
-		return new DirectoryContentDto(directoryContentParams.id);
+	public static from(directoryContentParams: DirectoryContentParams, jwt: JwtPayload) {
+		return new DirectoryContentDto(directoryContentParams.id, jwt.user.id);
 	}
 }

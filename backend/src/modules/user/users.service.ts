@@ -4,45 +4,46 @@
  *
  * @author Samuel Steger
  *-------------------------------------------------------------------------*/
-import { EntityManager, Transactional } from '@mikro-orm/mariadb';
+import { Transactional } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { User } from 'src/db/entities/user.entitiy';
+import { DirectoriesRepository } from 'src/modules/directories/directories.repository';
+import { UserAlreadyExistsException } from 'src/shared/exceptions/UserAlreadyExistsException';
 import { UserNotFoundException } from 'src/shared/exceptions/UserNotFoundException';
 import { CreateUserDto } from './dtos/createUser.dto';
-import { UsersRepository } from './users.repository';
+import { UserRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
 	constructor(
-		private readonly entityManager: EntityManager,
-		private readonly usersRepository: UsersRepository
+		private readonly directoriesRepository: DirectoriesRepository,
+		private readonly userRepository: UserRepository
 	) {}
 
+	@Transactional()
 	public async getUser(userId: string): Promise<User> {
-		return await this.entityManager.transactional(async (entityManager: EntityManager) => {
-			const user = await this.usersRepository.findOneById(entityManager, userId);
+		const user = await this.userRepository.findOne({ id: userId });
 
-			if (!user) {
-				throw new UserNotFoundException(userId);
-			}
+		if (!user) {
+			throw new UserNotFoundException(userId);
+		}
 
-			return user;
-		});
+		return user;
 	}
 
 	@Transactional()
 	public async createUser(createUserDto: CreateUserDto): Promise<void> {
-		// return await this.entityManager.transactional(async (entityManager: EntityManager) => {
-		// const existingUser = await this.usersRepository.findOneByUsername(entityManager, createUserDto.username);
-		this.entityManager.create(User, { username: createUserDto.username, password: 'password' });
+		const existingUser = await this.userRepository.findOne({ username: createUserDto.username });
 
-		// if (existingUser) {
-		// throw new UserAlreadyExistsException(existingUser.username);
-		// }
+		if (existingUser) {
+			throw new UserAlreadyExistsException(existingUser.username);
+		}
 
-		// const cryptedPassword = await bcrypt.hash(createUserDto.password, 10);
+		const cryptedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-		const user = Object.assign(new User(), { username: createUserDto.username, password: 'password' });
-		// });
+		const user = this.userRepository.create({ username: createUserDto.username, password: cryptedPassword });
+
+		this.directoriesRepository.create({ parent: null, name: 'root', user: user });
 	}
 }

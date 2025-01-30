@@ -7,6 +7,7 @@
 import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 
 import { Directory } from 'src/db/entities/directory.entity';
+import { v4 } from 'uuid';
 import { User } from './user.entitiy';
 
 export const FILES_TABLE_NAME = 'files';
@@ -17,12 +18,12 @@ export class File {
 	[OptionalProps]?: 'id' | 'parent' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt';
 
 	@PrimaryKey({ type: 'uuid', nullable: false, defaultRaw: 'UUID()', unique: true })
-	readonly id!: string;
+	readonly id: string = v4();
 
 	@Property({ type: 'varchar', nullable: false })
 	readonly name!: string;
 
-	@ManyToOne({ entity: () => Directory, nullable: false, default: 'root', updateRule: 'no action', deleteRule: 'cascade', name: 'parentId' })
+	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'cascade', name: 'parentId' })
 	readonly parent!: Directory | null;
 
 	@Property({ type: 'varchar', nullable: false, default: 'application/octet-stream' })

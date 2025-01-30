@@ -1,19 +1,17 @@
-import { EntityManager } from '@mikro-orm/mariadb';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UsersRepository } from 'src/modules/user/users.repository';
+import { UserRepository } from 'src/modules/user/users.repository';
 import { JwtService } from './jwt/jwt.service';
 
 @Injectable()
 export class AuthService {
 	constructor(
-		private usersRepository: UsersRepository,
-		private jwtService: JwtService,
-		private entityManager: EntityManager
+		private userRepository: UserRepository,
+		private jwtService: JwtService
 	) {}
 
 	public async login(username: string, pass: string) {
-		const user = await this.usersRepository.findOneByUsername(this.entityManager, username);
+		const user = await this.userRepository.findOne({ username: username });
 
 		if (!user) {
 			throw new UnauthorizedException('Invalid username or password');
@@ -26,8 +24,8 @@ export class AuthService {
 
 		const { password, ...result } = user;
 
-		const accessToken = this.jwtService.generateAccessToken(result);
-		const refreshToken = this.jwtService.generateRefreshToken(result);
+		const accessToken = this.jwtService.generateAccessToken({ user: result });
+		const refreshToken = this.jwtService.generateRefreshToken({ user: result });
 
 		return { accessToken, refreshToken };
 	}

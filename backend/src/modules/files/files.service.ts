@@ -10,11 +10,10 @@ import { EntityManager } from '@mikro-orm/mariadb';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { IDirectoriesRepository } from 'src/modules/directories/IDirectoriesRepository';
+import { DirectoriesRepository } from 'src/modules/directories/directories.repository';
 import { StoragePath } from 'src/modules/disk/DiskService';
 import { FileRenameDto } from 'src/modules/files//mapping/rename';
 import { IFilesRepository } from 'src/modules/files/IFilesRepository';
-import { IFilesService } from 'src/modules/files/IFilesService';
 import { FileDeleteDto } from 'src/modules/files/mapping/delete';
 import { FileDownloadDto, FileDownloadResponse } from 'src/modules/files/mapping/download';
 import { FileMetadataDto, FileMetadataResponse } from 'src/modules/files/mapping/metadata';
@@ -29,46 +28,20 @@ import { PathUtils } from 'src/util/PathUtils';
  * @class
  */
 @Injectable()
-export class FilesService implements IFilesService {
-	/**
-	 * The entity manager for executing transactions on repositories.
-	 * @type {EntityManager}
-	 */
+export class FilesService {
 	private readonly entityManager: EntityManager;
 
-	/**
-	 * The config service for using environment variables.
-	 * @type {ConfigService}
-	 */
 	private readonly configService: ConfigService;
 
-	/**
-	 * The repository for executing file operations on the db.
-	 * @type {IFilesRepository}
-	 */
 	private readonly filesRepository: IFilesRepository;
 
-	/**
-	 * The repository for executing directory operations on the db.
-	 * @type {IDirectoriesRepository}
-	 */
-	private readonly directoriesRepository: IDirectoriesRepository;
+	private readonly directoriesRepository: DirectoriesRepository;
 
-	/**
-	 * Creates a new FileService instance.
-	 * @constructor
-	 *
-	 * @param   {EntityManager}          entityManager         the entityManager
-	 * @param   {ConfigService}          configService         the configService
-	 * @param   {IFilesRepository}       filesRepository       the filesRepository
-	 * @param   {IDirectoriesRepository} directoriesRepository the directoriesRepository
-	 * @returns {FileService}                                  the FileService instance
-	 */
 	public constructor(
 		entityManager: EntityManager,
 		configService: ConfigService,
 		@Inject(IFilesRepository) filesRepository: IFilesRepository,
-		@Inject(IDirectoriesRepository) directoriesRepository: IDirectoriesRepository
+		directoriesRepository: DirectoriesRepository
 	) {
 		this.entityManager = entityManager;
 		this.configService = configService;
@@ -82,9 +55,9 @@ export class FilesService implements IFilesService {
 				throw new FileAlreadyExistsException(fileUploadDto.name);
 			}
 
-			if (!(await this.directoriesRepository.exists(entityManager, fileUploadDto.parentId))) {
-				throw new ParentDirectoryNotFoundException(fileUploadDto.parentId);
-			}
+			// if (!(await this.directoriesRepository.exists(entityManager, fileUploadDto.parentId))) {
+			// throw new ParentDirectoryNotFoundException(fileUploadDto.parentId);
+			// }
 
 			const id = await this.filesRepository.insertReturningId(
 				entityManager,
@@ -103,9 +76,9 @@ export class FilesService implements IFilesService {
 
 	public async replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			if (!(await this.directoriesRepository.exists(entityManager, fileReplaceDto.parentId))) {
-				throw new ParentDirectoryNotFoundException(fileReplaceDto.parentId);
-			}
+			// if (!(await this.directoriesRepository.exists(entityManager, fileReplaceDto.parentId))) {
+			// throw new ParentDirectoryNotFoundException(fileReplaceDto.parentId);
+			// }
 
 			if (await this.filesRepository.exists(entityManager, fileReplaceDto.parentId, fileReplaceDto.name)) {
 				await this.filesRepository.delete(entityManager, fileReplaceDto.parentId, fileReplaceDto.name);

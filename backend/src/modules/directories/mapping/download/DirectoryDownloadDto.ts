@@ -4,38 +4,20 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
+import { JwtPayload } from 'src/modules/auth/jwt.guard';
 import { DirectoryDownloadParams } from 'src/modules/directories/mapping/download/DirectoryDownloadParams';
 
-/**
- * DTO for bundling the http request data.
- * @class
- */
 export class DirectoryDownloadDto {
-	/**
-	 * The id of the directory to download.
-	 * @type {string}
-	 */
-	readonly id: string;
+	readonly directoryId: string;
 
-	/**
-	 * Creates a new DirectoryDownloadDto instance.
-	 * @private @constructor
-	 *
-	 * @param   {string}               id the id of the directory
-	 * @returns {DirectoryDownloadDto}    the DirectoryDownloadDto instance
-	 */
-	private constructor(id: string) {
-		this.id = id;
+	readonly userId: string;
+
+	private constructor(directoryId: string, userId: string) {
+		this.directoryId = directoryId;
+		this.userId = userId;
 	}
 
-	/**
-	 * Creates a new DirectoryDownloadDto instance from the http params.
-	 * @public @static
-	 *
-	 * @param   {DirectoryDownloadParams} directoryDownloadParams the http params
-	 * @returns {DirectoryDownloadDto}                            the DirectoryDownloadDto instance
-	 */
-	public static from(directoryDownloadParams: DirectoryDownloadParams) {
-		return new DirectoryDownloadDto(directoryDownloadParams.id);
+	public static from(directoryDownloadParams: DirectoryDownloadParams, jwt: JwtPayload) {
+		return new DirectoryDownloadDto(directoryDownloadParams.id, jwt.user.id);
 	}
 }

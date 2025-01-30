@@ -4,18 +4,16 @@
  *
  * @author Samuel Steger
  *-------------------------------------------------------------------------*/
-
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
+import { Directory } from 'src/db/entities/directory.entity';
 import { User } from 'src/db/entities/user.entitiy';
-import { UsersRepository } from 'src/modules/user/users.repository';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
 @Module({
-	imports: [MikroOrmModule.forFeature([User])],
-	providers: [UsersService, UsersRepository],
+	imports: [MikroOrmModule.forFeature([User, Directory])],
+	providers: [UsersService],
 	controllers: [UsersController],
-	exports: [UsersService],
 })
 export class UsersModule {}

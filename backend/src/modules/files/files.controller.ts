@@ -14,7 +14,6 @@ import {
 	HttpCode,
 	HttpException,
 	HttpStatus,
-	Inject,
 	Logger,
 	Param,
 	Patch,
@@ -30,7 +29,7 @@ import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiNoContentResponse, ApiOkRe
 
 import { FileDownloadDto, FileDownloadParams } from 'src/modules/files//mapping/download';
 import { FileRenameBody, FileRenameDto, FileRenameParams } from 'src/modules/files//mapping/rename';
-import { IFilesService } from 'src/modules/files/IFilesService';
+import { FilesService } from 'src/modules/files/files.service';
 import { FileDeleteDto, FileDeleteParams } from 'src/modules/files/mapping/delete';
 import { FileMetadataDto, FileMetadataParams, FileMetadataResponse } from 'src/modules/files/mapping/metadata';
 import { FileReplaceBody, FileReplaceDto, FileReplaceResponse } from 'src/modules/files/mapping/replace';
@@ -50,9 +49,9 @@ import { TemplatedApiException } from 'src/util/SwaggerUtils';
 export class FilesController {
 	private readonly logger = new Logger(FilesController.name);
 
-	private readonly filesService: IFilesService;
+	private readonly filesService: FilesService;
 
-	public constructor(@Inject(IFilesService) filesService: IFilesService) {
+	public constructor(filesService: FilesService) {
 		this.filesService = filesService;
 	}
 

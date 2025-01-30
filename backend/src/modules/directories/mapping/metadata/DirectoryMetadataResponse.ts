@@ -5,7 +5,7 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { ApiProperty } from '@nestjs/swagger';
-import { DirectoryGetMetadataDBResult } from 'src/modules/directories/IDirectoriesRepository';
+import { DirectoryGetMetadataDBResult } from 'src/modules/directories/directories.repository';
 
 /**
  * Class representing the json http response.

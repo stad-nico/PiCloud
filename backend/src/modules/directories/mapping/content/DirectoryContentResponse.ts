@@ -5,7 +5,7 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { ApiProperty } from '@nestjs/swagger';
-import { DirectoryGetContentsDBResult } from 'src/modules/directories/IDirectoriesRepository';
+import { DirectoryGetContentsDBResult } from 'src/modules/directories/directories.repository';
 
 export class DirectoryContentFile {
 	/**

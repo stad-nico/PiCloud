@@ -4,38 +4,20 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
+import { JwtPayload } from 'src/modules/auth/jwt.guard';
 import { DirectoryDeleteParams } from 'src/modules/directories/mapping/delete/DirectoryDeleteParams';
 
-/**
- * DTO for bundling the http request data.
- * @class
- */
 export class DirectoryDeleteDto {
-	/**
-	 * The id of the directory to delete.
-	 * @type {string}
-	 */
-	readonly id: string;
+	readonly directoryId: string;
 
-	/**
-	 * Creates a new DirectoryDeleteDto instance.
-	 * @private @constructor
-	 *
-	 * @param   {string}             id the id of the directory
-	 * @returns {DirectoryDeleteDto}    the DirectoryDeleteDto instance
-	 */
-	private constructor(id: string) {
-		this.id = id;
+	readonly userId: string;
+
+	private constructor(directoryId: string, userId: string) {
+		this.directoryId = directoryId;
+		this.userId = userId;
 	}
 
-	/**
-	 * Creates a new DirectoryDeleteDto instance from the http params.
-	 * @public @static
-	 *
-	 * @param   {DirectoryDeleteParams} directoryDeleteParams the http params
-	 * @returns {DirectoryDeleteDto}                          the DirectoryDeleteDto instance
-	 */
-	public static from(directoryDeleteParams: DirectoryDeleteParams) {
-		return new DirectoryDeleteDto(directoryDeleteParams.id);
+	public static from(directoryDeleteParams: DirectoryDeleteParams, jwt: JwtPayload) {
+		return new DirectoryDeleteDto(directoryDeleteParams.id, jwt.user.id);
 	}
 }

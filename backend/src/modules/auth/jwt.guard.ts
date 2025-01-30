@@ -3,7 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { IS_PUBLIC_KEY } from 'src/shared/public.decorator';
+import { Environment } from 'src/config/env.config';
+import { User } from 'src/db/entities/user.entitiy';
+import { IS_PUBLIC_KEY } from 'src/shared/decorators/public.decorator';
+
+export interface JwtPayload {
+	readonly user: Pick<User, 'id' | 'createdAt' | 'username'>;
+}
 
 @Injectable()
 export class JwtGuard implements CanActivate {
@@ -29,9 +35,11 @@ export class JwtGuard implements CanActivate {
 		}
 
 		try {
-			const secret = this.configService.get<string>('SECRET_KEY')!;
-			const payload = await this.jwtService.verify(token, { secret });
-			request.user = payload;
+			const secret = this.configService.get<string>(Environment.JwtAccessSecret)!;
+
+			const payload = await this.jwtService.verifyAsync<JwtPayload>(token, { secret });
+
+			request.jwtPayload = payload;
 		} catch {
 			throw new UnauthorizedException();
 		}

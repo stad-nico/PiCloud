@@ -6,10 +6,11 @@
 	"private": true,
 	"license": "UNLICENSED",
 	"scripts": {
-		"openapi-generate": "SET NODE_ENV=test&& ts-node src/openapi.ts",
+		"openapi-generate": "SET NODE_ENV=dev&& ts-node src/openapi.ts",
 		"mikro-orm:dev": "SET NODE_ENV=dev&& npx mikro-orm",
 		"mikro-orm:test": "SET NODE_ENV=test&& npx mikro-orm",
 		"mikro-orm:prod": "SET NODE_ENV=prod&& npx mikro-orm",
+		"db:fresh": "npm run mikro-orm:dev migration:fresh",
 		"build": "nest build",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
 		"start:dev": "SET NODE_ENV=dev&& nest start --watch",

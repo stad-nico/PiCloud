@@ -5,54 +5,26 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 
+import { JwtPayload } from 'src/modules/auth/jwt.guard';
 import { DirectoryCreateBody, DirectoryCreateParams } from 'src/modules/directories/mapping/create';
 import { DirectoryNameTooLongException } from 'src/shared/exceptions/DirectoryNameTooLongException';
 import { InvalidDirectoryNameException } from 'src/shared/exceptions/InvalidDirectoryNameException';
 import { PathUtils } from 'src/util/PathUtils';
 
-/**
- * DTO for bundling the http request data.
- * @class
- */
 export class DirectoryCreateDto {
-	/**
-	 * The id of the parent directory where the new directory will be created.
-	 * @type {string}
-	 */
-	readonly id: string;
+	readonly parentId: string;
 
-	/**
-	 * The name of the new directory.
-	 * @type {string}
-	 */
 	readonly name: string;
 
-	/**
-	 * Creates a new DirectoryCreateDto instance.
-	 * @private @constructor
-	 *
-	 * @param   {string}             id   the id of the parent directory
-	 * @param   {string}             name the name of the new directory
-	 * @returns {DirectoryCreateDto}      the DirectoryCreateDto instance
-	 */
-	private constructor(id: string, name: string) {
-		this.id = id;
+	readonly userId: string;
+
+	private constructor(parentId: string, name: string, userId: string) {
+		this.parentId = parentId;
 		this.name = name;
+		this.userId = userId;
 	}
 
-	/**
-	 * Creates a new DirectoryCreateDto instance from the http params and body.
-	 * Throws if the directory name is not valid or too long.
-	 * @public @static
-	 *
-	 * @throws  {InvalidDirectoryNameException} if the directory name is invalid
-	 * @throws  {DirectoryNameTooLongException} if the directory name is too long
-	 *
-	 * @param   {DirectoryCreateParams} directoryCreateParams the http request params
-	 * @param   {DirectoryCreateBody}   directoryCreateBody   the http request body
-	 * @returns {DirectoryCreateDto}                          the DirectoryCreateDto instance
-	 */
-	public static from(directoryCreateParams: DirectoryCreateParams, directoryCreateBody: DirectoryCreateBody): DirectoryCreateDto {
+	public static from(directoryCreateParams: DirectoryCreateParams, directoryCreateBody: DirectoryCreateBody, jwt: JwtPayload): DirectoryCreateDto {
 		if (!PathUtils.isDirectoryNameValid(directoryCreateBody.name)) {
 			throw new InvalidDirectoryNameException(directoryCreateBody.name);
 		}
@@ -61,6 +33,6 @@ export class DirectoryCreateDto {
 			throw new DirectoryNameTooLongException(directoryCreateBody.name);
 		}
 
-		return new DirectoryCreateDto(directoryCreateParams.id, directoryCreateBody.name);
+		return new DirectoryCreateDto(directoryCreateParams.id, directoryCreateBody.name, jwt.user.id);
 	}
 }

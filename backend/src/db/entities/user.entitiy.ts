@@ -4,15 +4,17 @@
  *
  * @author Samuel Steger
  *-------------------------------------------------------------------------*/
+import { Entity, EntityRepositoryType, OptionalProps, PrimaryKey, Property } from '@mikro-orm/core';
+import { UserRepository } from 'src/modules/user/users.repository';
+import { v4 } from 'uuid';
 
-import { Entity, OptionalProps, PrimaryKey, Property } from '@mikro-orm/core';
-
-@Entity({ tableName: 'users' })
+@Entity({ tableName: 'users', repository: () => UserRepository })
 export class User {
 	[OptionalProps]?: 'id' | 'createdAt';
+	[EntityRepositoryType]?: UserRepository;
 
 	@PrimaryKey({ type: 'uuid', nullable: false, unique: true, defaultRaw: 'UUID()' })
-	readonly id!: string;
+	readonly id: string = v4();
 
 	@Property({ type: 'varchar', unique: true, nullable: false })
 	readonly username!: string;
