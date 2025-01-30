@@ -1,21 +1,23 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { Entity, ManyToOne, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { Entity, EntityRepositoryType, ManyToOne, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 
 import { Directory } from 'src/db/entities/directory.entity';
+import { FilesRepository } from 'src/modules/files/files.repository';
 import { v4 } from 'uuid';
 import { User } from './user.entitiy';
 
 export const FILES_TABLE_NAME = 'files';
 
-@Entity({ tableName: FILES_TABLE_NAME })
+@Entity({ tableName: FILES_TABLE_NAME, repository: () => FilesRepository })
 @Unique({ properties: ['parent', 'name'] })
 export class File {
 	[OptionalProps]?: 'id' | 'parent' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt';
+	[EntityRepositoryType]?: FilesRepository;
 
 	@PrimaryKey({ type: 'uuid', nullable: false, defaultRaw: 'UUID()', unique: true })
 	readonly id: string = v4();

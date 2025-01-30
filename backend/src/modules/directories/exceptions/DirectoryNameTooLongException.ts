@@ -1,13 +1,15 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { BadRequestException } from '@nestjs/common';
 
-export class InvalidDirectoryNameException extends BadRequestException {
-	public constructor(path: string) {
-		super(`${path} is not a valid directory name`);
+import { PathUtils } from 'src/util/PathUtils';
+
+export class DirectoryNameTooLongException extends BadRequestException {
+	public constructor(name: string) {
+		super(`${name} exceeds the directory name limit of ${PathUtils.MaxDirectoryNameLength} chars`);
 	}
 }

@@ -1,3 +1,9 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
@@ -19,7 +25,7 @@ export class JwtGuard implements CanActivate {
 		private reflector: Reflector
 	) {}
 
-	async canActivate(context: ExecutionContext): Promise<boolean> {
+	public async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request = context.switchToHttp().getRequest();
 
 		const isPublic = this.isEndpointPublic(context);

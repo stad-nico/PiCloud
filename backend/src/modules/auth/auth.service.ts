@@ -1,3 +1,9 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from 'src/modules/user/users.repository';
@@ -18,6 +24,7 @@ export class AuthService {
 		}
 
 		const isPasswordValid = await bcrypt.compare(pass, user.password);
+
 		if (!isPasswordValid) {
 			throw new UnauthorizedException('Invalid username or password');
 		}

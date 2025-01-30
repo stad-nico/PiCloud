@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
@@ -27,6 +27,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
 import { FileDownloadDto, FileDownloadParams } from 'src/modules/files//mapping/download';
 import { FileRenameBody, FileRenameDto, FileRenameParams } from 'src/modules/files//mapping/rename';
 import { FilesService } from 'src/modules/files/files.service';
@@ -39,9 +40,8 @@ import {
 	FileNameTooLongException,
 	FileNotFoundException,
 	InvalidFileNameException,
-	ParentDirectoryNotFoundException,
-	SomethingWentWrongException,
 } from 'src/shared/exceptions';
+import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
 
 @Controller('files')
@@ -117,9 +117,15 @@ export class FilesController {
 	}
 
 	@Get(':id/metadata')
-	@ApiOperation({ operationId: 'getFileMetadata', summary: 'Get file metadata', description: 'Get the metadata of a file with the given id' })
+	@ApiOperation({
+		operationId: 'getFileMetadata',
+		summary: 'Get file metadata',
+		description: 'Get the metadata of a file with the given id',
+	})
 	@ApiOkResponse({ type: FileMetadataResponse, description: 'The metadata was retrieved successfully' })
-	@TemplatedApiException(() => new FileNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), { description: 'The file does not exist' })
+	@TemplatedApiException(() => new FileNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
+		description: 'The file does not exist',
+	})
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async metadata(@Param() params: FileMetadataParams): Promise<FileMetadataResponse> {
 		try {
@@ -139,8 +145,13 @@ export class FilesController {
 
 	@Get(':id/download')
 	@ApiOperation({ operationId: 'downloadFile', summary: 'Download file', description: 'Download a file with the given id' })
-	@ApiOkResponse({ content: { '*/*': { schema: { type: 'string', format: 'binary' } } }, description: 'The file was downloaded successfully' })
-	@TemplatedApiException(() => new FileNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), { description: 'The file does not exist' })
+	@ApiOkResponse({
+		content: { '*/*': { schema: { type: 'string', format: 'binary' } } },
+		description: 'The file was downloaded successfully',
+	})
+	@TemplatedApiException(() => new FileNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
+		description: 'The file does not exist',
+	})
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async download(@Param() params: FileDownloadParams, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
 		try {
@@ -176,7 +187,9 @@ export class FilesController {
 	@TemplatedApiException(() => new ParentDirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
 		description: 'The parent directory does not exist',
 	})
-	@TemplatedApiException(() => new FileNotFoundException('853d4b18-8d1a-426c-b53e-74027ce1644b'), { description: 'The file does not exist' })
+	@TemplatedApiException(() => new FileNotFoundException('853d4b18-8d1a-426c-b53e-74027ce1644b'), {
+		description: 'The file does not exist',
+	})
 	@TemplatedApiException(() => new FileAlreadyExistsException('example.txt'), { description: 'The file already exists' })
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async rename(@Param() params: FileRenameParams, @Body() body: FileRenameBody): Promise<void> {
@@ -199,7 +212,9 @@ export class FilesController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@ApiOperation({ operationId: 'deleteFile', summary: 'Delete file', description: 'Delete the file with the given id' })
 	@ApiNoContentResponse({ description: 'The file was deleted successfully' })
-	@TemplatedApiException(() => new FileNotFoundException('853d4b18-8d1a-426c-b53e-74027ce1644b'), { description: 'The file does not exist' })
+	@TemplatedApiException(() => new FileNotFoundException('853d4b18-8d1a-426c-b53e-74027ce1644b'), {
+		description: 'The file does not exist',
+	})
 	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 	public async delete(@Param() params: FileDeleteParams): Promise<void> {
 		try {

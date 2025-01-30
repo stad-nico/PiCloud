@@ -1,0 +1,3 @@
+{
+	"*.ts": ["npx tsx scripts/insert-copyright.ts", "prettier --write"]
+}

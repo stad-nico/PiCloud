@@ -1,10 +1,10 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { EntityManager } from '@mikro-orm/mariadb';
+import { EntityManager, EntityRepository } from '@mikro-orm/mariadb';
 
 import { FILES_TABLE_NAME, File } from 'src/db/entities/file.entity';
 import { IFilesRepository } from 'src/modules/files/IFilesRepository';
@@ -14,12 +14,25 @@ type Additional = {
 	path: string;
 };
 
+export class FilesRepository extends EntityRepository<File> {
+	// public async get
+}
+
 export class FileRepository implements IFilesRepository {
-	public async insertReturningId(entityManager: EntityManager, parentId: string, name: string, mimeType: string, size: number): Promise<string> {
+	public async insertReturningId(
+		entityManager: EntityManager,
+		parentId: string,
+		name: string,
+		mimeType: string,
+		size: number
+	): Promise<string> {
 		const query = `INSERT INTO files (name, mimeType, size, parentId) VALUES (:name, :mimeType, :size, :parentId) RETURNING id`;
 		const params = { name: name, mimeType: mimeType, parentId: parentId, size: size };
 
-		const [rows] = await entityManager.getKnex().raw<[Pick<File, 'id'>[]]>(query, params).transacting(entityManager.getTransactionContext()!);
+		const [rows] = await entityManager
+			.getKnex()
+			.raw<[Pick<File, 'id'>[]]>(query, params)
+			.transacting(entityManager.getTransactionContext()!);
 
 		return rows![0]!.id;
 	}
@@ -33,7 +46,10 @@ export class FileRepository implements IFilesRepository {
 
 		const params = name ? { parentId: parentIdOrId, name: name } : { id: parentIdOrId };
 
-		const [rows] = await entityManager.getKnex().raw<[Pick<Additional, 'count'>[]]>(query, params).transacting(entityManager.getTransactionContext()!);
+		const [rows] = await entityManager
+			.getKnex()
+			.raw<[Pick<Additional, 'count'>[]]>(query, params)
+			.transacting(entityManager.getTransactionContext()!);
 
 		return rows![0]!.count > 0;
 	}
@@ -42,7 +58,10 @@ export class FileRepository implements IFilesRepository {
 		const query = `SELECT parentId FROM ${FILES_TABLE_NAME} WHERE id = :id`;
 		const params = { id: id };
 
-		const [rows] = await entityManager.getKnex().raw<[{ parentId: string }[]]>(query, params).transacting(entityManager.getTransactionContext()!);
+		const [rows] = await entityManager
+			.getKnex()
+			.raw<[{ parentId: string }[]]>(query, params)
+			.transacting(entityManager.getTransactionContext()!);
 
 		return rows![0]?.parentId ?? null;
 	}
@@ -59,7 +78,10 @@ export class FileRepository implements IFilesRepository {
 		return rows![0] ?? null;
 	}
 
-	public async getMetadata(entityManager: EntityManager, id: string): Promise<Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> | null> {
+	public async getMetadata(
+		entityManager: EntityManager,
+		id: string
+	): Promise<Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> | null> {
 		const query = `SELECT name, mimeType, size, createdAt, updatedAt FROM files WHERE id = :id`;
 		const params = { id: id };
 
@@ -86,7 +108,12 @@ export class FileRepository implements IFilesRepository {
 			return;
 		}
 
-		await entityManager.getKnex().table(FILES_TABLE_NAME).update(partial).where('id', id).transacting(entityManager.getTransactionContext()!);
+		await entityManager
+			.getKnex()
+			.table(FILES_TABLE_NAME)
+			.update(partial)
+			.where('id', id)
+			.transacting(entityManager.getTransactionContext()!);
 	}
 
 	public async delete(entityManager: EntityManager, parentId: string, name: string): Promise<void>;

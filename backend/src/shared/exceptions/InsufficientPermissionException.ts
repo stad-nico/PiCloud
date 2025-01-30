@@ -4,16 +4,10 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { ApiProperty } from '@nestjs/swagger';
+import { UnauthorizedException } from '@nestjs/common';
 
-export class DirectoryDownloadParams {
-	@ApiProperty({
-		example: '133a8736-111a-4cf7-ae84-dbe040ad4382',
-		description: 'The id of the directory to download',
-	})
-	readonly id: string;
-
-	private constructor(id: string) {
-		this.id = id;
+export class InsufficientPermissionException extends UnauthorizedException {
+	public constructor() {
+		super('you dont have sufficient permission for this action');
 	}
 }

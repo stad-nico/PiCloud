@@ -1,7 +1,13 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { Body, Controller, Get, HttpException, Logger, Param, Post } from '@nestjs/common';
 import { User } from 'src/db/entities/user.entitiy';
 import { Public } from 'src/shared/decorators/public.decorator';
-import { SomethingWentWrongException } from 'src/shared/exceptions';
+import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { UsersService } from './users.service';
 

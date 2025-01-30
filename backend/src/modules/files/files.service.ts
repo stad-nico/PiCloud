@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
@@ -10,7 +10,8 @@ import { EntityManager } from '@mikro-orm/mariadb';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { DirectoriesRepository } from 'src/modules/directories/directories.repository';
+import { DirectoryRepository } from 'src/modules/directories/directory.repository';
+import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
 import { StoragePath } from 'src/modules/disk/DiskService';
 import { FileRenameDto } from 'src/modules/files//mapping/rename';
 import { IFilesRepository } from 'src/modules/files/IFilesRepository';
@@ -19,7 +20,7 @@ import { FileDownloadDto, FileDownloadResponse } from 'src/modules/files/mapping
 import { FileMetadataDto, FileMetadataResponse } from 'src/modules/files/mapping/metadata';
 import { FileReplaceDto, FileReplaceResponse } from 'src/modules/files/mapping/replace';
 import { FileUploadDto, FileUploadResponse } from 'src/modules/files/mapping/upload';
-import { FileAlreadyExistsException, FileNotFoundException, ParentDirectoryNotFoundException } from 'src/shared/exceptions';
+import { FileAlreadyExistsException, FileNotFoundException } from 'src/shared/exceptions';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 
@@ -35,18 +36,18 @@ export class FilesService {
 
 	private readonly filesRepository: IFilesRepository;
 
-	private readonly directoriesRepository: DirectoriesRepository;
+	private readonly directoryRepository: DirectoryRepository;
 
 	public constructor(
 		entityManager: EntityManager,
 		configService: ConfigService,
 		@Inject(IFilesRepository) filesRepository: IFilesRepository,
-		directoriesRepository: DirectoriesRepository
+		directoryRepository: DirectoryRepository
 	) {
 		this.entityManager = entityManager;
 		this.configService = configService;
 		this.filesRepository = filesRepository;
-		this.directoriesRepository = directoriesRepository;
+		this.directoryRepository = directoryRepository;
 	}
 
 	public async upload(fileUploadDto: FileUploadDto): Promise<FileUploadResponse> {
@@ -55,7 +56,7 @@ export class FilesService {
 				throw new FileAlreadyExistsException(fileUploadDto.name);
 			}
 
-			// if (!(await this.directoriesRepository.exists(entityManager, fileUploadDto.parentId))) {
+			// if (!(await this.directoryRepository.exists(entityManager, fileUploadDto.parentId))) {
 			// throw new ParentDirectoryNotFoundException(fileUploadDto.parentId);
 			// }
 
@@ -76,7 +77,7 @@ export class FilesService {
 
 	public async replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse> {
 		return await this.entityManager.transactional(async (entityManager) => {
-			// if (!(await this.directoriesRepository.exists(entityManager, fileReplaceDto.parentId))) {
+			// if (!(await this.directoryRepository.exists(entityManager, fileReplaceDto.parentId))) {
 			// throw new ParentDirectoryNotFoundException(fileReplaceDto.parentId);
 			// }
 

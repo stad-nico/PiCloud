@@ -8,7 +8,7 @@ import { Transactional } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/db/entities/user.entitiy';
-import { DirectoriesRepository } from 'src/modules/directories/directories.repository';
+import { DirectoryRepository } from 'src/modules/directories/directory.repository';
 import { UserAlreadyExistsException } from 'src/shared/exceptions/UserAlreadyExistsException';
 import { UserNotFoundException } from 'src/shared/exceptions/UserNotFoundException';
 import { CreateUserDto } from './dtos/createUser.dto';
@@ -17,7 +17,7 @@ import { UserRepository } from './users.repository';
 @Injectable()
 export class UsersService {
 	constructor(
-		private readonly directoriesRepository: DirectoriesRepository,
+		private readonly directoryRepository: DirectoryRepository,
 		private readonly userRepository: UserRepository
 	) {}
 
@@ -44,6 +44,6 @@ export class UsersService {
 
 		const user = this.userRepository.create({ username: createUserDto.username, password: cryptedPassword });
 
-		this.directoriesRepository.create({ parent: null, name: 'root', user: user });
+		this.directoryRepository.create({ parent: null, name: 'root', user: user });
 	}
 }
