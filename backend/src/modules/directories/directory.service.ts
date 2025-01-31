@@ -7,7 +7,6 @@
 import { Transactional } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TreeRepository } from 'src/db/entities/tree.entity';
 import { DirectoryRepository } from 'src/modules/directories/directory.repository';
 import { DirectoryAlreadyExistsException } from 'src/modules/directories/exceptions/DirectoryAlreadyExistsException';
 import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/DirectoryNotFoundException';
@@ -24,8 +23,7 @@ import { DirectoryMetadataDto } from 'src/modules/directories/mapping/metadata/D
 import { DirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata/DirectoryMetadataResponse';
 import { DirectoryRenameDto } from 'src/modules/directories/mapping/rename/DirectoryRenameDto';
 import { StoragePath } from 'src/modules/disk/DiskService';
-import { FilesRepository } from 'src/modules/files/files.repository';
-import { InsufficientPermissionException } from 'src/shared/exceptions/InsufficientPermissionException';
+import { FileRepository } from 'src/modules/files/file.repository';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 
@@ -34,8 +32,7 @@ export class DirectoryService {
 	public constructor(
 		private readonly configService: ConfigService,
 		private readonly directoryRepository: DirectoryRepository,
-		private readonly filesRepository: FilesRepository,
-		private readonly treeRepository: TreeRepository
+		private readonly fileRepository: FileRepository
 	) {}
 
 	@Transactional()
@@ -54,7 +51,7 @@ export class DirectoryService {
 		const parentDirectory = await this.directoryRepository.findOne({ id: directoryCreateDto.parentId });
 
 		if (parentDirectory?.user.id !== directoryCreateDto.userId) {
-			throw new InsufficientPermissionException();
+			throw new DirectoryNotFoundException(directoryCreateDto.parentId);
 		}
 
 		const existingDirectory = await this.directoryRepository.findOne({
@@ -83,14 +80,11 @@ export class DirectoryService {
 		const directory = await this.directoryRepository.findOne({ id: directoryContentDto.directoryId });
 
 		if (directory?.user.id !== directoryContentDto.userId) {
-			throw new InsufficientPermissionException();
-		}
-
-		if (!directory) {
 			throw new DirectoryNotFoundException(directoryContentDto.directoryId);
 		}
 
-		const { files, directories } = await this.directoryRepository.getContents(directory, this.filesRepository, this.treeRepository);
+		const files = await this.fileRepository.findAll({ where: { parent: directory.id, user: directory.user } });
+		const directories = await this.directoryRepository.getContents(directory);
 
 		return DirectoryContentResponse.from(files, directories);
 	}
@@ -100,14 +94,10 @@ export class DirectoryService {
 		const directory = await this.directoryRepository.findOne({ id: directoryMetadataDto.directoryId });
 
 		if (directory?.user.id !== directoryMetadataDto.userId) {
-			throw new InsufficientPermissionException();
-		}
-
-		if (!directory) {
 			throw new DirectoryNotFoundException(directoryMetadataDto.directoryId);
 		}
 
-		const metadata = await this.directoryRepository.getMetadata(directory, this.filesRepository, this.treeRepository);
+		const metadata = await this.directoryRepository.getMetadata(directory);
 
 		return DirectoryMetadataResponse.from(metadata);
 	}
@@ -117,18 +107,10 @@ export class DirectoryService {
 		const directory = await this.directoryRepository.findOne({ id: directoryDownloadDto.directoryId });
 
 		if (directory?.user.id !== directoryDownloadDto.userId) {
-			throw new InsufficientPermissionException();
-		}
-
-		if (!directory) {
 			throw new DirectoryNotFoundException(directoryDownloadDto.directoryId);
 		}
 
-		const { files, directories } = await this.directoryRepository.getContentsRecursive(
-			directory,
-			this.filesRepository,
-			this.treeRepository
-		);
+		const { files, directories } = await this.directoryRepository.getContentsRecursive(directory);
 
 		const relativeFilePaths = PathUtils.buildFilePaths(directory.id, files, directories);
 
@@ -142,10 +124,6 @@ export class DirectoryService {
 		const directory = await this.directoryRepository.findOne({ id: directoryRenameDto.directoryId });
 
 		if (directory?.user.id !== directoryRenameDto.userId) {
-			throw new InsufficientPermissionException();
-		}
-
-		if (!directory) {
 			throw new DirectoryNotFoundException(directoryRenameDto.directoryId);
 		}
 
@@ -175,10 +153,6 @@ export class DirectoryService {
 		const directory = await this.directoryRepository.findOne({ id: directoryDeleteDto.directoryId });
 
 		if (directory?.user.id !== directoryDeleteDto.userId) {
-			throw new InsufficientPermissionException();
-		}
-
-		if (!directory) {
 			throw new DirectoryNotFoundException(directoryDeleteDto.directoryId);
 		}
 
@@ -192,7 +166,7 @@ export class DirectoryService {
 
 		await this.directoryRepository.nativeUpdate({ id: directory.parent!.id }, { updatedAt: new Date() });
 
-		const { files } = await this.directoryRepository.getContentsRecursive(directory, this.filesRepository, this.treeRepository);
+		const { files } = await this.directoryRepository.getContentsRecursive(directory);
 
 		for (const file of files) {
 			const filepath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));

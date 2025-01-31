@@ -7,9 +7,8 @@
 import { EntityRepository, raw } from '@mikro-orm/mariadb';
 import { Directory } from 'src/db/entities/directory.entity';
 import { File } from 'src/db/entities/file.entity';
-import { Tree, TreeRepository } from 'src/db/entities/tree.entity';
-import { DirectoryContentDirectory, DirectoryContentFile } from 'src/modules/directories/mapping/content/DirectoryContentResponse';
-import { FilesRepository } from 'src/modules/files/files.repository';
+import { Tree } from 'src/db/entities/tree.entity';
+import { DirectoryContentDirectory } from 'src/modules/directories/mapping/content/DirectoryContentResponse';
 
 export type DirectoryMetadata = Pick<Directory, 'id' | 'name' | 'createdAt' | 'updatedAt'> & {
 	size: number;
@@ -20,18 +19,9 @@ export type DirectoryMetadata = Pick<Directory, 'id' | 'name' | 'createdAt' | 'u
 };
 
 export class DirectoryRepository extends EntityRepository<Directory> {
-	public async getContents(
-		directory: Directory,
-		filesRepository: FilesRepository,
-		treeRepository: EntityRepository<Tree>
-	): Promise<{
-		files: Array<DirectoryContentFile>;
-		directories: Array<DirectoryContentDirectory>;
-	}> {
-		const files = await filesRepository.findAll({ where: { parent: directory.id, user: directory.user } });
-
-		const childDirectories = treeRepository
-			.createQueryBuilder()
+	public async getContents(directory: Directory): Promise<Array<DirectoryContentDirectory>> {
+		const childDirectories = this.em
+			.createQueryBuilder(Tree)
 			.select('child')
 			.where({ parent: raw('d.id') });
 
@@ -39,8 +29,8 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 			.count()
 			.where({ id: { $in: childDirectories.getKnexQuery() } });
 
-		const size = filesRepository
-			.createQueryBuilder()
+		const size = this.em
+			.createQueryBuilder(File)
 			.select(raw('COALESCE(SUM(size), 0)'))
 			.where({ parent: { id: { $in: childDirectories.getKnexQuery() } } });
 
@@ -57,7 +47,7 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 			hasSubdirectories: number;
 		}>;
 
-		const directories = rawDirectories.map((directory) => ({
+		return rawDirectories.map((directory) => ({
 			id: directory.id,
 			name: directory.name,
 			createdAt: new Date(Date.parse(directory.createdAt)),
@@ -65,17 +55,11 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 			size: directory.size,
 			hasSubdirectories: directory.hasSubdirectories > 1,
 		}));
-
-		return { files, directories };
 	}
 
-	public async getMetadata(
-		directory: Directory,
-		filesRepository: FilesRepository,
-		treeRepository: TreeRepository
-	): Promise<DirectoryMetadata> {
-		const childDirectories = treeRepository
-			.createQueryBuilder()
+	public async getMetadata(directory: Directory): Promise<DirectoryMetadata> {
+		const childDirectories = this.em
+			.createQueryBuilder(Tree)
 			.select('child')
 			.where({ parent: raw('d.id') });
 
@@ -83,13 +67,13 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 			.count()
 			.where({ id: { $in: childDirectories.getKnexQuery() } });
 
-		const filesCount = filesRepository
-			.createQueryBuilder()
+		const filesCount = this.em
+			.createQueryBuilder(File)
 			.count()
 			.where({ parent: { id: { $in: childDirectories.getKnexQuery() } } });
 
-		const size = filesRepository
-			.createQueryBuilder()
+		const size = this.em
+			.createQueryBuilder(File)
 			.select(raw('COALESCE(SUM(size), 0)'))
 			.where({ parent: { id: { $in: childDirectories.getKnexQuery() } } });
 
@@ -132,15 +116,11 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 		};
 	}
 
-	public async getContentsRecursive(
-		directory: Directory,
-		filesRepository: FilesRepository,
-		treeRepository: TreeRepository
-	): Promise<{ files: Array<File>; directories: Array<Directory> }> {
-		const childDirectories = treeRepository.createQueryBuilder().select('child').where({ parent: directory });
+	public async getContentsRecursive(directory: Directory): Promise<{ files: Array<File>; directories: Array<Directory> }> {
+		const childDirectories = this.em.createQueryBuilder(Tree).select('child').where({ parent: directory });
 
-		const files = await filesRepository
-			.createQueryBuilder()
+		const files = await this.em
+			.createQueryBuilder(File)
 			.select(['id', 'name', 'parent'])
 			.where({ parent: { id: { $in: childDirectories.getKnexQuery() } } })
 			.getResult();

@@ -4,10 +4,7 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { UnauthorizedException } from '@nestjs/common';
+import { EntityRepository } from '@mikro-orm/mariadb';
+import { File } from 'src/db/entities/file.entity';
 
-export class InsufficientPermissionException extends UnauthorizedException {
-	public constructor() {
-		super('you dont have sufficient permission for this action');
-	}
-}
+export class FileRepository extends EntityRepository<File> {}

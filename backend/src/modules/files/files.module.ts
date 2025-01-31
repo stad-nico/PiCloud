@@ -10,20 +10,12 @@ import { ConfigModule } from '@nestjs/config';
 import { Directory } from 'src/db/entities/directory.entity';
 
 import { File } from 'src/db/entities/file.entity';
+import { FileService } from 'src/modules/files/file.service';
 import { FilesController } from 'src/modules/files/files.controller';
-import { FileRepository } from 'src/modules/files/files.repository';
-import { FilesService } from 'src/modules/files/files.service';
-import { IFilesRepository } from 'src/modules/files/IFilesRepository';
 
 @Module({
 	imports: [ConfigModule, MikroOrmModule.forFeature([File, Directory])],
 	controllers: [FilesController],
-	providers: [
-		FilesService,
-		{
-			provide: IFilesRepository,
-			useClass: FileRepository,
-		},
-	],
+	providers: [FileService],
 })
 export class FilesModule {}

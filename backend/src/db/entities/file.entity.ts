@@ -7,17 +7,17 @@
 import { Entity, EntityRepositoryType, ManyToOne, OptionalProps, PrimaryKey, Property, Unique } from '@mikro-orm/core';
 
 import { Directory } from 'src/db/entities/directory.entity';
-import { FilesRepository } from 'src/modules/files/files.repository';
+import { FileRepository } from 'src/modules/files/file.repository';
 import { v4 } from 'uuid';
 import { User } from './user.entitiy';
 
 export const FILES_TABLE_NAME = 'files';
 
-@Entity({ tableName: FILES_TABLE_NAME, repository: () => FilesRepository })
+@Entity({ tableName: FILES_TABLE_NAME, repository: () => FileRepository })
 @Unique({ properties: ['parent', 'name'] })
 export class File {
-	[OptionalProps]?: 'id' | 'parent' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt';
-	[EntityRepositoryType]?: FilesRepository;
+	[OptionalProps]?: 'id' | 'createdAt' | 'updatedAt';
+	[EntityRepositoryType]?: FileRepository;
 
 	@PrimaryKey({ type: 'uuid', nullable: false, defaultRaw: 'UUID()', unique: true })
 	readonly id: string = v4();
@@ -25,13 +25,13 @@ export class File {
 	@Property({ type: 'varchar', nullable: false })
 	readonly name!: string;
 
-	@ManyToOne({ entity: () => Directory, nullable: true, default: null, updateRule: 'no action', deleteRule: 'cascade', name: 'parentId' })
-	readonly parent!: Directory | null;
+	@ManyToOne({ entity: () => Directory, nullable: false, updateRule: 'no action', deleteRule: 'cascade', name: 'parentId' })
+	readonly parent!: Directory;
 
-	@Property({ type: 'varchar', nullable: false, default: 'application/octet-stream' })
+	@Property({ type: 'varchar', nullable: false })
 	readonly mimeType!: string;
 
-	@Property({ type: 'bigint', nullable: false, default: 0 })
+	@Property({ type: 'bigint', nullable: false })
 	readonly size!: number;
 
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()' })

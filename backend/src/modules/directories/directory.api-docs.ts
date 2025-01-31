@@ -14,7 +14,6 @@ import { RootCannotBeDeletedException } from 'src/modules/directories/exceptions
 import { RootCannotBeRenamedException } from 'src/modules/directories/exceptions/RootCannotBeRenamed';
 import { DirectoryContentResponse } from 'src/modules/directories/mapping/content/DirectoryContentResponse';
 import { DirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata/DirectoryMetadataResponse';
-import { InsufficientPermissionException } from 'src/shared/exceptions/InsufficientPermissionException';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
 
@@ -35,7 +34,9 @@ export class DirectoryApiDocs {
 				() => new DirectoryNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName'),
 				{ description: 'The directory name is too long' }
 			),
-			TemplatedApiException(() => InsufficientPermissionException, { description: 'Insufficient permission' }),
+			TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
+				description: 'The directory does not exist',
+			}),
 			TemplatedApiException(() => new InvalidDirectoryNameException('%&/("§.*'), { description: 'The directory name is not valid' }),
 			TemplatedApiException(() => new DirectoryAlreadyExistsException('example'), { description: 'The directory already exists' }),
 			TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
@@ -58,7 +59,6 @@ export class DirectoryApiDocs {
 		return applyDecorators(
 			ApiOperation({ operationId: 'getContents', summary: 'Get directory contents', description: 'Get the files and directories' }),
 			ApiOkResponse({ type: DirectoryContentResponse, description: 'The contents were retrieved successfully' }),
-			TemplatedApiException(() => InsufficientPermissionException, { description: 'Insufficient permission' }),
 			TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
 				description: 'The directory does not exist',
 			}),
@@ -70,7 +70,6 @@ export class DirectoryApiDocs {
 		return applyDecorators(
 			ApiOperation({ operationId: 'getMetadata', summary: 'Get directory metadata', description: 'Get the metadata of a directory' }),
 			ApiOkResponse({ type: DirectoryMetadataResponse, description: 'The metadata was retrieved successfully' }),
-			TemplatedApiException(() => InsufficientPermissionException, { description: 'Insufficient permission' }),
 			TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
 				description: 'The directory does not exist',
 			}),
@@ -89,7 +88,6 @@ export class DirectoryApiDocs {
 				content: { '*/*': { schema: { type: 'string', format: 'binary' } } },
 				description: 'The directory was downloaded successfully',
 			}),
-			TemplatedApiException(() => InsufficientPermissionException, { description: 'Insufficient permission' }),
 			TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
 				description: 'The directory does not exist',
 			}),
@@ -101,7 +99,6 @@ export class DirectoryApiDocs {
 		return applyDecorators(
 			ApiOperation({ operationId: 'rename', summary: 'Rename directory', description: 'Rename or move a directory' }),
 			ApiNoContentResponse({ description: 'The directory was renamed successfully' }),
-			TemplatedApiException(() => InsufficientPermissionException, { description: 'Insufficient permission' }),
 			TemplatedApiException(() => new InvalidDirectoryNameException('%26path&'), { description: 'The directory name is not valid' }),
 			TemplatedApiException(
 				() => new DirectoryNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName'),
@@ -126,7 +123,6 @@ export class DirectoryApiDocs {
 				description: 'Delete the directory with the given id including all files and subdirectories',
 			}),
 			ApiNoContentResponse({ description: 'The directory was deleted successfully' }),
-			TemplatedApiException(() => InsufficientPermissionException, { description: 'Insufficient permission' }),
 			TemplatedApiException(() => RootCannotBeDeletedException, { description: 'The root directory cannot be deleted' }),
 			TemplatedApiException(() => new DirectoryNotFoundException('9bb14df7-112b-486a-bd49-8261246ad256'), {
 				description: 'The directory does not exist',
