@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
@@ -82,7 +82,10 @@ export interface IFilesRepository {
 	 * @param   {string}             id            the id of the file
 	 * @returns {Promise<File|null>}               the file
 	 */
-	getMetadata(entityManager: EntityManager, id: string): Promise<Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> | null>;
+	getMetadata(
+		entityManager: EntityManager,
+		id: string
+	): Promise<Pick<File, 'name' | 'mimeType' | 'size' | 'createdAt' | 'updatedAt'> | null>;
 
 	/**
 	 * Updates a file.

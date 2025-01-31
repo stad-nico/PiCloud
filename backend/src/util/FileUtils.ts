@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
@@ -112,7 +112,10 @@ export class FileUtils {
 	 * @param   {Array<{ id: string; path: string }>} files         the files
 	 * @returns {Readable}                                          readable stream
 	 */
-	public static async createZIPArchive(configService: ConfigService, files: Array<{ id: string; relativePath: string }>): Promise<Readable> {
+	public static async createZIPArchive(
+		configService: ConfigService,
+		files: Array<{ id: string; relativePath: string }>
+	): Promise<Readable> {
 		const zip = new JSZip();
 
 		for (const file of files) {
