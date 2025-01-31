@@ -4,11 +4,11 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-
 import { JwtPayload } from 'src/modules/auth/jwt.guard';
-import { FileRenameBody, FileRenameParams } from 'src/modules/files//mapping/rename';
 import { FileNameTooLongException } from 'src/modules/files/exceptions/FileNameTooLongException';
 import { InvalidFileNameException } from 'src/modules/files/exceptions/InvalidFileNameException';
+import { FileRenameBody } from 'src/modules/files/mapping/rename/FileRenameBody';
+import { FileRenameParams } from 'src/modules/files/mapping/rename/FileRenameParams';
 import { PathUtils } from 'src/util/PathUtils';
 
 export class FileRenameDto {

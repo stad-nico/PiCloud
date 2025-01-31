@@ -7,7 +7,7 @@
 import { JwtPayload } from 'src/modules/auth/jwt.guard';
 import { FileNameTooLongException } from 'src/modules/files/exceptions/FileNameTooLongException';
 import { InvalidFileNameException } from 'src/modules/files/exceptions/InvalidFileNameException';
-import { FileUploadBody } from 'src/modules/files/mapping/upload';
+import { FileUploadBody } from 'src/modules/files/mapping/upload/FileUploadBody';
 import { PathUtils } from 'src/util/PathUtils';
 
 export class FileReplaceDto {

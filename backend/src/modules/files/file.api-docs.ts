@@ -20,8 +20,9 @@ import { FileAlreadyExistsException } from 'src/modules/files/exceptions/FileAlr
 import { FileNameTooLongException } from 'src/modules/files/exceptions/FileNameTooLongException';
 import { FileNotFoundException } from 'src/modules/files/exceptions/FileNotFoundException';
 import { InvalidFileNameException } from 'src/modules/files/exceptions/InvalidFileNameException';
-import { FileMetadataResponse } from 'src/modules/files/mapping/metadata';
-import { FileUploadBody, FileUploadResponse } from 'src/modules/files/mapping/upload';
+import { FileMetadataResponse } from 'src/modules/files/mapping/metadata/FileMetadataResponse';
+import { FileUploadBody } from 'src/modules/files/mapping/upload/FileUploadBody';
+import { FileUploadResponse } from 'src/modules/files/mapping/upload/FileUploadResponse';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
 
