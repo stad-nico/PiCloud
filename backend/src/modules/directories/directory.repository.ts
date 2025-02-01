@@ -8,7 +8,7 @@ import { EntityRepository, raw } from '@mikro-orm/mariadb';
 import { Directory } from 'src/db/entities/directory.entity';
 import { File } from 'src/db/entities/file.entity';
 import { Tree } from 'src/db/entities/tree.entity';
-import { DirectoryContentDirectory } from 'src/modules/directories/mapping/content/DirectoryContentResponse';
+import { DirectoryContentDirectory } from 'src/modules/directories/mapping/contents/get-directory-contents.response';
 
 export type DirectoryMetadata = Pick<Directory, 'id' | 'name' | 'createdAt' | 'updatedAt'> & {
 	size: number;
@@ -23,7 +23,7 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 		const childDirectories = this.em
 			.createQueryBuilder(Tree)
 			.select('child')
-			.where({ parent: raw('d.id') });
+			.where({ parent: raw<Directory, string>('d.id') });
 
 		const hasSubdirectories = this.createQueryBuilder()
 			.count()
@@ -38,14 +38,16 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 			.select(['id', 'name', 'updatedAt', 'createdAt', hasSubdirectories.as('hasSubdirectories'), size.as('size')])
 			.where({ parent: directory.id, user: directory.user });
 
-		const rawDirectories = (await queryBuilder.execute()) as Array<{
-			id: string;
-			name: string;
-			updatedAt: string;
-			createdAt: string;
-			size: number;
-			hasSubdirectories: number;
-		}>;
+		const rawDirectories = await queryBuilder.execute<
+			Array<{
+				id: string;
+				name: string;
+				updatedAt: string;
+				createdAt: string;
+				hasSubdirectories: number;
+				size: number;
+			}>
+		>();
 
 		return rawDirectories.map((directory) => ({
 			id: directory.id,
@@ -58,10 +60,9 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 	}
 
 	public async getMetadata(directory: Directory): Promise<DirectoryMetadata> {
-		const childDirectories = this.em
-			.createQueryBuilder(Tree)
-			.select('child')
-			.where({ parent: raw('d.id') });
+		const childDirectories = this.em.createQueryBuilder(Tree).select('child');
+
+		console.log(childDirectories.getFormattedQuery());
 
 		const directoriesCount = this.createQueryBuilder()
 			.count()
@@ -91,17 +92,17 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 			])
 			.where({ id: directory.id, user: directory.user });
 
-		const rawMetadata = (await queryBuilder.execute('get')) as {
+		const rawMetadata = await queryBuilder.execute<{
 			id: string;
 			name: string;
-			parent: null | string;
 			createdAt: string;
 			updatedAt: string;
+			parent: string | null;
 			user: string;
 			files: number;
 			directories: number;
 			size: number;
-		};
+		}>('get');
 
 		return {
 			id: rawMetadata.id,

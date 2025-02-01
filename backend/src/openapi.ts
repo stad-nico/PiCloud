@@ -32,4 +32,6 @@ async function bootstrap() {
 	await application.close();
 }
 
-bootstrap();
+bootstrap().catch((error: unknown) => {
+	throw error;
+});

@@ -122,7 +122,13 @@ export class PathUtils {
 	 * @returns {string}      the corresponding directory path
 	 */
 	public static uuidToDirPath(uuid: string): string {
-		return uuid.match(/.{1,2}/g)!.reduce((acc, curr, ind) => (acc += ind === 1 || ind === 2 ? '/' + curr : curr));
+		const match = uuid.match(/.{1,2}/g);
+
+		if (!match) {
+			throw new Error('The uuid does not match the expected format');
+		}
+
+		return match.reduce((acc, curr, ind) => (acc += ind === 1 || ind === 2 ? '/' + curr : curr));
 	}
 
 	/**
@@ -178,34 +184,18 @@ export class PathUtils {
 		files: Array<File>,
 		directories: Array<Directory>
 	): Array<{ id: string; relativePath: string }> {
-		const directoryPathMap = new Map([[rootId, '/']]);
+		const filesToPush = files.filter((file) => file.parent.id === rootId).map((file) => ({ id: file.id, relativePath: file.name }));
 
-		const getPath: (fileOrDirectory: any) => string = (fileOrDirectory: File | Directory) => {
-			if (!fileOrDirectory.parent?.id) {
-				return directoryPathMap.get(rootId)!;
-			}
+		const directoriesToPush = directories
+			.filter((directory) => directory.parent?.id === rootId)
+			.flatMap((directory) => [
+				{ id: directory.id, relativePath: directory.name },
+				...PathUtils.buildFilePaths(directory.id, files, directories).map((entry) => ({
+					id: entry.id,
+					relativePath: `${directory.name}/${entry.relativePath}`,
+				})),
+			]);
 
-			if (directoryPathMap.has(fileOrDirectory.parent.id)) {
-				const parentPath =
-					directoryPathMap.get(fileOrDirectory.parent.id) === '/' ? '' : directoryPathMap.get(fileOrDirectory.parent.id);
-				const path = parentPath + '/' + fileOrDirectory.name;
-
-				directoryPathMap.set(fileOrDirectory.id, path);
-
-				return path;
-			}
-
-			const next =
-				files.find((file) => file.id === fileOrDirectory.parent?.id) ||
-				directories.find((directory) => directory.id === fileOrDirectory.parent?.id);
-
-			if (!next) {
-				throw new Error('parent not represented');
-			}
-
-			return getPath(next) + '/' + fileOrDirectory.name;
-		};
-
-		return files.map((file) => ({ id: file.id, relativePath: getPath(file) }));
+		return [...filesToPush, ...directoriesToPush];
 	}
 }

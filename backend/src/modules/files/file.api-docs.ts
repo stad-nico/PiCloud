@@ -15,14 +15,14 @@ import {
 	ApiOperation,
 	ApiTags,
 } from '@nestjs/swagger';
-import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
-import { FileAlreadyExistsException } from 'src/modules/files/exceptions/FileAlreadyExistsException';
-import { FileNameTooLongException } from 'src/modules/files/exceptions/FileNameTooLongException';
-import { FileNotFoundException } from 'src/modules/files/exceptions/FileNotFoundException';
-import { InvalidFileNameException } from 'src/modules/files/exceptions/InvalidFileNameException';
-import { FileMetadataResponse } from 'src/modules/files/mapping/metadata/FileMetadataResponse';
-import { FileUploadBody } from 'src/modules/files/mapping/upload/FileUploadBody';
-import { FileUploadResponse } from 'src/modules/files/mapping/upload/FileUploadResponse';
+import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/directory-not-found.exception';
+import { FileAlreadyExistsException } from 'src/modules/files/exceptions/file-already-exists.exception';
+import { FileNameTooLongException } from 'src/modules/files/exceptions/file-name-too-long.exception';
+import { FileNotFoundException } from 'src/modules/files/exceptions/file-not-found.exception';
+import { InvalidFileNameException } from 'src/modules/files/exceptions/invalid-file-name.exception';
+import { GetFileMetadataResponse } from 'src/modules/files/mapping/metadata/get-file-metadata.response';
+import { UploadFileBody } from 'src/modules/files/mapping/upload/upload-file.body';
+import { UploadFileResponse } from 'src/modules/files/mapping/upload/upload-file.response';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
 
@@ -34,19 +34,19 @@ export class FileApiDocs {
 	public static upload() {
 		return applyDecorators(
 			ApiConsumes('multipart/form-data'),
-			ApiBody({ description: 'File to upload', type: FileUploadBody }),
+			ApiBody({ description: 'File to upload', type: UploadFileBody }),
 			ApiOperation({
 				operationId: 'upload',
 				summary: 'Upload file',
 				description: 'Upload a file and store it under the provided parent id',
 			}),
-			ApiCreatedResponse({ type: FileUploadResponse, description: 'The file was created successfully' }),
+			ApiCreatedResponse({ type: UploadFileResponse, description: 'The file was created successfully' }),
 			TemplatedApiException(
 				() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'),
 				{ description: 'The file name is too long' }
 			),
 			TemplatedApiException(() => new InvalidFileNameException('&/8892mf--+&.txt'), { description: 'The file path is not valid' }),
-			TemplatedApiException(() => new ParentDirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
+			TemplatedApiException(() => new DirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
 				description: 'The parent directory does not exist',
 			}),
 			TemplatedApiException(() => new FileAlreadyExistsException('example.txt'), { description: 'The file already exists' }),
@@ -61,13 +61,13 @@ export class FileApiDocs {
 				summary: 'Replace file',
 				description: 'Upload a file and replace if it already exists',
 			}),
-			ApiCreatedResponse({ type: FileUploadResponse, description: 'The file was replaced successfully' }),
+			ApiCreatedResponse({ type: UploadFileResponse, description: 'The file was replaced successfully' }),
 			TemplatedApiException(
 				() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'),
 				{ description: 'The file name is too long' }
 			),
 			TemplatedApiException(() => new InvalidFileNameException('+.-34/.'), { description: 'The file path is not valid' }),
-			TemplatedApiException(() => new ParentDirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
+			TemplatedApiException(() => new DirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
 				description: 'The parent directory does not exist',
 			}),
 			TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
@@ -81,7 +81,7 @@ export class FileApiDocs {
 				summary: 'Get file metadata',
 				description: 'Get the metadata of a file with the given id',
 			}),
-			ApiOkResponse({ type: FileMetadataResponse, description: 'The metadata was retrieved successfully' }),
+			ApiOkResponse({ type: GetFileMetadataResponse, description: 'The metadata was retrieved successfully' }),
 			TemplatedApiException(() => new FileNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
 				description: 'The file does not exist',
 			}),

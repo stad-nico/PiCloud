@@ -14,7 +14,7 @@ import { DiskService } from 'src/modules/disk/DiskService';
 	exports: [DiskService],
 })
 export class DiskModule {
-	public static async forRootAsync(): Promise<DynamicModule> {
+	public static forRootAsync(): DynamicModule {
 		return {
 			module: DiskModule,
 			providers: [

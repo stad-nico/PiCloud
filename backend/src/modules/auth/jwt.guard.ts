@@ -10,23 +10,31 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Environment } from 'src/config/env.config';
-import { User } from 'src/db/entities/user.entitiy';
 import { IS_PUBLIC_KEY } from 'src/shared/decorators/public.decorator';
 
+declare module 'express' {
+	export interface Request {
+		jwtPayload?: JwtPayload;
+	}
+}
+
 export interface JwtPayload {
-	readonly user: Pick<User, 'id' | 'createdAt' | 'username'>;
+	readonly user: {
+		id: string;
+		username: string;
+	};
 }
 
 @Injectable()
 export class JwtGuard implements CanActivate {
 	constructor(
-		private jwtService: JwtService,
-		private configService: ConfigService,
-		private reflector: Reflector
+		private readonly jwtService: JwtService,
+		private readonly configService: ConfigService,
+		private readonly reflector: Reflector
 	) {}
 
 	public async canActivate(context: ExecutionContext): Promise<boolean> {
-		const request = context.switchToHttp().getRequest();
+		const request = context.switchToHttp().getRequest<Request>();
 
 		const isPublic = this.isEndpointPublic(context);
 
@@ -41,7 +49,7 @@ export class JwtGuard implements CanActivate {
 		}
 
 		try {
-			const secret = this.configService.get<string>(Environment.JwtAccessSecret)!;
+			const secret = this.configService.getOrThrow<string>(Environment.JwtAccessSecret);
 
 			const payload = await this.jwtService.verifyAsync<JwtPayload>(token, { secret });
 
@@ -49,6 +57,7 @@ export class JwtGuard implements CanActivate {
 		} catch {
 			throw new UnauthorizedException();
 		}
+
 		return true;
 	}
 

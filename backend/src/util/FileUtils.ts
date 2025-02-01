@@ -4,16 +4,14 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import * as fsPromises from 'fs/promises';
-import * as path from 'path';
-import { Readable } from 'stream';
-
 import { ConfigService } from '@nestjs/config';
-
 import { createReadStream } from 'fs';
+import * as fsPromises from 'fs/promises';
 import JSZip from 'jszip';
+import * as path from 'path';
 import { StoragePath } from 'src/modules/disk/DiskService';
 import { PathUtils } from 'src/util/PathUtils';
+import { Readable } from 'stream';
 
 /**
  * Utility class for operations on the file system.
@@ -27,8 +25,8 @@ export class FileUtils {
 	 * @param {string}  path			 the absolute path
 	 * @param {boolean} [recursive=true] whether subfolders should get deleted
 	 */
-	public static async deleteDirectoryOrFail(path: string, recursive: boolean = true): Promise<void> {
-		return await fsPromises.rm(path, { recursive: recursive });
+	public static async deleteDirectoryOrFail(path: string, recursive = true): Promise<void> {
+		await fsPromises.rm(path, { recursive: recursive });
 	}
 
 	/**
@@ -38,7 +36,7 @@ export class FileUtils {
 	 * @param {string}  path             the absolute path
 	 * @param {boolean} [recursive=true] whether subfolders should be created
 	 */
-	public static async createDirectoryIfNotPresent(path: string, recursive: boolean = true): Promise<void> {
+	public static async createDirectoryIfNotPresent(path: string, recursive = true): Promise<void> {
 		if (await PathUtils.pathExists(path)) {
 			return;
 		}
@@ -53,7 +51,7 @@ export class FileUtils {
 	 * @param {Readable} stream           the file stream
 	 * @param {boolean}  [recursive=true] whether destination path should be created if it does not exist
 	 */
-	public static async writeFile(absolutePath: string, buffer: Buffer, recursive: boolean = true): Promise<void> {
+	public static async writeFile(absolutePath: string, buffer: Buffer, recursive = true): Promise<void> {
 		const normalizedPath = PathUtils.prepareFilePathForFS(absolutePath);
 
 		if (recursive) {
@@ -78,7 +76,7 @@ export class FileUtils {
 	 * @param {string}  to               the destination path
 	 * @param {boolean} [recursive=true] whether destination path should be created if it does not exist
 	 */
-	public static async copyFile(from: string, to: string, recursive: boolean = true): Promise<void> {
+	public static async copyFile(from: string, to: string, recursive = true): Promise<void> {
 		const fromNormalized = PathUtils.prepareFilePathForFS(from);
 		const toNormalized = PathUtils.prepareFilePathForFS(to);
 
@@ -112,16 +110,13 @@ export class FileUtils {
 	 * @param   {Array<{ id: string; path: string }>} files         the files
 	 * @returns {Readable}                                          readable stream
 	 */
-	public static async createZIPArchive(
-		configService: ConfigService,
-		files: Array<{ id: string; relativePath: string }>
-	): Promise<Readable> {
+	public static createZIPArchive(configService: ConfigService, files: Array<{ id: string; relativePath: string }>): Readable {
 		const zip = new JSZip();
 
 		for (const file of files) {
 			const filepath = PathUtils.join(configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
 
-			zip.file(file.relativePath.replace('/', ''), createReadStream(filepath));
+			zip.file(file.relativePath, createReadStream(filepath));
 		}
 
 		return new Readable().wrap(zip.generateNodeStream());

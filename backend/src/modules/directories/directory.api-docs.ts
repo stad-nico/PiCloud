@@ -6,14 +6,14 @@
  *-------------------------------------------------------------------------*/
 import { applyDecorators } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { DirectoryAlreadyExistsException } from 'src/modules/directories/exceptions/DirectoryAlreadyExistsException';
-import { DirectoryNameTooLongException } from 'src/modules/directories/exceptions/DirectoryNameTooLongException';
-import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/DirectoryNotFoundException';
-import { InvalidDirectoryNameException } from 'src/modules/directories/exceptions/InvalidDirectoryNameException';
-import { RootCannotBeDeletedException } from 'src/modules/directories/exceptions/RootCannotBeDeletedException';
-import { RootCannotBeRenamedException } from 'src/modules/directories/exceptions/RootCannotBeRenamed';
-import { DirectoryContentResponse } from 'src/modules/directories/mapping/content/DirectoryContentResponse';
-import { DirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata/DirectoryMetadataResponse';
+import { DirectoryAlreadyExistsException } from 'src/modules/directories/exceptions/directory-already-exists.exception';
+import { DirectoryNameTooLongException } from 'src/modules/directories/exceptions/directory-name-too-long.exception';
+import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/directory-not-found.exception';
+import { InvalidDirectoryNameException } from 'src/modules/directories/exceptions/invalid-directory-name.exception';
+import { RootCannotBeDeletedException } from 'src/modules/directories/exceptions/root-cannot-be-deleted.exception';
+import { RootCannotBeRenamedException } from 'src/modules/directories/exceptions/root-cannot-be-renamed.exception';
+import { GetDirectoryContentsResponse } from 'src/modules/directories/mapping/contents/get-directory-contents.response';
+import { GetDirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata/get-directory-metadata.response';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
 
@@ -58,7 +58,7 @@ export class DirectoryApiDocs {
 	public static getContents() {
 		return applyDecorators(
 			ApiOperation({ operationId: 'getContents', summary: 'Get directory contents', description: 'Get the files and directories' }),
-			ApiOkResponse({ type: DirectoryContentResponse, description: 'The contents were retrieved successfully' }),
+			ApiOkResponse({ type: GetDirectoryContentsResponse, description: 'The contents were retrieved successfully' }),
 			TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
 				description: 'The directory does not exist',
 			}),
@@ -69,7 +69,7 @@ export class DirectoryApiDocs {
 	public static getMetadata() {
 		return applyDecorators(
 			ApiOperation({ operationId: 'getMetadata', summary: 'Get directory metadata', description: 'Get the metadata of a directory' }),
-			ApiOkResponse({ type: DirectoryMetadataResponse, description: 'The metadata was retrieved successfully' }),
+			ApiOkResponse({ type: GetDirectoryMetadataResponse, description: 'The metadata was retrieved successfully' }),
 			TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
 				description: 'The directory does not exist',
 			}),

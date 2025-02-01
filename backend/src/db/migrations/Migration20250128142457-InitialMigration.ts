@@ -7,7 +7,7 @@
 import { Migration } from '@mikro-orm/migrations';
 
 export class Migration20250128142457 extends Migration {
-	async up(): Promise<void> {
+	up(): void {
 		this.addSql(
 			'create table `users` (`id` varchar(36) not null default UUID(), `username` varchar(255) not null, `password` varchar(255) not null, `createdAt` datetime not null default current_timestamp(), primary key (`id`)) default character set utf8mb4 engine = InnoDB;'
 		);
@@ -56,7 +56,7 @@ export class Migration20250128142457 extends Migration {
 		);
 	}
 
-	async down(): Promise<void> {
+	down(): void {
 		this.addSql('alter table `directories` drop foreign key `directories_userId_foreign`;');
 
 		this.addSql('alter table `files` drop foreign key `files_userId_foreign`;');

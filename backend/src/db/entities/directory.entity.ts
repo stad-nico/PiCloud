@@ -31,7 +31,7 @@ export class Directory {
 		updateRule: 'no action',
 		deleteRule: 'cascade',
 		name: 'parentId',
-		serializer: (directory) => directory.id,
+		serializer: (directory: Directory) => directory.id,
 		serializedName: 'parentId',
 	})
 	readonly parent!: Directory | null;
@@ -48,10 +48,8 @@ export class Directory {
 		updateRule: 'no action',
 		deleteRule: 'cascade',
 		name: 'userId',
-		serializer: (user) => user.id,
+		serializer: (user: User) => user.id,
 		serializedName: 'userId',
 	})
 	readonly user!: User;
 }
-
-export type RawDirectory = Pick<Directory, 'id' | 'name'> & { createdAt: string; updatedAt: string };

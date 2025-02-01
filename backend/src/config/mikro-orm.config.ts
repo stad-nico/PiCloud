@@ -12,15 +12,15 @@ import { SeedManager } from '@mikro-orm/seeder';
 
 import { Environment } from './env.config';
 
-config({ path: `${process.env.NODE_ENV}.env` });
+config({ path: `${process.env.NODE_ENV ?? 'dev'}.env` });
 
 export default defineConfig({
 	driver: MariaDbDriver,
 	entities: ['dist/db/entities'],
 	entitiesTs: ['src/db/entities'],
-	clientUrl: process.env[Environment.DBUrl]!,
-	dbName: process.env[Environment.DBName]!,
-	password: process.env[Environment.DBPassword]!,
+	clientUrl: process.env[Environment.DBUrl] ?? '',
+	dbName: process.env[Environment.DBName] ?? '',
+	password: process.env[Environment.DBPassword] ?? '',
 	extensions: [Migrator, SeedManager],
 	forceUtcTimezone: true,
 	namingStrategy: EntityCaseNamingStrategy,

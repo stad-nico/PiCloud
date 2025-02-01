@@ -7,7 +7,7 @@
 import { Migration } from '@mikro-orm/migrations';
 
 export class Migration20250130173935 extends Migration {
-	override async up(): Promise<void> {
+	up(): void {
 		this.addSql(`CREATE TRIGGER \`directories_AFTER_INSERT\` AFTER INSERT ON \`directories\`
 			FOR EACH ROW BEGIN
 
@@ -52,7 +52,7 @@ export class Migration20250130173935 extends Migration {
 			END`);
 	}
 
-	override async down(): Promise<void> {
+	down(): void {
 		this.addSql('DROP TRIGGER `directories_AFTER_INSERT`');
 		this.addSql('DROP TRIGGER `directories_AFTER_UPDATE`');
 	}

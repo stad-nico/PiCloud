@@ -9,21 +9,21 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createReadStream } from 'fs';
 import { DirectoryRepository } from 'src/modules/directories/directory.repository';
-import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/DirectoryNotFoundException';
+import { DirectoryNotFoundException } from 'src/modules/directories/exceptions/directory-not-found.exception';
 import { StoragePath } from 'src/modules/disk/DiskService';
-import { FileAlreadyExistsException } from 'src/modules/files/exceptions/FileAlreadyExistsException';
-import { FileNotFoundException } from 'src/modules/files/exceptions/FileNotFoundException';
+import { FileAlreadyExistsException } from 'src/modules/files/exceptions/file-already-exists.exception';
+import { FileNotFoundException } from 'src/modules/files/exceptions/file-not-found.exception';
 import { FileRepository } from 'src/modules/files/file.repository';
-import { FileDeleteDto } from 'src/modules/files/mapping/delete/FileDeleteDto';
-import { FileDownloadDto } from 'src/modules/files/mapping/download/FileDownloadDto';
-import { FileDownloadResponse } from 'src/modules/files/mapping/download/FileDownloadResponse';
-import { FileMetadataDto } from 'src/modules/files/mapping/metadata/FileMetadataDto';
-import { FileMetadataResponse } from 'src/modules/files/mapping/metadata/FileMetadataResponse';
-import { FileRenameDto } from 'src/modules/files/mapping/rename/FileRenameDto';
-import { FileReplaceDto } from 'src/modules/files/mapping/replace/FileReplaceDto';
-import { FileReplaceResponse } from 'src/modules/files/mapping/replace/FileReplaceResponse';
-import { FileUploadDto } from 'src/modules/files/mapping/upload/FileUploadDto';
-import { FileUploadResponse } from 'src/modules/files/mapping/upload/FileUploadResponse';
+import { DeleteFileDto } from 'src/modules/files/mapping/delete/delete-file.dto';
+import { DownloadFileDto } from 'src/modules/files/mapping/download/download-file.dto';
+import { DownloadFileResponse } from 'src/modules/files/mapping/download/download-file.response';
+import { GetFileMetadataDto } from 'src/modules/files/mapping/metadata/get-file-metadata.dto';
+import { GetFileMetadataResponse } from 'src/modules/files/mapping/metadata/get-file-metadata.response';
+import { RenameFileDto } from 'src/modules/files/mapping/rename/rename-file.dto';
+import { ReplaceFileDto } from 'src/modules/files/mapping/replace/replace-file.dto';
+import { ReplaceFileResponse } from 'src/modules/files/mapping/replace/replace-file.response';
+import { UploadFileDto } from 'src/modules/files/mapping/upload/upload-file.dto';
+import { UploadFileResponse } from 'src/modules/files/mapping/upload/upload-file.response';
 import { FileUtils } from 'src/util/FileUtils';
 import { PathUtils } from 'src/util/PathUtils';
 
@@ -36,120 +36,120 @@ export class FileService {
 	) {}
 
 	@Transactional()
-	public async upload(fileUploadDto: FileUploadDto): Promise<FileUploadResponse> {
-		const directory = await this.directoryRepository.findOne({ id: fileUploadDto.parentId });
+	public async upload(uploadFileDto: UploadFileDto): Promise<UploadFileResponse> {
+		const directory = await this.directoryRepository.findOne({ id: uploadFileDto.parentId });
 
-		if (directory?.user.id !== fileUploadDto.userId) {
-			throw new DirectoryNotFoundException(fileUploadDto.parentId);
+		if (directory?.user.id !== uploadFileDto.userId) {
+			throw new DirectoryNotFoundException(uploadFileDto.parentId);
 		}
 
 		const existingFile = await this.fileRepository.findOne({
-			name: fileUploadDto.name,
-			parent: fileUploadDto.parentId,
-			user: fileUploadDto.userId,
+			name: uploadFileDto.name,
+			parent: uploadFileDto.parentId,
+			user: uploadFileDto.userId,
 		});
 
 		if (existingFile) {
-			throw new FileAlreadyExistsException(fileUploadDto.name);
+			throw new FileAlreadyExistsException(uploadFileDto.name);
 		}
 
 		const file = this.fileRepository.create({
-			name: fileUploadDto.name,
-			size: fileUploadDto.size,
-			mimeType: fileUploadDto.mimeType,
+			name: uploadFileDto.name,
+			size: uploadFileDto.size,
+			mimeType: uploadFileDto.mimeType,
 			parent: directory,
-			user: fileUploadDto.userId,
+			user: uploadFileDto.userId,
 		});
 
 		await this.directoryRepository.nativeUpdate({ id: directory.id }, { updatedAt: new Date() });
 
 		const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
-		await FileUtils.writeFile(resolvedPath, fileUploadDto.content);
+		await FileUtils.writeFile(resolvedPath, uploadFileDto.content);
 
-		return FileUploadResponse.from(file.id);
+		return UploadFileResponse.from(file.id);
 	}
 
 	@Transactional()
-	public async replace(fileReplaceDto: FileReplaceDto): Promise<FileReplaceResponse> {
-		const directory = await this.directoryRepository.findOne({ id: fileReplaceDto.parentId });
+	public async replace(replaceFileDto: ReplaceFileDto): Promise<ReplaceFileResponse> {
+		const directory = await this.directoryRepository.findOne({ id: replaceFileDto.parentId });
 
-		if (directory?.user.id !== fileReplaceDto.userId) {
-			throw new DirectoryNotFoundException(fileReplaceDto.parentId);
+		if (directory?.user.id !== replaceFileDto.userId) {
+			throw new DirectoryNotFoundException(replaceFileDto.parentId);
 		}
 
 		const existingFile = await this.fileRepository.findOne({
-			name: fileReplaceDto.name,
-			parent: fileReplaceDto.parentId,
-			user: fileReplaceDto.userId,
+			name: replaceFileDto.name,
+			parent: replaceFileDto.parentId,
+			user: replaceFileDto.userId,
 		});
 
 		const file = existingFile
 			? existingFile
 			: this.fileRepository.create({
-					name: fileReplaceDto.name,
-					size: fileReplaceDto.size,
-					mimeType: fileReplaceDto.mimeType,
+					name: replaceFileDto.name,
+					size: replaceFileDto.size,
+					mimeType: replaceFileDto.mimeType,
 					parent: directory,
-					user: fileReplaceDto.userId,
+					user: replaceFileDto.userId,
 				});
 
 		await this.directoryRepository.nativeUpdate({ id: directory.id }, { updatedAt: new Date() });
 
 		const resolvedPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
-		await FileUtils.writeFile(resolvedPath, fileReplaceDto.content);
+		await FileUtils.writeFile(resolvedPath, replaceFileDto.content);
 
-		return FileUploadResponse.from(file.id);
+		return ReplaceFileResponse.from(file.id);
 	}
 
 	@Transactional()
-	public async metadata(fileMetadataDto: FileMetadataDto): Promise<FileMetadataResponse> {
-		const file = await this.fileRepository.findOne({ id: fileMetadataDto.id });
+	public async metadata(getFileMetadataDto: GetFileMetadataDto): Promise<GetFileMetadataResponse> {
+		const file = await this.fileRepository.findOne({ id: getFileMetadataDto.id });
 
-		if (file?.user.id !== fileMetadataDto.userId) {
-			throw new FileNotFoundException(fileMetadataDto.id);
+		if (file?.user.id !== getFileMetadataDto.userId) {
+			throw new FileNotFoundException(getFileMetadataDto.id);
 		}
 
-		return FileMetadataResponse.from(file);
+		return GetFileMetadataResponse.from(file);
 	}
 
 	@Transactional()
-	public async download(fileDownloadDto: FileDownloadDto): Promise<FileDownloadResponse> {
-		const file = await this.fileRepository.findOne({ id: fileDownloadDto.id });
+	public async download(downloadFileDto: DownloadFileDto): Promise<DownloadFileResponse> {
+		const file = await this.fileRepository.findOne({ id: downloadFileDto.id });
 
-		if (file?.user.id !== fileDownloadDto.userId) {
-			throw new FileNotFoundException(fileDownloadDto.id);
+		if (file?.user.id !== downloadFileDto.userId) {
+			throw new FileNotFoundException(downloadFileDto.id);
 		}
 
 		const diskPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
 
-		return FileDownloadResponse.from(file.name, file.mimeType, createReadStream(diskPath));
+		return DownloadFileResponse.from(file.name, file.mimeType, createReadStream(diskPath));
 	}
 
 	@Transactional()
-	public async rename(fileRenameDto: FileRenameDto): Promise<void> {
-		const file = await this.fileRepository.findOne({ id: fileRenameDto.id });
+	public async rename(renameFileDto: RenameFileDto): Promise<void> {
+		const file = await this.fileRepository.findOne({ id: renameFileDto.id });
 
-		if (file?.user.id !== fileRenameDto.userId) {
-			throw new FileNotFoundException(fileRenameDto.id);
+		if (file?.user.id !== renameFileDto.userId) {
+			throw new FileNotFoundException(renameFileDto.id);
 		}
 
-		const existingFile = await this.fileRepository.findOne({ parent: file.parent, name: fileRenameDto.name });
+		const existingFile = await this.fileRepository.findOne({ parent: file.parent, name: renameFileDto.name });
 
 		if (existingFile) {
-			throw new FileAlreadyExistsException(fileRenameDto.name);
+			throw new FileAlreadyExistsException(renameFileDto.name);
 		}
 
-		await this.fileRepository.nativeUpdate({ id: file.id }, { name: fileRenameDto.name });
+		await this.fileRepository.nativeUpdate({ id: file.id }, { name: renameFileDto.name });
 
 		await this.directoryRepository.nativeUpdate({ id: file.parent.id }, { updatedAt: new Date() });
 	}
 
 	@Transactional()
-	public async delete(fileDeleteDto: FileDeleteDto): Promise<void> {
-		const file = await this.fileRepository.findOne({ id: fileDeleteDto.id });
+	public async delete(deleteFileDto: DeleteFileDto): Promise<void> {
+		const file = await this.fileRepository.findOne({ id: deleteFileDto.id });
 
-		if (file?.user.id !== fileDeleteDto.userId) {
-			throw new FileNotFoundException(fileDeleteDto.id);
+		if (file?.user.id !== deleteFileDto.userId) {
+			throw new FileNotFoundException(deleteFileDto.id);
 		}
 
 		await this.fileRepository.nativeDelete({ id: file.id });

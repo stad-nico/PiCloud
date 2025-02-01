@@ -9,7 +9,7 @@ import { EntityRepository } from '@mikro-orm/mariadb';
 
 import { Directory } from 'src/db/entities/directory.entity';
 
-export const TREE_TABLE_NAME = 'tref';
+export const TREE_TABLE_NAME = 'tree';
 
 @Entity({ tableName: TREE_TABLE_NAME, repository: () => TreeRepository })
 @Unique({ properties: ['parent', 'child'] })

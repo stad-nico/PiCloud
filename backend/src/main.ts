@@ -6,11 +6,11 @@
  *-------------------------------------------------------------------------*/
 import { NestFactory } from '@nestjs/core';
 
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { configureApplication } from 'src/config/app.config';
 import { Environment } from 'src/config/env.config';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
 	const application = await NestFactory.create(AppModule, {
@@ -22,7 +22,9 @@ async function bootstrap() {
 	configureApplication(application);
 
 	const configService = application.get(ConfigService);
-	await application.listen(+configService.get(Environment.Port || 3000));
+	await application.listen(+configService.get(Environment.Port));
 }
 
-bootstrap();
+bootstrap().catch((error: unknown) => {
+	throw error;
+});

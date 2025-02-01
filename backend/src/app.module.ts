@@ -18,7 +18,7 @@ import { JwtGuard } from 'src/modules/auth/jwt.guard';
 import { DirectoriesModule } from 'src/modules/directories/directories.module';
 import { DiskModule } from 'src/modules/disk/DiskModule';
 import { FilesModule } from 'src/modules/files/files.module';
-import { UsersModule } from 'src/modules/user/users.module';
+import { UsersModule } from 'src/modules/users/users.module';
 
 export const AppModuleConfig = {
 	imports: [

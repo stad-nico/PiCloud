@@ -52,7 +52,7 @@ export enum Environment {
 }
 
 export function validate(config: Record<string, unknown>) {
-	config['NODE_ENV'] = config['NODE_ENV'] ?? process.env.NODE_ENV ?? NodeEnv.Develop;
+	config.NODE_ENV = config.NODE_ENV ?? process.env.NODE_ENV ?? NodeEnv.Develop;
 
 	const validatedConfig = plainToInstance(EnvVariables, config, { enableImplicitConversion: true });
 	const errors = validateSync(validatedConfig, { skipMissingProperties: false });

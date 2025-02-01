@@ -4,21 +4,40 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpException, HttpStatus, Logger, Post } from '@nestjs/common';
+import { AuthApiDocs } from 'src/modules/auth/auth.api-docs';
+import { LoginBody } from 'src/modules/auth/mapping/login/login.body';
+import { LoginDto } from 'src/modules/auth/mapping/login/login.dto';
 import { Public } from 'src/shared/decorators/public.decorator';
+import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dtos/login.dto';
 
 @Controller('auth')
+@AuthApiDocs.controller()
 export class AuthController {
-	constructor(private authService: AuthService) {}
+	private readonly logger = new Logger(AuthController.name);
+
+	constructor(private readonly authService: AuthService) {}
 
 	@Post('login')
 	@Public()
-	@HttpCode(200)
-	async login(@Body() loginDto: LoginDto) {
-		const token = await this.authService.login(loginDto.username, loginDto.password);
+	@HttpCode(HttpStatus.OK)
+	@AuthApiDocs.login()
+	async login(@Body() loginBody: LoginBody) {
+		this.logger.log(`[Post] ${loginBody.username}`);
 
-		return token;
+		try {
+			const loginDto = LoginDto.from(loginBody);
+
+			return await this.authService.login(loginDto);
+		} catch (e) {
+			this.logger.error(e);
+
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new SomethingWentWrongException();
+		}
 	}
 }

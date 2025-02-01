@@ -5,7 +5,7 @@
  * @author Samuel Steger
  *-------------------------------------------------------------------------*/
 import { Entity, EntityRepositoryType, OptionalProps, PrimaryKey, Property } from '@mikro-orm/core';
-import { UserRepository } from 'src/modules/user/users.repository';
+import { UserRepository } from 'src/modules/users/user.repository';
 import { v4 } from 'uuid';
 
 @Entity({ tableName: 'users', repository: () => UserRepository })

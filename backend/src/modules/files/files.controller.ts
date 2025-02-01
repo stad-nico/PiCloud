@@ -28,22 +28,22 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtPayload } from 'src/modules/auth/jwt.guard';
 import { FileApiDocs } from 'src/modules/files/file.api-docs';
 import { FileService } from 'src/modules/files/file.service';
-import { FileDeleteDto } from 'src/modules/files/mapping/delete/FileDeleteDto';
-import { FileDeleteParams } from 'src/modules/files/mapping/delete/FileDeleteParams';
-import { FileDownloadDto } from 'src/modules/files/mapping/download/FileDownloadDto';
-import { FileDownloadParams } from 'src/modules/files/mapping/download/FileDownloadParams';
-import { FileMetadataDto } from 'src/modules/files/mapping/metadata/FileMetadataDto';
-import { FileMetadataParams } from 'src/modules/files/mapping/metadata/FileMetadataParams';
-import { FileMetadataResponse } from 'src/modules/files/mapping/metadata/FileMetadataResponse';
-import { FileRenameBody } from 'src/modules/files/mapping/rename/FileRenameBody';
-import { FileRenameDto } from 'src/modules/files/mapping/rename/FileRenameDto';
-import { FileRenameParams } from 'src/modules/files/mapping/rename/FileRenameParams';
-import { FileReplaceBody } from 'src/modules/files/mapping/replace/FileReplaceBody';
-import { FileReplaceDto } from 'src/modules/files/mapping/replace/FileReplaceDto';
-import { FileReplaceResponse } from 'src/modules/files/mapping/replace/FileReplaceResponse';
-import { FileUploadBody } from 'src/modules/files/mapping/upload/FileUploadBody';
-import { FileUploadDto } from 'src/modules/files/mapping/upload/FileUploadDto';
-import { FileUploadResponse } from 'src/modules/files/mapping/upload/FileUploadResponse';
+import { DeleteFileDto } from 'src/modules/files/mapping/delete/delete-file.dto';
+import { DeleteFileParams } from 'src/modules/files/mapping/delete/delete-file.params';
+import { DownloadFileDto } from 'src/modules/files/mapping/download/download-file.dto';
+import { DownlaodFileParams } from 'src/modules/files/mapping/download/download-file.params';
+import { GetFileMetadataDto } from 'src/modules/files/mapping/metadata/get-file-metadata.dto';
+import { GetFileMetadataParams } from 'src/modules/files/mapping/metadata/get-file-metadata.params';
+import { GetFileMetadataResponse } from 'src/modules/files/mapping/metadata/get-file-metadata.response';
+import { RenameFileBody } from 'src/modules/files/mapping/rename/rename-file.body';
+import { RenameFileDto } from 'src/modules/files/mapping/rename/rename-file.dto';
+import { RenameFileParams } from 'src/modules/files/mapping/rename/rename-file.params';
+import { ReplaceFileBody } from 'src/modules/files/mapping/replace/replace-file.body';
+import { ReplaceFileDto } from 'src/modules/files/mapping/replace/replace-file.dto';
+import { ReplaceFileResponse } from 'src/modules/files/mapping/replace/replace-file.response';
+import { UploadFileBody } from 'src/modules/files/mapping/upload/upload-file.body';
+import { UploadFileDto } from 'src/modules/files/mapping/upload/upload-file.dto';
+import { UploadFileResponse } from 'src/modules/files/mapping/upload/upload-file.response';
 import { Jwt } from 'src/shared/decorators/jwt.decorator';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 
@@ -59,16 +59,16 @@ export class FilesController {
 	@UseInterceptors(FileInterceptor('file'))
 	@FileApiDocs.upload()
 	public async upload(
-		@Body() body: FileUploadBody,
+		@Body() body: UploadFileBody,
 		@UploadedFile() file: Express.Multer.File,
 		@Jwt() jwt: JwtPayload
-	): Promise<FileUploadResponse> {
+	): Promise<UploadFileResponse> {
 		this.logger.log(`[Upload] ${body.directoryId}`);
 
 		try {
-			const fileUploadDto = FileUploadDto.from(body, file, jwt);
+			const uploadFileDto = UploadFileDto.from(body, file, jwt);
 
-			return await this.fileService.upload(fileUploadDto);
+			return await this.fileService.upload(uploadFileDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -85,16 +85,16 @@ export class FilesController {
 	@UseInterceptors(FileInterceptor('file'))
 	@FileApiDocs.replace()
 	public async replace(
-		@Body() body: FileReplaceBody,
+		@Body() body: ReplaceFileBody,
 		@UploadedFile() file: Express.Multer.File,
 		@Jwt() jwt: JwtPayload
-	): Promise<FileReplaceResponse> {
+	): Promise<ReplaceFileResponse> {
 		this.logger.log(`[Replace] ${body.directoryId}`);
 
 		try {
-			const fileReplaceDto = FileReplaceDto.from(body, file, jwt);
+			const replaceFileDto = ReplaceFileDto.from(body, file, jwt);
 
-			return await this.fileService.replace(fileReplaceDto);
+			return await this.fileService.replace(replaceFileDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -109,11 +109,11 @@ export class FilesController {
 	@Get(':id/metadata')
 	@HttpCode(HttpStatus.OK)
 	@FileApiDocs.metadata()
-	public async metadata(@Param() params: FileMetadataParams, @Jwt() jwt: JwtPayload): Promise<FileMetadataResponse> {
+	public async metadata(@Param() params: GetFileMetadataParams, @Jwt() jwt: JwtPayload): Promise<GetFileMetadataResponse> {
 		try {
-			const fileMetadataDto = FileMetadataDto.from(params, jwt);
+			const getFileMetadataDto = GetFileMetadataDto.from(params, jwt);
 
-			return await this.fileService.metadata(fileMetadataDto);
+			return await this.fileService.metadata(getFileMetadataDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -129,14 +129,14 @@ export class FilesController {
 	@HttpCode(HttpStatus.OK)
 	@FileApiDocs.download()
 	public async download(
-		@Param() params: FileDownloadParams,
+		@Param() params: DownlaodFileParams,
 		@Res({ passthrough: true }) res: Response,
 		@Jwt() jwt: JwtPayload
 	): Promise<StreamableFile> {
 		try {
-			const fileDownloadDto = FileDownloadDto.from(params, jwt);
+			const downloadFileDto = DownloadFileDto.from(params, jwt);
 
-			const result = await this.fileService.download(fileDownloadDto);
+			const result = await this.fileService.download(downloadFileDto);
 
 			res.header({
 				'Content-Type': result.mimeType,
@@ -158,11 +158,11 @@ export class FilesController {
 	@Patch(':id/rename')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@FileApiDocs.rename()
-	public async rename(@Param() params: FileRenameParams, @Body() body: FileRenameBody, @Jwt() jwt: JwtPayload): Promise<void> {
+	public async rename(@Param() params: RenameFileParams, @Body() body: RenameFileBody, @Jwt() jwt: JwtPayload): Promise<void> {
 		try {
-			const fileRenameDto = FileRenameDto.from(params, body, jwt);
+			const renameFileDto = RenameFileDto.from(params, body, jwt);
 
-			await this.fileService.rename(fileRenameDto);
+			await this.fileService.rename(renameFileDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -177,11 +177,11 @@ export class FilesController {
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@FileApiDocs.delete()
-	public async delete(@Param() params: FileDeleteParams, @Jwt() jwt: JwtPayload): Promise<void> {
+	public async delete(@Param() params: DeleteFileParams, @Jwt() jwt: JwtPayload): Promise<void> {
 		try {
-			const fileDeleteDto = FileDeleteDto.from(params, jwt);
+			const deleteFileDto = DeleteFileDto.from(params, jwt);
 
-			await this.fileService.delete(fileDeleteDto);
+			await this.fileService.delete(deleteFileDto);
 		} catch (e) {
 			this.logger.error(e);
 
