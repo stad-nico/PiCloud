@@ -4,12 +4,16 @@
  *
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
-import { ApiProperty } from '@nestjs/swagger';
+import { GetUserParams } from 'src/modules/users/mapping/get-user/get-user.params';
 
-export class CreateUserBody {
-	@ApiProperty({ description: 'The username', type: 'string', example: 'exampleUser123' })
-	readonly username!: string;
+export class GetUserDto {
+	readonly id: string;
 
-	@ApiProperty({ description: 'The password', type: 'string' })
-	readonly password!: string;
+	private constructor(userId: string) {
+		this.id = userId;
+	}
+
+	public static from(getUserParams: GetUserParams): GetUserDto {
+		return new GetUserDto(getUserParams.id);
+	}
 }

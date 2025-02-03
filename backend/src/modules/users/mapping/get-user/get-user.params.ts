@@ -6,10 +6,7 @@
  *-------------------------------------------------------------------------*/
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUserBody {
-	@ApiProperty({ description: 'The username', type: 'string', example: 'exampleUser123' })
-	readonly username!: string;
-
-	@ApiProperty({ description: 'The password', type: 'string' })
-	readonly password!: string;
+export class GetUserParams {
+	@ApiProperty({ example: '133a8736-111a-4cf7-ae84-dbe040ad4382', description: 'The user id' })
+	readonly id!: string;
 }

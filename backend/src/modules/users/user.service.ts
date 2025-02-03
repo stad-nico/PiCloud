@@ -7,11 +7,12 @@
 import { Transactional } from '@mikro-orm/mariadb';
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/db/entities/user.entitiy';
 import { DirectoryRepository } from 'src/modules/directories/directory.repository';
 import { UserAlreadyExistsException } from 'src/modules/users/exceptions/user-already-exists.exception';
 import { UserNotFoundException } from 'src/modules/users/exceptions/user-not-found.exception';
 import { CreateUserDto } from 'src/modules/users/mapping/create/create-user.dto';
+import { GetUserDto } from 'src/modules/users/mapping/get-user/get-user.dto';
+import { GetUserResponse } from 'src/modules/users/mapping/get-user/get-user.response';
 import { UserRepository } from './user.repository';
 
 @Injectable()
@@ -22,14 +23,14 @@ export class UserService {
 	) {}
 
 	@Transactional()
-	public async getUser(userId: string): Promise<User> {
-		const user = await this.userRepository.findOne({ id: userId });
+	public async getUser(getUserDto: GetUserDto): Promise<GetUserResponse> {
+		const user = await this.userRepository.findOne({ id: getUserDto.id });
 
 		if (!user) {
-			throw new UserNotFoundException(userId);
+			throw new UserNotFoundException(getUserDto.id);
 		}
 
-		return user;
+		return GetUserResponse.from(user);
 	}
 
 	@Transactional()

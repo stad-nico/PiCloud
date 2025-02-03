@@ -5,9 +5,11 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Logger, Param, Post } from '@nestjs/common';
-import { User } from 'src/db/entities/user.entitiy';
 import { CreateUserBody } from 'src/modules/users/mapping/create/create-user.body';
 import { CreateUserDto } from 'src/modules/users/mapping/create/create-user.dto';
+import { GetUserDto } from 'src/modules/users/mapping/get-user/get-user.dto';
+import { GetUserParams } from 'src/modules/users/mapping/get-user/get-user.params';
+import { GetUserResponse } from 'src/modules/users/mapping/get-user/get-user.response';
 import { UserApiDocs } from 'src/modules/users/user.api-docs';
 import { UserService } from 'src/modules/users/user.service';
 import { Public } from 'src/shared/decorators/public.decorator';
@@ -23,11 +25,13 @@ export class UsersController {
 	@Get(':id')
 	@HttpCode(HttpStatus.OK)
 	@UserApiDocs.get()
-	public async get(@Param('id') userId: string): Promise<User> {
-		this.logger.log(`[Get] ${userId}`);
+	public async get(@Param() getUserParams: GetUserParams): Promise<GetUserResponse> {
+		this.logger.log(`[Get] ${getUserParams.id}`);
 
 		try {
-			return await this.userService.getUser(userId);
+			const getUserDto = GetUserDto.from(getUserParams);
+
+			return await this.userService.getUser(getUserDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -41,6 +45,7 @@ export class UsersController {
 
 	@Post()
 	@Public()
+	@HttpCode(HttpStatus.CREATED)
 	@UserApiDocs.create()
 	public async create(@Body() createUserBody: CreateUserBody): Promise<void> {
 		this.logger.log(`[Post] ${createUserBody.username}`);
