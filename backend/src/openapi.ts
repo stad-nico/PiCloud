@@ -1,3 +1,9 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { mkdir, writeFile } from 'fs/promises';
@@ -7,7 +13,13 @@ import { AppModule } from 'src/app.module';
 async function bootstrap() {
 	const application = await NestFactory.create(AppModule);
 
-	const config = new DocumentBuilder().addServer('/api').setTitle('Cloud API').setDescription('The cloud API description').setVersion('1.0').build();
+	const config = new DocumentBuilder()
+		.addBearerAuth()
+		.addServer('/api')
+		.setTitle('Cloud API')
+		.setDescription('The cloud API description')
+		.setVersion('1.0')
+		.build();
 	const document = SwaggerModule.createDocument(application, config);
 
 	const dirPath = '../openapi';
@@ -20,4 +32,6 @@ async function bootstrap() {
 	await application.close();
 }
 
-bootstrap();
+bootstrap().catch((error: unknown) => {
+	throw error;
+});

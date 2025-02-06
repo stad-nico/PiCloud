@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
@@ -13,7 +13,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
 		const ctx = host.switchToHttp();
 		const response = ctx.getResponse<Response>();
 		const status = exception.getStatus();
+		const exceptionResponse = exception.getResponse() as string | { message: unknown };
 
-		return response.status(status).json({ message: (exception.getResponse() as any)['message']! });
+		if (typeof exceptionResponse === 'string') {
+			return response.status(status).json({ message: exceptionResponse });
+		} else {
+			return response.status(status).json({ message: exceptionResponse.message });
+		}
 	}
 }

@@ -1,20 +1,40 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { IS_PUBLIC_KEY } from 'src/shared/public.decorator';
+import { Environment } from 'src/config/env.config';
+import { IS_PUBLIC_KEY } from 'src/shared/decorators/public.decorator';
+
+declare module 'express' {
+	export interface Request {
+		jwtPayload?: JwtPayload;
+	}
+}
+
+export interface JwtPayload {
+	readonly user: {
+		id: string;
+		username: string;
+	};
+}
 
 @Injectable()
 export class JwtGuard implements CanActivate {
 	constructor(
-		private jwtService: JwtService,
-		private configService: ConfigService,
-		private reflector: Reflector
+		private readonly jwtService: JwtService,
+		private readonly configService: ConfigService,
+		private readonly reflector: Reflector
 	) {}
 
-	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const request = context.switchToHttp().getRequest();
+	public async canActivate(context: ExecutionContext): Promise<boolean> {
+		const request = context.switchToHttp().getRequest<Request>();
 
 		const isPublic = this.isEndpointPublic(context);
 
@@ -29,12 +49,15 @@ export class JwtGuard implements CanActivate {
 		}
 
 		try {
-			const secret = this.configService.get<string>('SECRET_KEY')!;
-			const payload = await this.jwtService.verify(token, { secret });
-			request.user = payload;
+			const secret = this.configService.getOrThrow<string>(Environment.JwtAccessSecret);
+
+			const payload = await this.jwtService.verifyAsync<JwtPayload>(token, { secret });
+
+			request.jwtPayload = payload;
 		} catch {
 			throw new UnauthorizedException();
 		}
+
 		return true;
 	}
 

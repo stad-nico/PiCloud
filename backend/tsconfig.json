@@ -23,6 +23,7 @@
 		"exactOptionalPropertyTypes": true,
 		"esModuleInterop": true,
 		"noEmit": false,
+		"lib": ["ES2022"],
 		"paths": {
 			"src": ["src"]
 		},

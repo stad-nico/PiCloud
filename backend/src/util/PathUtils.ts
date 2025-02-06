@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
@@ -10,10 +10,9 @@ import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
 
 import { Environment } from 'src/config/env.config';
+import { Directory } from 'src/db/entities/directory.entity';
+import { File } from 'src/db/entities/file.entity';
 import { StoragePath } from 'src/modules/disk/DiskService';
-
-type File = { id: string; name: string; parentId: string };
-type Directory = { id: string; name: string; parentId: string | null };
 
 /**
  * Utility class for path validation and normalization operations.
@@ -123,7 +122,13 @@ export class PathUtils {
 	 * @returns {string}      the corresponding directory path
 	 */
 	public static uuidToDirPath(uuid: string): string {
-		return uuid.match(/.{1,2}/g)!.reduce((acc, curr, ind) => (acc += ind === 1 || ind === 2 ? '/' + curr : curr));
+		const match = uuid.match(/.{1,2}/g);
+
+		if (!match) {
+			throw new Error('The uuid does not match the expected format');
+		}
+
+		return match.reduce((acc, curr, ind) => (acc += ind === 1 || ind === 2 ? '/' + curr : curr));
 	}
 
 	/**
@@ -174,33 +179,23 @@ export class PathUtils {
 	 * @param   {Array<Directory>} directories the subdirectories the root contains
 	 * @returns {Array<{ id: string; relativePath: string }>} the relative paths
 	 */
-	public static buildFilePaths(rootId: string, files: Array<File>, directories: Array<Directory>): Array<{ id: string; relativePath: string }> {
-		const directoryPathMap = new Map([[rootId, '/']]);
+	public static buildFilePaths(
+		rootId: string,
+		files: Array<File>,
+		directories: Array<Directory>
+	): Array<{ id: string; relativePath: string }> {
+		const filesToPush = files.filter((file) => file.parent.id === rootId).map((file) => ({ id: file.id, relativePath: file.name }));
 
-		const getPath: (fileOrDirectory: any) => string = (fileOrDirectory: File | Directory) => {
-			if (!fileOrDirectory.parentId) {
-				return directoryPathMap.get(rootId)!;
-			}
+		const directoriesToPush = directories
+			.filter((directory) => directory.parent?.id === rootId)
+			.flatMap((directory) => [
+				{ id: directory.id, relativePath: directory.name },
+				...PathUtils.buildFilePaths(directory.id, files, directories).map((entry) => ({
+					id: entry.id,
+					relativePath: `${directory.name}/${entry.relativePath}`,
+				})),
+			]);
 
-			if (directoryPathMap.has(fileOrDirectory.parentId)) {
-				const parentPath = directoryPathMap.get(fileOrDirectory.parentId) === '/' ? '' : directoryPathMap.get(fileOrDirectory.parentId);
-				const path = parentPath + '/' + fileOrDirectory.name;
-
-				directoryPathMap.set(fileOrDirectory.id, path);
-
-				return path;
-			}
-
-			const next =
-				files.find((file) => file.id === fileOrDirectory.parentId) || directories.find((directory) => directory.id === fileOrDirectory.parentId);
-
-			if (!next) {
-				throw new Error('parent not represented');
-			}
-
-			return getPath(next) + '/' + fileOrDirectory.name;
-		};
-
-		return files.map((file) => ({ id: file.id, relativePath: getPath(file) }));
+		return [...filesToPush, ...directoriesToPush];
 	}
 }
