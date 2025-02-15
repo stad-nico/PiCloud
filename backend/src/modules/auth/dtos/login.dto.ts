@@ -4,9 +4,9 @@ export class LoginDto {
 
     @IsString()
     @MinLength(3)
-    username!: string;
+    public readonly username!: string;
 
     @IsString()
     @MinLength(4)
-    password!: string;
+    public readonly password!: string;
 }
