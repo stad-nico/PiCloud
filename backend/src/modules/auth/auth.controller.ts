@@ -1,8 +1,8 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Samuel Steger. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
- * @author Nicolas Stadler
+ * @author Samuel Steger
  *-------------------------------------------------------------------------*/
 import { Body, Controller, HttpCode, HttpException, HttpStatus, Logger, Post } from '@nestjs/common';
 import { AuthApiDocs } from 'src/modules/auth/auth.api-docs';
@@ -20,11 +20,6 @@ export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
 	@Post('login')
-	@HttpCode(HttpStatus.OK)
-	@ApiOperation({ operationId: 'login', summary: 'Login with username and password', description: 'Login with username and password, for tokens'})
-	@ApiCreatedResponse({ description: 'The user has succesfully logged in'})
-	@TemplatedApiException(() => new InvalidPasswordException(), { description: 'The password is invalid'})
-	@TemplatedApiException(() => new InvalidUsernameException, { description: 'This username does not exist'})
 	@Public()
 	@HttpCode(HttpStatus.OK)
 	@AuthApiDocs.login()

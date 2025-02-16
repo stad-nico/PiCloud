@@ -1,8 +1,8 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Samuel Steger. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
- * @author Nicolas Stadler
+ * @author Samuel Steger
  *-------------------------------------------------------------------------*/
 import { Transactional } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
@@ -19,7 +19,6 @@ import { UserRepository } from 'src/modules/users/user.repository';
 
 @Injectable()
 export class AuthService {
-
 	private static ACCESS_TOKEN_EXPIRATION: string = '15m';
 	private static REFRESH_TOKEN_EXPIRATION: string = '7d';
 
@@ -44,9 +43,13 @@ export class AuthService {
 
 		const jwtPayload: JwtPayload = { user: { id: user.id, username: user.username } };
 
-		const accessToken = jwt.sign(jwtPayload, this.configService.getOrThrow<string>(Environment.JwtAccessSecret), { expiresIn: '15m' });
+		const accessToken = jwt.sign(jwtPayload, this.configService.getOrThrow<string>(Environment.JwtAccessSecret), {
+			expiresIn: AuthService.ACCESS_TOKEN_EXPIRATION,
+		});
 
-		const refreshToken = jwt.sign(jwtPayload, this.configService.getOrThrow<string>(Environment.JwtRefreshSecret), { expiresIn: '7d' });
+		const refreshToken = jwt.sign(jwtPayload, this.configService.getOrThrow<string>(Environment.JwtRefreshSecret), {
+			expiresIn: AuthService.REFRESH_TOKEN_EXPIRATION,
+		});
 
 		return LoginResponse.from(accessToken, refreshToken);
 	}

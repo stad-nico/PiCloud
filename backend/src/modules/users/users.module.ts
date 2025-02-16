@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Samuel Steger. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Samuel Steger
@@ -15,9 +15,5 @@ import { UsersController } from './users.controller';
 	imports: [MikroOrmModule.forFeature([User, Directory])],
 	providers: [UserService],
 	controllers: [UsersController],
-<<<<<<< HEAD:backend/src/modules/user/users.module.ts
-	exports: [UsersService, UsersRepository],
-=======
->>>>>>> origin/develop:backend/src/modules/users/users.module.ts
 })
 export class UsersModule {}
