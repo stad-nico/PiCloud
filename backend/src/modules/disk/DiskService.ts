@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
@@ -79,7 +79,8 @@ export class DiskService {
 
 				this.logger.log('Successfully initialized storage location');
 			} catch (e) {
-				throw new Error(`Could not create storage location '${this.storageLocationPath}': ${e}`);
+				const errorMessage = e instanceof Error ? `: ${e.message}` : '';
+				throw new Error(`Could not create storage location ${this.storageLocationPath}${errorMessage}`);
 			}
 		}
 
@@ -90,7 +91,7 @@ export class DiskService {
 	}
 
 	// https://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript
-	private formatBytes(bytes: number, decimals: number = 2): string {
+	private formatBytes(bytes: number, decimals = 2): string {
 		if (!+bytes) return '0 Bytes';
 
 		const k = 1024;

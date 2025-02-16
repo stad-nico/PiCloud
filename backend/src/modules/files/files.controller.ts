@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2024 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Nicolas Stadler
@@ -14,7 +14,6 @@ import {
 	HttpCode,
 	HttpException,
 	HttpStatus,
-	Inject,
 	Logger,
 	Param,
 	Patch,
@@ -26,56 +25,50 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-
-import { FileDownloadDto, FileDownloadParams } from 'src/modules/files//mapping/download';
-import { FileRenameBody, FileRenameDto, FileRenameParams } from 'src/modules/files//mapping/rename';
-import { IFilesService } from 'src/modules/files/IFilesService';
-import { FileDeleteDto, FileDeleteParams } from 'src/modules/files/mapping/delete';
-import { FileMetadataDto, FileMetadataParams, FileMetadataResponse } from 'src/modules/files/mapping/metadata';
-import { FileReplaceBody, FileReplaceDto, FileReplaceResponse } from 'src/modules/files/mapping/replace';
-import { FileUploadBody, FileUploadDto, FileUploadResponse } from 'src/modules/files/mapping/upload';
-import { TemplatedApiException } from 'src/util/SwaggerUtils';
-import { FileNameTooLongException } from 'src/modules/files/exceptions/FileNameTooLongException';
-import { InvalidFileNameException } from 'src/modules/files/exceptions/InvalidFileNameException';
-import { ParentDirectoryNotFoundException } from 'src/modules/directories/exceptions/ParentDirectoryNotFoundExceptions';
-import { FileAlreadyExistsException } from 'src/modules/files/exceptions/FileAlreadyExistsException';
+import { JwtPayload } from 'src/modules/auth/jwt.guard';
+import { FileApiDocs } from 'src/modules/files/file.api-docs';
+import { FileService } from 'src/modules/files/file.service';
+import { DeleteFileDto } from 'src/modules/files/mapping/delete/delete-file.dto';
+import { DeleteFileParams } from 'src/modules/files/mapping/delete/delete-file.params';
+import { DownloadFileDto } from 'src/modules/files/mapping/download/download-file.dto';
+import { DownlaodFileParams } from 'src/modules/files/mapping/download/download-file.params';
+import { GetFileMetadataDto } from 'src/modules/files/mapping/metadata/get-file-metadata.dto';
+import { GetFileMetadataParams } from 'src/modules/files/mapping/metadata/get-file-metadata.params';
+import { GetFileMetadataResponse } from 'src/modules/files/mapping/metadata/get-file-metadata.response';
+import { RenameFileBody } from 'src/modules/files/mapping/rename/rename-file.body';
+import { RenameFileDto } from 'src/modules/files/mapping/rename/rename-file.dto';
+import { RenameFileParams } from 'src/modules/files/mapping/rename/rename-file.params';
+import { ReplaceFileBody } from 'src/modules/files/mapping/replace/replace-file.body';
+import { ReplaceFileDto } from 'src/modules/files/mapping/replace/replace-file.dto';
+import { ReplaceFileResponse } from 'src/modules/files/mapping/replace/replace-file.response';
+import { UploadFileBody } from 'src/modules/files/mapping/upload/upload-file.body';
+import { UploadFileDto } from 'src/modules/files/mapping/upload/upload-file.dto';
+import { UploadFileResponse } from 'src/modules/files/mapping/upload/upload-file.response';
+import { Jwt } from 'src/shared/decorators/jwt.decorator';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
-import { FileNotFoundException } from 'src/modules/files/exceptions/FileNotFoundException';
 
 @Controller('files')
-@ApiTags('files')
+@FileApiDocs.controller()
 export class FilesController {
 	private readonly logger = new Logger(FilesController.name);
 
-	private readonly filesService: IFilesService;
-
-	public constructor(@Inject(IFilesService) filesService: IFilesService) {
-		this.filesService = filesService;
-	}
+	public constructor(private readonly fileService: FileService) {}
 
 	@Post()
+	@HttpCode(HttpStatus.CREATED)
 	@UseInterceptors(FileInterceptor('file'))
-	@ApiConsumes('multipart/form-data')
-	@ApiBody({ description: 'File to upload', type: FileUploadBody })
-	@ApiOperation({ operationId: 'upload', summary: 'Upload file', description: 'Upload a file and store it under the provided parent id' })
-	@ApiCreatedResponse({ type: FileUploadResponse, description: 'The file was created successfully' })
-	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
-		description: 'The file name is too long',
-	})
-	@TemplatedApiException(() => new InvalidFileNameException('&/8892mf--+&.txt'), { description: 'The file path is not valid' })
-	@TemplatedApiException(() => new ParentDirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
-		description: 'The parent directory does not exist',
-	})
-	@TemplatedApiException(() => new FileAlreadyExistsException('example.txt'), { description: 'The file already exists' })
-	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async upload(@Body() body: FileUploadBody, @UploadedFile() file: Express.Multer.File): Promise<FileUploadResponse> {
-		this.logger.log(`[Upload File] ${body.directoryId}`);
+	@FileApiDocs.upload()
+	public async upload(
+		@Body() body: UploadFileBody,
+		@UploadedFile() file: Express.Multer.File,
+		@Jwt() jwt: JwtPayload
+	): Promise<UploadFileResponse> {
+		this.logger.log(`[Upload] ${body.directoryId}`);
 
 		try {
-			const fileUploadDto = FileUploadDto.from(body, file);
+			const uploadFileDto = UploadFileDto.from(body, file, jwt);
 
-			return await this.filesService.upload(fileUploadDto);
+			return await this.fileService.upload(uploadFileDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -88,22 +81,20 @@ export class FilesController {
 	}
 
 	@Put()
+	@HttpCode(HttpStatus.CREATED)
 	@UseInterceptors(FileInterceptor('file'))
-	@ApiOperation({ operationId: 'replace', summary: 'Replace file', description: 'Upload a file and replace if it already exists' })
-	@ApiCreatedResponse({ type: FileUploadResponse, description: 'The file was replaced successfully' })
-	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
-		description: 'The file name is too long',
-	})
-	@TemplatedApiException(() => new InvalidFileNameException('+.-34/.'), { description: 'The file path is not valid' })
-	@TemplatedApiException(() => new ParentDirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
-		description: 'The parent directory does not exist',
-	})
-	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async replace(@Body() body: FileReplaceBody, @UploadedFile() file: Express.Multer.File): Promise<FileReplaceResponse> {
-		try {
-			const fileReplaceDto = FileReplaceDto.from(body, file);
+	@FileApiDocs.replace()
+	public async replace(
+		@Body() body: ReplaceFileBody,
+		@UploadedFile() file: Express.Multer.File,
+		@Jwt() jwt: JwtPayload
+	): Promise<ReplaceFileResponse> {
+		this.logger.log(`[Replace] ${body.directoryId}`);
 
-			return await this.filesService.replace(fileReplaceDto);
+		try {
+			const replaceFileDto = ReplaceFileDto.from(body, file, jwt);
+
+			return await this.fileService.replace(replaceFileDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -116,15 +107,13 @@ export class FilesController {
 	}
 
 	@Get(':id/metadata')
-	@ApiOperation({ operationId: 'getFileMetadata', summary: 'Get file metadata', description: 'Get the metadata of a file with the given id' })
-	@ApiOkResponse({ type: FileMetadataResponse, description: 'The metadata was retrieved successfully' })
-	@TemplatedApiException(() => new FileNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), { description: 'The file does not exist' })
-	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async metadata(@Param() params: FileMetadataParams): Promise<FileMetadataResponse> {
+	@HttpCode(HttpStatus.OK)
+	@FileApiDocs.metadata()
+	public async metadata(@Param() params: GetFileMetadataParams, @Jwt() jwt: JwtPayload): Promise<GetFileMetadataResponse> {
 		try {
-			const fileMetadataDto = FileMetadataDto.from(params);
+			const getFileMetadataDto = GetFileMetadataDto.from(params, jwt);
 
-			return await this.filesService.metadata(fileMetadataDto);
+			return await this.fileService.metadata(getFileMetadataDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -137,15 +126,17 @@ export class FilesController {
 	}
 
 	@Get(':id/download')
-	@ApiOperation({ operationId: 'downloadFile', summary: 'Download file', description: 'Download a file with the given id' })
-	@ApiOkResponse({ content: { '*/*': { schema: { type: 'string', format: 'binary' } } }, description: 'The file was downloaded successfully' })
-	@TemplatedApiException(() => new FileNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), { description: 'The file does not exist' })
-	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async download(@Param() params: FileDownloadParams, @Res({ passthrough: true }) res: Response): Promise<StreamableFile> {
+	@HttpCode(HttpStatus.OK)
+	@FileApiDocs.download()
+	public async download(
+		@Param() params: DownlaodFileParams,
+		@Res({ passthrough: true }) res: Response,
+		@Jwt() jwt: JwtPayload
+	): Promise<StreamableFile> {
 		try {
-			const fileDownloadDto = FileDownloadDto.from(params);
+			const downloadFileDto = DownloadFileDto.from(params, jwt);
 
-			const result = await this.filesService.download(fileDownloadDto);
+			const result = await this.fileService.download(downloadFileDto);
 
 			res.header({
 				'Content-Type': result.mimeType,
@@ -166,23 +157,12 @@ export class FilesController {
 
 	@Patch(':id/rename')
 	@HttpCode(HttpStatus.NO_CONTENT)
-	@ApiOperation({ operationId: 'renameFile', summary: 'Rename file', description: 'Rename the file with the given id' })
-	@ApiNoContentResponse({ description: 'The file was renamed successfully' })
-	@TemplatedApiException(() => new FileNameTooLongException('thisNameIsWayTooLongSoYouWillReceiveAnErrorIfYouChooseSuchALongName.txt'), {
-		description: 'The file name is too long',
-	})
-	@TemplatedApiException(() => new InvalidFileNameException('/$()§..fw'), { description: 'The file name is not valid' })
-	@TemplatedApiException(() => new ParentDirectoryNotFoundException('3c356389-dd1a-4c77-bc1b-7ac75f34d04d'), {
-		description: 'The parent directory does not exist',
-	})
-	@TemplatedApiException(() => new FileNotFoundException('853d4b18-8d1a-426c-b53e-74027ce1644b'), { description: 'The file does not exist' })
-	@TemplatedApiException(() => new FileAlreadyExistsException('example.txt'), { description: 'The file already exists' })
-	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async rename(@Param() params: FileRenameParams, @Body() body: FileRenameBody): Promise<void> {
+	@FileApiDocs.rename()
+	public async rename(@Param() params: RenameFileParams, @Body() body: RenameFileBody, @Jwt() jwt: JwtPayload): Promise<void> {
 		try {
-			const fileRenameDto = FileRenameDto.from(params, body);
+			const renameFileDto = RenameFileDto.from(params, body, jwt);
 
-			await this.filesService.rename(fileRenameDto);
+			await this.fileService.rename(renameFileDto);
 		} catch (e) {
 			this.logger.error(e);
 
@@ -196,15 +176,12 @@ export class FilesController {
 
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
-	@ApiOperation({ operationId: 'deleteFile', summary: 'Delete file', description: 'Delete the file with the given id' })
-	@ApiNoContentResponse({ description: 'The file was deleted successfully' })
-	@TemplatedApiException(() => new FileNotFoundException('853d4b18-8d1a-426c-b53e-74027ce1644b'), { description: 'The file does not exist' })
-	@TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
-	public async delete(@Param() params: FileDeleteParams): Promise<void> {
+	@FileApiDocs.delete()
+	public async delete(@Param() params: DeleteFileParams, @Jwt() jwt: JwtPayload): Promise<void> {
 		try {
-			const fileDeleteDto = FileDeleteDto.from(params);
+			const deleteFileDto = DeleteFileDto.from(params, jwt);
 
-			await this.filesService.delete(fileDeleteDto);
+			await this.fileService.delete(deleteFileDto);
 		} catch (e) {
 			this.logger.error(e);
 

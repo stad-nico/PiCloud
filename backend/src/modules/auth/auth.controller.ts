@@ -1,19 +1,23 @@
+/**-------------------------------------------------------------------------
+ * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Licensed under the MIT License. See the project root for more information.
+ *
+ * @author Nicolas Stadler
+ *-------------------------------------------------------------------------*/
 import { Body, Controller, HttpCode, HttpException, HttpStatus, Logger, Post } from '@nestjs/common';
-import { Public } from 'src/shared/public.decorator';
-import { AuthService } from './auth.service';
-import { LoginDto } from './dtos/login.dto';
-import { ApiCreatedResponse, ApiOperation } from '@nestjs/swagger';
-import { TemplatedApiException } from 'src/util/SwaggerUtils';
-import { InvalidPasswordException } from './exceptions/InvalidPassword.exception';
-import { InvalidUsernameException } from './exceptions/InvalidUsername.exception';
+import { AuthApiDocs } from 'src/modules/auth/auth.api-docs';
+import { LoginBody } from 'src/modules/auth/mapping/login/login.body';
+import { LoginDto } from 'src/modules/auth/mapping/login/login.dto';
+import { Public } from 'src/shared/decorators/public.decorator';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
+@AuthApiDocs.controller()
 export class AuthController {
-
-	constructor(private authService: AuthService) {}
-
 	private readonly logger = new Logger(AuthController.name);
+
+	constructor(private readonly authService: AuthService) {}
 
 	@Post('login')
 	@HttpCode(HttpStatus.OK)
@@ -22,20 +26,23 @@ export class AuthController {
 	@TemplatedApiException(() => new InvalidPasswordException(), { description: 'The password is invalid'})
 	@TemplatedApiException(() => new InvalidUsernameException, { description: 'This username does not exist'})
 	@Public()
-	async login(@Body() loginDto: LoginDto) {
-		this.logger.log(`[POST] ${loginDto.username}`);
+	@HttpCode(HttpStatus.OK)
+	@AuthApiDocs.login()
+	async login(@Body() loginBody: LoginBody) {
+		this.logger.log(`[Post] ${loginBody.username}`);
 
 		try {
-			return await this.authService.login(loginDto.username, loginDto.password);
+			const loginDto = LoginDto.from(loginBody);
+
+			return await this.authService.login(loginDto);
 		} catch (e) {
 			this.logger.error(e);
-			
+
 			if (e instanceof HttpException) {
 				throw e;
 			}
 
 			throw new SomethingWentWrongException();
 		}
-
 	}
 }
