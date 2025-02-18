@@ -33,11 +33,10 @@ export class UserApiDocs {
 
 	public static create() {
 		return applyDecorators(
-			ApiExcludeEndpoint(),
 			ApiOperation({
-				operationId: 'create',
+				operationId: 'createUser',
 				summary: 'Create user',
-				description: 'Register a new user ',
+				description: 'Register a new user',
 			}),
 			ApiCreatedResponse({ description: 'The user was created successfully' }),
 			TemplatedApiException(() => new UserAlreadyExistsException('exampleUser'), {

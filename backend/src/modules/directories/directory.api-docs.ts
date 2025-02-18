@@ -25,7 +25,7 @@ export class DirectoryApiDocs {
 	public static create() {
 		return applyDecorators(
 			ApiOperation({
-				operationId: 'create',
+				operationId: 'createDirectory',
 				summary: 'Create directory',
 				description: 'Create a directory with the given name under the given parent id',
 			}),

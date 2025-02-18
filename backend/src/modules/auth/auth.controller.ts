@@ -11,6 +11,8 @@ import { LoginDto } from 'src/modules/auth/mapping/login/login.dto';
 import { Public } from 'src/shared/decorators/public.decorator';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { AuthService } from './auth.service';
+import { RefreshBody } from './mapping/refresh/refresh.body';
+import { RefreshDto } from './mapping/refresh/refresh.dto';
 
 @Controller('auth')
 @AuthApiDocs.controller()
@@ -30,6 +32,28 @@ export class AuthController {
 			const loginDto = LoginDto.from(loginBody);
 
 			return await this.authService.login(loginDto);
+		} catch (e) {
+			this.logger.error(e);
+
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new SomethingWentWrongException();
+		}
+	}
+
+	@Post('refresh')
+	@Public()
+	@HttpCode(HttpStatus.OK)
+	@AuthApiDocs.refresh()
+	async refresh(@Body() refreshBody: RefreshBody) {
+		this.logger.log(`[Post] refresh`);
+
+		try {
+			const refreshDto = RefreshDto.from(refreshBody);
+
+			return await this.authService.refresh(refreshDto);
 		} catch (e) {
 			this.logger.error(e);
 

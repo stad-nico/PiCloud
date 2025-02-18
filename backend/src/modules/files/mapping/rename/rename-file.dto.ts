@@ -33,6 +33,6 @@ export class RenameFileDto {
 			throw new FileNameTooLongException(renameFileBody.name);
 		}
 
-		return new RenameFileDto(renameFIleParams.directoryId, renameFileBody.name, jwt.user.id);
+		return new RenameFileDto(renameFIleParams.id, renameFileBody.name, jwt.user.id);
 	}
 }

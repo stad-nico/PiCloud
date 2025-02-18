@@ -1,0 +1,20 @@
+<div class="wrapper">
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <h1>Login</h1>
+  
+      <div class="input-box">
+        <input formControlName="username" type="text" placeholder="Username" required />
+      </div>
+  
+      <div class="input-box">
+        <input formControlName="password" type="password" placeholder="Password" required />
+      </div>
+  
+      <button type="submit" class="btn" [disabled]="loginForm.invalid">Login</button>
+  
+      <div class="register-link">
+        <p>Noch keinen Account? <a [routerLink]="['/signup']">Registrieren</a></p>
+      </div>
+    </form>
+  </div>
+  

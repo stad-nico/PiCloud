@@ -8,6 +8,7 @@
 		"prettier": "^3.4.2"
 	},
 	"scripts": {
-		"prepare": "husky"
+		"prepare": "husky",
+		"openapi:generate" : "cd backend && npm run openapi:generate && cd ../frontend && npm run openapi:generate"
 	}
 }
