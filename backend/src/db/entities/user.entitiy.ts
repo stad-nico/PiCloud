@@ -25,4 +25,5 @@ export class User {
 
 	@Property({ type: 'datetime', defaultRaw: 'current_timestamp()' })
 	readonly createdAt!: Date;
+
 }

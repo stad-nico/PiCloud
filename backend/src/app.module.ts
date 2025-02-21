@@ -39,7 +39,7 @@ export const AppModuleConfig = {
 		FilesModule,
 		DirectoriesModule,
 		UsersModule,
-		AuthModule,
+		AuthModule
 	],
 	providers: [{ provide: APP_GUARD, useClass: JwtGuard }],
 };

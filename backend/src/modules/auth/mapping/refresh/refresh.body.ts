@@ -1,15 +1,15 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Samuel Steger. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
- * @author Nicolas Stadler
+ * @author Samuel Steger
  *-------------------------------------------------------------------------*/
 import { ApiProperty } from '@nestjs/swagger';
 
-export class RenameFileParams {
+export class RefreshBody {
 	@ApiProperty({
-		example: '133a8736-111a-4cf7-ae84-dbe040ad4382',
-		description: 'The id of the directory where the file will be stored',
+		example: 'invfqcd8z4rtvn26738rfmgvjjioh423tb3hbjogfdwbs1',
+		description: 'The refresh token used to generate a new access token',
 	})
-	readonly id!: string;
+	readonly refreshToken!: string;
 }
