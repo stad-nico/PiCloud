@@ -7,6 +7,7 @@
 import { Transactional } from '@mikro-orm/core';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { Environment } from 'src/config/env.config';
@@ -16,15 +17,14 @@ import { LoginDto } from 'src/modules/auth/mapping/login/login.dto';
 import { LoginResponse } from 'src/modules/auth/mapping/login/login.response';
 import { UserNotFoundException } from 'src/modules/users/exceptions/user-not-found.exception';
 import { UserRepository } from 'src/modules/users/user.repository';
+import { TokenExpiredException } from './exceptions/token-expired.exception';
 import { RefreshDto } from './mapping/refresh/refresh.dto';
 import { RefreshResponse } from './mapping/refresh/refresh.response';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { TokenExpiredException } from './exceptions/token-expired.exception';
 
 @Injectable()
 export class AuthService {
-	private static ACCESS_TOKEN_EXPIRATION: string = '15m';
-	private static REFRESH_TOKEN_EXPIRATION: string = '7d';
+	private static readonly ACCESS_TOKEN_EXPIRATION = '15m';
+	private static readonly REFRESH_TOKEN_EXPIRATION = '7d';
 
 	constructor(
 		private readonly userRepository: UserRepository,

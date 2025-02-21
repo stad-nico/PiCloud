@@ -55,8 +55,9 @@ export interface ExplorerStateModel {
 	tree: Tree;
 }
 
-const SortDirectoriesFirstThenAlphabetically = (a: File | Directory, b: File | Directory) => {
-	return a.type !== b.type ? b.type - a.type : a.name.localeCompare(b.name);
+const SortDirectoriesFirstThenAlphabetically = (a: any, b: any) => {
+	// return a.type !== b.type ? b.type - a.type : a.name.localeCompare(b.name);
+	return 0;
 };
 
 @State<ExplorerStateModel>({
@@ -121,7 +122,7 @@ export class ExplorerState {
 				return;
 			}
 
-			return this.filesService.downloadFile(ctx.getState().directory, action.id).pipe(
+			return this.filesService.downloadFile(action.id).pipe(
 				tap((body) => {
 					const tab = window.open(URL.createObjectURL(body));
 
@@ -156,12 +157,15 @@ export class ExplorerState {
 								this.directoriesService.getContents(d.id).pipe(
 									map((contents) => ({
 										[d.id]: [
-											...contents.directories.map((directory) => ({ type: Type.Directory as Type.Directory, ...directory })),
+											...contents.directories.map((directory) => ({
+												type: Type.Directory as Type.Directory,
+												...directory,
+											})),
 											...contents.files.map((file) => ({ type: Type.File as Type.File, ...file })),
 										].sort(SortDirectoriesFirstThenAlphabetically),
 									})),
 									map((contents) => ({
-										tree: mergeTrees(d.tree, contents),
+										tree: mergeTrees(d.tree, {}),
 										crumbs: [{ id: d.id, name: metadata.name }, ...d.crumbs],
 										id: metadata.parentId,
 									}))
@@ -171,7 +175,9 @@ export class ExplorerState {
 			),
 			takeLast(1),
 			tap(({ tree }) => ctx.setState(patch({ tree: patch(tree) }))),
-			tap(({ tree, crumbs }) => ctx.dispatch([new BreadcrumbsActions.Set(crumbs), ...Object.keys(tree).map((id) => new DirectoryTreeActions.Expand(id))]))
+			tap(({ tree, crumbs }) =>
+				ctx.dispatch([new BreadcrumbsActions.Set(crumbs), ...Object.keys(tree).map((id) => new DirectoryTreeActions.Expand(id))])
+			)
 		);
 	}
 
@@ -216,7 +222,10 @@ export class ExplorerState {
 								tree: patch(
 									grandparentId
 										? {
-												[grandparentId]: updateItem((item) => item.id === parentId, patch({ directories: (amt) => amt + 1 })),
+												[grandparentId]: updateItem(
+													(item) => item.id === parentId,
+													patch({ directories: (amt) => amt + 1 })
+												),
 												[parentId]: append([{ type: Type.Directory, ...metadata }]),
 											}
 										: { [parentId]: append([{ type: Type.Directory, ...metadata }]) }
@@ -242,7 +251,10 @@ export class ExplorerState {
 						tree: patch(
 							grandparentId
 								? {
-										[grandparentId]: updateItem((item) => item.id === parentId, patch({ directories: (amt) => amt - 1 })),
+										[grandparentId]: updateItem(
+											(item) => item.id === parentId,
+											patch({ directories: (amt) => amt - 1 })
+										),
 										[parentId]: removeItem((item) => item.id === action.id),
 									}
 								: {
@@ -258,7 +270,9 @@ export class ExplorerState {
 	@Action(ExplorerActions.UploadFile)
 	public uploadFile(ctx: StateContext<ExplorerStateModel>, action: ExplorerActions.UploadFile) {
 		const directoryId = ctx.getState().directory;
-		const grandparentId = Object.keys(ctx.getState().tree).find((key) => ctx.getState().tree[key].some((item) => item.id === directoryId));
+		const grandparentId = Object.keys(ctx.getState().tree).find((key) =>
+			ctx.getState().tree[key].some((item) => item.id === directoryId)
+		);
 
 		return this.filesService.upload(directoryId, action.file).pipe(
 			switchMap((body) =>
@@ -295,7 +309,9 @@ export class ExplorerState {
 			return;
 		}
 
-		const grandparentId = Object.keys(ctx.getState().tree).find((key) => ctx.getState().tree[key].some((item) => item.id === directoryId));
+		const grandparentId = Object.keys(ctx.getState().tree).find((key) =>
+			ctx.getState().tree[key].some((item) => item.id === directoryId)
+		);
 
 		return this.filesService.deleteFile(directoryId, action.id).pipe(
 			tap(() =>

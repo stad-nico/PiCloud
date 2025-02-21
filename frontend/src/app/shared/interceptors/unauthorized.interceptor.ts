@@ -1,8 +1,8 @@
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpStatusCode } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from 'generated';
-import { Observable, catchError, switchMap, throwError, EMPTY } from 'rxjs';
+import { catchError, EMPTY, Observable, switchMap, throwError } from 'rxjs';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -30,14 +30,9 @@ export class AuthInterceptor implements HttpInterceptor {
 							localStorage.setItem('access_token', newAccessToken);
 							localStorage.setItem('refresh_token', newRefreshToken);
 
-							const clonedRequest = request.clone({
-								setHeaders: { Authorization: `Bearer ${newAccessToken}` },
-							});
-
-							return next.handle(clonedRequest);
+							return next.handle(request.clone());
 						}),
-						catchError((refreshError) => {
-							console.error('Fehler beim Refresh:', refreshError);
+						catchError(() => {
 							this.router.navigate(['login']);
 							return EMPTY;
 						})

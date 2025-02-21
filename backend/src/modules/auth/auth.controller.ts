@@ -8,6 +8,8 @@ import { Body, Controller, HttpCode, HttpException, HttpStatus, Logger, Post } f
 import { AuthApiDocs } from 'src/modules/auth/auth.api-docs';
 import { LoginBody } from 'src/modules/auth/mapping/login/login.body';
 import { LoginDto } from 'src/modules/auth/mapping/login/login.dto';
+import { LoginResponse } from 'src/modules/auth/mapping/login/login.response';
+import { RefreshResponse } from 'src/modules/auth/mapping/refresh/refresh.response';
 import { Public } from 'src/shared/decorators/public.decorator';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { AuthService } from './auth.service';
@@ -25,7 +27,7 @@ export class AuthController {
 	@Public()
 	@HttpCode(HttpStatus.OK)
 	@AuthApiDocs.login()
-	async login(@Body() loginBody: LoginBody) {
+	async login(@Body() loginBody: LoginBody): Promise<LoginResponse> {
 		this.logger.log(`[Post] ${loginBody.username}`);
 
 		try {
@@ -47,7 +49,7 @@ export class AuthController {
 	@Public()
 	@HttpCode(HttpStatus.OK)
 	@AuthApiDocs.refresh()
-	async refresh(@Body() refreshBody: RefreshBody) {
+	async refresh(@Body() refreshBody: RefreshBody): Promise<RefreshResponse> {
 		this.logger.log(`[Post] refresh`);
 
 		try {

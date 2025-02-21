@@ -5,11 +5,13 @@
  * @author Nicolas Stadler
  *-------------------------------------------------------------------------*/
 import { applyDecorators } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { LoginResponse } from 'src/modules/auth/mapping/login/login.response';
+import { RefreshResponse } from 'src/modules/auth/mapping/refresh/refresh.response';
+import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
 import { UserNotFoundException } from '../users/exceptions/user-not-found.exception';
 import { IncorrectPasswordException } from './exceptions/incorrect-password.exception';
-import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { TokenExpiredException } from './exceptions/token-expired.exception';
 import { LoginBody } from './mapping/login/login.body';
 import { RefreshBody } from './mapping/refresh/refresh.body';
@@ -27,7 +29,7 @@ export class AuthApiDocs {
 				summary: 'Login with password',
 				description: 'Generate refresh and access token',
 			}),
-			ApiOkResponse({ description: 'The login was successful' }),
+			ApiOkResponse({ type: LoginResponse, description: 'The login was successful' }),
 			TemplatedApiException(() => new UserNotFoundException('exampleUser'), { description: 'User does not exist' }),
 			TemplatedApiException(() => IncorrectPasswordException, { description: 'The password was not correct' }),
 			TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
@@ -42,7 +44,7 @@ export class AuthApiDocs {
 				summary: 'Refresh with refresh token',
 				description: 'Generate new access and refresh token',
 			}),
-			ApiOkResponse({ description: 'new tokens generated' }),
+			ApiOkResponse({ type: RefreshResponse, description: 'new tokens generated' }),
 			TemplatedApiException(() => new UserNotFoundException('exampleUser'), { description: 'User does not exist' }),
 			TemplatedApiException(() => TokenExpiredException, { description: 'The token has expired' })
 		);
