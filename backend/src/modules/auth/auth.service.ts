@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { Environment } from 'src/config/env.config';
 import { IncorrectPasswordException } from 'src/modules/auth/exceptions/incorrect-password.exception';
+import { SessionExpiredException } from 'src/modules/auth/exceptions/session-expired.exception';
 import { JwtPayload } from 'src/modules/auth/jwt.guard';
 import { LoginDto } from 'src/modules/auth/mapping/login/login.dto';
 import { LoginResponse } from 'src/modules/auth/mapping/login/login.response';
@@ -23,8 +24,22 @@ import { RefreshResponse } from './mapping/refresh/refresh.response';
 
 @Injectable()
 export class AuthService {
-	private static readonly ACCESS_TOKEN_EXPIRATION = '15m';
+	/**
+	 * The expiration time of the access token.
+	 */
+	private static readonly ACCESS_TOKEN_EXPIRATION = '1h';
+
+	/**
+	 * The expiration time of the refresh token.
+	 */
 	private static readonly REFRESH_TOKEN_EXPIRATION = '7d';
+
+	/**
+	 * The maximum duration of a session. If a user tries to refresh its token and his
+	 * last login was more than this duration ago, he will be forced to log in again.
+	 * The duration is in milliseconds (30 days).
+	 */
+	private static readonly MAX_SESSION_DURATION = 1000 * 60 * 60 * 24 * 30;
 
 	constructor(
 		private readonly userRepository: UserRepository,
@@ -46,6 +61,8 @@ export class AuthService {
 			throw new IncorrectPasswordException();
 		}
 
+		await this.userRepository.nativeUpdate({ id: user.id }, { lastLogin: new Date() });
+
 		const jwtPayload: JwtPayload = { user: { id: user.id, username: user.username } };
 
 		const accessToken = jwt.sign(jwtPayload, this.configService.getOrThrow<string>(Environment.JwtAccessSecret), {
@@ -61,19 +78,23 @@ export class AuthService {
 
 	@Transactional()
 	public async refresh(refreshDto: RefreshDto): Promise<RefreshResponse> {
+		const secret = this.configService.getOrThrow<string>(Environment.JwtRefreshSecret);
+
+		const payload = await this.jwtService.verifyAsync<JwtPayload>(refreshDto.refreshToken, { secret });
+
+		const user = await this.userRepository.findOne({ id: payload.user.id });
+
+		if (!user) {
+			throw new UserNotFoundException(payload.user.id);
+		}
+
+		if (!user.lastLogin || Date.now() - user.lastLogin.getTime() > AuthService.MAX_SESSION_DURATION) {
+			throw new SessionExpiredException();
+		}
+
+		const jwtPayload: JwtPayload = { user: { id: user.id, username: user.username } };
+
 		try {
-			const secret = this.configService.getOrThrow<string>(Environment.JwtRefreshSecret);
-
-			const payload = await this.jwtService.verifyAsync<JwtPayload>(refreshDto.refreshToken, { secret });
-
-			const user = await this.userRepository.findOne({ id: payload.user.id });
-
-			if (!user) {
-				throw new UserNotFoundException(payload.user.id);
-			}
-
-			const jwtPayload: JwtPayload = { user: { id: user.id, username: user.username } };
-
 			const accessToken = jwt.sign(jwtPayload, this.configService.getOrThrow<string>(Environment.JwtAccessSecret), {
 				expiresIn: AuthService.ACCESS_TOKEN_EXPIRATION,
 			});

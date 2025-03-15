@@ -1,44 +1,37 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { ButtonComponent } from '@pihub/components/button';
 import { AuthService } from 'generated';
 
 @Component({
-	standalone: true,
 	selector: 'login',
 	templateUrl: './login.component.html',
 	styleUrl: './login.component.scss',
-	imports: [ReactiveFormsModule, RouterModule, CommonModule],
+	imports: [ReactiveFormsModule, RouterModule, CommonModule, ButtonComponent],
 })
 export class LoginComponent {
-	protected readonly loginForm: FormGroup;
-
 	private readonly formBuilder = inject(FormBuilder);
 
 	private readonly authService = inject(AuthService);
 
 	private readonly router = inject(Router);
 
-	constructor() {
-		this.loginForm = this.formBuilder.group({
-			username: ['', Validators.required],
-			password: ['', [Validators.required, Validators.minLength(4)]],
-		});
-	}
+	protected readonly loginForm = this.formBuilder.nonNullable.group({
+		username: this.formBuilder.nonNullable.control(''),
+		password: this.formBuilder.nonNullable.control(''),
+	});
 
 	protected onSubmit(): void {
 		if (this.loginForm.valid) {
-			const { username, password } = this.loginForm.value;
+			const { username, password } = this.loginForm.getRawValue();
 
-			this.authService.login({ username, password }).subscribe({
-				next: (response) => {
-					console.log('Login successfully:', response);
-					this.router.navigate(['']);
-				},
-				error: (error) => {
-					console.error('Error:', error);
-				},
+			this.authService.login({ username, password }).subscribe((response) => {
+				localStorage.setItem('access_token', response.accessToken);
+				localStorage.setItem('refresh_token', response.refreshToken);
+
+				this.router.navigate(['']);
 			});
 		}
 	}

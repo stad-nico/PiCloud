@@ -1,0 +1,19 @@
+<pihub-sidebar [entries]="sidebarEntries">
+	<ng-template #headerTemplate>
+		<section class="header">
+			<pihub-icon
+				[routerLink]="'/'"
+				[icon]="headerIcon"
+				size="48"
+				color="black" />
+			<p
+				[routerLink]="'/'"
+				class="title">
+				Pihub
+			</p>
+		</section>
+	</ng-template>
+</pihub-sidebar>
+<main>
+	<router-outlet></router-outlet>
+</main>

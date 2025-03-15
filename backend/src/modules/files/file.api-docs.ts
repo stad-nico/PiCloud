@@ -36,7 +36,7 @@ export class FileApiDocs {
 			ApiConsumes('multipart/form-data'),
 			ApiBody({ description: 'File to upload', type: UploadFileBody }),
 			ApiOperation({
-				operationId: 'upload',
+				operationId: 'uploadFile',
 				summary: 'Upload file',
 				description: 'Upload a file and store it under the provided parent id',
 			}),
@@ -57,7 +57,7 @@ export class FileApiDocs {
 	public static replace() {
 		return applyDecorators(
 			ApiOperation({
-				operationId: 'replace',
+				operationId: 'replaceFile',
 				summary: 'Replace file',
 				description: 'Upload a file and replace if it already exists',
 			}),

@@ -24,7 +24,7 @@ export const AppModuleConfig = {
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
-			envFilePath: `${process.env.NODE_ENV ?? 'dev'}.env`,
+			envFilePath: `config.env`,
 			expandVariables: true,
 			validate: validate,
 		}),
@@ -39,7 +39,7 @@ export const AppModuleConfig = {
 		FilesModule,
 		DirectoriesModule,
 		UsersModule,
-		AuthModule
+		AuthModule,
 	],
 	providers: [{ provide: APP_GUARD, useClass: JwtGuard }],
 };

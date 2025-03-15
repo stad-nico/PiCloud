@@ -5,5 +5,5 @@ import { SignupComponent } from './features/signup/signup.component';
 export const routes: Routes = [
 	{ path: 'login', component: LoginComponent },
 	{ path: 'signup', component: SignupComponent },
-	{ path: "**", pathMatch: "full", redirectTo: "login" },
+	{ path: '', loadComponent: () => import('./core/layout/layout.component'), loadChildren: () => import('./core/layout/layout.routes') },
 ];

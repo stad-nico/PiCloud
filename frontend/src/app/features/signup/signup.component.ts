@@ -5,7 +5,6 @@ import { UsersService } from 'generated';
 
 @Component({
 	selector: 'signup',
-	standalone: true,
 	imports: [RouterModule, FormsModule, ReactiveFormsModule],
 	templateUrl: './signup.component.html',
 	styleUrl: './signup.component.scss',

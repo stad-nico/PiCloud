@@ -22,8 +22,8 @@ export class FileUtils {
 	 * Tries to delete the directory recursively.
 	 * Throws an error if it fails.
 	 *
-	 * @param {string}  path			 the absolute path
-	 * @param {boolean} [recursive=true] whether subfolders should get deleted
+	 * @param path the absolute path
+	 * @param recursive whether subfolders should get deleted
 	 */
 	public static async deleteDirectoryOrFail(path: string, recursive = true): Promise<void> {
 		await fsPromises.rm(path, { recursive: recursive });
@@ -33,8 +33,8 @@ export class FileUtils {
 	 * Tries to create the directory recursively if it does not already exist.
 	 * Throws an error if it fails.
 	 *
-	 * @param {string}  path             the absolute path
-	 * @param {boolean} [recursive=true] whether subfolders should be created
+	 * @param path the absolute path
+	 * @param recursive whether subfolders should be created
 	 */
 	public static async createDirectoryIfNotPresent(path: string, recursive = true): Promise<void> {
 		if (await PathUtils.pathExists(path)) {
@@ -47,9 +47,9 @@ export class FileUtils {
 	/**
 	 * Writes a file stream to the disk.
 	 *
-	 * @param {string}   absolutePath     the destination path
-	 * @param {Readable} stream           the file stream
-	 * @param {boolean}  [recursive=true] whether destination path should be created if it does not exist
+	 * @param absolutePath the destination path
+	 * @param stream the file stream
+	 * @param recursive whether destination path should be created if it does not exist
 	 */
 	public static async writeFile(absolutePath: string, buffer: Buffer, recursive = true): Promise<void> {
 		const normalizedPath = PathUtils.prepareFilePathForFS(absolutePath);
@@ -72,9 +72,9 @@ export class FileUtils {
 	/**
 	 * Copies a file.
 	 *
-	 * @param {string}  from             the source path
-	 * @param {string}  to               the destination path
-	 * @param {boolean} [recursive=true] whether destination path should be created if it does not exist
+	 * @param from the source path
+	 * @param to the destination path
+	 * @param whether destination path should be created if it does not exist
 	 */
 	public static async copyFile(from: string, to: string, recursive = true): Promise<void> {
 		const fromNormalized = PathUtils.prepareFilePathForFS(from);
@@ -92,7 +92,7 @@ export class FileUtils {
 	/**
 	 * Empties a directory by removing all files and subfolders from it.
 	 *
-	 * @param {string} absolutePath the directory path
+	 * @param absolutePath the directory path
 	 */
 	public static async emptyDirectory(absolutePath: string): Promise<void> {
 		const files = await fsPromises.readdir(absolutePath);
@@ -106,15 +106,22 @@ export class FileUtils {
 	 * Creates a read stream of a ZIP-Archive.
 	 * Each file is loaded from the fs by its id and stored in the archive under its path.
 	 *
-	 * @param   {ConfigService}                       configService the config service
-	 * @param   {Array<{ id: string; path: string }>} files         the files
-	 * @returns {Readable}                                          readable stream
+	 * @param configService the config service
+	 * @param files the files
+	 * @returns readable stream
 	 */
-	public static createZIPArchive(configService: ConfigService, files: Array<{ id: string; relativePath: string }>): Readable {
+	public static async createZIPArchive(
+		configService: ConfigService,
+		files: Array<{ id: string; relativePath: string }>
+	): Promise<Readable> {
 		const zip = new JSZip();
 
 		for (const file of files) {
 			const filepath = PathUtils.join(configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
+
+			if (!(await PathUtils.pathExists(filepath))) {
+				throw new Error('File exists in database but does not exist on disk');
+			}
 
 			zip.file(file.relativePath, createReadStream(filepath));
 		}

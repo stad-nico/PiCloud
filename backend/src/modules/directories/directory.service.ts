@@ -22,6 +22,7 @@ import { DownloadDirectoryResponse } from 'src/modules/directories/mapping/downl
 import { GetDirectoryMetadataDto } from 'src/modules/directories/mapping/metadata/get-directory-metadata.dto';
 import { GetDirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata/get-directory-metadata.response';
 import { RenameDirectoryDto } from 'src/modules/directories/mapping/rename/rename-directory.dto';
+import { GetDirectoryRootResponse } from 'src/modules/directories/mapping/root/get-directory-root.response';
 import { StoragePath } from 'src/modules/disk/DiskService';
 import { FileRepository } from 'src/modules/files/file.repository';
 import { FileUtils } from 'src/util/FileUtils';
@@ -36,14 +37,14 @@ export class DirectoryService {
 	) {}
 
 	@Transactional()
-	public async getRoot(userId: string): Promise<{ id: string }> {
+	public async getRoot(userId: string): Promise<GetDirectoryRootResponse> {
 		let rootDirectory = await this.directoryRepository.findOne({ parent: null, user: userId });
 
 		if (!rootDirectory) {
 			rootDirectory = this.directoryRepository.create({ parent: null, name: 'root', user: userId });
 		}
 
-		return { id: rootDirectory.id };
+		return GetDirectoryRootResponse.from(rootDirectory.id);
 	}
 
 	@Transactional()
@@ -114,7 +115,7 @@ export class DirectoryService {
 
 		const relativeFilePaths = PathUtils.buildFilePaths(directory.id, files, directories);
 
-		const readable = FileUtils.createZIPArchive(this.configService, relativeFilePaths);
+		const readable = await FileUtils.createZIPArchive(this.configService, relativeFilePaths);
 
 		return DownloadDirectoryResponse.from(directory.name + '.zip', 'application/zip', readable);
 	}

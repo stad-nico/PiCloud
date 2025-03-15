@@ -29,7 +29,6 @@ export class GetDirectoryMetadataResponse {
 	@ApiProperty({
 		description: 'The date the directory was last modified',
 		type: 'string',
-		nullable: true,
 		format: 'Date',
 		example: '2024-05-05 17:37:33',
 	})
@@ -41,6 +40,17 @@ export class GetDirectoryMetadataResponse {
 	@ApiProperty({ description: 'The userId of the directory', type: 'string', example: '85dff44c-8a73-4804-abfe-b7352d8cfbea' })
 	readonly userId: string;
 
+	@ApiProperty({ description: 'The absolute path of the directory', type: 'string', example: '/home/user/photos' })
+	readonly path: string;
+
+	@ApiProperty({
+		description: 'The chain of ids',
+		type: 'string',
+		isArray: true,
+		example: "['2c3f4a65-7d61-4532-b9ea-e1b5537f0bcf', '2c3f4a65-7d61-4532-b9ea-e1b5537f0bcf', '2c3f4a65-7d61-4532-b9ea-e1b5537f0bcf']",
+	})
+	readonly idChain: Array<string>;
+
 	private constructor(metadata: DirectoryMetadata) {
 		this.id = metadata.id;
 		this.parentId = metadata.parentId;
@@ -51,6 +61,8 @@ export class GetDirectoryMetadataResponse {
 		this.createdAt = metadata.createdAt;
 		this.updatedAt = metadata.updatedAt;
 		this.userId = metadata.userId;
+		this.path = metadata.path;
+		this.idChain = metadata.idChain;
 	}
 
 	public static from(metadata: DirectoryMetadata): GetDirectoryMetadataResponse {

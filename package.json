@@ -9,6 +9,6 @@
 	},
 	"scripts": {
 		"prepare": "husky",
-		"openapi:generate" : "cd backend && npm run openapi:generate && cd ../frontend && npm run openapi:generate"
+		"openapi:generate": "cd backend && npm run openapi:generate && cd ../frontend && npm run openapi:generate"
 	}
 }

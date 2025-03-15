@@ -1,0 +1,260 @@
+:host {
+	display: flex;
+	flex-direction: column;
+
+	width: 100%;
+	height: 100%;
+
+	> :is(header, main) {
+		width: 100%;
+	}
+
+	> header {
+		padding: 10px;
+		height: 46px;
+
+		> pihub-breadcrumbs .breadcrumb {
+			cursor: pointer;
+
+			> pihub-icon.home {
+				width: 1.4rem;
+				margin-bottom: 2px;
+
+				fill: var(--color-text-secondary);
+				transition: all 0.2s ease;
+
+				&:hover {
+					fill: var(--color-text-highlight);
+
+					cursor: pointer;
+				}
+			}
+
+			> .name {
+				padding: 0.125rem 0.5rem;
+
+				color: var(--color-text-secondary);
+
+				user-select: none;
+
+				transition: all 0.2s ease;
+
+				border-radius: 1.25rem;
+
+				margin-left: -1px;
+
+				&:hover {
+					background-color: var(--color-container-hover);
+					color: var(--color-text-highlight);
+
+					cursor: pointer;
+				}
+			}
+		}
+	}
+
+	> main {
+		height: calc(100% - 46px);
+
+		display: flex;
+		align-items: stretch;
+		justify-content: center;
+
+		flex-grow: 1;
+
+		> pihub-tree {
+			display: block;
+
+			width: 40%;
+			overflow: scroll;
+
+			padding: 16px;
+
+			border-radius: 1.625rem 0 0 1.625rem;
+			background-color: var(--color-background-primary);
+
+			.tree-node {
+				margin-bottom: 2px;
+
+				&.selected {
+					> header {
+						background-color: var(--color-container-selected);
+
+						&:hover {
+							background-color: var(--color-container-selected);
+
+							+ main {
+								background-color: var(--color-container-hover);
+							}
+						}
+
+						> pihub-icon.arrow:hover {
+							background-color: var(--color-container-selected-hover);
+						}
+					}
+				}
+
+				> header {
+					position: relative;
+					display: flex;
+					align-items: center;
+					justify-content: flex-start;
+					gap: 8px;
+
+					height: 40px;
+
+					padding: 0 10px;
+					border-radius: 15px;
+					z-index: 1;
+
+					transition: background-color 0.2s ease;
+
+					&:hover {
+						cursor: pointer;
+						background-color: var(--color-container-hover);
+
+						+ main {
+							background-color: var(--color-container-active);
+						}
+					}
+
+					> .title {
+						user-select: none;
+						color: var(--color-text-primary);
+					}
+
+					> pihub-icon.arrow {
+						border-radius: 8px;
+						margin-right: -4px;
+
+						transition: background-color 0.2s ease;
+
+						&.hidden {
+							opacity: 0;
+							pointer-events: none;
+						}
+
+						&.rotated {
+							rotate: -90deg;
+						}
+
+						&:hover {
+							background-color: var(--color-container-selected);
+						}
+					}
+				}
+
+				> main {
+					position: relative;
+					display: block;
+
+					margin-top: -40px;
+					padding: 42px 20px 0px 20px;
+					border-radius: 15px;
+					z-index: 0;
+
+					transition: background-color 0.2s ease;
+				}
+			}
+		}
+
+		> pihub-data-grid {
+			display: block;
+
+			width: 60%;
+
+			overflow: hidden;
+
+			border-radius: 0 1.625rem 1.625rem 0;
+			background-color: var(--color-background-tertiary);
+
+			.column {
+				overflow: hidden;
+
+				> p {
+					color: var(--color-text-primary);
+					user-select: none;
+
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+			}
+
+			.column.name {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: flex-start;
+				gap: 8px;
+				height: 40px;
+
+				> .icon-wrapper {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+
+					width: 24px;
+
+					> pihub-icon.folder {
+						margin-right: 1px;
+					}
+				}
+			}
+
+			.column.actions {
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 2px;
+
+				&.hovered {
+					> pihub-icon {
+						opacity: 1;
+					}
+				}
+
+				&.selected {
+					> pihub-icon:hover {
+						background-color: var(--color-container-selected-hover);
+					}
+				}
+
+				> pihub-icon {
+					opacity: 0;
+
+					border-radius: 8px;
+
+					padding: 4px;
+
+					transition: all 0.2s ease;
+
+					&:hover {
+						&.danger {
+							background-color: var(--color-error-800);
+						}
+
+						background-color: var(--color-container-selected);
+					}
+				}
+			}
+
+			.empty {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				width: 100%;
+				height: 100%;
+
+				> img {
+					-webkit-user-drag: none;
+				}
+			}
+
+			::ng-deep section.row:not(.isSelected) section.columns:hover {
+				background-color: var(--color-primary-1000) !important;
+			}
+		}
+	}
+}

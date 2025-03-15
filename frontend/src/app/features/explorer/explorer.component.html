@@ -1,0 +1,166 @@
+<header>
+	<pihub-breadcrumbs [crumbs]="crumbs()">
+		<ng-template
+			#template
+			let-index="index"
+			let-crumb="breadcrumb">
+			<section
+				class="breadcrumb"
+				(click)="onCrumbClick(crumb.id)">
+				@if (index === 0) {
+					<pihub-icon
+						class="home"
+						[icon]="icons.house"
+						color="--color-text-secondary"
+						hoverColor="--color-text-highlight" />
+				} @else {
+					<p class="name">{{ crumb.name }}</p>
+				}
+			</section>
+		</ng-template>
+	</pihub-breadcrumbs>
+</header>
+
+<main>
+	<pihub-tree
+		[nodes]="treeNodes()"
+		[expandedIds]="explorerService.expandedIds()"
+		[selectedId]="directoryId$ | async"
+		(selectedIdChange)="onTreeNodeSelectedIdChange($event)"
+		(expandedIdsChange)="onTreeNodeExpandedIdsChange($event)">
+		<ng-template
+			treeNode
+			let-node>
+			<section
+				class="tree-node"
+				[class.selected]="node.isSelected">
+				<header>
+					<pihub-icon
+						class="arrow"
+						[class.hidden]="!node.hasChildren"
+						[class.rotated]="!node.isExpanded"
+						[icon]="icons.chevronDown"
+						(click)="onTreeNodeArrowClick(node.id, $event)"
+						[color]="node.isLoading ? '--color-text-tertiary' : '--color-text-secondary'"
+						hoverColor="--color-text-highlight" />
+					<pihub-icon
+						[icon]="icons.folder"
+						color="black" />
+					<p class="title">{{ node.name }}</p>
+				</header>
+				@if (node.hasChildren && node.isExpanded) {
+					<main>
+						<ng-container *ngTemplateOutlet="node.children" />
+					</main>
+				}
+			</section>
+		</ng-template>
+	</pihub-tree>
+
+	<pihub-data-grid
+		[columnTitles]="columns()"
+		[rows]="explorerService.contents()"
+		[selectedIds]="selectedIds()"
+		[bulkActions]="bulkActions"
+		[ctaActions]="ctaActions"
+		[totalCount]="0"
+		(rowClick)="onRowClick($event)">
+		<ng-template
+			column="Name"
+			let-item>
+			<section class="column name">
+				<div class="icon-wrapper">
+					<pihub-icon
+						[class.folder]="item.isDirectory"
+						[icon]="item.isDirectory ? icons.folder : icons.file"
+						color="black" />
+				</div>
+				<p
+					class="name"
+					[title]="item.name">
+					{{ item.name }}
+				</p>
+			</section>
+		</ng-template>
+
+		<ng-template
+			column="Typ"
+			let-item
+			width="0.75fr">
+			<section class="column type">
+				<p>
+					@if (item.isDirectory) {
+						{{ 'Ordner' }}
+					} @else {
+						{{ item.mimeType | mimeType }}
+					}
+				</p>
+			</section>
+		</ng-template>
+
+		<ng-template
+			column="Größe"
+			let-item
+			width="0.5fr">
+			<section class="column size">
+				<p class="size">{{ item.size | size }}</p>
+			</section>
+		</ng-template>
+
+		<ng-template
+			column="Erstellt am"
+			let-item
+			width="0.5fr">
+			<section class="column created-at">
+				<p class="date">{{ item.createdAt | date }}</p>
+			</section>
+		</ng-template>
+
+		<ng-template
+			column="Geändert am"
+			let-item
+			width="0.5fr">
+			<section class="column updated-at">
+				<p class="date">{{ item.updatedAt | date }}</p>
+			</section>
+		</ng-template>
+
+		<ng-template
+			column="Aktionen"
+			let-item
+			let-hovered="hovered"
+			let-selected="selected"
+			width="100px">
+			<section
+				class="column actions"
+				[class.hovered]="hovered"
+				[class.selected]="selected">
+				<pihub-icon
+					[icon]="icons.pen"
+					(click)="rename(item.id, $event)"
+					size="20"
+					color="--color-text-secondary"
+					hoverColor="--color-text-highlight" />
+				<pihub-icon
+					[icon]="icons.download"
+					(click)="download(item.id, $event)"
+					size="20"
+					color="--color-text-secondary"
+					hoverColor="--color-text-highlight" />
+				<pihub-icon
+					[icon]="icons.trashcan"
+					(click)="delete(item.id, $event)"
+					size="20"
+					class="danger"
+					color="--color-error-600"
+					hoverColor="--color-error-500" />
+			</section>
+		</ng-template>
+
+		<ng-template emptyState>
+			<section class="empty">
+				<img src="assets/illustrations/content-list-empty.svg" />
+			</section>
+		</ng-template>
+	</pihub-data-grid>
+</main>

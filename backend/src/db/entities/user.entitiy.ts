@@ -10,20 +10,22 @@ import { v4 } from 'uuid';
 
 @Entity({ tableName: 'users', repository: () => UserRepository })
 export class User {
-	[OptionalProps]?: 'id' | 'createdAt';
+	[OptionalProps]?: 'id' | 'createdAt' | 'lastLogin';
 	[EntityRepositoryType]?: UserRepository;
 	[HiddenProps]?: 'password';
 
 	@PrimaryKey({ type: 'uuid', nullable: false, unique: true, defaultRaw: 'UUID()' })
 	readonly id: string = v4();
 
-	@Property({ type: 'varchar', unique: true, nullable: false })
+	@Property({ type: 'varchar', nullable: false, unique: true })
 	readonly username!: string;
 
 	@Property({ type: 'varchar', nullable: false, hidden: true })
 	readonly password!: string;
 
-	@Property({ type: 'datetime', defaultRaw: 'current_timestamp()' })
+	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()' })
 	readonly createdAt!: Date;
 
+	@Property({ type: 'datetime', nullable: true, default: null })
+	readonly lastLogin!: Date | null;
 }

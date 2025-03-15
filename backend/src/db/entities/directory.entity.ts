@@ -48,8 +48,7 @@ export class Directory {
 		updateRule: 'no action',
 		deleteRule: 'cascade',
 		name: 'userId',
-		serializer: (user: User) => user.id,
-		serializedName: 'userId',
+		referenceColumnName: 'id',
 	})
 	readonly user!: User;
 }
