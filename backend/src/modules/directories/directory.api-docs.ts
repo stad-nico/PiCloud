@@ -14,18 +14,19 @@ import { RootCannotBeDeletedException } from 'src/modules/directories/exceptions
 import { RootCannotBeRenamedException } from 'src/modules/directories/exceptions/root-cannot-be-renamed.exception';
 import { GetDirectoryContentsResponse } from 'src/modules/directories/mapping/contents/get-directory-contents.response';
 import { GetDirectoryMetadataResponse } from 'src/modules/directories/mapping/metadata/get-directory-metadata.response';
+import { GetDirectoryRootResponse } from 'src/modules/directories/mapping/root/get-directory-root.response';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { TemplatedApiException } from 'src/util/SwaggerUtils';
 
 export class DirectoryApiDocs {
 	public static controller() {
-		return applyDecorators(ApiTags('directories'), ApiBearerAuth());
+		return applyDecorators(ApiTags('directory'), ApiBearerAuth());
 	}
 
 	public static create() {
 		return applyDecorators(
 			ApiOperation({
-				operationId: 'create',
+				operationId: 'createDirectory',
 				summary: 'Create directory',
 				description: 'Create a directory with the given name under the given parent id',
 			}),
@@ -50,14 +51,18 @@ export class DirectoryApiDocs {
 				summary: 'Get root id',
 				description: 'Get the id of the root directory for the current user',
 			}),
-			ApiOkResponse({ description: 'The root was retreived successfully' }),
+			ApiOkResponse({ type: GetDirectoryRootResponse, description: 'The root was retreived successfully' }),
 			TemplatedApiException(() => SomethingWentWrongException, { description: 'Unexpected error' })
 		);
 	}
 
 	public static getContents() {
 		return applyDecorators(
-			ApiOperation({ operationId: 'getContents', summary: 'Get directory contents', description: 'Get the files and directories' }),
+			ApiOperation({
+				operationId: 'getDirectoryContents',
+				summary: 'Get directory contents',
+				description: 'Get the files and directories',
+			}),
 			ApiOkResponse({ type: GetDirectoryContentsResponse, description: 'The contents were retrieved successfully' }),
 			TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
 				description: 'The directory does not exist',
@@ -68,7 +73,11 @@ export class DirectoryApiDocs {
 
 	public static getMetadata() {
 		return applyDecorators(
-			ApiOperation({ operationId: 'getMetadata', summary: 'Get directory metadata', description: 'Get the metadata of a directory' }),
+			ApiOperation({
+				operationId: 'getDirectoryMetadata',
+				summary: 'Get directory metadata',
+				description: 'Get the metadata of a directory',
+			}),
 			ApiOkResponse({ type: GetDirectoryMetadataResponse, description: 'The metadata was retrieved successfully' }),
 			TemplatedApiException(() => new DirectoryNotFoundException('133a8736-111a-4cf7-ae84-dbe040ad4382'), {
 				description: 'The directory does not exist',
@@ -80,7 +89,7 @@ export class DirectoryApiDocs {
 	public static download() {
 		return applyDecorators(
 			ApiOperation({
-				operationId: 'download',
+				operationId: 'downloadDirectory',
 				summary: 'Download directory',
 				description: 'Download the directory as a ZIP archive',
 			}),
@@ -97,7 +106,7 @@ export class DirectoryApiDocs {
 
 	public static rename() {
 		return applyDecorators(
-			ApiOperation({ operationId: 'rename', summary: 'Rename directory', description: 'Rename or move a directory' }),
+			ApiOperation({ operationId: 'renameDirectory', summary: 'Rename directory', description: 'Rename or move a directory' }),
 			ApiNoContentResponse({ description: 'The directory was renamed successfully' }),
 			TemplatedApiException(() => new InvalidDirectoryNameException('%26path&'), { description: 'The directory name is not valid' }),
 			TemplatedApiException(
@@ -118,7 +127,7 @@ export class DirectoryApiDocs {
 	public static delete() {
 		return applyDecorators(
 			ApiOperation({
-				operationId: 'delete',
+				operationId: 'deleteDirectory',
 				summary: 'Delete directory',
 				description: 'Delete the directory with the given id including all files and subdirectories',
 			}),

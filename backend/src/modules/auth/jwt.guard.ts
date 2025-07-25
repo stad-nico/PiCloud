@@ -7,10 +7,11 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Environment } from 'src/config/env.config';
 import { IS_PUBLIC_KEY } from 'src/shared/decorators/public.decorator';
+import { TokenExpiredException } from './exceptions/token-expired.exception';
 
 declare module 'express' {
 	export interface Request {
@@ -54,8 +55,12 @@ export class JwtGuard implements CanActivate {
 			const payload = await this.jwtService.verifyAsync<JwtPayload>(token, { secret });
 
 			request.jwtPayload = payload;
-		} catch {
-			throw new UnauthorizedException();
+		} catch (err) {
+			if (err instanceof TokenExpiredError) {
+				throw new TokenExpiredException();
+			} else {
+				throw new UnauthorizedException();
+			}
 		}
 
 		return true;

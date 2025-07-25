@@ -10,13 +10,19 @@ import { File } from 'src/db/entities/file.entity';
 import { Tree } from 'src/db/entities/tree.entity';
 import { DirectoryContentDirectory } from 'src/modules/directories/mapping/contents/get-directory-contents.response';
 
-export type DirectoryMetadata = Pick<Directory, 'id' | 'name' | 'createdAt' | 'updatedAt'> & {
-	size: number;
-	files: number;
-	directories: number;
-	parentId: string | null;
-	userId: string;
-};
+export type DirectoryMetadata = DirectoryPath &
+	Pick<Directory, 'id' | 'name' | 'createdAt' | 'updatedAt'> & {
+		size: number;
+		files: number;
+		directories: number;
+		parentId: string | null;
+		userId: string;
+	};
+
+export interface DirectoryPath {
+	path: string;
+	idChain: Array<string>;
+}
 
 export class DirectoryRepository extends EntityRepository<Directory> {
 	public async getContents(directory: Directory): Promise<Array<DirectoryContentDirectory>> {
@@ -61,8 +67,6 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 
 	public async getMetadata(directory: Directory): Promise<DirectoryMetadata> {
 		const childDirectories = this.em.createQueryBuilder(Tree).select('child');
-
-		console.log(childDirectories.getFormattedQuery());
 
 		const directoriesCount = this.createQueryBuilder()
 			.count()
@@ -114,6 +118,7 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 			size: rawMetadata.size,
 			files: rawMetadata.files,
 			directories: rawMetadata.directories - 1,
+			...(await this.getPath(rawMetadata.id)),
 		};
 	}
 
@@ -131,5 +136,24 @@ export class DirectoryRepository extends EntityRepository<Directory> {
 			.where({ id: { $in: childDirectories.getKnexQuery() } });
 
 		return { files, directories };
+	}
+
+	public async getPath(directoryId: string): Promise<DirectoryPath> {
+		const queryBuilder = this.em
+			.createQueryBuilder(Tree)
+			.select(['p.id', 'p.name'])
+			.join('parent', 'p')
+			.where({ child: directoryId })
+			.orderBy({ depth: 'desc' });
+
+		const rows = await queryBuilder.execute<Array<{ id: string; name: string }>>('all');
+
+		return {
+			path: `/${rows
+				.slice(1)
+				.map((row) => row.name)
+				.join('/')}`,
+			idChain: rows.map((row) => row.id),
+		};
 	}
 }

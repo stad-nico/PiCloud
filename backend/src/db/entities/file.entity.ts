@@ -40,6 +40,13 @@ export class File {
 	@Property({ type: 'datetime', nullable: false, defaultRaw: 'current_timestamp()', extra: 'on update current_timestamp()' })
 	readonly updatedAt!: Date;
 
-	@ManyToOne({ entity: () => User, nullable: false, name: 'userId' })
+	@ManyToOne({
+		entity: () => User,
+		nullable: false,
+		updateRule: 'no action',
+		deleteRule: 'cascade',
+		name: 'userId',
+		referenceColumnName: 'id',
+	})
 	readonly user!: User;
 }

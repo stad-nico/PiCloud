@@ -1,10 +1,10 @@
 {
 	"singleQuote": true,
 	"trailingComma": "es5",
-	"useTabs": true,
-	"tabWidth": 4,
 	"printWidth": 140,
-	"singleAttributePerLine": false,
+	"singleAttributePerLine": true,
+	"bracketSameLine": true,
+	"endOfLine": "lf",
 	"overrides": [
 		{
 			"files": ["*.html"],

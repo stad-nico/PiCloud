@@ -24,7 +24,7 @@ export const AppModuleConfig = {
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
-			envFilePath: `${process.env.NODE_ENV ?? 'dev'}.env`,
+			envFilePath: `config.env`,
 			expandVariables: true,
 			validate: validate,
 		}),

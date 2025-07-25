@@ -1,5 +1,5 @@
 /**-------------------------------------------------------------------------
- * Copyright (c) 2025 - Nicolas Stadler. All rights reserved.
+ * Copyright (c) 2025 - Samuel Steger. All rights reserved.
  * Licensed under the MIT License. See the project root for more information.
  *
  * @author Samuel Steger

@@ -2,13 +2,24 @@
 	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
 	"version": 1,
 	"newProjectRoot": "projects",
+	"schematics": {
+		"@schematics/angular:component": {
+			"style": "scss",
+			"skipTests": true,
+			"displayBlock": true,
+			"changeDetection": "OnPush"
+		},
+		"@schematics/angular:service": {
+			"skipTests": true
+		}
+	},
 	"projects": {
 		"frontend": {
 			"projectType": "application",
 			"schematics": {},
 			"root": "",
 			"sourceRoot": "src",
-			"prefix": "app",
+			"prefix": "pihub",
 			"architect": {
 				"build": {
 					"builder": "@angular-devkit/build-angular:application",
@@ -18,7 +29,15 @@
 						"browser": "src/main.ts",
 						"polyfills": ["zone.js"],
 						"tsConfig": "tsconfig.app.json",
-						"assets": ["src/favicon.ico", "src/assets"],
+						"assets": [
+							"src/favicon.ico",
+							"src/assets",
+							{
+								"input": "node_modules/@pihub/components/assets",
+								"glob": "**/*",
+								"output": "assets"
+							}
+						],
 						"styles": ["src/styles.css"],
 						"scripts": []
 					},
@@ -76,32 +95,11 @@
 						"styles": ["src/styles.css"],
 						"scripts": []
 					}
-				},
-				"storybook": {
-					"builder": "@storybook/angular:start-storybook",
-					"options": {
-						"configDir": ".storybook",
-						"browserTarget": "frontend:build",
-						"compodoc": true,
-						"compodocArgs": ["-e", "json", "-d", "."],
-						"port": 6006,
-						"styles": ["src/styles.css", "src/themes/light.css"]
-					}
-				},
-				"build-storybook": {
-					"builder": "@storybook/angular:build-storybook",
-					"options": {
-						"configDir": ".storybook",
-						"browserTarget": "frontend:build",
-						"compodoc": true,
-						"compodocArgs": ["-e", "json", "-d", "."],
-						"outputDir": "storybook-static"
-					}
 				}
 			}
 		}
-  },
-  "cli": {
-    "analytics": false
-  }
+	},
+	"cli": {
+		"analytics": false
+	}
 }

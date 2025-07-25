@@ -12,7 +12,7 @@ import { SeedManager } from '@mikro-orm/seeder';
 
 import { Environment } from './env.config';
 
-config({ path: `${process.env.NODE_ENV ?? 'dev'}.env` });
+config({ path: `config.env` });
 
 export default defineConfig({
 	driver: MariaDbDriver,

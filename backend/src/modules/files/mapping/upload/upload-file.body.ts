@@ -12,4 +12,7 @@ export class UploadFileBody {
 		description: 'The id of the directory where the file will be stored',
 	})
 	readonly directoryId!: string;
+
+	@ApiProperty({ description: 'The file to upload', type: 'string', format: 'binary', required: true })
+	readonly file!: Express.Multer.File;
 }

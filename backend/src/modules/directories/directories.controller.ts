@@ -39,6 +39,7 @@ import { GetDirectoryMetadataResponse } from 'src/modules/directories/mapping/me
 import { RenameDirectoryBody } from 'src/modules/directories/mapping/rename/rename-directory.body';
 import { RenameDirectoryDto } from 'src/modules/directories/mapping/rename/rename-directory.dto';
 import { RenameDirectoryParams } from 'src/modules/directories/mapping/rename/rename-directory.params';
+import { GetDirectoryRootResponse } from 'src/modules/directories/mapping/root/get-directory-root.response';
 import { Jwt } from 'src/shared/decorators/jwt.decorator';
 import { SomethingWentWrongException } from 'src/shared/exceptions/SomethingWentWrongException';
 import { GetDirectoryMetadataDto } from './mapping/metadata/get-directory-metadata.dto';
@@ -78,7 +79,7 @@ export class DirectoriesController {
 	@Get('root')
 	@HttpCode(HttpStatus.OK)
 	@DirectoryApiDocs.getRoot()
-	public async getRoot(@Jwt() jwt: JwtPayload): Promise<{ id: string }> {
+	public async getRoot(@Jwt() jwt: JwtPayload): Promise<GetDirectoryRootResponse> {
 		this.logger.log(`[Get] root`);
 
 		try {

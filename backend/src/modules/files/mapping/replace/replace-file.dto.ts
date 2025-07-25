@@ -7,7 +7,7 @@
 import { JwtPayload } from 'src/modules/auth/jwt.guard';
 import { FileNameTooLongException } from 'src/modules/files/exceptions/file-name-too-long.exception';
 import { InvalidFileNameException } from 'src/modules/files/exceptions/invalid-file-name.exception';
-import { UploadFileBody } from 'src/modules/files/mapping/upload/upload-file.body';
+import { ReplaceFileBody } from 'src/modules/files/mapping/replace/replace-file.body';
 import { PathUtils } from 'src/util/PathUtils';
 
 export class ReplaceFileDto {
@@ -32,7 +32,7 @@ export class ReplaceFileDto {
 		this.userId = userId;
 	}
 
-	public static from(uploadFileBody: UploadFileBody, file: Express.Multer.File, jwt: JwtPayload): ReplaceFileDto {
+	public static from(replaceFileBody: ReplaceFileBody, file: Express.Multer.File, jwt: JwtPayload): ReplaceFileDto {
 		if (!PathUtils.isFileNameValid(file.originalname)) {
 			throw new InvalidFileNameException(file.originalname);
 		}
@@ -41,6 +41,6 @@ export class ReplaceFileDto {
 			throw new FileNameTooLongException(file.originalname);
 		}
 
-		return new ReplaceFileDto(uploadFileBody.directoryId, file.originalname, file.mimetype, file.size, file.buffer, jwt.user.id);
+		return new ReplaceFileDto(replaceFileBody.directoryId, file.originalname, file.mimetype, file.size, file.buffer, jwt.user.id);
 	}
 }

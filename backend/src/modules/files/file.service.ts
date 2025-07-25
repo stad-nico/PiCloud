@@ -109,7 +109,9 @@ export class FileService {
 			throw new FileNotFoundException(getFileMetadataDto.id);
 		}
 
-		return GetFileMetadataResponse.from(file);
+		const { path, idChain } = await this.directoryRepository.getPath(file.parent.id);
+
+		return GetFileMetadataResponse.from(file, `${path}/${file.name}`, [...idChain, file.id]);
 	}
 
 	@Transactional()
@@ -121,6 +123,10 @@ export class FileService {
 		}
 
 		const diskPath = PathUtils.join(this.configService, StoragePath.Data, PathUtils.uuidToDirPath(file.id));
+
+		if (!(await PathUtils.pathExists(diskPath))) {
+			throw new Error('File exists in database but does not exist on disk');
+		}
 
 		return DownloadFileResponse.from(file.name, file.mimeType, createReadStream(diskPath));
 	}

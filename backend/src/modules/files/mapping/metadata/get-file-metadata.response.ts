@@ -32,7 +32,18 @@ export class GetFileMetadataResponse {
 	@ApiProperty({ description: 'The id of the files user', type: 'string', example: 'c3b3e2a5-d94f-4a49-b826-112233445566' })
 	readonly userId: string;
 
-	private constructor(file: File) {
+	@ApiProperty({ description: 'The absolute path of the directory', type: 'string', example: '/home/user/photos' })
+	readonly path: string;
+
+	@ApiProperty({
+		description: 'The chain of ids',
+		type: 'string',
+		isArray: true,
+		example: "['2c3f4a65-7d61-4532-b9ea-e1b5537f0bcf', '2c3f4a65-7d61-4532-b9ea-e1b5537f0bcf', '2c3f4a65-7d61-4532-b9ea-e1b5537f0bcf']",
+	})
+	readonly idChain: string[];
+
+	private constructor(file: File, path: string, idChain: Array<string>) {
 		this.id = file.id;
 		this.name = file.name;
 		this.mimeType = file.mimeType;
@@ -41,9 +52,11 @@ export class GetFileMetadataResponse {
 		this.updatedAt = file.updatedAt;
 		this.parentId = file.parent.id;
 		this.userId = file.user.id;
+		this.path = path;
+		this.idChain = idChain;
 	}
 
-	public static from(file: File): GetFileMetadataResponse {
-		return new GetFileMetadataResponse(file);
+	public static from(file: File, path: string, idChain: Array<string>): GetFileMetadataResponse {
+		return new GetFileMetadataResponse(file, path, idChain);
 	}
 }
